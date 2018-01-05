@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:export-ydpi="48" inkscape:export-xdpi="48" inkscape:export-filename="/home-local/nixdorf/Build/andOTP/assets/feature_graphic_small.png" sodipodi:docname="feature_graphic.svg" inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1024px" height="500px"
+	 viewBox="0 0 1024 500" enable-background="new 0 0 1024 500" xml:space="preserve">
+<sodipodi:namedview  units="px" showguides="false" showgrid="false" inkscape:cy="23.991344" inkscape:cx="550.22272" inkscape:zoom="0.7" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base" inkscape:window-maximized="1" inkscape:window-y="31" inkscape:window-x="0" inkscape:window-height="1021" inkscape:window-width="1920" inkscape:pageshadow="2" inkscape:current-layer="layer1" inkscape:pageopacity="1" inkscape:document-units="px">
+	</sodipodi:namedview>
+<g id="layer1" transform="translate(0,-552.36216)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<g id="g4229" transform="translate(374.28571,7.9164508)">
+		<text transform="matrix(1 0 0 1 -5.3712 786.6478)" font-family="'RobotoCondensed-Regular'" font-size="125">CometOTP</text>
+		<text transform="matrix(1 0 0 1 -2.2462 846.6478)" fill="#72727F" font-family="'MyriadPro-Regular'" font-size="40">A powerful two-factor</text>
+		<text transform="matrix(1 0 0 1 -2.2462 896.6478)" enable-background="new    "><tspan x="0" y="0" fill="#72727F" font-family="'MyriadPro-Regular'" font-size="40">authentication</tspan><tspan x="245.556" y="0" fill="#72727F" font-family="'HelveticaNeueLTPro-Lt'" font-size="40"> </tspan><tspan x="256.677" y="0" fill="#72727F" font-family="'MyriadPro-Regular'" font-size="40">app for</tspan><tspan x="376.673" y="0" fill="#72727F" font-family="'HelveticaNeueLTPro-Lt'" font-size="40"> A</tspan><tspan x="412.994" y="0" fill="#72727F" font-family="'MyriadPro-Regular'" font-size="40">ndroid</tspan></text>
+	</g>
+</g>
+<image overflow="visible" width="512" height="512" xlink:href="../app/src/main/ic_launcher-web.png"  transform="matrix(0.5859 0 0 0.5859 64 100)">
+</image>
+</svg>
