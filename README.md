@@ -1,6 +1,6 @@
-#  CometOTP - OTP Authenticator for Android
+![CometOTP](./assets/logo.png) #  CometOTP - OTP Authenticator for Android
 
-![CometOTP](./assets/logo.png)
+
 
 CometOTP is a powerful two-factor authentication App for Android.
 
