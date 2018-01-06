@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)
 
 ![CometOTP](./assets/logo.png)
+[<img height=80 alt="Get it on GitHub" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/badges/get-it-on-github.png" />](https://github.com/andOTP/andOTP/releases)
+[<img height=80 alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" />](https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP)
 
 CometOTP is a powerful two-factor authentication App for Android.
 
