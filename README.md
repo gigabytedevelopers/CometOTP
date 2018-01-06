@@ -94,7 +94,6 @@ Check out [this](https://github.com/gigabytedevelopers/CometOTP/wiki/Migration) 
 [<img width=200 alt="Thumbnails" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs1_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs1_dark.png)
 [<img width=200 alt="Thumbnails" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs2_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs2_dark.png)
 [<img width=200 alt="Thumbnails" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs3_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs3_dark.png)
-[<img width=200 alt="Translated Languages" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/translated_languages.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/translated_languages.png)
 
 ## Acknowledgments:
 #### Open-source components used:
