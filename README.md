@@ -1,6 +1,6 @@
 #  CometOTP - OTP Authenticator for Android
 
-[![Build Status](https://travis-ci.org/andOTP/andOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)
+[![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)
 
 ![CometOTP](./assets/logo.png)
 [<img height=80 alt="Get it on GitHub" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/badges/get-it-on-github.png" />](https://github.com/gigabytedevelopers/CometOTP/releases)
