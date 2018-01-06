@@ -65,15 +65,15 @@ Check out [this](https://github.com/gigabytedevelopers/CometOTP/wiki/Migration) 
 
 &nbsp; | Language          | Translators
 ------ | ----------------- | -----------
-🇵🇱   | Polish (pl-rPL)   | [Daniel Pustuła](https://github.com/9Cube-dpustula)
-:es:   | Spanish (es-rES)  | Carlos Melero
-:de:   | German (de-rDE)   | SuperVirus
-:fr:   | French (fr-rFR)   | [Johan Fleury](https://github.com/johanfleury), David Sferruzza, Primokorn
-🇳🇱   | Dutch (nl-rNL)    | Toon, rain2reign
-&nbsp; | Galician (gl-rES) | Triskel
-:ru:   | Russian (ru-rRU)  | Victor Nidens, Ilia Drogaitsev, Dmitry
-🇨🇿   | Czech (cs-rCZ)    | Picard0147
 :cn: | Chinese Simplified (zh-rCN) | Cp0204
+🇨🇿   | Czech (cs-rCZ)    | Picard0147
+🇳🇱   | Dutch (nl-rNL)    | Toon, rain2reign
+:fr:   | French (fr-rFR)   | [Johan Fleury](https://github.com/johanfleury), David Sferruzza, Primokorn
+&nbsp; | Galician (gl-rES) | Triskel
+:de:   | German (de-rDE)   | SuperVirus
+🇵🇱   | Polish (pl-rPL)   | [Daniel Pustuła](https://github.com/9Cube-dpustula)
+:ru:   | Russian (ru-rRU)  | Victor Nidens, Ilia Drogaitsev, Dmitry
+:es:   | Spanish (es-rES)  | Carlos Melero
 
 ## Screenshots:
 
@@ -82,12 +82,11 @@ Check out [this](https://github.com/gigabytedevelopers/CometOTP/wiki/Migration) 
 [<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity.png)
 [<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png)
 [<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/about_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/about_activity.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs1_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs1.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs2_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs2.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs3_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs3.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs1.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs1.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs2.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs2.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs3.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs3.png)
 
 [<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_dark.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_hidden.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_hidden.png)
 [<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_hidden_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_hidden_dark.png)
 [<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity_dark.png)
 [<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity_dark.png)
