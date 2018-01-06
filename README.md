@@ -1,5 +1,7 @@
 #  CometOTP - OTP Authenticator for Android
 
+[![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)
+
 ![CometOTP](./assets/logo.png)
 
 CometOTP is a powerful two-factor authentication App for Android.
@@ -71,6 +73,26 @@ Check out [this](https://github.com/gigabytedevelopers/CometOTP/wiki/Migration) 
 🇨🇿   | Czech (cs-rCZ)    | Picard0147
 :cn: | Chinese Simplified (zh-rCN) | Cp0204
 
+## Screenshots:
+
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_hidden.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/about_activity.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs1.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs2.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs3.png)
+
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_hidden_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/about_activity_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs1_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs2_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/thumbs3_dark.png)
+
 ## Acknowledgments:
 #### Open-source components used:
 
@@ -95,7 +117,7 @@ Check out [this](https://github.com/gigabytedevelopers/CometOTP/wiki/Migration) 
 Copyright (C) 2018 Gigabyte Developers
 Copyright (C) 2017 Jakob Nixdorf
 Copyright (C) 2015 Bruno Bierbaumer
-Copyright (C) 2015 Google (Google Developers)
+Copyright (C) 2015 Google (Google Developers) - Google Authenticator
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in the
