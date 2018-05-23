@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_activity_title">Settings</string>
+
+    <!-- Categories -->
+    <string name="settings_category_title_security">Security</string>
+    <string name="settings_category_title_ui">User Interface</string>
+    <string name="settings_category_title_backup">Backup</string>
+
+    <!-- Titles -->
+    <string name="settings_title_tap_to_reveal">Tap to Reveal</string>
+    <string name="settings_title_tap_to_reveal_timeout">Timeout for Tap to Reveal</string>
+    <string name="settings_title_auth">Authentication</string>
+    <string name="settings_title_auth_password">Password</string>
+    <string name="settings_title_auth_pin">PIN</string>
+    <string name="settings_title_encryption">Database Encryption</string>
+    <string name="settings_title_panic">Panic Trigger</string>
+    <string name="settings_title_relock_screen_off">Re-lock CometOTP on Screen Off</string>
+
+    <string name="settings_title_lang">Language</string>
+    <string name="settings_title_theme">Theme</string>
+    <string name="settings_title_label_size">Label Font Size</string>
+    <string name="settings_title_label_scroll">Scroll Label</string>
+    <string name="settings_title_thumbnail_size_ask">Thumbnail Size</string>
+    <string name="settings_title_split_group_size">Split Token with Space</string>
+    <string name="settings_title_tag_functionality">Tag Selection Behavior</string>
+    <string name="settings_title_grid_columns">Columns in grid view</string>
+
+    <string name="settings_title_backup_append_date">Append Date to Filename</string>
+    <string name="settings_title_backup_ask">Ask for Filename</string>
+    <string name="settings_title_backup_directory">Backup Directory</string>
+    <string name="settings_title_backup_password">Backup Password</string>
+    <string name="settings_title_backup_broadcasts">Backup Broadcasts</string>
+    <string name="settings_title_openpgp_provider">OpenPGP Provider</string>
+    <string name="settings_title_openpgp_key_encrypt">OpenPGP Encryption</string>
+    <string name="settings_title_openpgp_key_sign">OpenPGP Signing Key (optional)</string>
+    <string name="settings_title_openpgp_verify">Verify Encrypted Backups</string>
+
+    <string name="settings_title_special_features">Enable Special Features</string>
+    <string name="settings_title_enable_screenshot">Enable Screenshots</string>
+    <string name="settings_title_enable_android_backup_service">Enable Android Sync</string>
+    <string name="settings_title_clear_keystore">Clear KeyStore</string>
+
+    <!-- Descriptions -->
+    <string name="settings_desc_tap_to_reveal">Hide the OTP tokens by default, requiring them to be
+        revealed manually</string>
+    <string name="settings_desc_tap_to_reveal_timeout">Select the time (in sec) after which to hide
+        revealed entries again</string>
+    <string name="settings_desc_panic">Decide what happens when a <b>Panic Trigger</b> is received</string>
+    <string name="settings_desc_relock_screen_off">Require Authentication after the Device\'s
+        Screen has been Turned Off</string>
+
+    <string name="settings_desc_label_scroll">Scroll overlong labels instead of truncating them</string>
+
+
+    <string name="settings_desc_backup_append_date">Append the current date and time to the suggested
+        backup filename</string>
+    <string name="settings_desc_backup_ask">Ask for the filename every time a backup is created or
+        restored</string>
+    <string name="settings_desc_backup_directory">Directory for the backups (filenames will depend
+        on the backup type)</string>
+    <string name="settings_desc_backup_password">Set the password that is used to encrypt the
+        backups</string>
+
+    <string name="settings_desc_backup_broadcasts">Select which backup types can be triggered by
+        3rd-party apps using Broadcasts</string>
+
+    <string name="settings_desc_openpgp_key_encrypt">Mail address of the OpenPGP key used to encrypt
+        the backups</string>
+    <string name="settings_desc_openpgp_verify">Encrypted backups are only imported if they are
+        signed with a valid key</string>
+
+    <string name="settings_desc_special_features">Uncheck to disable the <b>Special Features</b> again</string>
+    <string name="settings_desc_enable_screenshot">Allow to take screenshots of the main screen
+        (disabled by default for security reasons)</string>
+    <string name="settings_desc_enable_android_backup_service">Enables CometOTP to use Android\'s
+        built in backup service to backup keys and preferences</string>
+    <string name="settings_desc_clear_keystore">Delete the encryption key from the KeyStore</string>
+
+    <!-- Toasts -->
+    <string name="settings_toast_auth_device_pre_lollipop">This feature requires at least Android 5.0
+        (Lollipop) to work</string>
+    <string name="settings_toast_auth_device_not_secure">This feature requires a secure lock screen
+        to be set up (Settings -> Security -> Screenlock)</string>
+
+    <string name="settings_toast_password_empty">An empty password is not allowed, set the
+        Authentication to \"None\" if you want to disable it!</string>
+
+    <string name="settings_toast_encryption_changing">Trying to change the database encryption,
+        please wait!</string>
+    <string name="settings_toast_encryption_change_success">Successfully changed the database
+        encryption!</string>
+    <string name="settings_toast_encryption_change_failed">Failed to change database encryption,
+        falling back to the original state!</string>
+    <string name="settings_toast_encryption_backup_failed">Failed to create an internal
+        backup, aborting!</string>
+    <string name="settings_toast_encryption_no_key">Failed to get the encryption key, aborting!</string>
+    <string name="settings_toast_encryption_auth_failed">Authentication failed!</string>
+
+    <string name="settings_toast_auth_upgrade_failed">Failed to silently upgrade your password/PIN
+        to the new encryption, please manually reset it in the Settings!</string>
+
+    <string name="settings_dialog_title_warning">Warning</string>
+    <string name="settings_dialog_title_error">Error</string>
+    <string name="settings_dialog_title_clear_keystore">Clear the KeyStore?</string>
+    <string name="settings_dialog_title_android_sync">Android Sync</string>
+
+    <string name="settings_dialog_msg_encryption_change">CometOTP will now try to change the database
+        encryption. In case of a failure, an internal backup will be restored and the encryption
+        remains unchanged.\n\n<b>However, it\'s always a good idea to have a backup in case
+        something unexpected happens!</b></string>
+    <string name="settings_dialog_msg_auth_invalid_with_encryption">You can only use Password or PIN as
+        long as the database encryption is set to \"Password/PIN\"!</string>
+    <string name="settings_dialog_msg_encryption_invalid_with_auth">You first need to set the
+        Authentication to \"Password\" or \"PIN\"!</string>
+    <string name="settings_dialog_msg_encryption_invalid_without_credentials">You first need to set a
+        Password or PIN before changing the encryption!</string>
+
+    <string name="settings_dialog_msg_clear_keystore_password">In some cases, clearing the KeyStore
+        can help resolve problems. You should only proceed if you know what you are doing!\n\nSince
+        the <b>Database encryption</b> is set to <b>Password/PIN</b> you shouldn\'t lose any data
+        doing this (but it never hurts to have a backup anyways).\n\n<b>Are you really sure you want
+        to clear the KeyStore?</b></string>
+    <string name="settings_dialog_msg_clear_keystore_keystore">In some cases, clearing the KeyStore
+        can help resolve problems. You should only proceed if you know what you are doing!\n\n<b>Warning</b>:
+        Since the <b>Database encryption</b> is set to <b>Android KeyStore</b> you will lose all
+        your accounts. Make sure you have a backup!\n\n<b>Are you really sure you want to clear the
+        KeyStore?</b></string>
+
+    <string name="settings_dialog_msg_android_sync_disabled_encryption">Android Sync can not be used with KeyStore
+        encryption, <b>you should perform a manual backup instead!</b></string>
+
+    <!-- List entries -->
+    <string-array name="settings_entries_auth">
+        <item>None</item>
+        <item>Password</item>
+        <item>PIN</item>
+        <item>Device Credentials</item>
+    </string-array>
+
+    <string-array name="settings_entries_encryption">
+        <item>Android KeyStore</item>
+        <item>Password/PIN</item>
+    </string-array>
+
+    <string-array name="settings_entries_panic">
+        <item>Wipe all accounts</item>
+        <item>Reset app settings</item>
+    </string-array>
+
+    <string-array name="settings_entries_theme">
+        <item>Light Theme</item>
+        <item>Dark Theme</item>
+        <item>Black Theme</item>
+    </string-array>
+
+    <string-array name="settings_entries_thumbnail_size">
+        <item>Hidden</item>
+        <item>Small</item>
+        <item>Default</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+
+    <string-array name="settings_entries_split_group_size">
+        <item>Don\'t split</item>
+        <item>Split after two characters</item>
+        <item>Split after three characters</item>
+    </string-array>
+
+    <string-array name="settings_entries_tag_functionality">
+        <item>Show all entries matching <b>any</b> of the selected tags (or)</item>
+        <item>Only show entries matching <b>all</b> of the selected tags (and)</item>
+        <item>Switch between tags (only allow one tag to be selected at a time)</item>
+    </string-array>
+
+    <string-array name="settings_entries_backup_broadcasts">
+        <item>Plain-Text Backups</item>
+        <item>Encrypted Backups</item>
+    </string-array>
+
+    <!-- Special -->
+    <string name="settings_lang_sys_default">System default</string>
+
+    <!-- PasswordPreference -->
+    <string name="settings_hint_password">Enter new password</string>
+    <string name="settings_hint_pin">Enter new PIN</string>
+    <string name="settings_hint_password_confirm">Confirm password</string>
+    <string name="settings_hint_pin_confirm">Confirm PIN</string>
+
+    <string name="settings_label_short_password">The password needs to be at least %1$d characters long!</string>
+    <string name="settings_label_short_pin">The PIN needs to be at least %1$d digits long!</string>
+</resources>

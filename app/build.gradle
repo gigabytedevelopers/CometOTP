@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "CometOTP-${variant.name}-${variant.versionName}.apk"
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.gigabytedevelopersinc.app.CometOTP"
+        minSdkVersion 19
+        targetSdkVersion 27
+        versionCode 9
+        versionName "3.0.0"
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    signingConfigs {
+        release
+        release {
+            keyAlias 'key0'
+            keyPassword 'Doc.d.doc'
+            storeFile file('C:/Users/Gigabyte/keystore.jks')
+            storePassword 'Doc.d.doc'
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            testCoverageEnabled = true
+        }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        disable 'MissingTranslation'
+        disable 'ExtraTranslation'
+    }
+    dataBinding {
+        enabled = true
+    }
+}
+
+ext {
+    ext.supportLibVersion = "27.1.1"
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "commons-codec:commons-codec:1.11"
+    implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "com.android.support:cardview-v7:$supportLibVersion"
+    implementation "com.android.support:design:$supportLibVersion"
+    implementation "com.android.support:recyclerview-v7:$supportLibVersion"
+    implementation "com.android.support.constraint:constraint-layout:1.0.2"
+    implementation "com.github.aakira:expandable-layout:1.6.0"
+    implementation "com.heinrichreimersoftware:material-intro:1.6.2"
+    implementation "com.journeyapps:zxing-android-embedded:3.6.0"
+    implementation "com.vanniktech:vntnumberpickerpreference:1.0.0"
+    implementation "me.zhanghai.android.materialprogressbar:library:1.4.2"
+    implementation "org.sufficientlysecure:openpgp-api:12.0"
+    implementation "me.jahirfiquitiva:FABsMenu:1.1.2"
+    implementation "com.mikepenz:aboutlibraries:6.0.6"
+    implementation "de.psdev.licensesdialog:licensesdialog:1.8.3"
+}
