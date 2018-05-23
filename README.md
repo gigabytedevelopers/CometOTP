@@ -10,14 +10,6 @@ CometOTP is a two-factor authentication App for Android 4.4+.
 It implements Time-based One-time Passwords (TOTP) like specified in RFC 6238.  
 Simply scan the QR code and login with the generated 6-digit code. 
 
-This is a fork of the great OTP Authenticator app written by Bruno Bierbaumer,
-which has sadly been inactive since 2015. All credit for the original version
-goes to Bruno.
-
-## Help wanted:
-I currently don't have that much time to spend developing CometOTP, so any contributions are always welcome.
-Don't worry, I will still continue to develop CometOTP it will just slow down from the incredible speed I had going in the beginning.
-
 ## Features:
 
  * Free and Open-Source
@@ -69,17 +61,10 @@ So make sure you have a **current backup** before switching!
 
 ## Contribute:
 
- * **Translation**: If you want to help translate CometOTP into your language head over to the [Crowdin project](https://crowdin.com/project/CometOTP).
- * **Bug reports and feature requests**: You can report bugs and request features in the [Issue tracker](https://github.com/CometOTP/CometOTP/issues) on GitHub.
- * **Discussion and support**: 
-   - [XDA thread](https://forum.xda-developers.com/android/apps-games/app-CometOTP-android-otp-authenticator-t3636993) (please keep off-topic to a minimum)
-   - Telegram channel [@CometOTP](https://t.me/CometOTP)
+ * **Translation**: If you want to help translate CometOTP into your language head over to the [Crowdin project](http://gigabytedevelopers.oneskyapp.com/collaboration/project/296138).
+ * **Bug reports and feature requests**: You can report bugs and request features in the [Issue tracker](https://github.com/gigabytedevelopers/CometOTP/issues) on GitHub.
 
 #### Contributors:
-
- * [Carlos Melero](https://github.com/carmebar) ([view contributions](https://github.com/CometOTP/CometOTP/commits/master?author=carmebar))
- * [SuperVirus](https://github.com/SuperVirus) ([view contributions](https://github.com/CometOTP/CometOTP/commits/master?author=SuperVirus))
- * [RichyHBM](https://github.com/RichyHBM) ([view contributions](https://github.com/CometOTP/CometOTP/commits/master?author=RichyHBM))
 
 
 #### Translators:
@@ -87,23 +72,23 @@ So make sure you have a **current backup** before switching!
 &nbsp; | Language          | Translators
 ------ | ----------------- | -----------
 🇵🇱   | Polish (pl-rPL)   | [Daniel Pustuła](https://github.com/9Cube-dpustula)
-:es:   | Spanish (es-rES)  | [Carlos Melero](https://crowdin.com/profile/carmebar)
-:de:   | German (de-rDE)   | [SuperVirus](https://crowdin.com/profile/SuperVirus)
-:fr:   | French (fr-rFR)   | [Johan Fleury](https://github.com/johanfleury), [David Sferruzza](https://crowdin.com/profile/dsferruzza), [primokorn](https://crowdin.com/profile/primokorn)
-🇳🇱   | Dutch (nl-rNL)    | Toon, [rain2reign](https://crowdin.com/profile/rain2reign)
-&nbsp; | Galician (gl-rES) | [Triskel](https://crowdin.com/profile/triskel)
-:ru:   | Russian (ru-rRU)  | [Victor Nidens](https://crowdin.com/profile/vnidens), [Ilia Drogaitsev](https://crowdin.com/profile/waytoroot), [Dmitry](https://crowdin.com/profile/SaintDI)
-🇨🇿   | Czech (cs-rCZ)    | [Picard0147](https://crowdin.com/profile/Picard0147)
+:es:   | Spanish (es-rES)  | Carlos Melero
+:de:   | German (de-rDE)   | SuperVirus
+:fr:   | French (fr-rFR)   | [Johan Fleury](https://github.com/johanfleury), David Sferruzza, primokorn
+🇳🇱   | Dutch (nl-rNL)    | Toon, rain2reign
+&nbsp; | Galician (gl-rES) | Triskel
+:ru:   | Russian (ru-rRU)  | Victor Nidens, Ilia Drogaitsev, Dmitry
+🇨🇿   | Czech (cs-rCZ)    | Picard0147
 
 ## Screenshots:
 
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/main_activity.png">](https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/main_activity.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/settings_activity.png">](https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/settings_activity.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/backup_activity.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png)
 
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/main_activity_dark.png">](https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/main_activity_dark.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/settings_activity_dark.png">](https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/settings_activity_dark.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/backup_activity_dark.png">](https://raw.githubusercontent.com/flocke/CometOTP/master/assets/screenshots/backup_activity_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity_dark.png)
+[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity_dark.png)
 
 ## Acknowledgments:
 #### Open-source components used:
