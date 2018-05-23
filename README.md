@@ -1,9 +1,9 @@
 #  CometOTP -  Android OTP Authenticator
 
 [![Build Status](https://travis-ci.org/CometOTP/CometOTP.svg?branch=master)](https://travis-ci.org/CometOTP/CometOTP)
-[![Current release](https://img.shields.io/github/release/CometOTP/CometOTP/all.svg)](https://github.com/CometOTP/CometOTP/releases/download/v0.3.0/CometOTP_v0.3.0.apk)
+[![Current release](https://img.shields.io/github/release/CometOTP/CometOTP/all.svg)](https://github.com/CometOTP/CometOTP/releases/download/v3.0.0/CometOTP_v3.0.0.apk)
 
-![CometOTP](./assets/logo.png)
+![CometOTP](./assets/ic_launcher-web-playstore.png)
 
 CometOTP is a two-factor authentication App for Android 4.4+.
 
@@ -61,7 +61,7 @@ Check out [this](https://github.com/CometOTP/CometOTP/wiki/Migration) wiki page 
 
 [<img height=80 alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" />](https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP)
 [<img height=80 alt="Get it on F-Droid" src="https://f-droid.org/badge/get-it-on.png" />](https://f-droid.org/packages/com.gigabytedevelopersinc.app.CometOTP/)
-[<img height=80 alt="Get it on GitHub" src="https://raw.githubusercontent.com/flocke/CometOTP/master/assets/badges/get-it-on-github.png" />](https://github.com/CometOTP/CometOTP/releases)
+[<img height=80 alt="Get it on GitHub" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/badges/get-it-on-github.png" />](https://github.com/CometOTP/CometOTP/releases)
 
 **Warning**: All three versions (Google Play, F-Droid and the APKs) are not compatible (not signed by the same key)!
 You will have to uninstall one to install the other, which will delete all your data.
