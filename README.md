@@ -43,17 +43,16 @@ key, which renders them useless.
 ### Opening the backups on your PC:
 
  * [OpenPGP](http://openpgp.org/): OpenPGP can be used to easily decrypt the OpenPGP-encrypted backups on your PC.
- * [CometOTP-decrypt](https://github.com/asmw/CometOTP-decrypt): A python script written by @asmw to decrypt password-protected backups on your PC (needs more testing).
 
 ## Migration:
 
-Check out [this](https://github.com/CometOTP/CometOTP/wiki/Migration) wiki page to learn about the different ways to migrate to CometOTP from other 2FA apps.
+Check out [this](https://github.com/gigabytedevelopers/CometOTP/wiki/Migration) wiki page to learn about the different ways to migrate to CometOTP from other 2FA apps.
 
 ## Downloads:
 
 [<img height=80 alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" />](https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP)
 [<img height=80 alt="Get it on F-Droid" src="https://f-droid.org/badge/get-it-on.png" />](https://f-droid.org/packages/com.gigabytedevelopersinc.app.CometOTP/)
-[<img height=80 alt="Get it on GitHub" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/badges/get-it-on-github.png" />](https://github.com/CometOTP/CometOTP/releases)
+[<img height=80 alt="Get it on GitHub" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/badges/get-it-on-github.png" />](https://github.com/gigabytedevelopers/CometOTP/releases)
 
 **Warning**: All three versions (Google Play, F-Droid and the APKs) are not compatible (not signed by the same key)!
 You will have to uninstall one to install the other, which will delete all your data.
@@ -61,7 +60,7 @@ So make sure you have a **current backup** before switching!
 
 ## Contribute:
 
- * **Translation**: If you want to help translate CometOTP into your language head over to the [Crowdin project](http://gigabytedevelopers.oneskyapp.com/collaboration/project/296138).
+ * **Translation**: If you want to help translate CometOTP into your language head over to the [Translation Page](http://gigabytedevelopers.oneskyapp.com/collaboration/project/296138).
  * **Bug reports and feature requests**: You can report bugs and request features in the [Issue tracker](https://github.com/gigabytedevelopers/CometOTP/issues) on GitHub.
 
 #### Contributors:
@@ -94,7 +93,6 @@ So make sure you have a **current backup** before switching!
 #### Open-source components used:
 
  * [Apache Commons Codec](https://commons.apache.org/proper/commons-codec/)
- * [LicensesDialog](https://github.com/PSDev/LicensesDialog)
  * [MaterialProgressBar](https://github.com/DreaminginCodeZH/MaterialProgressBar)
  * [OpenPGP API library](https://github.com/open-keychain/openpgp-api)
  * [VNTNumberPickerPreference](https://github.com/vanniktech/VNTNumberPickerPreference)
