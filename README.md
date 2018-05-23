@@ -1,9 +1,9 @@
 #  CometOTP -  Android OTP Authenticator
 
-[![Build Status](https://travis-ci.org/CometOTP/CometOTP.svg?branch=master)](https://travis-ci.org/CometOTP/CometOTP)
-[![Current release](https://img.shields.io/github/release/CometOTP/CometOTP/all.svg)](https://github.com/CometOTP/CometOTP/releases/download/v3.0.0/CometOTP_v3.0.0.apk)
+[![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/CometOTP/CometOTP)
+[![Current release](https://img.shields.io/github/release/gigabytedevelopers/CometOTP/all.svg)](https://github.com/CometOTP/CometOTP/releases/download/v3.0.0/CometOTP_v3.0.0.apk)
 
-![CometOTP](./assets/ic_launcher-web-playstore.png)
+![CometOTP](./assets/ic_launcher-old.png)
 
 CometOTP is a two-factor authentication App for Android 4.4+.
 
