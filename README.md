@@ -1,6 +1,6 @@
 #  CometOTP -  Android OTP Authenticator
 
-[![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)
+<!--[![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)-->
 [![Current release](https://img.shields.io/github/release/gigabytedevelopers/CometOTP/all.svg)](https://github.com/gigabytedevelopers/CometOTP/releases/download/v3.0.0/CometOTP_v3.0.0.apk)
 
 ![CometOTP](./assets/ic_launcher-old.png)
@@ -51,7 +51,7 @@ Check out [this](https://github.com/gigabytedevelopers/CometOTP/wiki/Migration) 
 ## Downloads:
 
 [<img height=80 alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" />](https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP)
-[<img height=80 alt="Get it on F-Droid" src="https://f-droid.org/badge/get-it-on.png" />](https://f-droid.org/packages/com.gigabytedevelopersinc.app.CometOTP/)
+<!--[<img height=80 alt="Get it on F-Droid" src="https://f-droid.org/badge/get-it-on.png" />](https://f-droid.org/packages/com.gigabytedevelopersinc.app.CometOTP/)-->
 [<img height=80 alt="Get it on GitHub" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/badges/get-it-on-github.png" />](https://github.com/gigabytedevelopers/CometOTP/releases)
 
 **Warning**: All three versions (Google Play, F-Droid and the APKs) are not compatible (not signed by the same key)!
