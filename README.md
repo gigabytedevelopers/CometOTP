@@ -5,15 +5,21 @@
 
 ![CometOTP](./assets/ic_launcher-old.png)
 
-CometOTP is a two-factor authentication App for Android 4.4+.
+## Sorry! But, CometOTP would no longer be continued as Open-Source:
+CometOTP is a two-factor authentication App for Android 5.0+ developed in reference to [andOTP](https://github.com/andOTP/andOTP).
+>> Hereby discontinued as an open-source project, CometOTP has been made closed-source!
+To contribute to this project, send a mail to [Gigabyte Developers](mailto:gigabytedevelopers@gmail.com) or our [Support Team](mailto:support@gigabytedevelopersinc.com). Our reasons for this action is best known to us and we therefore owe noboby any obligation to disclose our reasons for this action.
+
+__`With this recent development, this means that this repository is hereby discontinued and support of no kind would be offered! For issues or any other queries, kindly make reference to [andOTP](https://github.com/andOTP/andOTP/issues) which is known to be the parent repository of this project's repository as at this time **April, 2018**`__
 
 It implements Time-based One-time Passwords (TOTP) like specified in RFC 6238.  
 Simply scan the QR code and login with the generated 6-digit code. 
 
-This project started out as a fork of two (2) great authenticator application, the great [OTP Authenticator](https://github.com/0xbb/otp-authenticator) app written by [Bruno Bierbaumer](https://github.com/0xbb),
-which has sadly been inactive since 2015 and [andOTP](https://github.com/andOTP/andOTP), app written by [Jakob Nixdorf](https://github.com/flocke). By now almost every aspect of the app has been changed/re-written. 
+This project started out as a fork of two (2) great authenticator applications, the great [OTP Authenticator](https://github.com/0xbb/otp-authenticator) app written by [Bruno Bierbaumer](https://github.com/0xbb),
+which has sadly been inactive since 2015 and [andOTP](https://github.com/andOTP/andOTP), app written by [Jakob Nixdorf](https://github.com/flocke). 
+By now almost every aspect of the app has been changed/re-written, but this repository would not be updated to reflect these recent changes because this project has become closed-source and this repository, no longer actively maintained. 
 >> This repository was created for a onetime reference purpose only, which was used for the full development of **CometOTP**.
-`But all credit for the original version and for starting this project still goes to Bruno and Jakob!`
+`But all credit for the original version and for starting this project still goes to Bruno and Jakob for giving us an app Idea for __CometOTP__!`
 
 ## Features:
 
