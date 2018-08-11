@@ -8,7 +8,7 @@
 ## Sorry! But, CometOTP would no longer be continued as Open-Source:
 CometOTP is a two-factor authentication App for Android 5.0+ developed in reference to [andOTP](https://github.com/andOTP/andOTP).
 >> Hereby discontinued as an open-source project, CometOTP has been made closed-source!
-To contribute to this project, send a mail to [Gigabyte Developers](mailto:gigabytedevelopers@gmail.com) or our [Support Team](mailto:support@gigabytedevelopersinc.com). Our reasons for this action is best known to us and we therefore owe noboby any obligation to disclose our reasons for this action.
+To contribute to this project, send a mail to [Gigabyte Developers](mailto:gigabytedevelopers@gmail.com?Subject=CometOTP%Project%Contribution%20Request) or our [Support Team](mailto:support@gigabytedevelopersinc.com?Subject=CometOTP%Project%Contribution%20Request). Our reasons for this action is best known to us and we therefore owe noboby any obligation to disclose our reasons for this action.
 
 __`With this recent development, this means that this repository is hereby discontinued and support of no kind would be offered! For issues or any other queries, kindly make reference to [andOTP](https://github.com/andOTP/andOTP/issues) which is known to be the parent repository of this project's repository as at this time **April, 2018**`__
 
