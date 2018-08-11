@@ -10,6 +10,11 @@ CometOTP is a two-factor authentication App for Android 4.4+.
 It implements Time-based One-time Passwords (TOTP) like specified in RFC 6238.  
 Simply scan the QR code and login with the generated 6-digit code. 
 
+This project started out as a fork of two (2) great authenticator application, the great [OTP Authenticator](https://github.com/0xbb/otp-authenticator) app written by [Bruno Bierbaumer](https://github.com/0xbb),
+which has sadly been inactive since 2015 and [andOTP](https://github.com/andOTP/andOTP), app written by [Jakob Nixdorf](https://github.com/flocke). By now almost every aspect of the app has been changed/re-written. 
+>> This repository was created for a onetime reference purpose only, which was used for the full development of **CometOTP**.
+`But all credit for the original version and for starting this project still goes to Bruno and Jakob!`
+
 ## Features:
 
  * Free and Open-Source
@@ -92,7 +97,11 @@ So make sure you have a **current backup** before switching!
 ## Acknowledgments:
 #### Open-source components used:
 
+ * [AboutLibraries](https://github.com/mikepenz/AboutLibraries)
  * [Apache Commons Codec](https://commons.apache.org/proper/commons-codec/)
+ * [Expandable Layout](https://github.com/AAkira/ExpandableLayout)
+ * [Floating Action Button Speed Dial](https://github.com/leinardi/FloatingActionButtonSpeedDial)
+ * [material-intro](https://github.com/heinrichreimer/material-intro)
  * [MaterialProgressBar](https://github.com/DreaminginCodeZH/MaterialProgressBar)
  * [OpenPGP API library](https://github.com/open-keychain/openpgp-api)
  * [VNTNumberPickerPreference](https://github.com/vanniktech/VNTNumberPickerPreference)
@@ -102,12 +111,23 @@ So make sure you have a **current backup** before switching!
 
  * [Android-ItemTouchHelper-Demo](https://github.com/iPaulPro/Android-ItemTouchHelper-Demo/tree/master/app/src/main/java/co/paulburke/android/itemtouchhelperdemo/helper)
  * [Code Parts from Google's Android Samples](https://android.googlesource.com/platform/development/+/master/samples/Vault/src/com/example/android/vault)
- * [FloatingActionMenuAndroid](https://github.com/pmahsky/FloatingActionMenuAndroid)
  * [LetterBitmap](http://stackoverflow.com/questions/23122088/colored-boxed-with-letters-a-la-gmail)
  * [DimensionConverter](https://stackoverflow.com/questions/8343971/how-to-parse-a-dimension-string-and-convert-it-to-a-dimension-value)
 
+#### Previously used open-source components:
+
+ * [FABsMenu](https://github.com/jahirfiquitiva/FABsMenu)
+ * [LicensesDialog](https://github.com/PSDev/LicensesDialog)
+
+#### Previously used code examples:
+
+ * [FloatingActionMenuAndroid](https://github.com/pmahsky/FloatingActionMenuAndroid)
+
 ## License:
 ```
+Copyright (C) 2017-2018 Jakob Nixdorf <flocke@shadowice.org>
+Copyright (C) 2015 Bruno Bierbaumer
+
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in the
 Software without restriction, including without limitation the rights to
@@ -124,4 +144,3 @@ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS 
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
-```
