@@ -3,7 +3,7 @@
 <!-- [![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)
 [![Current release](https://img.shields.io/github/v/release/gigabytedevelopers/CometOTP.svg?token=e52dc09de66b2a3a280415155904a2a059c8c0a3)](https://github.com/gigabytedevelopers/CometOTP/releases/download/v3.0.0/CometOTP_v3.0.0.apk) -->
 
-![CometOTP](./assets/ic_launcher-old.png)
+![CometOTP](./assets/ic_launcher-web.png)
 
 
 It implements Time-based One-time Passwords (TOTP) like specified in RFC 6238.  
