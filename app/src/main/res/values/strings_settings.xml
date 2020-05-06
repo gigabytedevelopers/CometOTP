@@ -30,6 +30,7 @@
     <string name="settings_title_search_values">Search values</string>
     <string name="settings_title_label_highlight_token">Highlight expiring tokens</string>
     <string name="settings_title_hide_global_timeout">Hide general timeout bar</string>
+    <string name="settings_title_show_individual_timeouts">Show individual timeout bars</string>
 
     <string name="settings_title_backup_append_date">Append Date to Filename</string>
     <string name="settings_title_backup_ask">Ask for Filename</string>
@@ -68,6 +69,8 @@
     <string name="settings_desc_search_values">Define which values should be included when searching</string>
     <string name="settings_desc_label_highlight_token">Highlights token in red if it\'s expiring in 8 seconds</string>
     <string name="settings_desc_hide_global_timeout">Hide the general timeout bar that is shown at the top of the screen.</string>
+    <string name="settings_desc_show_individual_timeouts">Show an individual timeout bar for each account.
+        Enabling this could significantly slow the app down, enable only if its necessary.</string>
 
     <string name="settings_desc_backup_append_date">Append the current date and time to the suggested
         backup filename</string>

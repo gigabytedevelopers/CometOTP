@@ -212,16 +212,19 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
 
         for (Entry e : entries) {
             if (e.isTimeBased()) {
+                boolean cardVisible = !settings.getTapToReveal() || e.isVisible();
+
                 boolean item_changed = e.updateOTP();
                 boolean color_changed = false;
 
-                //Check color change only if highlighting token feature is enabled
-                if(settings.isHighlightTokenOptionEnabled()) {
-                    color_changed = e.hasColorChanged();
+                // Check color change only if highlighting token feature is enabled and the entry is visible
+                if (settings.isHighlightTokenOptionEnabled()) {
+                    color_changed = cardVisible && e.hasColorChanged();
                 }
 
 
-                change = change || item_changed || e.hasNonDefaultPeriod() || color_changed;
+                change = change || item_changed || color_changed ||
+                        (cardVisible && (e.hasNonDefaultPeriod() || settings.isShowIndividualTimeoutsEnabled()));
             }
         }
 
