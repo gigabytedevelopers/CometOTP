@@ -1,25 +1,13 @@
 #  CometOTP -  Android OTP Authenticator
 
-<!--[![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)-->
-[![Current release](https://img.shields.io/github/release/gigabytedevelopers/CometOTP/all.svg)](https://github.com/gigabytedevelopers/CometOTP/releases/download/v3.0.0/CometOTP_v3.0.0.apk)
+<!-- [![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)
+[![Current release](https://img.shields.io/github/v/release/gigabytedevelopers/CometOTP.svg?token=e52dc09de66b2a3a280415155904a2a059c8c0a3)](https://github.com/gigabytedevelopers/CometOTP/releases/download/v3.0.0/CometOTP_v3.0.0.apk) -->
 
 ![CometOTP](./assets/ic_launcher-old.png)
 
-## Sorry! But, CometOTP would no longer be continued as Open-Source:
-CometOTP is a two-factor authentication App for Android 5.0+ developed in reference to [andOTP](https://github.com/andOTP/andOTP).
->> Hereby discontinued as an open-source project, CometOTP has been made closed-source!
-To contribute to this project, send a mail to [Gigabyte Developers](mailto:gigabytedevelopers@gmail.com?Subject=CometOTP%Project%Contribution%20Request) or our [Support Team](mailto:support@gigabytedevelopersinc.com?Subject=CometOTP%Project%Contribution%20Request). Our reasons for this action is best known to us and we therefore owe noboby any obligation to disclose our reasons for this action.
-
-__`With this recent development, this means that this repository is hereby discontinued and support of no kind would be offered! For issues or any other queries, kindly make reference to` [andOTP](https://github.com/andOTP/andOTP/issues) `which is known to be the parent repository of this project's repository as at this time` **(April, 2018)**__
 
 It implements Time-based One-time Passwords (TOTP) like specified in RFC 6238.  
 Simply scan the QR code and login with the generated 6-digit code. 
-
-This project started out as a fork of two (2) great authenticator applications, the great [OTP Authenticator](https://github.com/0xbb/otp-authenticator) app written by [Bruno Bierbaumer](https://github.com/0xbb),
-which has sadly been inactive since 2015 and [andOTP](https://github.com/andOTP/andOTP), app written by [Jakob Nixdorf](https://github.com/flocke). 
-By now almost every aspect of the app has been changed/re-written, but this repository would not be updated to reflect these recent changes because this project has become closed-source and this repository, no longer actively maintained. 
->> This repository was created for a onetime reference purpose only, which was used for the full development of **CometOTP**.
-`But all credit for the original version and for starting this project still goes to Bruno and Jakob for giving us an app Idea for __CometOTP__!`
 
 ## Features:
 
@@ -62,7 +50,7 @@ Check out [this](https://github.com/gigabytedevelopers/CometOTP/wiki/Migration) 
 ## Downloads:
 
 [<img height=80 alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" />](https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP)
-[<img height=80 alt="Get it on GitHub" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/badges/get-it-on-github.png" />](https://github.com/gigabytedevelopers/CometOTP/releases)
+[<img height=80 alt="Get it on GitHub" src="./assets/badges/get-it-on-github.png" />](https://github.com/gigabytedevelopers/CometOTP/releases)
 
 **Warning**: All three versions (Google Play, F-Droid and the APKs) are not compatible (not signed by the same key)!
 You will have to uninstall one to install the other, which will delete all your data.
@@ -70,34 +58,20 @@ So make sure you have a **current backup** before switching!
 
 ## Contribute:
 
- * **Translation**: If you want to help translate CometOTP into your language head over to the [Translation Page](http://gigabytedevelopers.oneskyapp.com/collaboration/project/296138).
  * **Bug reports and feature requests**: You can report bugs and request features in the [Issue tracker](https://github.com/gigabytedevelopers/CometOTP/issues) on GitHub.
 
 #### Contributors:
 
 
-#### Translators:
-
-&nbsp; | Language          | Translators
------- | ----------------- | -----------
-🇵🇱   | Polish (pl-rPL)   | [Daniel Pustuła](https://github.com/9Cube-dpustula)
-:es:   | Spanish (es-rES)  | Carlos Melero
-:de:   | German (de-rDE)   | SuperVirus
-:fr:   | French (fr-rFR)   | [Johan Fleury](https://github.com/johanfleury), David Sferruzza, primokorn
-🇳🇱   | Dutch (nl-rNL)    | Toon, rain2reign
-&nbsp; | Galician (gl-rES) | Triskel
-:ru:   | Russian (ru-rRU)  | Victor Nidens, Ilia Drogaitsev, Dmitry
-🇨🇿   | Czech (cs-rCZ)    | Picard0147
-
 ## Screenshots:
 
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/main_activity.png">](./assets/screenshots/main_activity.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/settings_activity.png">](./assets/screenshots/settings_activity.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/backup_activity.png">](./assets/screenshots/backup_activity.png)
 
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/main_activity_dark.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/settings_activity_dark.png)
-[<img width=200 alt="Main Activity" src="https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity_dark.png">](https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/assets/screenshots/backup_activity_dark.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/main_activity_dark.png">](./assets/screenshots/main_activity_dark.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/settings_activity_dark.png">](./assets/screenshots/settings_activity_dark.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/backup_activity_dark.png">](./assets/screenshots/backup_activity_dark.png)
 
 ## Acknowledgments:
 #### Open-source components used:
@@ -127,25 +101,3 @@ So make sure you have a **current backup** before switching!
 #### Previously used code examples:
 
  * [FloatingActionMenuAndroid](https://github.com/pmahsky/FloatingActionMenuAndroid)
-
-## License:
-```
-Copyright (C) 2017-2018 Jakob Nixdorf <flocke@shadowice.org>
-Copyright (C) 2015 Bruno Bierbaumer
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in the
-Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
-OR OTHER DEALINGS IN THE SOFTWARE.
