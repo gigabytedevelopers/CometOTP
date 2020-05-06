@@ -1,0 +1,83 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "CometOTP-${variant.name}-${variant.versionName}.apk"
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.gigabytedevelopersinc.app.CometOTP"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 20
+        versionName "5.1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        release
+        release {
+            keyAlias 'key0'
+            keyPassword 'Doc.d.doc'
+            storeFile file('C:/Users/Gigabyte/keystore.jks')
+            storePassword 'Doc.d.doc'
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            testCoverageEnabled = true
+        }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        disable 'MissingTranslation'
+        disable 'ExtraTranslation'
+    }
+    dataBinding {
+        enabled = true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "commons-codec:commons-codec:1.12"
+    implementation "androidx.appcompat:appcompat:1.1.0"
+    implementation "androidx.cardview:cardview:1.0.0"
+    implementation "com.google.android.material:material:1.2.0-alpha06"
+    implementation "androidx.recyclerview:recyclerview:1.2.0-alpha03"
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
+    implementation "com.github.aakira:expandable-layout:1.6.0"
+    implementation "com.github.gabrielemariotti.changeloglib:changelog:2.1.0"
+    implementation "com.journeyapps:zxing-android-embedded:3.6.0"
+    implementation "com.leinardi.android:speed-dial:3.1.1"
+    implementation 'saschpe.android:customtabs:2.0.0'
+    implementation "com.vanniktech:vntnumberpickerpreference:1.0.0"
+    implementation "me.zhanghai.android.materialprogressbar:library:1.4.2"
+    implementation "org.sufficientlysecure:openpgp-api:12.0"
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'androidx.browser:browser:1.2.0'
+}
+
+configurations {
+    implementation.exclude group: "com.android.support", module: "customtabs"
+    // -Pdisable-performance-plugin
+}

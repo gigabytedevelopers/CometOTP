@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:overScrollMode="never"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/about" >
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                style="?attr/cardStyle" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="@dimen/activity_margin_small" >
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/listPreferredItemHeight"
+                        android:padding="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin_large"
+                            android:layout_marginEnd="@dimen/fab_small_elevation"
+                            app:srcCompat="@drawable/ic_comet_otp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceLarge"
+                            android:textStyle="bold"
+                            android:text="@string/app_name"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/activity_margin_large"
+                        android:layout_marginEnd="@dimen/activity_margin_large"
+                        android:textAlignment="center"
+                        android:textStyle="normal"
+                        android:text="@string/about_description" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                style="?attr/cardStyle" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+
+                    <!-- version -->
+                    <LinearLayout
+                        android:id="@+id/about_layout_version"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/listPreferredItemHeight"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgVersion"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_info_outline_gray" />
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/about_label_version"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/about_text_version"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- license -->
+                    <LinearLayout
+                        android:id="@+id/about_layout_license"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/listPreferredItemHeight"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgLicense"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_copyright_gray" />
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:textStyle="bold"
+                                android:text="@string/about_label_license" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="@string/about_label_MIT" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- changelog -->
+                    <LinearLayout
+                        android:id="@+id/about_layout_changelog"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/listPreferredItemHeight"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgChangelog"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_history_gray" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/about_label_changelog"
+                            android:textStyle="normal"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </LinearLayout>
+
+                    <!-- source -->
+                    <LinearLayout
+                        android:id="@+id/about_layout_source"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/listPreferredItemHeight"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgSource"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_code_gray" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/about_label_source"
+                            android:textStyle="normal"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </LinearLayout>
+
+                    <!-- licenses -->
+                    <LinearLayout
+                        android:id="@+id/about_layout_licenses"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/listPreferredItemHeight"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgOpenSource"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_label_outline" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/about_label_licenses"
+                            android:textStyle="normal"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </LinearLayout>
+
+                    <!-- Privacy Policy -->
+                    <LinearLayout
+                        android:id="@+id/privacy_policy"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/listPreferredItemHeight"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_verified_user" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/terms_conditions_about"
+                            android:textStyle="normal"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                style="?attr/cardStyle" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_title_authors"
+                        android:textStyle="bold"/>
+
+                    <!-- 1st author -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/activity_margin_small"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgAuthor1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_account_circle_gray" />
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/about_name_author1"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="@string/about_label_main_author"/>
+
+                            <LinearLayout
+                                android:orientation="horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/activity_margin"
+                                android:layout_gravity="center_vertical">
+                                <TextView
+                                    android:id="@+id/about_author1_github"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="?android:attr/selectableItemBackground"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:textStyle="normal"
+                                    android:textColor="?attr/colorGithub"
+                                    android:text="@string/about_label_github" />
+                                <TextView
+                                    android:id="@+id/about_author1_paypal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/activity_margin_large"
+                                    android:background="?android:attr/selectableItemBackground"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:textStyle="normal"
+                                    android:textColor="?attr/colorPaypal"
+                                    android:text="@string/about_label_donate" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_margin="@dimen/activity_margin" />
+
+                    <!-- 2nd author -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgAuthor2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_account_circle_gray" />
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/about_name_author2"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="@string/about_label_original_author_main_google"/>
+
+                            <LinearLayout
+                                android:orientation="horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/activity_margin"
+                                android:layout_gravity="center_vertical">
+                                <TextView
+                                    android:id="@+id/about_author2_app"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="?android:attr/selectableItemBackground"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:textStyle="normal"
+                                    android:textColor="?attr/colorPaypal"
+                                    android:text="@string/about_label_original_app" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_margin="@dimen/activity_margin" />
+
+                    <!-- 3rd author -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgAuthor3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_account_circle_gray" />
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/about_name_author3"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="@string/about_label_original_author"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_margin="@dimen/activity_margin" />
+
+                    <!-- 4th author -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgAuthor4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_account_circle_gray" />
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/about_name_author4"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="@string/about_label_original_author_main"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                style="?attr/cardStyle" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_title_support"
+                        android:textStyle="bold"/>
+
+                    <!-- bug reports -->
+                    <LinearLayout
+                        android:id="@+id/about_layout_bugs"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/activity_margin"
+                        android:paddingTop="@dimen/activity_margin_small"
+                        android:paddingBottom="@dimen/activity_margin_small"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical" >
+                        <ImageView
+                            android:id="@+id/aboutImgBugs"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_margin"
+                            android:layout_marginEnd="@dimen/activity_margin_large"
+                            app:srcCompat="@drawable/ic_bug_report_gray" />
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/about_label_report_bugs"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="@string/about_desc_report_bugs"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/thumb_expand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                android:clickable="true"
+                android:focusable="true"
+                style="?attr/cardStyle" >
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textStart"
+                        android:layout_marginTop="13dp"
+                        android:text="@string/label_thumb_disclaimer"
+                        android:textStyle="bold"
+                        android:textSize="16sp"/>
+                    <Button
+                        android:id="@+id/thumb_expand_button"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="50dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="10dp"
+                        android:layout_height="wrap_content"
+                        android:drawableEnd="@drawable/ic_arrow_down"
+                        android:layout_alignParentEnd="true"
+                        android:textAlignment="viewStart" />
+                </RelativeLayout>
+
+                <com.github.aakira.expandablelayout.ExpandableLinearLayout
+                    android:id="@+id/thumb_disclaimer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:ael_duration="200"
+                    app:ael_interpolator="linear"
+                    app:ael_expanded="false">
+                    <LinearLayout
+                        android:layout_marginTop="50dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_marginStart="10dp"
+                        android:orientation="vertical" >
+                        <TextView
+                            android:layout_weight="3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:text="@string/thumbnails_disclaimer"/>
+                    </LinearLayout>
+                </com.github.aakira.expandablelayout.ExpandableLinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/framelayout_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/bottom_sheet_behavior"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

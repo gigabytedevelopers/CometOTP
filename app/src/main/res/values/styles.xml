@@ -1,0 +1,145 @@
+<resources>
+    <!-- Definitions -->
+    <attr name="windowBackground" format="reference" />
+    <attr name="cardStyle" format="reference" />
+    <attr name="dialogTheme" format="reference" />
+
+    <attr name="colorGithub" format="reference" />
+    <attr name="colorPaypal" format="reference" />
+    <attr name="thumbnailBackground" format="reference" />
+
+    <attr name="colorExpiring" format="reference"/>
+
+    <attr name="navigationBarColor" format="reference" />
+
+    <!-- General styles -->
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Intro.Solid" parent="Theme.Intro">
+        <item name="android:windowIsTranslucent">false</item>
+    </style>
+
+    <!-- Light application theme -->
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="windowBackground">?android:attr/colorBackground</item>
+        <item name="navigationBarColor">?android:attr/colorBackground</item>
+
+        <item name="colorGithub">@color/github_dark</item>
+        <item name="colorPaypal">@color/paypal_dark</item>
+        <item name="thumbnailBackground">@android:color/transparent</item>
+
+        <item name="cardStyle">@style/CardViewStyle</item>
+        <item name="dialogTheme">@style/DialogTheme</item>
+
+        <item name="colorExpiring">@color/expiring_red_dark</item>
+    </style>
+
+    <style name="AppTheme" parent="AppBaseTheme"/>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="CardViewStyle" parent="CardView">
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="contentPadding">@dimen/activity_margin</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.MinWidth">
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!-- Dark application theme. -->
+    <style name="AppBaseTheme.Dark" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="windowBackground">?android:attr/colorBackground</item>
+        <item name="navigationBarColor">?android:attr/colorBackground</item>
+        <item name="thumbnailBackground">@color/dark_thumbnail_background</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <item name="colorGithub">@color/github_light</item>
+        <item name="colorPaypal">@color/paypal_light</item>
+
+        <item name="cardStyle">@style/CardViewStyle</item>
+        <item name="dialogTheme">@style/DialogTheme.Dark</item>
+
+        <item name="colorExpiring">@color/expiring_red_light</item>
+    </style>
+
+    <style name="AppTheme.Dark" parent = "AppBaseTheme.Dark"/>
+
+    <style name="AppTheme.Dark.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="DialogTheme.Dark" parent="Theme.AppCompat.Dialog.MinWidth">
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!-- Black application theme. -->
+    <style name="AppBaseTheme.Black" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="windowBackground">@android:color/black</item>
+        <item name="navigationBarColor">@color/black</item>
+        <item name="thumbnailBackground">@color/dark_thumbnail_background</item>
+
+        <item name="colorGithub">@color/github_light</item>
+        <item name="colorPaypal">@color/paypal_light</item>
+
+        <item name="cardStyle">@style/CardViewStyle.Black</item>
+        <item name="dialogTheme">@style/DialogTheme.Dark</item>
+
+        <item name="colorExpiring">@color/expiring_red_light</item>
+    </style>
+
+    <style name="AppTheme.Black" parent="AppBaseTheme.Black"/>
+
+    <style name="CardViewStyle.Black">
+        <item name="cardBackgroundColor">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.Black.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="CustomDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!--buttons color-->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--title and message color-->
+        <item name="android:textColorPrimary">@android:color/primary_text_dark_nodisable</item>
+        <!--dialog background-->
+        <item name="android:windowBackground">@drawable/background_error_dialog</item>
+    </style>
+    <style name="CustomWarningDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!--buttons color-->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--title and message color-->
+        <item name="android:textColorPrimary">@android:color/primary_text_dark_nodisable</item>
+        <item name="android:windowTitleStyle">@color/colorWarningTextYellow</item>
+        <!--dialog background-->
+        <item name="android:windowBackground">@drawable/background_error_dialog</item>
+    </style>
+    <style name="CustomErrorDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!--buttons color-->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--title and message color-->
+        <item name="android:textColorPrimary">@android:color/primary_text_dark_nodisable</item>
+        <item name="android:windowTitleStyle">@color/colorWarningTextYellow</item>
+        <!--dialog background-->
+        <item name="android:windowBackground">@drawable/background_error_dialog</item>
+    </style>
+</resources>

@@ -1,0 +1,28 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="scan_qr"
+        android:enabled="true"
+        android:icon="@drawable/ic_camera_shortcut"
+        android:shortcutShortLabel="@string/shortcut_name_scan_qr"
+        android:shortcutLongLabel="@string/shortcut_name_scan_qr">
+        <intent android:action="com.gigabytedevelopersinc.app.cometOTP.intent.SCAN_QR" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="import_qr"
+        android:enabled="true"
+        android:icon="@drawable/ic_image_shortcut"
+        android:shortcutShortLabel="@string/shortcut_name_import_qr"
+        android:shortcutLongLabel="@string/shortcut_name_import_qr">
+        <intent android:action="org.shadowice.flocke.andotp.intent.IMPORT_QR" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="enter_details"
+        android:enabled="true"
+        android:icon="@drawable/ic_edit_shortcut"
+        android:shortcutShortLabel="@string/shortcut_name_enter_details"
+        android:shortcutLongLabel="@string/shortcut_name_enter_details">
+        <intent android:action="com.gigabytedevelopersinc.app.cometOTP.intent.ENTER_DETAILS" />
+    </shortcut>
+</shortcuts>

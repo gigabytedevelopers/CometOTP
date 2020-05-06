@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_activity_title">About</string>
+
+    <string name="about_description">
+        A powerful advanced two-factor authentication App for Android.
+    </string>
+
+    <!-- Misc -->
+    <string name="about_label_changelog">Changelog</string>
+    <string name="about_label_license">License</string>
+    <string name="about_label_licenses">Open source licenses</string>
+    <string name="about_label_MIT">MIT License</string>
+    <string name="about_label_source">Talk with the Developers</string>
+    <string name="about_label_version">Version</string>
+
+    <string name="continue_on">Continue</string>
+
+    <!-- Authors -->
+    <string name="about_title_authors">Authors</string>
+
+    <string name="about_label_main_author">Main author</string>
+    <string name="about_label_original_author">Author of the app idea</string>
+    <string name="about_label_original_author_main">Main author of the app idea</string>
+    <string name="about_label_original_author_main_google">Google Authenticator app idea</string>
+    <string name="about_label_original_app">Original App</string>
+    <string name="about_label_github" translatable="false">Github</string>
+    <string name="about_label_donate">Donate</string>
+
+    <string name="about_name_author1" translatable="false">Gigabyte Developers</string>
+    <string name="about_name_author2" translatable="false">Google</string>
+    <string name="about_name_author3" translatable="false">Jakob Nixdorf</string>
+    <string name="about_name_author4" translatable="false">Bruno Bierbaumer</string>
+
+    <!-- Support -->
+    <string name="about_title_support">Support Development</string>
+
+    <string name="about_label_report_bugs">Report Bugs</string>
+
+    <string name="about_desc_report_bugs">Report bugs or request new features</string>
+
+    <string name="about_title_data_cache">Data and Cache</string>
+    <string name="clear">Clear</string>
+
+    <string name="title_special_features">Request to Enable Special Features</string>
+    <string name="about_title_special_features">Special Features</string>
+    <string name="about_dialog_special_features">Are you sure you want to enable the Special
+        Features of CometOTP? Most of them are non-standard OTP algorithms which were implemented on special
+        request. They are <b>not officially supported</b> and can come with <b>certain
+        limitations</b>, please read (and understand) the page \"Special Features\" in the Github
+        wiki to learn more before using them.</string>
+    <string name="about_toast_special_features">Special Features Enabled</string>
+    <string name="about_toast_special_features_enabled">Special Features already Enabled</string>
+    <string name="about_toast_copied_to_clipboard">Donation link copied to clipboard</string>
+
+    <string name="label_thumb_disclaimer">Thumbnails Disclaimer</string>
+    <string name="thumbnails_disclaimer">
+        <li>All thumbnails are trademarks of their respective owners.</li>\n\n
+        <li>The use of these trademarks does not indicate endorsement of the trademark
+            holder by CometOTP, nor vice versa.</li>\n\n
+        <li>All thumbnails are and should only be used to represent the company, product
+            or brand to which they refer.</li>\n\n
+        <li>Please! For no reason should you use these thumbnails for any purpose except
+            to represent that particular brand.</li>\n
+    </string>
+
+    <string name="licenses_activity_title">Open source Licenses</string>
+</resources>

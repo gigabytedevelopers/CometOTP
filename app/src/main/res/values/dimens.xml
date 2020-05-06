@@ -1,0 +1,46 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_margin_xsmall">4dp</dimen>
+    <dimen name="activity_margin_small">8dp</dimen>
+    <dimen name="activity_margin">16dp</dimen>
+    <dimen name="activity_margin_medium">24dp</dimen>
+    <dimen name="activity_margin_large">32dp</dimen>
+    <dimen name="activity_margin_xlarge">40dp</dimen>
+
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+
+    <dimen name="margin_small">5dp</dimen>
+    <dimen name="margin_normal">16dp</dimen>
+    <dimen name="margin_large">25dp</dimen>
+
+    <dimen name="card_corner_radius">10dp</dimen>
+    <dimen name="card_padding_without_corners">14dp</dimen>
+    <dimen name="card_thumbnail_size">46dp</dimen>
+
+    <!-- The default letter tile text size (relative to the height of the tile) -->
+    <item name="tile_letter_font_size_scale" type="dimen" format="float">0.75</item>
+
+    <dimen name="drawer_width">250dp</dimen>
+    <dimen name="divider_size">1dp</dimen>
+
+    <!-- FAB Menu -->
+    <dimen name="fab_small_elevation">2dp</dimen>
+    <dimen name="fab_small_margin">8dp</dimen>
+    <dimen name="fab_small_horizontal_offset">16dp</dimen>
+    <dimen name="fab_small_vertical_offset">8dp</dimen>
+    <dimen name="fab_small_vertical_offset_base">16dp</dimen>
+    <dimen name="fab_small_label_corners">4dp</dimen>
+    <dimen name="fab_small_label_padding">4dp</dimen>
+    <dimen name="fab_small_label_offset">8dp</dimen>
+    <dimen name="fab_base_horizontal_offset">16dp</dimen>
+    <dimen name="fab_base_vertical_offset">16dp</dimen>
+
+    <dimen name="fab_recyclerview_padding">84dp</dimen><!-- 52dp (FAB size) + 2x fab_base_vertical_offset) -->
+
+    <!-- Intro Screen -->
+    <dimen name="mi_baseline">16dp</dimen>
+    <dimen name="mi_baseline_half">8dp</dimen>
+    <dimen name="mi_margin_bottom_pager_indicator">39dp</dimen>
+    <dimen name="mi_y_offset">144dp</dimen>
+    <dimen name="mi_button_cta_height">48dp</dimen>
+</resources>

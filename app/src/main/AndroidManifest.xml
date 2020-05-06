@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="GoogleAppIndexingWarning"
+    android:installLocation="auto"
+    package="com.gigabytedevelopersinc.app.cometOTP">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+
+    <uses-feature
+        android:name="android.hardware.fingerprint"
+        android:required="false" />
+
+    <application
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:allowBackup="true"
+        android:backupAgent="com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupAgent"
+        android:fullBackupOnly="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="otpauth" android:host="totp" />
+                <data android:scheme="otpauth" android:host="hotp" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.gigabytedevelopersinc.app.cometOTP.intent.SCAN_QR" />
+                <action android:name="org.shadowice.flocke.andotp.intent.IMPORT_QR" />
+                <action android:name="com.gigabytedevelopersinc.app.cometOTP.intent.ENTER_DETAILS" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="gigabytedevelopersinc.com"
+                    android:pathPattern="/apps/cometOTP" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.AuthenticateActivity"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.BackupActivity"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.CacheActivity"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.SettingsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.IntroScreenActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:theme="@style/Theme.Intro.Solid" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.LicensesActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.PrivacyPolicyActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.SettingsActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.WhatsNewActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activities.SecureCaptureActivity" />
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.PanicResponderActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="info.guardianproject.panic.action.TRIGGER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name="com.gigabytedevelopersinc.app.cometOTP.Receivers.PlainTextBackupBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.gigabytedevelopersinc.app.cometOTP.broadcast.PLAIN_TEXT_BACKUP" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.gigabytedevelopersinc.app.cometOTP.Receivers.EncryptedBackupBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.gigabytedevelopersinc.app.cometOTP.broadcast.ENCRYPTED_BACKUP" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

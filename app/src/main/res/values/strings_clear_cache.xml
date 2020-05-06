@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="clear_cache_description">
+        If you are experiencing problems with CometOTP, please tap the button below to clear the
+        cache and reset it.
+    </string>
+    <string name="clear_cache_description_p2">
+        When you clear the cache storage that has been occupied by CometOTP, we would still keep
+        your accounts linked to CometOTP and there would be no loss of data because this process is
+        totally safe as it doesn\'t tamper with the app data!
+    </string>
+    <string name="clear_cache_description_p3">
+        This process only clears the temporary files stored by CometOTP within your device storage.
+    </string>
+    <string name="clear_cache_description_p4">
+        After you clear the cache storage occupied by CometOTP, you may experience a slight one-time
+        delay automatically loading back your accounts linked to CometOTP.
+    </string>
+    <string name="clear_cache_button">Clear Cache</string>
+</resources>
