@@ -27,6 +27,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
@@ -244,6 +247,8 @@ public class MainActivity extends BaseActivity
                 requireAuthentication = true;
         });
 
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
+
         if (!settings.getFirstTimeWarningShown()) {
             showFirstTimeWarning();
         }
@@ -438,8 +443,7 @@ public class MainActivity extends BaseActivity
         if (key.equals(getString(R.string.settings_key_label_size)) ||
                 key.equals(getString(R.string.settings_key_label_scroll)) ||
                 key.equals(getString(R.string.settings_key_split_group_size)) ||
-                key.equals(getString(R.string.settings_key_thumbnail_size)) ||
-                key.equals(getString(R.string.settings_key_minimize_on_copy))) {
+                key.equals(getString(R.string.settings_key_thumbnail_size))) {
             adapter.notifyDataSetChanged();
         } else if (key.equals(getString(R.string.settings_key_search_includes))) {
             adapter.clearFilter();
@@ -962,6 +966,14 @@ public class MainActivity extends BaseActivity
             } catch (Exception e) {
                 Snackbar.make(findViewById(R.id.main_content), R.string.toast_invalid_qr_code, Snackbar.LENGTH_LONG).show();
             }
+        }
+    }
+
+    private class ProcessLifecycleObserver implements DefaultLifecycleObserver {
+        @Override
+        public void onStop(LifecycleOwner owner) {
+            if (MainActivity.this.settings.getRelockOnBackground())
+                MainActivity.this.requireAuthentication = true;
         }
     }
 }

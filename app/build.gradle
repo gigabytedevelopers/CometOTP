@@ -56,6 +56,7 @@ android {
 }
 
 dependencies {
+    def lifecycle_version = "2.2.0"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "commons-codec:commons-codec:1.12"
     implementation "androidx.appcompat:appcompat:1.1.0"
@@ -63,6 +64,8 @@ dependencies {
     implementation "com.google.android.material:material:1.2.0-alpha06"
     implementation "androidx.recyclerview:recyclerview:1.2.0-alpha03"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
+    implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "com.github.aakira:expandable-layout:1.6.0"
     implementation "com.github.gabrielemariotti.changeloglib:changelog:2.1.0"
     implementation "com.journeyapps:zxing-android-embedded:3.6.0"

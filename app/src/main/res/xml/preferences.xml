@@ -43,6 +43,12 @@
             android:defaultValue="true" />
 
         <CheckBoxPreference
+            android:key="@string/settings_key_relock_background"
+            android:title="@string/settings_title_relock_background"
+            android:summary="@string/settings_desc_relock_background"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
             android:key="@string/settings_key_auth_inactivity"
             android:title="@string/settings_title_auth_inactivity"
             android:summary="@string/settings_desc_auth_inactivity"
@@ -178,7 +184,7 @@
             android:key="@string/settings_key_enable_android_backup_service"
             android:title="@string/settings_title_enable_android_backup_service"
             android:summary="@string/settings_desc_enable_android_backup_service"
-            android:defaultValue="false" />
+            android:defaultValue="true" />
 
         <CheckBoxPreference
             android:key="@string/settings_key_backup_append_date_time"
