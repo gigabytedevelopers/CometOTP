@@ -97,7 +97,7 @@
     <string name="dialog_msg_auth">Please enter your device credentials to start CometOTP.</string>
     <string name="dialog_msg_confirm_delete">Are you sure you want do remove the account \"%1$s\"?</string>
 
-    <string name="dialog_msg_used_tokens">In order for andOTP to recognize which tokens get used you
+    <string name="dialog_msg_used_tokens">In order for CometOTP to recognize which tokens get used you
         have to have either \"tap to reveal\" enabled or use the copy button. This applies to the
         sorting of the tokens by \"most used\" as well as by \"last used\".\n\nThis message will not
         be shown again.</string>
