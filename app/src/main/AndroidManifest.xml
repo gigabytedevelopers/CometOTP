@@ -99,11 +99,6 @@
             android:screenOrientation="portrait"
             android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.WhatsNewActivity"
-            android:screenOrientation="portrait"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.SecureCaptureActivity" />
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.PanicResponderActivity"

@@ -219,8 +219,6 @@ public class MainActivity extends BaseActivity
                 break;
             case FIRST_TIME_VERSION:
                 // TODO show what's new
-                Intent whatsnewIntent = new Intent(MainActivity.this, WhatsNewActivity.class);
-                startActivityForResult(whatsnewIntent, Constants.INTENT_MAIN_WHATSNEW);
                 break;
             case FIRST_TIME:
                 // TODO show a tutorial

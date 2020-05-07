@@ -382,8 +382,8 @@ public class SettingsActivity extends BaseActivity
 
             Preference clearCache = findPreference(getString(R.string.settings_key_clear_cache));
             clearCache.setOnPreferenceClickListener(preference -> {
-                Intent whatsnewIntent = new Intent(getActivity(), CacheActivity.class);
-                startActivityForResult(whatsnewIntent, Constants.INTENT_MAIN_CLEARCACHE);
+                Intent clearCacheIntent = new Intent(getActivity(), CacheActivity.class);
+                startActivityForResult(clearCacheIntent, Constants.INTENT_MAIN_CLEARCACHE);
                 return false;
             });
         }
