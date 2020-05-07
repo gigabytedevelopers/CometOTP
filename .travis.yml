@@ -22,7 +22,4 @@ before_install:
 jdk:
   - oraclejdk8
 
-script: 
-  - ./gradlew build connectedCheck
-
-
+script: ./gradlew connectedAndroidTest
