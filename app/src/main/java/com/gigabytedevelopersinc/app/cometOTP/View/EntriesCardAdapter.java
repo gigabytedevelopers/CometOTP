@@ -275,37 +275,40 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
 
             @Override
             public void onCopyButtonClicked(String text, int position) {
-                Tools.copyToClipboard(context, text);
-                updateLastUsedAndFrequency(position, getRealIndex(position));
+                copyHandler(position, text, settings.isMinimizeAppOnCopyEnabled());
             }
 
             @Override
-            public void onCardClicked(final int position) {
-                if (settings.getTapToReveal()) {
-                    final Entry entry = displayedEntries.get(position);
-                    final int realIndex = entries.indexOf(entry);
+            public void onCardSingleClicked(final int position, final String text) {
+                switch (settings.getTapSingle()) {
+                    case REVEAL:
+                        cardTapToRevealHandler(position);
+                        break;
+                    case COPY:
+                        copyHandler(position, text, false);
+                        break;
+                    case COPY_BACKGROUND:
+                        copyHandler(position, text, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-                    if (entry.isVisible()) {
-                        hideEntry(entry);
-                    } else {
-                        entries.get(realIndex).setHideTask(new Runnable() {
-                            @Override
-                            public void run() {
-                                hideEntry(entry);
-                            }
-                        });
-                        taskHandler.postDelayed(
-                                entries.get(realIndex).getHideTask(),
-                                settings.getTapToRevealTimeout() * 1000
-                        );
-
-                        if (entry.isCounterBased()) {
-                            updateEntry(entry, entries.get(realIndex), position);
-                        }
-
-                        entry.setVisible(true);
-                        notifyItemChanged(position);
-                    }
+            @Override
+            public void onCardDoubleClicked(final int position, final String text) {
+                switch (settings.getTapDouble()) {
+                    case REVEAL:
+                        cardTapToRevealHandler(position);
+                        break;
+                    case COPY:
+                        copyHandler(position, text, false);
+                        break;
+                    case COPY_BACKGROUND:
+                        copyHandler(position, text, true);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -325,6 +328,37 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         });
 
         return viewHolder;
+    }
+
+    private void copyHandler(final int position, final String text, final boolean dropToBackground) {
+        Tools.copyToClipboard(context, text);
+        updateLastUsedAndFrequency(position, getRealIndex(position));
+        if (context != null && dropToBackground) {
+            ((MainActivity)context).moveTaskToBack(true);
+        }
+    }
+
+    private void cardTapToRevealHandler(final int position) {
+        final Entry entry = displayedEntries.get(position);
+        final int realIndex = entries.indexOf(entry);
+
+        if (entry.isVisible()) {
+            hideEntry(entry);
+        } else {
+            entries.get(realIndex).setHideTask(new Runnable() {
+                @Override
+                public void run() {
+                    hideEntry(entry);
+                }
+            });
+            taskHandler.postDelayed(entries.get(realIndex).getHideTask(), settings.getTapToRevealTimeout() * 1000);
+
+            if (entry.isCounterBased()) {
+                updateEntry(entry, entries.get(realIndex), position);
+            }
+            entry.setVisible(true);
+            notifyItemChanged(position);
+        }
     }
 
     private void updateEntry(Entry entry, Entry realEntry, final int position) {

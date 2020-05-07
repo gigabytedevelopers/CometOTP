@@ -24,9 +24,12 @@
     <string name="settings_title_theme">Theme</string>
     <string name="settings_title_label_size">Label Font Size</string>
     <string name="settings_title_label_scroll">Scroll Label</string>
+    <string name="settings_title_tap_single">Single-tap</string>
+    <string name="settings_title_tap_double">Double-tap</string>
     <string name="settings_title_thumbnail_size_ask">Thumbnail Size</string>
     <string name="settings_title_split_group_size">Split Token with Space</string>
     <string name="settings_title_tag_functionality">Tag Selection Behavior</string>
+    <string name="settings_title_minimize_on_copy">Minimize app after copying OTP</string>
     <string name="settings_title_search_values">Search values</string>
     <string name="settings_title_label_highlight_token">Highlight expiring tokens</string>
     <string name="settings_title_hide_global_timeout">Hide general timeout bar</string>
@@ -66,6 +69,7 @@
     <string name="settings_desc_block_accessibility">Hide sensitive fields from the accessibility
         services. <b>DO NOT enable this if you rely on the accessibility services!</b></string>
     <string name="settings_desc_label_scroll">Scroll overlong labels instead of truncating them</string>
+    <string name="settings_desc_minimize_on_copy">App will be minimized when you copy the OTP to clipboard</string>
     <string name="settings_desc_search_values">Define which values should be included when searching</string>
     <string name="settings_desc_label_highlight_token">Highlights token in red if it\'s expiring in 8 seconds</string>
     <string name="settings_desc_hide_global_timeout">Hide the general timeout bar that is shown at the top of the screen.</string>
@@ -181,6 +185,13 @@
     <string-array name="settings_entries_panic">
         <item>Wipe all accounts</item>
         <item>Reset app settings</item>
+    </string-array>
+
+    <string-array name="settings_entries_tap">
+        <item>Nothing</item>
+        <item>Reveal/Hide</item>
+        <item>Copy</item>
+        <item>Copy and go to background</item>
     </string-array>
 
     <string-array name="settings_entries_search">
