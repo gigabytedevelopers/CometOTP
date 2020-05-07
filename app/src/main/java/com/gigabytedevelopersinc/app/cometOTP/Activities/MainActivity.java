@@ -25,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -37,6 +38,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -99,6 +101,7 @@ public class MainActivity extends BaseActivity
     private Handler handler;
     private Runnable handlerTask;
 
+    private DrawerLayout tagsDrawerLayout;
     private ListView tagsDrawerListView;
     private TagsAdapter tagsDrawerAdapter;
     private ActionBarDrawerToggle tagsToggle;
@@ -693,7 +696,7 @@ public class MainActivity extends BaseActivity
     private void setupDrawer() {
         tagsDrawerListView = findViewById(R.id.tags_list_in_drawer);
 
-        final DrawerLayout tagsDrawerLayout = findViewById(R.id.drawer_layout);
+        tagsDrawerLayout = findViewById(R.id.drawer_layout);
         final RelativeLayout tagsLayout = findViewById(R.id.tags_expand);
         final LinearLayout divider = findViewById(R.id.divider);
         final LinearLayout dividerBottom = findViewById(R.id.dividerBottom);
@@ -971,9 +974,28 @@ public class MainActivity extends BaseActivity
 
     private class ProcessLifecycleObserver implements DefaultLifecycleObserver {
         @Override
-        public void onStop(LifecycleOwner owner) {
+        public void onStop(@NonNull LifecycleOwner owner) {
             if (MainActivity.this.settings.getRelockOnBackground())
                 MainActivity.this.requireAuthentication = true;
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (speedDial.isOpen()) {
+                speedDial.close();
+                return true;
+            }
+
+            if (tagsDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                tagsDrawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+
+            return super.onKeyDown(keyCode, event);
+        }
+
+        return super.onKeyDown(keyCode, event);
     }
 }
