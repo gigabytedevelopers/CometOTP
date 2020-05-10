@@ -5,4 +5,4 @@ jdk: openjdk8
 build:
   ci:
     - sdk use gradle 4.10.3
-    - ./gradlew assembleDebug
+    - gradlew assembleDebug
