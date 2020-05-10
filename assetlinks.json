@@ -1,9 +1,0 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.gigabytedevelopersinc.app.CometOTP",
-    "sha256_cert_fingerprints":
-    ["10:C1:8D:E4:2C:5D:80:70:95:17:1A:48:0B:80:64:99:9C:E6:4E:FD:EE:F8:D8:1F:A4:19:42:DA:D9:D7:68:7F"]
-  }
-}]
