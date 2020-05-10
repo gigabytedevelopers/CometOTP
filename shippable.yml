@@ -4,5 +4,4 @@ jdk: openjdk8
 
 build:
   ci:
-    - sdk use gradle 4.10.3
-    - gradlew.bat assembleDebug
+    - java -version
