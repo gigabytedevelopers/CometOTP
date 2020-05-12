@@ -25,7 +25,7 @@
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation|screenSize">
             <intent-filter>
@@ -77,32 +77,32 @@
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.CacheActivity"
             android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.SettingsActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.IntroScreenActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
             android:theme="@style/Theme.Intro.Solid" />
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.LicensesActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.PrivacyPolicyActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.SettingsActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.SecureCaptureActivity" />
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.PanicResponderActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:launchMode="singleInstance"
             android:noHistory="true"
             android:theme="@android:style/Theme.NoDisplay">
