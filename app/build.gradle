@@ -33,6 +33,7 @@ android {
             keyPassword keystoreProperties['keyPassword']
         }
     }
+
     buildTypes {
         release {
             signingConfig signingConfigs.release
@@ -43,17 +44,24 @@ android {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
             testCoverageEnabled = true
+
+            tasks.withType(JavaCompile) {
+                options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+            }
         }
     }
+
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
         disable 'MissingTranslation'
         disable 'ExtraTranslation'
     }
+
     dataBinding {
         enabled = true
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -87,5 +95,4 @@ dependencies {
 
 configurations {
     implementation.exclude group: "com.android.support", module: "customtabs"
-    // -Pdisable-performance-plugin
 }
