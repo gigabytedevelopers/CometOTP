@@ -248,6 +248,7 @@ public class EntryThumbnail {
         UbuntuOne(R.drawable.thumb_ubuntu_one),
         Uphold(R.drawable.thumb_uphold),
         UptimeRobot(R.drawable.thumb_uptime_robot),
+        USAA(R.drawable.thumb_usaa),
         VagrantCloud(R.drawable.thumb_vagrant_cloud),
         VexxHost(R.drawable.thumb_vexxhost),
         VK(R.drawable.thumb_vk),
