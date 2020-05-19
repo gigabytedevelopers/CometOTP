@@ -3,7 +3,7 @@
 <!-- [![Build Status](https://travis-ci.org/gigabytedevelopers/CometOTP.svg?branch=master)](https://travis-ci.org/gigabytedevelopers/CometOTP)
 [![Current release](https://img.shields.io/github/v/release/gigabytedevelopers/CometOTP.svg?token=e52dc09de66b2a3a280415155904a2a059c8c0a3)](https://github.com/gigabytedevelopers/CometOTP/releases/download/v3.0.0/CometOTP_v3.0.0.apk) -->
 
-![CometOTP](./assets/ic_launcher-web.png)
+![CometOTP](./assets/feature_graphic_new.png)
 
 
 It implements Time-based One-time Passwords (TOTP) like specified in RFC 6238.  
@@ -65,19 +65,21 @@ So make sure you have a **current backup** before switching!
 
 ## Screenshots:
 
-[<img width=200 alt="Main Activity" src="./assets/screenshots/main_activity.png">](./assets/screenshots/main_activity.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/settings_activity.png">](./assets/screenshots/settings_activity.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/backup_activity.png">](./assets/screenshots/backup_activity.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_1.png">](./assets/screenshots/screen_1.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_2.png">](./assets/screenshots/screen_2.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_3.png">](./assets/screenshots/screen_3.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_4.png">](./assets/screenshots/screen_4.png)
 
-[<img width=200 alt="Main Activity" src="./assets/screenshots/main_activity_dark.png">](./assets/screenshots/main_activity_dark.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/settings_activity_dark.png">](./assets/screenshots/settings_activity_dark.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/backup_activity_dark.png">](./assets/screenshots/backup_activity_dark.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_5.png">](./assets/screenshots/screen_5.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_6.png">](./assets/screenshots/screen_6.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_7.png">](./assets/screenshots/screen_7.png)
+[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_8.png">](./assets/screenshots/screen_8.png)
 
 ## Acknowledgments:
 #### Open-source components used:
 
- * [AboutLibraries](https://github.com/mikepenz/AboutLibraries)
- * [Apache Commons Codec](https://commons.apache.org/proper/commons-codec/)
+ * [Android CustomTabs](https://github.com/saschpe/android-customtabs)
+ * [Apache Commons Codec](https://commons.apache.org/proper/commons-codec)
  * [Expandable Layout](https://github.com/AAkira/ExpandableLayout)
  * [Floating Action Button Speed Dial](https://github.com/leinardi/FloatingActionButtonSpeedDial)
  * [material-intro](https://github.com/heinrichreimer/material-intro)
