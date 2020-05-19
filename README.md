@@ -6,7 +6,7 @@
 ![CometOTP](./assets/feature_graphic_new.png)
 
 
-It implements Time-based One-time Passwords (TOTP) like specified in RFC 6238.  
+It implements HMAC-Based One-Time Passwords (HOTP) and Time-based One-time Passwords (TOTP) like specified in RFC 6238.  
 Simply scan the QR code and login with the generated 6-digit code. 
 
 ## Features:
