@@ -1,11 +1,17 @@
-package com.gigabytedevelopersinc.app.CometOTP;
+package com.gigabytedevelopersinc.app.cometOTP;
 
 import android.content.Context;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper;
@@ -36,13 +42,13 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import static androidx.test.InstrumentationRegistry.getContext;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
-public class ApplicationTest extends TestCase {
+@RunWith(AndroidJUnit4.class)
+public class ApplicationTest {
 
-    public ApplicationTest() {
-        super();
-    }
-
+    @Test
     public void testTOTPCalculation(){
         // Test Vectors from https://tools.ietf.org/html/rfc6238
         byte[] keySHA1 =  "12345678901234567890".getBytes(StandardCharsets.US_ASCII);
@@ -74,6 +80,7 @@ public class ApplicationTest extends TestCase {
         assertEquals(47863826, TokenCalculator.TOTP_RFC6238(keySHA512, TokenCalculator.TOTP_DEFAULT_PERIOD, 20000000000L, 8, TokenCalculator.HashAlgorithm.SHA512));
     }
 
+    @Test
     public void testHOTPCalculation() {
         // Test cases from https://tools.ietf.org/html/rfc4226
         byte[] keySHA1 = "12345678901234567890".getBytes(StandardCharsets.US_ASCII);
@@ -90,21 +97,23 @@ public class ApplicationTest extends TestCase {
         assertEquals("520489", TokenCalculator.HOTP(keySHA1, 9, 6, TokenCalculator.HashAlgorithm.SHA1));
     }
 
-
+    @Test
     public void testEntry() throws Exception {
         byte secret[] = "Das System ist sicher".getBytes();
         String label = "5 von 5 Sterne";
         int period = 30;
 
         String s = "{\"secret\":\"" + new String(new Base32().encode(secret)) + "\"," +
-                    "\"label\":\"" + label + "\"," +
-                    "\"digits\":6," +
-                    "\"type\":\"TOTP\"," +
-                    "\"algorithm\":\"SHA1\"," +
-                    "\"thumbnail\":\"Default\"," +
-                    "\"last_used\":0," +
-                    "\"period\":" + Integer.toString(period) + "," +
-                    "\"tags\":[\"test1\",\"test2\"]}";
+                "\"issuer\":\"\"," +
+                "\"label\":\"" + label + "\"," +
+                "\"digits\":6," +
+                "\"type\":\"TOTP\"," +
+                "\"algorithm\":\"SHA1\"," +
+                "\"thumbnail\":\"Default\"," +
+                "\"last_used\":0," +
+                "\"used_frequency\":0," +
+                "\"period\":" + Integer.toString(period) + "," +
+                "\"tags\":[\"test1\",\"test2\"]}";
 
         Entry e = new Entry(new JSONObject(s));
         assertTrue(Arrays.equals(secret, e.getSecret()));
@@ -118,7 +127,7 @@ public class ApplicationTest extends TestCase {
     }
 
 
-
+    @Test
     public void testEntryURL() throws Exception {
         try {
             new Entry("DON'T CARE");
@@ -147,13 +156,13 @@ public class ApplicationTest extends TestCase {
         }
 
         Entry entry = new Entry("otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&ALGORITHM=SHA1&digits=6&period=30");
-        assertEquals("ACME Co - ACME Co:john.doe@email.com", entry.getLabel());
+        assertEquals("john.doe@email.com", entry.getLabel());
 
         assertEquals("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ", new String(new Base32().encode(entry.getSecret())));
 
 
         entry = new Entry("otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&ALGORITHM=SHA1&digits=6&period=30&tags=test1&tags=test2");
-        assertEquals("ACME Co - ACME Co:john.doe@email.com", entry.getLabel());
+        assertEquals("john.doe@email.com", entry.getLabel());
 
         assertEquals("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ", new String(new Base32().encode(entry.getSecret())));
         String[] tags = new String[]{"test1", "test2"};
@@ -161,8 +170,9 @@ public class ApplicationTest extends TestCase {
         assertTrue(Arrays.equals(tags, entry.getTags().toArray(new String[entry.getTags().size()])));
     }
 
+    @Test
     public void testSettingsHelper() throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
-        Context context = getContext();
+        Context context = InstrumentationRegistry.getTargetContext();
 
         final KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
@@ -195,6 +205,7 @@ public class ApplicationTest extends TestCase {
         new File(context.getFilesDir() + "/" + Constants.FILENAME_ENCRYPTED_KEY).delete();
     }
 
+    @Test
     public void testEncryptionHelper() throws NoSuchPaddingException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidAlgorithmParameterException, DecoderException {
 
 
@@ -210,15 +221,15 @@ public class ApplicationTest extends TestCase {
 
         for(String[] testCase: testCases){
 
-                SecretKeySpec k = new SecretKeySpec(new Hex().decode(testCase[0].getBytes()), "AES");
-                IvParameterSpec iv = new IvParameterSpec(new Hex().decode(testCase[1].getBytes()));
+            SecretKeySpec k = new SecretKeySpec(new Hex().decode(testCase[0].getBytes()), "AES");
+            IvParameterSpec iv = new IvParameterSpec(new Hex().decode(testCase[1].getBytes()));
 
-                byte[] cipherTExt = EncryptionHelper.encrypt(k,iv,new Hex().decode(testCase[2].getBytes()));
-                String cipher = new String(new Hex().encode(cipherTExt));
+            byte[] cipherTExt = EncryptionHelper.encrypt(k,iv,new Hex().decode(testCase[2].getBytes()));
+            String cipher = new String(new Hex().encode(cipherTExt));
 
-                assertEquals(cipher, testCase[3]);
+            assertEquals(cipher, testCase[3]);
 
-                assertEquals(testCase[2], new String(new Hex().encode(EncryptionHelper.decrypt(k, iv, cipherTExt))));
+            assertEquals(testCase[2], new String(new Hex().encode(EncryptionHelper.decrypt(k, iv, cipherTExt))));
 
         }
     }
