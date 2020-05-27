@@ -16,6 +16,8 @@ import android.preference.PreferenceManager;
 
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import android.view.ViewStub;
 import android.widget.TextView;
@@ -85,7 +87,7 @@ public class SettingsActivity extends BaseActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, encryptionChanged);
