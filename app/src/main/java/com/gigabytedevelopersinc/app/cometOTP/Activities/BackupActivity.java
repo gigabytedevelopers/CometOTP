@@ -1,23 +1,17 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.StorageAccessHelper;
 import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
