@@ -22,7 +22,6 @@ import android.view.ViewStub;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.openintents.openpgp.OpenPgpError;
 import org.openintents.openpgp.OpenPgpSignatureResult;
@@ -277,7 +276,7 @@ public class BackupActivity extends BaseActivity {
                 startActivityForResult(intent, intentId);
             } catch (ActivityNotFoundException e) {
                 Log.d(TAG, "Failed to use ACTION_GET_CONTENT, no matching activity found!");
-                Toast.makeText(this, R.string.backup_toast_file_selection_failed, Toast.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_file_selection_failed, Snackbar.LENGTH_LONG).show();
             }
         } else {
             if (intentId == Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN)
