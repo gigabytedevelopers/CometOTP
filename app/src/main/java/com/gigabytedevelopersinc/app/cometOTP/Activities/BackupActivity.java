@@ -13,6 +13,8 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.StorageAccessHelper;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.documentfile.provider.DocumentFile;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -297,15 +299,40 @@ public class BackupActivity extends BaseActivity {
             intent.putExtra(Intent.EXTRA_TITLE, BackupHelper.backupFilename(this, backupType));
             startActivityForResult(intent, intentId);
         } else {
-            if (Tools.mkdir(settings.getBackupDir())) {
-                if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN)
-                    doBackupPlain(Tools.buildUri(settings.getBackupDir(), BackupHelper.backupFilename(this, Constants.BackupType.PLAIN_TEXT)));
-                else if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT)
-                    doBackupCrypt(Tools.buildUri(settings.getBackupDir(), BackupHelper.backupFilename(this, Constants.BackupType.ENCRYPTED)));
-                else if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP)
-                    backupEncryptedWithPGP(Tools.buildUri(settings.getBackupDir(), BackupHelper.backupFilename(this, Constants.BackupType.OPEN_PGP)), null);
+            if (settings.isBackupLocationSet()) {
+                DocumentFile backupLocation = DocumentFile.fromTreeUri(this, settings.getBackupLocation());
+
+                if (backupLocation != null) {
+                    if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN) {
+                        DocumentFile plainBackupFile = backupLocation.createFile(Constants.BACKUP_MIMETYPE_PLAIN, BackupHelper.backupFilename(this, Constants.BackupType.PLAIN_TEXT));
+
+                        if (plainBackupFile != null) {
+                            doBackupPlain(plainBackupFile.getUri());
+                        } else {
+                            Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_file_creation_failed, Snackbar.LENGTH_LONG).show();
+                        }
+                    } else if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT) {
+                        DocumentFile cryptBackupFile = backupLocation.createFile(Constants.BACKUP_MIMETYPE_CRYPT, BackupHelper.backupFilename(this, Constants.BackupType.ENCRYPTED));
+
+                        if (cryptBackupFile != null) {
+                            doBackupCrypt(cryptBackupFile.getUri());
+                        } else {
+                            Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_file_creation_failed, Snackbar.LENGTH_LONG).show();
+                        }
+                    } else if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP) {
+                        DocumentFile pgpBackupFile = backupLocation.createFile(Constants.BACKUP_MIMETYPE_PGP, BackupHelper.backupFilename(this, Constants.BackupType.OPEN_PGP));
+
+                        if (pgpBackupFile != null) {
+                            backupEncryptedWithPGP(pgpBackupFile.getUri(), null);
+                        } else {
+                            Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_file_creation_failed, Snackbar.LENGTH_LONG).show();
+                        }
+                    }
+                } else {
+                    Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_location_access_failed, Snackbar.LENGTH_LONG).show();
+                }
             } else {
-                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_mkdir_failed, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_no_location, Snackbar.LENGTH_LONG).show();
             }
         }
     }
