@@ -3,6 +3,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Base64;
@@ -563,5 +564,17 @@ public class Settings {
     public Constants.TapMode getTapDouble() {
         String doubleTap = getString(R.string.settings_key_tap_double, R.string.settings_default_tap_double);
         return Constants.TapMode.valueOf(doubleTap.toUpperCase(Locale.ENGLISH));
+    }
+
+    public void setBackupLocation(Uri uri) {
+        setString(R.string.settings_key_backup_location, uri.toString());
+    }
+
+    public Uri getBackupLocation() {
+        return Uri.parse(getString(R.string.settings_key_backup_location, ""));
+    }
+
+    public boolean isBackupLocationSet() {
+        return !getString(R.string.settings_key_backup_location, "").isEmpty();
     }
 }

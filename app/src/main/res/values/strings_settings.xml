@@ -38,7 +38,7 @@
 
     <string name="settings_title_backup_append_date">Append Date to Filename</string>
     <string name="settings_title_backup_ask">Ask for Filename</string>
-    <string name="settings_title_backup_directory">Backup Directory</string>
+    <string name="settings_title_backup_location">Default backup location</string>
     <string name="settings_title_backup_password">Backup Password</string>
     <string name="settings_title_auto_backup_password_enc">Automatically backup on new entries</string>
 
@@ -83,8 +83,8 @@
         backup filename</string>
     <string name="settings_desc_backup_ask">Ask for the filename every time a backup is created or
         restored</string>
-    <string name="settings_desc_backup_directory">Directory for the backups (filenames will depend
-        on the backup type)</string>
+    <string name="settings_desc_backup_location">Choose a default backup location</string>
+    <string name="settings_desc_backup_location_set">Backup location has been chosen</string>
     <string name="settings_desc_backup_password">Set the password that is used to encrypt the
         backups</string>
     <string name="settings_desc_auto_backup_password_enc">Creates a new encrypted backup when new
