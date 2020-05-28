@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
@@ -97,7 +98,7 @@ public class BackupActivity extends BaseActivity {
         restorePlain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openFileWithPermissions(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN, Constants.PERMISSIONS_BACKUP_READ_IMPORT_PLAIN);
+                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN);
             }
         });
 
@@ -117,21 +118,21 @@ public class BackupActivity extends BaseActivity {
         backupCrypt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveFileWithPermissions(Constants.BACKUP_MIMETYPE_CRYPT, Constants.BackupType.ENCRYPTED, Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT, Constants.PERMISSIONS_BACKUP_WRITE_EXPORT_CRYPT);
+                showSaveFileSelector(Constants.BACKUP_MIMETYPE_CRYPT, Constants.BackupType.ENCRYPTED, Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT);
             }
         });
 
         restoreCrypt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openFileWithPermissions(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT, Constants.PERMISSIONS_BACKUP_READ_IMPORT_CRYPT);
+                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT);
             }
         });
 
         restoreCryptOld.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openFileWithPermissions(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT_OLD, Constants.PERMISSIONS_BACKUP_READ_IMPORT_CRYPT_OLD);
+                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN);
             }
         });
 
@@ -159,14 +160,14 @@ public class BackupActivity extends BaseActivity {
             backupPGP.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    saveFileWithPermissions(Constants.BACKUP_MIMETYPE_PGP, Constants.BackupType.OPEN_PGP, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP, Constants.PERMISSIONS_BACKUP_WRITE_EXPORT_PGP);
+                    showSaveFileSelector(Constants.BACKUP_MIMETYPE_PGP, Constants.BackupType.OPEN_PGP, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP);
                 }
             });
 
             restorePGP.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    openFileWithPermissions(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PGP, Constants.PERMISSIONS_BACKUP_READ_IMPORT_PGP);
+                    showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PGP);
                 }
             });
         }
@@ -219,56 +220,6 @@ public class BackupActivity extends BaseActivity {
 
         if (pgpServiceConnection != null)
             pgpServiceConnection.unbindFromService();
-    }
-
-    // Get the result from permission requests
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == Constants.PERMISSIONS_BACKUP_READ_IMPORT_PLAIN) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN);
-            } else {
-                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_storage_permissions, Snackbar.LENGTH_LONG).show();
-            }
-        } else if (requestCode == Constants.PERMISSIONS_BACKUP_WRITE_EXPORT_PLAIN) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSaveFileSelector(Constants.BACKUP_MIMETYPE_PLAIN, Constants.BackupType.PLAIN_TEXT, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN);
-            } else {
-                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_storage_permissions, Snackbar.LENGTH_LONG).show();
-            }
-        } else if (requestCode == Constants.PERMISSIONS_BACKUP_READ_IMPORT_CRYPT) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT);
-            } else {
-                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_storage_permissions, Snackbar.LENGTH_LONG).show();
-            }
-        } else if (requestCode == Constants.PERMISSIONS_BACKUP_READ_IMPORT_CRYPT_OLD) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT_OLD);
-            } else {
-                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_storage_permissions, Snackbar.LENGTH_LONG).show();
-            }
-        } else if (requestCode == Constants.PERMISSIONS_BACKUP_WRITE_EXPORT_CRYPT) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSaveFileSelector(Constants.BACKUP_MIMETYPE_CRYPT, Constants.BackupType.ENCRYPTED, Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT);
-            } else {
-                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_storage_permissions, Snackbar.LENGTH_LONG).show();
-            }
-        } else if (requestCode == Constants.PERMISSIONS_BACKUP_READ_IMPORT_PGP) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PGP);
-            } else {
-                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_storage_permissions, Snackbar.LENGTH_LONG).show();
-            }
-        } else if (requestCode == Constants.PERMISSIONS_BACKUP_WRITE_EXPORT_PGP) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSaveFileSelector(Constants.BACKUP_MIMETYPE_PGP, Constants.BackupType.OPEN_PGP, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP);
-            } else {
-                Snackbar.make(findViewById(R.id.backup), R.string.backup_toast_storage_permissions, Snackbar.LENGTH_LONG).show();
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
     }
 
     // Get the result from external activities
@@ -365,22 +316,6 @@ public class BackupActivity extends BaseActivity {
         }
     }
 
-    private void openFileWithPermissions(int intentId, int requestId) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            showOpenFileSelector(intentId);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, requestId);
-        }
-    }
-
-    private void saveFileWithPermissions(String mimeType, Constants.BackupType backupType, int intentId, int requestId) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            showSaveFileSelector(mimeType, backupType, intentId);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestId);
-        }
-    }
-
     private void restoreEntries(String text) {
         ArrayList<Entry> entries = DatabaseHelper.stringToEntries(text);
 
@@ -439,7 +374,7 @@ public class BackupActivity extends BaseActivity {
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        saveFileWithPermissions(Constants.BACKUP_MIMETYPE_PLAIN, Constants.BackupType.PLAIN_TEXT, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN, Constants.PERMISSIONS_BACKUP_WRITE_EXPORT_PLAIN);
+                        showSaveFileSelector(Constants.BACKUP_MIMETYPE_PLAIN, Constants.BackupType.PLAIN_TEXT, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN);
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
