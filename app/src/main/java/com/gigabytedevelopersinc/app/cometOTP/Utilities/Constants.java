@@ -70,16 +70,6 @@ public class Constants {
 
     public static final int INTENT_SETTINGS_AUTHENTICATE        = 300;
 
-    // Permission requests (Format: A1x with A = parent Activity, x = number of the request)
-    public final static int PERMISSIONS_MAIN_QR_READ_IMAGE              = 111;
-    public final static int PERMISSIONS_BACKUP_READ_IMPORT_PLAIN    = 210;
-    public final static int PERMISSIONS_BACKUP_WRITE_EXPORT_PLAIN   = 211;
-    public final static int PERMISSIONS_BACKUP_READ_IMPORT_CRYPT    = 212;
-    public final static int PERMISSIONS_BACKUP_WRITE_EXPORT_CRYPT   = 213;
-    public final static int PERMISSIONS_BACKUP_READ_IMPORT_PGP      = 214;
-    public final static int PERMISSIONS_BACKUP_WRITE_EXPORT_PGP     = 215;
-    public final static int PERMISSIONS_BACKUP_READ_IMPORT_CRYPT_OLD    = 216;
-
     // Intent extras
     public final static String EXTRA_AUTH_PASSWORD_KEY              = "password_key";
     public final static String EXTRA_AUTH_NEW_ENCRYPTION            = "new_encryption";
