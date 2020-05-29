@@ -57,11 +57,7 @@ public class BackupHelper {
 
     public static Constants.BackupType autoBackupType(Context context) {
         Settings settings = new Settings(context);
-        if(ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            return Constants.BackupType.UNAVAILABLE;
-        }
-
-        if(!Tools.mkdir(settings.getBackupDir())) {
+        if (!settings.isBackupLocationSet()) {
             return Constants.BackupType.UNAVAILABLE;
         }
 
