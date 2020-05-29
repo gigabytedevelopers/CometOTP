@@ -156,42 +156,24 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         if (auto_backup) {
             Constants.BackupType backupType = BackupHelper.autoBackupType(context);
             if (backupType == Constants.BackupType.ENCRYPTED) {
-                DocumentFile backupLocation = DocumentFile.fromTreeUri(context, settings.getBackupLocation());
+                DocumentFile cryptBackupFile = BackupHelper.backupFile(context, settings.getBackupLocation(), Constants.BackupType.ENCRYPTED);
 
-                if (backupLocation != null) {
-                    // Try to find an existing file to overwrite
-                    DocumentFile cryptBackupFile = backupLocation.findFile(BackupHelper.backupFilename(context, Constants.BackupType.ENCRYPTED));
+                if (cryptBackupFile != null) {
+                    byte[] keyMaterial = encryptionKey.getEncoded();
+                    SecretKey encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial);
 
-                    if (cryptBackupFile == null)
-                        cryptBackupFile = backupLocation.createFile(Constants.BACKUP_MIMETYPE_CRYPT, BackupHelper.backupFilename(context, Constants.BackupType.ENCRYPTED));
-
-                    if (cryptBackupFile != null) {
-                        byte[] keyMaterial = encryptionKey.getEncoded();
-                        SecretKey encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial);
-
-                        boolean success = BackupHelper.backupToFile(context, cryptBackupFile.getUri(), settings.getBackupPasswordEnc(), encryptionKey);
-                        if (success) {
-                            Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
-                                    R.string.backup_toast_export_success,
-                                    Snackbar.LENGTH_LONG)
-                                    .show();
-                        } else {
-                            Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
-                                    R.string.backup_toast_export_failed,
-                                    Snackbar.LENGTH_LONG)
-                                    .show();
-                        }
+                    boolean success = BackupHelper.backupToFile(context, cryptBackupFile.getUri(), settings.getBackupPasswordEnc(), encryptionKey);
+                    if (success) {
+                        Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
+                                R.string.backup_toast_export_success,
+                                Snackbar.LENGTH_LONG)
+                                .show();
                     } else {
                         Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
-                                R.string.backup_toast_file_creation_failed,
+                                R.string.backup_toast_export_failed,
                                 Snackbar.LENGTH_LONG)
                                 .show();
                     }
-                } else {
-                    Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
-                            R.string.backup_toast_location_access_failed,
-                            Snackbar.LENGTH_LONG)
-                            .show();
                 }
             }
         }

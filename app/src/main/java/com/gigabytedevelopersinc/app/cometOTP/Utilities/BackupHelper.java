@@ -1,13 +1,13 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.widget.Toast;
 
-import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
+import com.gigabytedevelopersinc.app.cometOTP.R;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +29,47 @@ import javax.crypto.SecretKey;
  * Desc: BackupHelper
  **/
 public class BackupHelper {
+    private static String backupMimeType(Constants.BackupType type) {
+        String mimeType = Constants.BACKUP_MIMETYPE_PLAIN;
+
+        switch(type) {
+            case PLAIN_TEXT:
+                mimeType = Constants.BACKUP_MIMETYPE_PLAIN;
+                break;
+            case ENCRYPTED:
+                mimeType = Constants.BACKUP_MIMETYPE_CRYPT;
+                break;
+            case OPEN_PGP:
+                mimeType = Constants.BACKUP_MIMETYPE_PGP;
+                break;
+        }
+
+        return mimeType;
+    }
+
+    public static DocumentFile backupFile(Context context, Uri backupLocationUri, Constants.BackupType type) {
+        DocumentFile backupFile = null;
+        DocumentFile backupLocation = DocumentFile.fromTreeUri(context, backupLocationUri);
+
+        if (backupLocation != null) {
+            // Try to find an existing file to overwrite
+            backupFile = backupLocation.findFile(BackupHelper.backupFilename(context, type));
+
+            // Try to create a new file
+            if (backupFile == null) {
+                backupFile = backupLocation.createFile(backupMimeType(type), BackupHelper.backupFilename(context, type));
+            }
+
+            // Both failed
+            if (backupFile == null)
+                Toast.makeText(context, R.string.backup_toast_file_creation_failed, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(context, R.string.backup_toast_location_access_failed, Toast.LENGTH_LONG).show();
+        }
+
+        return backupFile;
+    }
+
     public static String backupFilename(Context context, Constants.BackupType type) {
         Settings settings = new Settings(context);
         switch (type) {
