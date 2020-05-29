@@ -156,13 +156,13 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         if (auto_backup) {
             Constants.BackupType backupType = BackupHelper.autoBackupType(context);
             if (backupType == Constants.BackupType.ENCRYPTED) {
-                DocumentFile cryptBackupFile = BackupHelper.backupFile(context, settings.getBackupLocation(), Constants.BackupType.ENCRYPTED);
+                BackupHelper.BackupFile cryptBackupFile = BackupHelper.backupFile(context, settings.getBackupLocation(), Constants.BackupType.ENCRYPTED);
 
-                if (cryptBackupFile != null) {
+                if (cryptBackupFile.file != null) {
                     byte[] keyMaterial = encryptionKey.getEncoded();
                     SecretKey encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial);
 
-                    boolean success = BackupHelper.backupToFile(context, cryptBackupFile.getUri(), settings.getBackupPasswordEnc(), encryptionKey);
+                    boolean success = BackupHelper.backupToFile(context, cryptBackupFile.file.getUri(), settings.getBackupPasswordEnc(), encryptionKey);
                     if (success) {
                         Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
                                 R.string.backup_toast_export_success,
@@ -174,6 +174,11 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
                                 Snackbar.LENGTH_LONG)
                                 .show();
                     }
+                } else {
+                    Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
+                            cryptBackupFile.errorMessage,
+                            Snackbar.LENGTH_LONG)
+                            .show();
                 }
             }
         }

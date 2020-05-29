@@ -33,8 +33,6 @@ public class EncryptedBackupBroadcastReceiver extends BackupBroadcastReceiver {
             if (!canSaveBackup(context))
                 return;
 
-            Uri savePath = Tools.buildUri(settings.getBackupDir(), BackupHelper.backupFilename(context, Constants.BackupType.ENCRYPTED));
-
             String password = settings.getBackupPasswordEnc();
 
             if (password.isEmpty()) {
@@ -52,6 +50,13 @@ public class EncryptedBackupBroadcastReceiver extends BackupBroadcastReceiver {
             }
 
             if (Tools.isExternalStorageWritable()) {
+                BackupHelper.BackupFile cryptBackupFile = BackupHelper.backupFile(context, settings.getBackupLocation(), Constants.BackupType.ENCRYPTED);
+
+                if (cryptBackupFile.file == null) {
+                    NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_FAILED, R.string.backup_receiver_title_backup_failed, cryptBackupFile.errorMessage);
+                    return;
+                }
+
                 ArrayList<Entry> entries = DatabaseHelper.loadDatabase(context, encryptionKey);
                 String plain = DatabaseHelper.entriesToString(entries);
 
@@ -69,9 +74,9 @@ public class EncryptedBackupBroadcastReceiver extends BackupBroadcastReceiver {
                     System.arraycopy(salt, 0, data, Constants.INT_LENGTH, Constants.ENCRYPTION_IV_LENGTH);
                     System.arraycopy(encrypted, 0, data, Constants.INT_LENGTH + Constants.ENCRYPTION_IV_LENGTH, encrypted.length);
 
-                    StorageAccessHelper.saveFile(context, savePath, data);
+                    StorageAccessHelper.saveFile(context, cryptBackupFile.file.getUri(), data);
 
-                    NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_SUCCESS, R.string.backup_receiver_title_backup_success, savePath.getPath());
+                    NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_SUCCESS, R.string.backup_receiver_title_backup_success, cryptBackupFile.file.getName());
                 } catch (Exception e) {
                     e.printStackTrace();
                     NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_FAILED, R.string.backup_receiver_title_backup_failed, R.string.backup_toast_export_failed);
