@@ -20,6 +20,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+
+import android.provider.DocumentsContract;
 import android.view.ViewStub;
 import android.widget.TextView;
 
@@ -223,6 +225,10 @@ public class SettingsActivity extends BaseActivity
                 | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
                 | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && settings.isBackupLocationSet())
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, settings.getBackupLocation());
+
         startActivityForResult(intent, Constants.INTENT_SETTINGS_BACKUP_LOCATION);
     }
 
