@@ -6,13 +6,6 @@
     android:installLocation="auto"
     package="com.gigabytedevelopersinc.app.cometOTP">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-feature
-        android:name="android.hardware.fingerprint"
-        android:required="false" />
-
     <application
         android:allowBackup="true"
         android:backupAgent="com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupAgent"
