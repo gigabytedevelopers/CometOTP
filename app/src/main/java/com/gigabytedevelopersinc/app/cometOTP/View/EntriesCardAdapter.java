@@ -34,7 +34,6 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity;
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
@@ -172,15 +171,27 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
 
                         boolean success = BackupHelper.backupToFile(context, cryptBackupFile.getUri(), settings.getBackupPasswordEnc(), encryptionKey);
                         if (success) {
-                            Toast.makeText(context, R.string.backup_toast_export_success, Toast.LENGTH_LONG).show();
+                            Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
+                                    R.string.backup_toast_export_success,
+                                    Snackbar.LENGTH_LONG)
+                                    .show();
                         } else {
-                            Toast.makeText(context, R.string.backup_toast_export_failed, Toast.LENGTH_LONG).show();
+                            Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
+                                    R.string.backup_toast_export_failed,
+                                    Snackbar.LENGTH_LONG)
+                                    .show();
                         }
                     } else {
-                        Toast.makeText(context, R.string.backup_toast_file_creation_failed, Toast.LENGTH_LONG).show();
+                        Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
+                                R.string.backup_toast_file_creation_failed,
+                                Snackbar.LENGTH_LONG)
+                                .show();
                     }
                 } else {
-                    Toast.makeText(context, R.string.backup_toast_location_access_failed, Toast.LENGTH_LONG).show();
+                    Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
+                            R.string.backup_toast_location_access_failed,
+                            Snackbar.LENGTH_LONG)
+                            .show();
                 }
             }
         }
