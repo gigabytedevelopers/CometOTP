@@ -261,6 +261,7 @@ public class EntryThumbnail {
         Wallet(R.drawable.thumb_wallet),
         Wargaming(R.drawable.thumb_wargaming),
         Wasabi(R.drawable.thumb_wasabi),
+        Weclapp(R.drawable.thumb_weclapp),
         WebDe(R.drawable.thumb_web_de),
         Whogohost(R.drawable.thumb_whogohost),
         Wikimedia(R.drawable.thumb_wikimedia),
