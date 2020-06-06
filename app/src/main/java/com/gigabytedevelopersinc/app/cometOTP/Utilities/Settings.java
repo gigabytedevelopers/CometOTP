@@ -508,7 +508,7 @@ public class Settings {
 	}
 
     public boolean getIsAppendingDateTimeToBackups() {
-        return getBoolean(R.string.settings_key_backup_append_date_time, false);
+        return getBoolean(R.string.settings_key_backup_append_date_time, true);
     }
 
     public int getAuthInactivityDelay() {
