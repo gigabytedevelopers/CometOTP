@@ -28,7 +28,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -39,7 +38,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ApplicationTest {
@@ -95,7 +93,7 @@ public class ApplicationTest {
 
     @Test
     public void testEntry() throws Exception {
-        byte secret[] = "Das System ist sicher".getBytes();
+        byte[] secret = "Das System ist sicher".getBytes();
         String label = "5 von 5 Sterne";
         int period = 30;
 
@@ -108,7 +106,7 @@ public class ApplicationTest {
                 "\"thumbnail\":\"Default\"," +
                 "\"last_used\":0," +
                 "\"used_frequency\":0," +
-                "\"period\":" + Integer.toString(period) + "," +
+                "\"period\":" + period + "," +
                 "\"tags\":[\"test1\",\"test2\"]}";
 
         Entry e = new Entry(new JSONObject(s));
