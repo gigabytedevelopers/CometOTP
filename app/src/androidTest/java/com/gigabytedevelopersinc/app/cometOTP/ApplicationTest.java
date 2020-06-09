@@ -37,8 +37,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ApplicationTest {
 
@@ -110,12 +112,12 @@ public class ApplicationTest {
                 "\"tags\":[\"test1\",\"test2\"]}";
 
         Entry e = new Entry(new JSONObject(s));
-        assertTrue(Arrays.equals(secret, e.getSecret()));
+        assertArrayEquals(secret, e.getSecret());
         assertEquals(label, e.getLabel());
 
         String[] tags = new String[]{"test1", "test2"};
         assertEquals(tags.length, e.getTags().size());
-        assertTrue(Arrays.equals(tags, e.getTags().toArray(new String[e.getTags().size()])));
+        assertArrayEquals(tags, e.getTags().toArray(new String[0]));
 
         assertEquals(s, e.toJSON().toString());
     }
@@ -125,28 +127,28 @@ public class ApplicationTest {
     public void testEntryURL() throws Exception {
         try {
             new Entry("DON'T CARE");
-            assertTrue(false);
-        } catch (Exception e) {
+            fail();
+        } catch (Exception ignored) {
         }
 
         try {
             new Entry("https://github.com/0xbb/");
-            assertTrue(false);
-        } catch (Exception e) {
+            fail();
+        } catch (Exception ignored) {
         }
 
         try {
             new Entry("otpauth://hotp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ");
-            assertTrue(false);
+            fail();
         }
-        catch (Exception e){
+        catch (Exception ignored){
         }
 
         try {
             new Entry("otpauth://totp/ACME");
-            assertTrue(false);
+            fail();
         }
-        catch (Exception e){
+        catch (Exception ignored){
         }
 
         Entry entry = new Entry("otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&ALGORITHM=SHA1&digits=6&period=30");
@@ -167,7 +169,7 @@ public class ApplicationTest {
         assertEquals("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ", new String(new Base32().encode(entry.getSecret())));
         String[] tags = new String[]{"test1", "test2"};
         assertEquals(tags.length, entry.getTags().size());
-        assertTrue(Arrays.equals(tags, entry.getTags().toArray(new String[entry.getTags().size()])));
+        assertArrayEquals(tags, entry.getTags().toArray(new String[0]));
     }
 
     @Test
