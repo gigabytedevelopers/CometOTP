@@ -21,7 +21,6 @@ public class PrivacyPolicyFragment extends Fragment {
 
         WebView webViewer = v.findViewById(R.id.privacy_policy_webview);
         webViewer.loadUrl("file:///android_asset/www/privacy_policy.html");
-        //webViewer.setBackground(android.R.attr.windowBackground);
         return v;
     }
 }

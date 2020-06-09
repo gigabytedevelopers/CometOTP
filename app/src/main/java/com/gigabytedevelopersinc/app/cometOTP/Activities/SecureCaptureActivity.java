@@ -1,14 +1,10 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.view.WindowManager;
 
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.journeyapps.barcodescanner.CaptureActivity;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
-
-import java.util.Locale;
 
 /**
  * Project - CometOTP

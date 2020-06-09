@@ -191,14 +191,9 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
         }
 
         if (fullscreen) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                setSystemUiFlags(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN, true);
-                updateFullscreen();
-            } else {
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            }
+            setSystemUiFlags(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN, true);
+            updateFullscreen();
         }
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -246,7 +241,7 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_ITEM, miPager.getCurrentItem());
         outState.putBoolean(KEY_FULLSCREEN, fullscreen);
@@ -294,9 +289,7 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setFullscreenFlags(boolean fullscreen) {
         int fullscreenFlags = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            fullscreenFlags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        }
+        fullscreenFlags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
         setSystemUiFlags(fullscreenFlags, fullscreen);
     }
@@ -340,21 +333,11 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
     }
 
     public void resetButtonNextOnClickListener() {
-        miButtonNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                nextSlide();
-            }
-        });
+        miButtonNext.setOnClickListener(v -> nextSlide());
     }
 
     public void resetButtonBackOnClickListener() {
-        miButtonBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performButtonBackPress();
-            }
-        });
+        miButtonBack.setOnClickListener(v -> performButtonBackPress());
     }
 
     private void smoothScrollPagerTo(final int position) {
@@ -449,7 +432,7 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
 
             if (position > lastPosition) {
                 AnimUtils.applyShakeAnimation(this, miButtonNext);
-            } else if (position < lastPosition) {
+            } else {
                 AnimUtils.applyShakeAnimation(this, miButtonBack);
             }
         }
@@ -605,27 +588,25 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
     }
 
     private void updateTaskDescription() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            String title = getTitle().toString();
-            Drawable iconDrawable = getApplicationInfo().loadIcon(getPackageManager());
-            Bitmap icon = iconDrawable instanceof BitmapDrawable ? ((BitmapDrawable) iconDrawable).getBitmap() : null;
-            int colorPrimary;
-            if (position < getCount()) {
-                try {
-                    colorPrimary = ContextCompat.getColor(IntroActivity.this, getBackgroundDark(position));
-                } catch (Resources.NotFoundException e) {
-                    colorPrimary = ContextCompat.getColor(IntroActivity.this, getBackground(position));
-                }
-            } else {
-                TypedValue typedValue = new TypedValue();
-                TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{R.attr.colorPrimary});
-                colorPrimary = a.getColor(0, 0);
-                a.recycle();
+        String title = getTitle().toString();
+        Drawable iconDrawable = getApplicationInfo().loadIcon(getPackageManager());
+        Bitmap icon = iconDrawable instanceof BitmapDrawable ? ((BitmapDrawable) iconDrawable).getBitmap() : null;
+        int colorPrimary;
+        if (position < getCount()) {
+            try {
+                colorPrimary = ContextCompat.getColor(IntroActivity.this, getBackgroundDark(position));
+            } catch (Resources.NotFoundException e) {
+                colorPrimary = ContextCompat.getColor(IntroActivity.this, getBackground(position));
             }
-            colorPrimary = ColorUtils.setAlphaComponent(colorPrimary, 0xFF);
-
-            setTaskDescription(new ActivityManager.TaskDescription(title, icon, colorPrimary));
+        } else {
+            TypedValue typedValue = new TypedValue();
+            TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{R.attr.colorPrimary});
+            colorPrimary = a.getColor(0, 0);
+            a.recycle();
         }
+        colorPrimary = ColorUtils.setAlphaComponent(colorPrimary, 0xFF);
+
+        setTaskDescription(new ActivityManager.TaskDescription(title, icon, colorPrimary));
     }
 
     private void updateBackground() {
@@ -711,35 +692,33 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
         ((Button) miButtonCta.getChildAt(0)).setTextColor(textColorButtonCta);
         ((Button) miButtonCta.getChildAt(1)).setTextColor(textColorButtonCta);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(backgroundDark);
+        getWindow().setStatusBarColor(backgroundDark);
 
-            if (position == adapter.getCount()) {
-                getWindow().setNavigationBarColor(Color.TRANSPARENT);
-            } else if (position + positionOffset >= adapter.getCount() - 1) {
-                TypedValue typedValue = new TypedValue();
-                TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.navigationBarColor});
+        if (position == adapter.getCount()) {
+            getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        } else if (position + positionOffset >= adapter.getCount() - 1) {
+            TypedValue typedValue = new TypedValue();
+            TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.navigationBarColor});
 
-                int defaultNavigationBarColor = a.getColor(0, Color.BLACK);
+            int defaultNavigationBarColor = a.getColor(0, Color.BLACK);
 
-                a.recycle();
+            a.recycle();
 
-                int navigationBarColor = (Integer) evaluator.evaluate(positionOffset, defaultNavigationBarColor, Color.TRANSPARENT);
-                getWindow().setNavigationBarColor(navigationBarColor);
+            int navigationBarColor = (Integer) evaluator.evaluate(positionOffset, defaultNavigationBarColor, Color.TRANSPARENT);
+            getWindow().setNavigationBarColor(navigationBarColor);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int systemUiVisibility = getWindow().getDecorView().getSystemUiVisibility();
+            int flagLightStatusBar = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            if (ColorUtils.calculateLuminance(backgroundDark) > 0.4) {
+                //Light background
+                systemUiVisibility |= flagLightStatusBar;
+            } else {
+                //Dark background
+                systemUiVisibility &= ~flagLightStatusBar;
             }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                int systemUiVisibility = getWindow().getDecorView().getSystemUiVisibility();
-                int flagLightStatusBar = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-                if (ColorUtils.calculateLuminance(backgroundDark) > 0.4) {
-                    //Light background
-                    systemUiVisibility |= flagLightStatusBar;
-                } else {
-                    //Dark background
-                    systemUiVisibility &= ~flagLightStatusBar;
-                }
-                getWindow().getDecorView().setSystemUiVisibility(systemUiVisibility);
-            }
+            getWindow().getDecorView().setSystemUiVisibility(systemUiVisibility);
         }
     }
 
@@ -771,8 +750,8 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
                     miButtonCta.setLayoutParams(layoutParams);
                 }
             } else {
+                miButtonCta.setVisibility(View.VISIBLE);
                 if (buttonNext == null) {
-                    miButtonCta.setVisibility(View.VISIBLE);
                     //Fade out
                     if (!((Button) miButtonCta.getCurrentView()).getText().equals(button.first))
                         miButtonCta.setText(button.first);
@@ -785,7 +764,6 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
                     layoutParams.height = Math.round(getResources().getDimensionPixelSize(R.dimen.mi_button_cta_height) * ACCELERATE_DECELERATE_INTERPOLATOR.getInterpolation(1 - positionOffset));
                     miButtonCta.setLayoutParams(layoutParams);
                 } else {
-                    miButtonCta.setVisibility(View.VISIBLE);
                     ViewGroup.LayoutParams layoutParams = miButtonCta.getLayoutParams();
                     layoutParams.height = getResources().getDimensionPixelSize(R.dimen.mi_button_cta_height);
                     miButtonCta.setLayoutParams(layoutParams);
@@ -828,8 +806,7 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
         } else if (realPosition < adapter.getCount() - 1) {
             //Scroll away skip button
             if (buttonBackFunction == BUTTON_BACK_FUNCTION_SKIP) {
-                boolean rtl = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && getResources().getConfiguration().getLayoutDirection() ==
-                        View.LAYOUT_DIRECTION_RTL;
+                boolean rtl = getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
                 miButtonBack.setTranslationX(positionOffset * (rtl ? 1 : -1) * miPager.getWidth());
             } else {
                 miButtonBack.setTranslationX(0);
@@ -837,8 +814,7 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
         } else {
             //Keep skip button scrolled away, hide next button
             if (buttonBackFunction == BUTTON_BACK_FUNCTION_SKIP) {
-                boolean rtl = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && getResources().getConfiguration().getLayoutDirection() ==
-                        View.LAYOUT_DIRECTION_RTL;
+                boolean rtl = getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
                 miButtonBack.setTranslationX((rtl ? 1 : -1) * miPager.getWidth());
             } else {
                 miButtonBack.setTranslationY(positionOffset * yOffset);
@@ -899,12 +875,10 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
     }
 
     private void updateFullscreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (adapter != null && position + positionOffset > adapter.getCount() - 1) {
-                setFullscreenFlags(false);
-            } else {
-                setFullscreenFlags(fullscreen);
-            }
+        if (adapter != null && position + positionOffset > adapter.getCount() - 1) {
+            setFullscreenFlags(false);
+        } else {
+            setFullscreenFlags(fullscreen);
         }
     }
 
@@ -970,17 +944,14 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
     public void autoplay(@IntRange(from = 1) long delay, @IntRange(from = -1) int repeatCount) {
         autoplayCounter = repeatCount;
         autoplayDelay = delay;
-        autoplayCallback = new Runnable() {
-            @Override
-            public void run() {
-                if (autoplayCounter == 0) {
-                    cancelAutoplay();
-                    return;
-                }
-                int distance = nextSlideAuto();
-                if (distance != 0)
-                    autoplayHandler.postDelayed(autoplayCallback, autoplayDelay + calculateScrollDuration(distance));
+        autoplayCallback = () -> {
+            if (autoplayCounter == 0) {
+                cancelAutoplay();
+                return;
             }
+            int distance = nextSlideAuto();
+            if (distance != 0)
+                autoplayHandler.postDelayed(autoplayCallback, autoplayDelay + calculateScrollDuration(distance));
         };
         autoplayHandler.postDelayed(autoplayCallback, autoplayDelay);
     }

@@ -13,6 +13,7 @@ import com.gigabytedevelopersinc.app.cometOTP.R;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 /**
  * @author Created by Emmanuel Nwokoma (Founder and CEO at Gigabyte Developers) on 6/21/2018
@@ -37,7 +38,6 @@ public class CacheActivity extends BaseActivity {
 
         Button clearCache = findViewById(R.id.clear_cache_button);
         clearCache.setOnClickListener(v -> {
-            View bottomSheet = findViewById(R.id.framelayout_bottom_sheet);
             final View bottomSheetLayout = getLayoutInflater().inflate(R.layout.bottom_sheet_cache_dialog, null);
             (bottomSheetLayout.findViewById(R.id.button_no)).setOnClickListener(v1 -> mBottomSheetDialog.dismiss());
             (bottomSheetLayout.findViewById(R.id.button_yes)).setOnClickListener(v2 -> {
@@ -66,6 +66,7 @@ public class CacheActivity extends BaseActivity {
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
+            assert children != null;
             for (String aChildren : children) {
                 boolean success = deleteDir(new File(dir, aChildren));
                 if (!success) {
@@ -80,7 +81,7 @@ public class CacheActivity extends BaseActivity {
     private void initializeCache(Context context) {
         long size = 0;
         size += getDirSize(context.getCacheDir());
-        size += getDirSize(context.getExternalCacheDir());
+        size += getDirSize(Objects.requireNonNull(context.getExternalCacheDir()));
         /*cache.append(readableFileSize(size));
             Preference cacheSize = findPreference(getString(R.string.settings_key_clear_cache));
         cacheSize.setSummary(R.string.settings_desc_clear_cache + readableFileSize(size));*/
@@ -88,7 +89,7 @@ public class CacheActivity extends BaseActivity {
 
     public long getDirSize(File dir) {
         long size = 0;
-        for (File file : dir.listFiles()) {
+        for (File file : Objects.requireNonNull(dir.listFiles())) {
             if (file != null && file.isDirectory()) {
                 size += getDirSize(file);
             } else if (file != null && file.isFile()) {

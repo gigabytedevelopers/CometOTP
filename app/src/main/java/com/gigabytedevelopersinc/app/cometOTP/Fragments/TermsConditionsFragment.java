@@ -18,11 +18,9 @@ public class TermsConditionsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_terms_conditions, container, false);
-        //getActivity().setTitle("Hello");
 
         WebView webViewer = v.findViewById(R.id.terms_conditions_webview);
         webViewer.loadUrl("file:///android_asset/www/terms_conditions.html");
-        //webViewer.setBackground(android.R.attr.windowBackground);
         return v;
     }
 }

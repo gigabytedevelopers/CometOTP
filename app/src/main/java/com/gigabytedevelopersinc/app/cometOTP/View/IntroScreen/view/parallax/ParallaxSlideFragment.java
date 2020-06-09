@@ -2,6 +2,7 @@ package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.view.parallax;
 
 import android.os.Bundle;
 import androidx.annotation.FloatRange;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.view.View;
 
@@ -17,7 +18,7 @@ public class ParallaxSlideFragment extends SlideFragment implements Parallaxable
     private final List<Parallaxable> parallaxableChildren = new ArrayList<>();
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         parallaxableChildren.addAll(ParallaxUtil.findParallaxableChildren(view));
     }
 

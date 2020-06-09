@@ -6,6 +6,7 @@ import android.util.TypedValue;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +15,7 @@ public class DimensionConverter {
     // -- Initialize dimension string to constant lookup.
     public static final Map<String, Integer> dimensionConstantLookup = initDimensionConstantLookup();
     private static Map<String, Integer> initDimensionConstantLookup() {
-        Map<String, Integer> m = new HashMap<String, Integer>();
+        Map<String, Integer> m = new HashMap<>();
         m.put("px", TypedValue.COMPLEX_UNIT_PX);
         m.put("dip", TypedValue.COMPLEX_UNIT_DIP);
         m.put("dp", TypedValue.COMPLEX_UNIT_DIP);
@@ -51,9 +52,9 @@ public class DimensionConverter {
         if (matcher.matches()) {
             // -- Match found.
             // -- Extract value.
-            float value = Float.valueOf(matcher.group(1)).floatValue();
+            float value = Float.parseFloat(Objects.requireNonNull(matcher.group(1)));
             // -- Extract dimension units.
-            String unit = matcher.group(3).toLowerCase();
+            String unit = Objects.requireNonNull(matcher.group(3)).toLowerCase();
             // -- Get Android dimension constant.
             Integer dimensionUnit = dimensionConstantLookup.get(unit);
             if (dimensionUnit == null) {

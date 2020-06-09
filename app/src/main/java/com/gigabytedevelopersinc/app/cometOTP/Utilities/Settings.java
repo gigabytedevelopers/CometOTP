@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod;
@@ -61,6 +62,7 @@ public class Settings {
 
             try {
                 KeyPair key = KeyStoreHelper.loadOrGenerateAsymmetricKeyPair(context, Constants.KEYSTORE_ALIAS_PASSWORD);
+                assert key != null;
                 byte[] encPassword = EncryptionHelper.encrypt(key.getPublic(), plainPassword.getBytes(StandardCharsets.UTF_8));
 
                 setString(R.string.settings_key_backup_password_enc, Base64.encodeToString(encPassword, Base64.URL_SAFE));
@@ -105,7 +107,7 @@ public class Settings {
     }
 
     private Set<String> getStringSet(int keyId, Set<String> defaultValue) {
-        return new HashSet<String>(settings.getStringSet(getResString(keyId), defaultValue));
+        return new HashSet<>(Objects.requireNonNull(settings.getStringSet(getResString(keyId), defaultValue)));
     }
 
     private void setBoolean(int keyId, boolean value) {
@@ -163,7 +165,7 @@ public class Settings {
             }
         }
 
-        editor.commit();
+        editor.apply();
 
         PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
     }
@@ -272,7 +274,7 @@ public class Settings {
     }
 
     public Set<String> getPanicResponse() {
-        return settings.getStringSet(getResString(R.string.settings_key_panic), Collections.<String>emptySet());
+        return settings.getStringSet(getResString(R.string.settings_key_panic), Collections.emptySet());
     }
 
     public boolean getRelockOnScreenOff() {
@@ -308,12 +310,16 @@ public class Settings {
         } else {
             String themeName = getString(R.string.settings_key_theme, R.string.settings_default_theme);
 
-            if (themeName.equals("light")) {
-                theme = R.style.AppTheme_NoActionBar;
-            } else if (themeName.equals("dark")) {
-                theme = R.style.AppTheme_Dark_NoActionBar;
-            } else if (themeName.equals("black")) {
-                theme = R.style.AppTheme_Black_NoActionBar;
+            switch (themeName) {
+                case "light":
+                    theme = R.style.AppTheme_NoActionBar;
+                    break;
+                case "dark":
+                    theme = R.style.AppTheme_Dark_NoActionBar;
+                    break;
+                case "black":
+                    theme = R.style.AppTheme_Black_NoActionBar;
+                    break;
             }
         }
 
@@ -358,6 +364,7 @@ public class Settings {
 
         List<Constants.SearchIncludes> values = new ArrayList<>();
 
+        assert stringValues != null;
         for (String value : stringValues) {
             values.add(Constants.SearchIncludes.valueOf(value.toUpperCase(Locale.ENGLISH)));
         }
@@ -385,6 +392,7 @@ public class Settings {
 
         try {
             KeyPair key = KeyStoreHelper.loadOrGenerateAsymmetricKeyPair(context, Constants.KEYSTORE_ALIAS_PASSWORD);
+            assert key != null;
             password = new String(EncryptionHelper.decrypt(key.getPrivate(), encPassword), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
@@ -394,7 +402,7 @@ public class Settings {
     }
 
     public Set<String> getBackupBroadcasts() {
-        return settings.getStringSet(getResString(R.string.settings_key_backup_broadcasts), Collections.<String>emptySet());
+        return settings.getStringSet(getResString(R.string.settings_key_backup_broadcasts), Collections.emptySet());
     }
 
     public boolean isPlainTextBackupBroadcastEnabled() {
@@ -439,12 +447,12 @@ public class Settings {
 
     public boolean getTagToggle(String tag) {
         //The tag toggle holds tags that are unchecked in order to default to checked.
-        Set<String> toggledTags = getStringSet(R.string.settings_key_tags_toggles, new HashSet<String>());
+        Set<String> toggledTags = getStringSet(R.string.settings_key_tags_toggles, new HashSet<>());
         return !toggledTags.contains(tag);
     }
 
     public void setTagToggle(String tag, Boolean value) {
-        Set<String> toggledTags = getStringSet(R.string.settings_key_tags_toggles, new HashSet<String>());
+        Set<String> toggledTags = getStringSet(R.string.settings_key_tags_toggles, new HashSet<>());
         if(value)
             toggledTags.remove(tag);
         else
@@ -468,7 +476,7 @@ public class Settings {
 
     public int getTokenSplitGroupSize() {
         // the setting is of type "String", because ListPreference does not support integer arrays for its entryValues
-        return  Integer.valueOf(
+        return  Integer.parseInt(
                 getString(R.string.settings_key_split_group_size, R.string.settings_default_split_group_size)
         );
     }

@@ -80,38 +80,26 @@ public class EntryViewHolder extends RecyclerView.ViewHolder
         invisibleImg.getDrawable().setColorFilter(colorFilter);
 
         // Setup onClickListeners
-        menuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (callback != null)
-                    callback.onMenuButtonClicked(view, getAdapterPosition());
-            }
+        menuButton.setOnClickListener(view -> {
+            if (callback != null)
+                callback.onMenuButtonClicked(view, getAdapterPosition());
         });
 
-        copyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (callback != null)
-                    callback.onCopyButtonClicked(value.getTag().toString(), getAdapterPosition());
-            }
+        copyButton.setOnClickListener(view -> {
+            if (callback != null)
+                callback.onCopyButtonClicked(value.getTag().toString(), getAdapterPosition());
         });
 
-        counterLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (callback != null)
-                    callback.onCounterClicked(getAdapterPosition());
-            }
+        counterLayout.setOnClickListener(view -> {
+            if (callback != null)
+                callback.onCounterClicked(getAdapterPosition());
         });
 
-        counterLayout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                if (callback != null)
-                    callback.onCounterLongPressed(getAdapterPosition());
+        counterLayout.setOnLongClickListener(view -> {
+            if (callback != null)
+                callback.onCounterLongPressed(getAdapterPosition());
 
-                return false;
-            }
+            return false;
         });
 
         card.setOnClickListener(new SimpleDoubleClickListener() {

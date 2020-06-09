@@ -1,33 +1,20 @@
 package com.gigabytedevelopersinc.app.cometOTP.View;
 
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-
-import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ManualEntryDialog;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.documentfile.provider.DocumentFile;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter;
@@ -37,15 +24,23 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity;
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
+import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ManualEntryDialog;
 import com.gigabytedevelopersinc.app.cometOTP.R;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.ItemTouchHelperAdapter;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
@@ -57,7 +52,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
 
 import javax.crypto.SecretKey;
 
@@ -199,7 +193,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
 
         for(Entry e : entries) {
             //Entries with no tags will always be shown
-            Boolean foundMatchingTag = e.getTags().isEmpty() && settings.getNoTagsToggle();
+            boolean foundMatchingTag = e.getTags().isEmpty() && settings.getNoTagsToggle();
 
             if(settings.getTagFunctionality() == Constants.TagFunctionality.AND) {
                 if(e.getTags().containsAll(tags)) {
@@ -209,6 +203,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
                 for (String tag : tags) {
                     if (e.getTags().contains(tag)) {
                         foundMatchingTag = true;
+                        break;
                     }
                 }
             }
@@ -360,12 +355,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         if (entry.isVisible()) {
             hideEntry(entry);
         } else {
-            entries.get(realIndex).setHideTask(new Runnable() {
-                @Override
-                public void run() {
-                    hideEntry(entry);
-                }
-            });
+            entries.get(realIndex).setHideTask(() -> hideEntry(entry));
             taskHandler.postDelayed(entries.get(realIndex).getHideTask(), settings.getTapToRevealTimeout() * 1000);
 
             if (entry.isCounterBased()) {
@@ -426,24 +416,20 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
 
         AlertDialog dialog = builder.setTitle(R.string.dialog_title_counter)
                 .setView(container)
-                .setPositiveButton(R.string.button_save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        int realIndex = getRealIndex(pos);
-                        long newCounter = Long.parseLong(input.getEditableText().toString());
+                .setPositiveButton(R.string.button_save, (dialogInterface, i) -> {
+                    int realIndex = getRealIndex(pos);
+                    long newCounter = Long.parseLong(input.getEditableText().toString());
 
-                        displayedEntries.get(pos).setCounter(newCounter);
-                        notifyItemChanged(pos);
+                    displayedEntries.get(pos).setCounter(newCounter);
+                    notifyItemChanged(pos);
 
-                        Entry e = entries.get(realIndex);
-                        e.setCounter(newCounter);
+                    Entry e = entries.get(realIndex);
+                    e.setCounter(newCounter);
 
-                        saveEntries(settings.getAutoBackupEncryptedFullEnabled());
-                    }
+                    saveEntries(settings.getAutoBackupEncryptedFullEnabled());
                 })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
+
                 })
                 .setCancelable(false)
                 .create();
@@ -575,31 +561,27 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
 
         final AlertDialog alert = builder.setTitle(R.string.menu_popup_change_image)
                 .setView(container)
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
+
                 })
                 .create();
 
-        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int realIndex = getRealIndex(pos);
-                EntryThumbnail.EntryThumbnails thumbnail = EntryThumbnail.EntryThumbnails.Default;
-                try {
-                    int realPos = thumbnailAdapter.getRealIndex(position);
-                    thumbnail = EntryThumbnail.EntryThumbnails.values()[realPos];
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                Entry e = entries.get(realIndex);
-                e.setThumbnail(thumbnail);
-
-                saveEntries(settings.getAutoBackupEncryptedFullEnabled());
-                notifyItemChanged(pos);
-                alert.cancel();
+        grid.setOnItemClickListener((parent, view, position, id) -> {
+            int realIndex1 = getRealIndex(pos);
+            EntryThumbnail.EntryThumbnails thumbnail = EntryThumbnail.EntryThumbnails.Default;
+            try {
+                int realPos = thumbnailAdapter.getRealIndex(position);
+                thumbnail = EntryThumbnail.EntryThumbnails.values()[realPos];
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+            Entry e = entries.get(realIndex1);
+            e.setThumbnail(thumbnail);
+
+            saveEntries(settings.getAutoBackupEncryptedFullEnabled());
+            notifyItemChanged(pos);
+            alert.cancel();
         });
 
         alert.show();
@@ -613,21 +595,17 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
 
         builder.setTitle(R.string.dialog_title_remove)
                 .setMessage(message)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        int realIndex = getRealIndex(pos);
+                .setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
+                    int realIndex = getRealIndex(pos);
 
-                        displayedEntries.remove(pos);
-                        notifyItemRemoved(pos);
+                    displayedEntries.remove(pos);
+                    notifyItemRemoved(pos);
 
-                        entries.remove(realIndex);
-                        saveEntries(settings.getAutoBackupEncryptedFullEnabled());
-                    }
+                    entries.remove(realIndex);
+                    saveEntries(settings.getAutoBackupEncryptedFullEnabled());
                 })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
+                .setNegativeButton(android.R.string.no, (dialogInterface, i) -> {
+
                 })
                 .setCancelable(false)
                 .show();
@@ -674,26 +652,23 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         MenuInflater inflate = popup.getMenuInflater();
         inflate.inflate(R.menu.menu_popup, popup.getMenu());
 
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int id = item.getItemId();
+        popup.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
 
-                if (id == R.id.menu_popup_edit) {
-                    ManualEntryDialog.show((MainActivity) context, settings, EntriesCardAdapter.this, entries.get(getRealIndex(pos)));
-                    return true;
-                } else if(id == R.id.menu_popup_changeImage) {
-                    changeThumbnail(pos);
-                    return true;
-                } else if (id == R.id.menu_popup_show_qr_code) {
-                    showQRCode(pos);
-                    return true;
-                }  else if (id == R.id.menu_popup_remove) {
-                    removeItem(pos);
-                    return true;
-                } else {
-                    return false;
-                }
+            if (id == R.id.menu_popup_edit) {
+                ManualEntryDialog.show((MainActivity) context, settings, EntriesCardAdapter.this, entries.get(getRealIndex(pos)));
+                return true;
+            } else if(id == R.id.menu_popup_changeImage) {
+                changeThumbnail(pos);
+                return true;
+            } else if (id == R.id.menu_popup_show_qr_code) {
+                showQRCode(pos);
+                return true;
+            }  else if (id == R.id.menu_popup_remove) {
+                removeItem(pos);
+                return true;
+            } else {
+                return false;
             }
         });
         popup.show();
@@ -741,13 +716,13 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
     }
 
     public List<String> getTags() {
-        HashSet<String> tags = new HashSet<String>();
+        HashSet<String> tags = new HashSet<>();
 
         for(Entry entry : entries) {
             tags.addAll(entry.getTags());
         }
 
-        return new ArrayList<String>(tags);
+        return new ArrayList<>(tags);
     }
 
     public class EntryFilter extends Filter {
@@ -791,7 +766,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         }
     }
 
-    public class IssuerComparator implements Comparator<Entry> {
+    public static class IssuerComparator implements Comparator<Entry> {
         Collator collator;
 
         IssuerComparator(){
@@ -805,7 +780,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         }
     }
 
-    public class LabelComparator implements Comparator<Entry> {
+    public static class LabelComparator implements Comparator<Entry> {
         Collator collator;
 
         LabelComparator(){
@@ -819,14 +794,14 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         }
     }
 
-    public class LastUsedComparator implements Comparator<Entry> {
+    public static class LastUsedComparator implements Comparator<Entry> {
         @Override
         public int compare(Entry o1, Entry o2) {
             return Long.compare(o2.getLastUsed(), o1.getLastUsed());
         }
     }
 
-    public class MostUsedComparator implements Comparator<Entry> {
+    public static class MostUsedComparator implements Comparator<Entry> {
         @Override
         public int compare(Entry o1, Entry o2) {
             return Long.compare(o2.getUsedFrequency(), o1.getUsedFrequency());

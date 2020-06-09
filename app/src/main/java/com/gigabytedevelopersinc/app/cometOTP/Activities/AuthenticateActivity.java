@@ -27,6 +27,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod;
 
@@ -111,7 +112,7 @@ public class AuthenticateActivity extends ThemedActivity
 
     @Override
     public void onClick(View view) {
-        checkPassword(passwordInput.getText().toString());
+        checkPassword(Objects.requireNonNull(passwordInput.getText()).toString());
     }
 
     @Override

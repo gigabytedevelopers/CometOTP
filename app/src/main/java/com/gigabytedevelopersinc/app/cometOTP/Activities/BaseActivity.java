@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
+import java.util.Objects;
+
 public abstract class BaseActivity extends ThemedActivity {
     private ScreenOffReceiver screenOffReceiver;
     private BroadcastReceivedCallback broadcastReceivedCallback;
@@ -39,7 +41,7 @@ public abstract class BaseActivity extends ThemedActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+            if (Objects.equals(intent.getAction(), Intent.ACTION_SCREEN_OFF)) {
                 if (broadcastReceivedCallback != null)
                     broadcastReceivedCallback.onReceivedScreenOff();
 

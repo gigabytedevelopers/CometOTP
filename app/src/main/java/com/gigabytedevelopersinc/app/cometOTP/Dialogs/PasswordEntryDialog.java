@@ -14,6 +14,8 @@ import android.widget.EditText;
 import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 
+import java.util.Objects;
+
 /**
  * @author Created by Emmanuel Nwokoma (Founder and CEO at Gigabyte Developers) on 7/15/2018
  **/
@@ -30,8 +32,9 @@ public class PasswordEntryDialog extends AppCompatDialog
     private PasswordEnteredCallback callback;
 
     private TextInputEditText passwordInput;
+    private TextInputLayout passwordLayout;
     private EditText passwordConfirm;
-    private Button okButton;
+    private Button okButton, cancelButton;
 
     public PasswordEntryDialog(Context context, Mode newMode, boolean blockAccessibility, PasswordEnteredCallback newCallback) {
         super(context, Tools.getThemeResource(context, R.attr.dialogTheme));
@@ -40,7 +43,7 @@ public class PasswordEntryDialog extends AppCompatDialog
         setContentView(R.layout.dialog_password_entry);
         setCancelable(false);
 
-        TextInputLayout passwordLayout = findViewById(R.id.passwordInputLayout);
+        passwordLayout = findViewById(R.id.passwordInputLayout);
         passwordInput = findViewById(R.id.passwordInput);
         passwordConfirm = findViewById(R.id.passwordConfirm);
 
@@ -50,7 +53,7 @@ public class PasswordEntryDialog extends AppCompatDialog
         }
 
         okButton = findViewById(R.id.buttonOk);
-        Button cancelButton = findViewById(R.id.buttonCancel);
+        cancelButton = findViewById(R.id.buttonCancel);
 
         okButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
@@ -83,7 +86,7 @@ public class PasswordEntryDialog extends AppCompatDialog
     public void onClick(View view)  {
         if (view.getId() == R.id.buttonOk) {
             if (callback != null)
-                callback.onPasswordEntered(passwordInput.getText().toString());
+                callback.onPasswordEntered(Objects.requireNonNull(passwordInput.getText()).toString());
             }
 
             dismiss();

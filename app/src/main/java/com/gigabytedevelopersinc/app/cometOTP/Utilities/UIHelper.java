@@ -15,12 +15,9 @@ public class UIHelper {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(titleId)
                 .setMessage(messageId)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if(onOk != null)
-                            onOk.run();
-                    }
+                .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                    if(onOk != null)
+                        onOk.run();
                 })
                 .setCancelable(false)
                 .create()

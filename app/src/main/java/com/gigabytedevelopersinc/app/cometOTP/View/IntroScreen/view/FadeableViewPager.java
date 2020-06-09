@@ -33,6 +33,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Objects;
+
 public class FadeableViewPager extends SwipeBlockableViewPager {
 
     public FadeableViewPager(Context context) {
@@ -86,7 +88,7 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             int count = listener instanceof OnOverscrollPageChangeListener ?
-                    FadeableViewPager.super.getAdapter().getCount() : getAdapter().getCount();
+                    Objects.requireNonNull(FadeableViewPager.super.getAdapter()).getCount() : Objects.requireNonNull(getAdapter()).getCount();
             listener.onPageScrolled(Math.min(position, count - 1),
                     position < count ? positionOffset : 0,
                     position < count ? positionOffsetPixels : 0);
@@ -95,7 +97,7 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         @Override
         public void onPageSelected(int position) {
             int count = listener instanceof OnOverscrollPageChangeListener ?
-                    FadeableViewPager.super.getAdapter().getCount() : getAdapter().getCount();
+                    Objects.requireNonNull(FadeableViewPager.super.getAdapter()).getCount() : Objects.requireNonNull(getAdapter()).getCount();
             listener.onPageSelected(Math.min(position, count - 1));
         }
 
@@ -105,7 +107,7 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         }
     }
 
-    private class PagerAdapterWrapper extends PagerAdapter {
+    private static class PagerAdapterWrapper extends PagerAdapter {
         private final PagerAdapter adapter;
 
         private PagerAdapterWrapper(PagerAdapter adapter) {
@@ -133,50 +135,52 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         }
 
         @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return object != null && adapter.isViewFromObject(view, object);
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+            return adapter.isViewFromObject(view, object);
         }
 
         @Override
-        public void startUpdate(ViewGroup container) {
+        public void startUpdate(@NonNull ViewGroup container) {
             adapter.startUpdate(container);
         }
 
+        @NonNull
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
             if (position < adapter.getCount())
                 return adapter.instantiateItem(container, position);
             return null;
         }
 
         @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
             if (position < adapter.getCount())
                 adapter.destroyItem(container, position, object);
         }
 
         @Override
-        public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
             if (position < adapter.getCount())
                 adapter.setPrimaryItem(container, position, object);
         }
 
         @Override
-        public void finishUpdate(ViewGroup container) {
+        public void finishUpdate(@NonNull ViewGroup container) {
             adapter.finishUpdate(container);
         }
 
         @SuppressWarnings("deprecation")
         @Deprecated
         @Override
-        public void startUpdate(View container) {
+        public void startUpdate(@NonNull View container) {
             adapter.startUpdate(container);
         }
 
+        @NonNull
         @SuppressWarnings("deprecation")
         @Deprecated
         @Override
-        public Object instantiateItem(View container, int position) {
+        public Object instantiateItem(@NonNull View container, int position) {
             if (position < adapter.getCount())
                 return adapter.instantiateItem(container, position);
             return null;
@@ -185,7 +189,7 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         @SuppressWarnings("deprecation")
         @Deprecated
         @Override
-        public void destroyItem(View container, int position, Object object) {
+        public void destroyItem(@NonNull View container, int position, @NonNull Object object) {
             if (position < adapter.getCount())
                 adapter.destroyItem(container, position, object);
         }
@@ -193,7 +197,7 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         @SuppressWarnings("deprecation")
         @Deprecated
         @Override
-        public void setPrimaryItem(View container, int position, Object object) {
+        public void setPrimaryItem(@NonNull View container, int position, @NonNull Object object) {
             if (position < adapter.getCount())
                 adapter.setPrimaryItem(container, position, object);
         }
@@ -201,7 +205,7 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         @SuppressWarnings("deprecation")
         @Deprecated
         @Override
-        public void finishUpdate(View container) {
+        public void finishUpdate(@NonNull View container) {
             adapter.finishUpdate(container);
         }
 
@@ -216,19 +220,19 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         }
 
         @Override
-        public int getItemPosition(Object object) {
+        public int getItemPosition(@NonNull Object object) {
             int position = adapter.getItemPosition(object);
             if (position < adapter.getCount()) return position;
             return POSITION_NONE;
         }
 
         @Override
-        public void registerDataSetObserver(DataSetObserver observer) {
+        public void registerDataSetObserver(@NonNull DataSetObserver observer) {
             adapter.registerDataSetObserver(observer);
         }
 
         @Override
-        public void unregisterDataSetObserver(DataSetObserver observer) {
+        public void unregisterDataSetObserver(@NonNull DataSetObserver observer) {
             adapter.unregisterDataSetObserver(observer);
         }
 
@@ -247,7 +251,7 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         }
     }
 
-    private class PageTransformerWrapper implements PageTransformer {
+    private static class PageTransformerWrapper implements PageTransformer {
         private final PageTransformer pageTransformer;
         private final PagerAdapter adapter;
 
@@ -257,7 +261,7 @@ public class FadeableViewPager extends SwipeBlockableViewPager {
         }
 
         @Override
-        public void transformPage(View page, float position) {
+        public void transformPage(@NonNull View page, float position) {
             pageTransformer.transformPage(page, Math.min(position, adapter.getCount() - 1));
         }
     }

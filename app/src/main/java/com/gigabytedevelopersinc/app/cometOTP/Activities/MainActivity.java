@@ -120,7 +120,6 @@ public class MainActivity extends BaseActivity
                     context.getPackageName(), 0);
             int lastVersionCode = sharedPreferences.getInt(
                     LAST_APP_VERSION, -1);
-            String versionName = pInfo.versionName;
             int currentVersionCode = pInfo.versionCode;
             appStart = checkAppStart(currentVersionCode, lastVersionCode);
 
@@ -430,12 +429,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void onPause() {
         if(settings.getAuthMethod() == AuthMethod.DEVICE)
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    findViewById(R.id.cardList).setVisibility(View.INVISIBLE);
-                }
-            });
+            runOnUiThread(() -> findViewById(R.id.cardList).setVisibility(View.INVISIBLE));
         super.onPause();
         stopUpdater();
         if (countDownTimer != null)
@@ -774,7 +768,6 @@ public class MainActivity extends BaseActivity
             tagsDrawerLayout.closeDrawers();
         });
         exit.setOnClickListener(v -> {
-            View bottomSheet = findViewById(R.id.framelayout_bottom_sheet);
             final View bottomSheetLayout = getLayoutInflater().inflate(R.layout.bottom_sheet_dialog, null);
             (bottomSheetLayout.findViewById(R.id.button_no)).setOnClickListener(v1 -> {
                 tagsDrawerLayout.closeDrawers();

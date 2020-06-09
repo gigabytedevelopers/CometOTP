@@ -39,6 +39,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.crypto.SecretKey;
 
@@ -351,12 +352,9 @@ public class SettingsActivity extends BaseActivity
                 backupLocation.setSummary(R.string.settings_desc_backup_location);
             }
 
-            backupLocation.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    ((SettingsActivity) getActivity()).requestBackupAccess();
-                    return true;
-                }
+            backupLocation.setOnPreferenceClickListener(preference -> {
+                ((SettingsActivity) getActivity()).requestBackupAccess();
+                return true;
             });
 
             // OpenPGP
@@ -434,7 +432,7 @@ public class SettingsActivity extends BaseActivity
             if(Build.VERSION.SDK_INT < 29) {
                 catUI.removePreference(themeMode);
             } else {
-                if(sharedPref.getString(getString(R.string.settings_key_theme_mode),getString(R.string.settings_default_theme_mode)).equals("auto")) {
+                if (Objects.equals(sharedPref.getString(getString(R.string.settings_key_theme_mode), getString(R.string.settings_default_theme_mode)), "auto")) {
                     theme.setEnabled(false);
                 } else {
                     theme.setEnabled(true);

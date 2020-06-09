@@ -17,8 +17,6 @@
 package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.util;
 
 import android.content.Context;
-import android.os.Build;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -38,12 +36,8 @@ public class AnimUtils {
 
     public static Interpolator getFastOutSlowInInterpolator(Context context) {
         if (fastOutSlowIn == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                fastOutSlowIn = AnimationUtils.loadInterpolator(context,
-                        android.R.interpolator.fast_out_slow_in);
-            } else {
-                fastOutSlowIn = new FastOutSlowInInterpolator();
-            }
+            fastOutSlowIn = AnimationUtils.loadInterpolator(context,
+                    android.R.interpolator.fast_out_slow_in);
         }
         return fastOutSlowIn;
     }

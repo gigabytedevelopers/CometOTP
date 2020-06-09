@@ -12,16 +12,13 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class Entry {
     public enum OTPType {
         TOTP, HOTP, STEAM
     }
-    public static Set<OTPType> PublicTypes = EnumSet.of(OTPType.TOTP, OTPType.HOTP);
 
     private static final OTPType DEFAULT_TYPE = OTPType.TOTP;
     private static final int DEFAULT_PERIOD = 30;
@@ -113,7 +110,7 @@ public class Entry {
 
         String counter = uri.getQueryParameter("counter");
         String issuer = uri.getQueryParameter("issuer");
-        String label = getStrippedLabel(issuer, uri.getPath().substring(1));
+        String label = getStrippedLabel(issuer, Objects.requireNonNull(uri.getPath()).substring(1));
         String period = uri.getQueryParameter("period");
         String digits = uri.getQueryParameter("digits");
         String algorithm = uri.getQueryParameter("algorithm");
@@ -135,6 +132,7 @@ public class Entry {
 
         this.issuer = issuer;
         this.label = label;
+        assert secret != null;
         this.secret = new Base32().decode(secret.toUpperCase());
 
         if (digits != null) {

@@ -79,10 +79,4 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/framelayout_bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/bottom_sheet_behavior"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

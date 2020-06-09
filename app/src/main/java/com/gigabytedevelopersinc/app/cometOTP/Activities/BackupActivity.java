@@ -3,7 +3,6 @@ package com.gigabytedevelopersinc.app.cometOTP.Activities;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.net.Uri;
@@ -13,7 +12,6 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.StorageAccessHelper;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
-import androidx.documentfile.provider.DocumentFile;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -83,19 +81,9 @@ public class BackupActivity extends BaseActivity {
         LinearLayout backupPlain = v.findViewById(R.id.button_backup_plain);
         LinearLayout restorePlain = v.findViewById(R.id.button_restore_plain);
 
-        backupPlain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backupPlainWithWarning();
-            }
-        });
+        backupPlain.setOnClickListener(view -> backupPlainWithWarning());
 
-        restorePlain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN);
-            }
-        });
+        restorePlain.setOnClickListener(view -> showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN));
 
         // Password
 
@@ -110,26 +98,17 @@ public class BackupActivity extends BaseActivity {
             cryptSetup.setVisibility(View.GONE);
         }
 
-        backupCrypt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showSaveFileSelector(Constants.BACKUP_MIMETYPE_CRYPT, Constants.BackupType.ENCRYPTED, Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT);
-            }
-        });
+        backupCrypt.setOnClickListener(
+                view -> showSaveFileSelector(
+                        Constants.BACKUP_MIMETYPE_CRYPT,
+                        Constants.BackupType.ENCRYPTED,
+                        Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT
+                )
+        );
 
-        restoreCrypt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT);
-            }
-        });
+        restoreCrypt.setOnClickListener(view -> showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT));
 
-        restoreCryptOld.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN);
-            }
-        });
+        restoreCryptOld.setOnClickListener(view -> showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN));
 
         // OpenPGP
 
@@ -152,19 +131,15 @@ public class BackupActivity extends BaseActivity {
             pgpServiceConnection = new OpenPgpServiceConnection(BackupActivity.this.getApplicationContext(), PGPProvider);
             pgpServiceConnection.bindToService();
 
-            backupPGP.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showSaveFileSelector(Constants.BACKUP_MIMETYPE_PGP, Constants.BackupType.OPEN_PGP, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP);
-                }
-            });
+            backupPGP.setOnClickListener(
+                    view -> showSaveFileSelector(
+                            Constants.BACKUP_MIMETYPE_PGP,
+                            Constants.BackupType.OPEN_PGP,
+                            Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP
+                    )
+            );
 
-            restorePGP.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PGP);
-                }
-            });
+            restorePGP.setOnClickListener(view -> showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PGP));
         }
 
         replace = v.findViewById(R.id.backup_replace);
@@ -178,12 +153,7 @@ public class BackupActivity extends BaseActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.backup_new_format_dialog_title)
                 .setMessage(R.string.backup_new_format_dialog_msg)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        settings.setNewBackupFormatDialogShown(true);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> settings.setNewBackupFormatDialogShown(true))
                 .create()
                 .show();
     }
@@ -374,16 +344,13 @@ public class BackupActivity extends BaseActivity {
 
         builder.setTitle(R.string.backup_dialog_title_security_warning)
                 .setMessage(R.string.backup_dialog_msg_export_warning)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        showSaveFileSelector(Constants.BACKUP_MIMETYPE_PLAIN, Constants.BackupType.PLAIN_TEXT, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN);
-                    }
-                })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
-                })
+                .setPositiveButton(android.R.string.yes,
+                        (dialogInterface, i) -> showSaveFileSelector(
+                                Constants.BACKUP_MIMETYPE_PLAIN,
+                                Constants.BackupType.PLAIN_TEXT,
+                                Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN
+                        ))
+                .setNegativeButton(android.R.string.no, (dialogInterface, i) -> {})
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .create()
                 .show();
@@ -395,12 +362,15 @@ public class BackupActivity extends BaseActivity {
         String password = settings.getBackupPasswordEnc();
 
         if (password.isEmpty()) {
-            PasswordEntryDialog pwDialog = new PasswordEntryDialog(this, PasswordEntryDialog.Mode.ENTER, settings.getBlockAccessibility(), new PasswordEntryDialog.PasswordEnteredCallback() {
-                @Override
-                public void onPasswordEntered(String newPassword) {
-                    doRestoreCryptWithPassword(uri, newPassword, old_format);
-                }
-            });
+            PasswordEntryDialog pwDialog = new PasswordEntryDialog(
+                    this,
+                    PasswordEntryDialog.Mode.ENTER,
+                    settings.getBlockAccessibility(),
+                    newPassword -> doRestoreCryptWithPassword(
+                            uri, newPassword,
+                            old_format
+                    )
+            );
             pwDialog.show();
         } else {
             doRestoreCryptWithPassword(uri, password, old_format);
@@ -451,12 +421,15 @@ public class BackupActivity extends BaseActivity {
         String password = settings.getBackupPasswordEnc();
 
         if (password.isEmpty()) {
-            PasswordEntryDialog pwDialog = new PasswordEntryDialog(this, PasswordEntryDialog.Mode.UPDATE, settings.getBlockAccessibility(), new PasswordEntryDialog.PasswordEnteredCallback() {
-                @Override
-                public void onPasswordEntered(String newPassword) {
-                    doBackupCryptWithPassword(uri, newPassword);
-                }
-            });
+            PasswordEntryDialog pwDialog = new PasswordEntryDialog(
+                    this,
+                    PasswordEntryDialog.Mode.UPDATE,
+                    settings.getBlockAccessibility(),
+                    newPassword -> doBackupCryptWithPassword(
+                            uri,
+                            newPassword
+                    )
+            );
             pwDialog.show();
         } else {
             doBackupCryptWithPassword(uri, password);
@@ -549,6 +522,7 @@ public class BackupActivity extends BaseActivity {
                     if (settings.getOpenPGPVerify()) {
                         OpenPgpSignatureResult sigResult = result.getParcelableExtra(OpenPgpApi.RESULT_SIGNATURE);
 
+                        assert sigResult != null;
                         if (sigResult.getResult() == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED) {
                             restoreEntries(outputStreamToString(os));
                         } else {
@@ -570,12 +544,14 @@ public class BackupActivity extends BaseActivity {
             }
 
             try {
+                assert pi != null;
                 startIntentSenderForResult(pi.getIntentSender(), requestCode, null, 0, 0, 0);
             } catch (IntentSender.SendIntentException e) {
                 e.printStackTrace();
             }
         } else if (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR) == OpenPgpApi.RESULT_CODE_ERROR) {
             OpenPgpError error = result.getParcelableExtra(OpenPgpApi.RESULT_ERROR);
+            assert error != null;
             Snackbar.make(findViewById(R.id.backup), String.format(getString(R.string.backup_toast_openpgp_error), error.getMessage()), Snackbar.LENGTH_LONG).show();
         }
     }

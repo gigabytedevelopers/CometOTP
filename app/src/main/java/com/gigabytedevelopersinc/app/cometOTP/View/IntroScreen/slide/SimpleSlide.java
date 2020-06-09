@@ -52,6 +52,7 @@ import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.view.parallax.Par
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
 
@@ -79,10 +80,10 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
     private final boolean canGoBackward;
     private String[] permissions;
     private int permissionsRequestCode;
-    private CharSequence buttonCtaLabel = null;
+    private CharSequence buttonCtaLabel;
     @StringRes
-    private int buttonCtaLabelRes = 0;
-    private View.OnClickListener buttonCtaClickListener = null;
+    private int buttonCtaLabelRes;
+    private View.OnClickListener buttonCtaClickListener;
 
     protected SimpleSlide(Builder builder) {
         fragment = SimpleSlideFragment.newInstance(builder.id, builder.title, builder.titleRes,
@@ -146,13 +147,10 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
         if (permissions == null) {
             return buttonCtaClickListener;
         }
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (fragment.getActivity() != null)
-                    ActivityCompat.requestPermissions(fragment.getActivity(), permissions,
-                            permissionsRequestCode);
-            }
+        return v -> {
+            if (fragment.getActivity() != null)
+                ActivityCompat.requestPermissions(fragment.getActivity(), permissions,
+                        permissionsRequestCode);
         };
     }
 
@@ -191,7 +189,7 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
 
             if (permissionsNotGranted.size() > 0) {
                 permissions = permissionsNotGranted.toArray(
-                        new String[permissionsNotGranted.size()]);
+                        new String[0]);
             } else {
                 permissions = null;
             }
@@ -218,15 +216,15 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
         if (canGoBackward != that.canGoBackward) return false;
         if (permissionsRequestCode != that.permissionsRequestCode) return false;
         if (buttonCtaLabelRes != that.buttonCtaLabelRes) return false;
-        if (fragment != null ? !fragment.equals(that.fragment) : that.fragment != null)
+        if (!Objects.equals(fragment, that.fragment))
             return false;
-        if (title != null ? !title.equals(that.title) : that.title != null) return false;
-        if (description != null ? !description.equals(that.description) : that.description != null)
+        if (!Objects.equals(title, that.title)) return false;
+        if (!Objects.equals(description, that.description))
             return false;
         if (!Arrays.equals(permissions, that.permissions)) return false;
-        if (buttonCtaLabel != null ? !buttonCtaLabel.equals(that.buttonCtaLabel) : that.buttonCtaLabel != null)
+        if (!Objects.equals(buttonCtaLabel, that.buttonCtaLabel))
             return false;
-        return buttonCtaClickListener != null ? buttonCtaClickListener.equals(that.buttonCtaClickListener) : that.buttonCtaClickListener == null;
+        return Objects.equals(buttonCtaClickListener, that.buttonCtaClickListener);
 
     }
 
@@ -298,7 +296,6 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 this.title = Html.fromHtml(titleHtml, Html.FROM_HTML_MODE_LEGACY);
             } else {
-                //noinspection deprecation
                 this.title = Html.fromHtml(titleHtml);
             }
             this.titleRes = 0;
@@ -326,7 +323,6 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 this.description = Html.fromHtml(descriptionHtml, Html.FROM_HTML_MODE_LEGACY);
             } else {
-                //noinspection deprecation
                 this.description = Html.fromHtml(descriptionHtml);
             }
             this.descriptionRes = 0;
@@ -390,7 +386,6 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 this.buttonCtaLabel = Html.fromHtml(buttonCtaLabelHtml, Html.FROM_HTML_MODE_LEGACY);
             } else {
-                //noinspection deprecation
                 this.buttonCtaLabel = Html.fromHtml(buttonCtaLabelHtml);
             }
             this.buttonCtaLabelRes = 0;
@@ -483,6 +478,7 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
                                  Bundle savedInstanceState) {
             Bundle arguments = getArguments();
 
+            assert arguments != null;
             View fragment = inflater.inflate(arguments.getInt(ARGUMENT_LAYOUT_RES,
                     R.layout.mi_fragment_simple_slide), container, false);
 
@@ -540,13 +536,13 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
             int textColorSecondary;
 
             if (backgroundRes != 0 &&
-                    ColorUtils.calculateLuminance(ContextCompat.getColor(getContext(), backgroundRes)) < 0.6) {
+                    ColorUtils.calculateLuminance(ContextCompat.getColor(Objects.requireNonNull(getContext()), backgroundRes)) < 0.6) {
                 //Use light text color
                 textColorPrimary = ContextCompat.getColor(getContext(), R.color.mi_text_color_primary_dark);
                 textColorSecondary = ContextCompat.getColor(getContext(), R.color.mi_text_color_secondary_dark);
             } else {
                 //Use dark text color
-                textColorPrimary = ContextCompat.getColor(getContext(), R.color.mi_text_color_primary_light);
+                textColorPrimary = ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.mi_text_color_primary_light);
                 textColorSecondary = ContextCompat.getColor(getContext(), R.color.mi_text_color_secondary_light);
             }
 
@@ -567,6 +563,7 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
         @Override
         public void onDestroyView() {
             if (getActivity() instanceof SimpleSlideActivity) {
+                assert getArguments() != null;
                 long id = getArguments().getLong(ARGUMENT_ID);
                 ((SimpleSlideActivity) getActivity()).onSlideDestroyView(this, getView(), id);
             }
@@ -589,6 +586,7 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
         }
 
         public long getSlideId() {
+            assert getArguments() != null;
             return getArguments().getLong(ARGUMENT_ID);
         }
 

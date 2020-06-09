@@ -383,15 +383,12 @@ public class IntroScreenActivity extends IntroActivity {
                 }
 
                 private void setPasswordTransformationMethod() {
-                    passwordLayout.setEndIconOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            boolean wasShowingPassword = passwordInput.getTransformationMethod() instanceof PasswordTransformationMethod;
-                            // Dispatch password visibility change to both password and confirm inputs
-                            dispatchPasswordVisibilityChange(passwordInput, wasShowingPassword);
-                            dispatchPasswordVisibilityChange(passwordConfirm, wasShowingPassword);
-                            passwordLayout.refreshDrawableState();
-                        }
+                    passwordLayout.setEndIconOnClickListener(v -> {
+                        boolean wasShowingPassword = passwordInput.getTransformationMethod() instanceof PasswordTransformationMethod;
+                        // Dispatch password visibility change to both password and confirm inputs
+                        dispatchPasswordVisibilityChange(passwordInput, wasShowingPassword);
+                        dispatchPasswordVisibilityChange(passwordConfirm, wasShowingPassword);
+                        passwordLayout.refreshDrawableState();
                     });
                     passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
                     passwordConfirm.setTransformationMethod(PasswordTransformationMethod.getInstance());

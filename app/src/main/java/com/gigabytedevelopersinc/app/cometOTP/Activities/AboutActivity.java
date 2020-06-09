@@ -1,5 +1,6 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -30,8 +31,6 @@ import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 
-import java.util.Objects;
-
 import saschpe.android.customtabs.CustomTabsHelper;
 import saschpe.android.customtabs.WebViewFallback;
 
@@ -46,7 +45,7 @@ public class AboutActivity extends BaseActivity {
 
     // private static final String AUTHOR2_GITHUB = "https://github.com";
     private static final String AUTHOR2_APP = "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2";
-    private static final String changeLogUrl = "https://gigabytedevelopersinc.com/apps/changelog/cometotp";
+    private static final String changeLogUrl = "https://gigabytedevelopersinc.com/apps/cometotp/changelog";
 
     // private static final String BUGREPORT_URI = GITHUB_URI + "/issues";
 
@@ -61,6 +60,7 @@ public class AboutActivity extends BaseActivity {
 
     private BottomSheetDialog mBottomSheetDialog;
 
+    @SuppressLint("IntentReset")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,14 +157,7 @@ public class AboutActivity extends BaseActivity {
             }
         });
 
-        /*TextView author2GitHub = v.findViewById(R.id.about_author2_github);*/
         TextView author2App = v.findViewById(R.id.about_author2_app);
-        /*author2GitHub.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openURI(AUTHOR2_GITHUB);
-            }
-        });*/
         author2App.setOnClickListener(view -> openURI(AUTHOR2_APP));
 
         LinearLayout bugReport = v.findViewById(R.id.about_layout_bugs);
@@ -208,7 +201,6 @@ public class AboutActivity extends BaseActivity {
     }
 
     private void enableSpecialFeatures() {
-        View bottomSheet = findViewById(R.id.framelayout_bottom_sheet);
         final View bottomSheetLayout = getLayoutInflater().inflate(R.layout.bottom_sheet_special_features, null);
         (bottomSheetLayout.findViewById(R.id.button_no)).setOnClickListener(v -> mBottomSheetDialog.dismiss());
         (bottomSheetLayout.findViewById(R.id.button_yes)).setOnClickListener(v -> {

@@ -127,12 +127,7 @@ public class SwipeBlockableViewPager extends ViewPager {
                 break;
             }
 
-            case MotionEvent.ACTION_UP: {
-                activePointerId = INVALID_POINTER_ID;
-                lockedLeft = false;
-                lockedRight = false;
-                break;
-            }
+            case MotionEvent.ACTION_UP:
 
             case MotionEvent.ACTION_CANCEL: {
                 activePointerId = INVALID_POINTER_ID;

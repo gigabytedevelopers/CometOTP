@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_cancel">NO, Cancel</string>
+    <string name="yes_clear">YES, Clear</string>
+    <string name="yes_enable">YES, Enable</string>
+</resources>

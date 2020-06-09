@@ -29,6 +29,7 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.ColorRes;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.fragment.app.Fragment;
@@ -42,6 +43,8 @@ import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.ButtonCtaFrag
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.SlideFragment;
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.view.parallax.ParallaxFragment;
 
+import java.util.Objects;
+
 public class FragmentSlide implements Slide, RestorableSlide, ButtonCtaSlide {
 
     private Fragment fragment;
@@ -51,10 +54,10 @@ public class FragmentSlide implements Slide, RestorableSlide, ButtonCtaSlide {
     private final int backgroundDark;
     private final boolean canGoForward;
     private final boolean canGoBackward;
-    private CharSequence buttonCtaLabel = null;
+    private CharSequence buttonCtaLabel;
     @StringRes
-    private int buttonCtaLabelRes = 0;
-    private View.OnClickListener buttonCtaClickListener = null;
+    private int buttonCtaLabelRes;
+    private View.OnClickListener buttonCtaClickListener;
 
     protected FragmentSlide(Builder builder) {
         fragment = builder.fragment;
@@ -139,11 +142,11 @@ public class FragmentSlide implements Slide, RestorableSlide, ButtonCtaSlide {
         if (canGoForward != that.canGoForward) return false;
         if (canGoBackward != that.canGoBackward) return false;
         if (buttonCtaLabelRes != that.buttonCtaLabelRes) return false;
-        if (fragment != null ? !fragment.equals(that.fragment) : that.fragment != null)
+        if (!Objects.equals(fragment, that.fragment))
             return false;
-        if (buttonCtaLabel != null ? !buttonCtaLabel.equals(that.buttonCtaLabel) : that.buttonCtaLabel != null)
+        if (!Objects.equals(buttonCtaLabel, that.buttonCtaLabel))
             return false;
-        return buttonCtaClickListener != null ? buttonCtaClickListener.equals(that.buttonCtaClickListener) : that.buttonCtaClickListener == null;
+        return Objects.equals(buttonCtaClickListener, that.buttonCtaClickListener);
 
     }
 
@@ -218,7 +221,6 @@ public class FragmentSlide implements Slide, RestorableSlide, ButtonCtaSlide {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 this.buttonCtaLabel = Html.fromHtml(buttonCtaLabelHtml, Html.FROM_HTML_MODE_LEGACY);
             } else {
-                //noinspection deprecation
                 this.buttonCtaLabel = Html.fromHtml(buttonCtaLabelHtml);
             }
             this.buttonCtaLabelRes = 0;
@@ -267,8 +269,9 @@ public class FragmentSlide implements Slide, RestorableSlide, ButtonCtaSlide {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+            assert getArguments() != null;
             int themeRes = getArguments().getInt(ARGUMENT_THEME_RES);
             Context contextThemeWrapper;
             if (themeRes != 0) {

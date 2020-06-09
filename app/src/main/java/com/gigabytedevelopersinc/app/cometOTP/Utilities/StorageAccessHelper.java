@@ -30,6 +30,7 @@ public class StorageAccessHelper {
 
         try {
             ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(file, "w");
+            assert pfd != null;
             FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
 
             fileOutputStream.write(data);
@@ -55,6 +56,7 @@ public class StorageAccessHelper {
             byte[] buffer = new byte[1024];
             int count;
 
+            assert inputStream != null;
             while ((count = inputStream.read(buffer)) != -1) {
                 bytes.write(buffer, 0, count);
             }

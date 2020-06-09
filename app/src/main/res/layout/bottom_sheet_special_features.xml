@@ -36,14 +36,14 @@
             android:id="@+id/button_no"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="NO, Cancel"
+            android:text="@string/no_cancel"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:textColor="@color/colorAccent"/>
         <Button
             android:id="@+id/button_yes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="YES, Enable"
+            android:text="@string/yes_enable"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:textColor="@color/colorAccent"/>
     </LinearLayout>

@@ -2,7 +2,6 @@ package com.gigabytedevelopersinc.app.cometOTP.Receivers;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.R;
@@ -30,7 +29,7 @@ public class PlainTextBackupBroadcastReceiver extends BackupBroadcastReceiver {
             if (!canSaveBackup(context))
                 return;
 
-            SecretKey encryptionKey = null;
+            SecretKey encryptionKey;
 
             if (settings.getEncryption() == Constants.EncryptionType.KEYSTORE) {
                 encryptionKey = KeyStoreHelper.loadEncryptionKeyFromKeyStore(context, false);

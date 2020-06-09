@@ -2,7 +2,6 @@ package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper;
@@ -33,10 +32,6 @@ public class PanicResponderActivity extends Activity {
                 settings.clear(true);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            finishAndRemoveTask();
-        } else {
-            finish();
-        }
+        finishAndRemoveTask();
     }
 }

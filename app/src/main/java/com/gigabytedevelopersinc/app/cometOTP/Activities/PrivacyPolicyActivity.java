@@ -2,6 +2,8 @@ package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
 import android.os.Bundle;
 import com.google.android.material.tabs.TabLayout;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -58,6 +60,7 @@ public class PrivacyPolicyActivity extends BaseActivity {
             super(fm);
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int pos) {
             switch(pos) {

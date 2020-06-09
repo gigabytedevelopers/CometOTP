@@ -89,7 +89,7 @@ public class TagsAdapter extends ArrayAdapter<String> {
         List<String> tagsList = new ArrayList<>();
         for(String tag : tagsOrder)
         {
-            if(tagsState.get(tag)) {
+            if (tagsState.get(tag)) {
                 tagsList.add(tag);
             }
         }
@@ -98,14 +98,14 @@ public class TagsAdapter extends ArrayAdapter<String> {
 
     public boolean allTagsActive() {
         for (String key : tagsState.keySet())
-            if (! tagsState.get(key))
+            if (!tagsState.get(key))
                 return false;
 
         return true;
     }
 
     public HashMap<String, Boolean> getTagsWithState() {
-        return new HashMap<String, Boolean>(tagsState);
+        return new HashMap<>(tagsState);
     }
 
     public void setTags(HashMap<String, Boolean> tags) {
