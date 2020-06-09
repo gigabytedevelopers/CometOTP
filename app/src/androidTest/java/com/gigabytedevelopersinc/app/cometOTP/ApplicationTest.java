@@ -2,15 +2,7 @@ package com.gigabytedevelopersinc.app.cometOTP;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Base32;
-import org.apache.commons.codec.binary.Hex;
-import org.json.JSONObject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
@@ -19,7 +11,11 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
 
-import junit.framework.TestCase;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.codec.binary.Hex;
+import org.json.JSONObject;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,11 +37,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import static androidx.test.InstrumentationRegistry.getContext;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-@RunWith(AndroidJUnit4.class)
 public class ApplicationTest {
 
     @Test
@@ -178,7 +172,7 @@ public class ApplicationTest {
 
     @Test
     public void testSettingsHelper() throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         final KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
