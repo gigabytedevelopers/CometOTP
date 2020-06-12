@@ -17,8 +17,8 @@ android {
         applicationId "com.gigabytedevelopersinc.app.CometOTP"
         minSdkVersion 22
         targetSdkVersion 29
-        versionCode 27
-        versionName "5.3.0"
+        versionCode 28
+        versionName "5.3.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -82,7 +82,7 @@ dependencies {
     implementation "com.github.aakira:expandable-layout:1.6.0"
     implementation "com.journeyapps:zxing-android-embedded:3.6.0"
     implementation "com.leinardi.android:speed-dial:3.1.1"
-    implementation 'saschpe.android:customtabs:2.0.0'
+    implementation 'saschpe.android:customtabs:2.0.3'
     implementation "com.vanniktech:vntnumberpickerpreference:1.0.0"
     implementation "me.zhanghai.android.materialprogressbar:library:1.4.2"
     implementation "org.sufficientlysecure:openpgp-api:12.0"
