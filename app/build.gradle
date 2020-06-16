@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 // Load keystore
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -90,8 +92,13 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.browser:browser:1.2.0'
+    implementation "androidx.core:core-ktx:1.3.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 configurations {
     implementation.exclude group: "com.android.support", module: "customtabs"
+}
+repositories {
+    mavenCentral()
 }
