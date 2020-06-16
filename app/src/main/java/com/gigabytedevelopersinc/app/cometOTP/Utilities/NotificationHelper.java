@@ -26,7 +26,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
+
 import androidx.core.app.NotificationCompat;
 
 import com.gigabytedevelopersinc.app.cometOTP.R;
@@ -39,7 +39,7 @@ public class NotificationHelper {
     }
 
     private static void createNotificationChannel(Context context, Constants.NotificationChannel channel) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (GeneralUtils.INSTANCE.isOreo()) {
             NotificationChannel notificationChannel = new NotificationChannel(channelId(channel), context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
 
             switch(channel) {
@@ -63,7 +63,7 @@ public class NotificationHelper {
     }
 
     public static void initializeNotificationChannels(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (GeneralUtils.INSTANCE.isOreo()) {
             for (Constants.NotificationChannel channel : Constants.NotificationChannel.values()) {
                 NotificationHelper.createNotificationChannel(context, channel);
             }
@@ -81,7 +81,7 @@ public class NotificationHelper {
                 .setStyle(new NotificationCompat.BigTextStyle()
                     .bigText(resBody));
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        if (GeneralUtils.INSTANCE.isOreo()) {
             builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         }
 

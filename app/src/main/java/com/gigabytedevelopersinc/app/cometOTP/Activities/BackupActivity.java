@@ -353,6 +353,7 @@ public class BackupActivity extends BaseActivity {
                     this,
                     PasswordEntryDialog.Mode.ENTER,
                     settings.getBlockAccessibility(),
+                    settings.getBlockAutofill(),
                     newPassword -> doRestoreCryptWithPassword(
                             uri, newPassword,
                             old_format
@@ -412,6 +413,7 @@ public class BackupActivity extends BaseActivity {
                     this,
                     PasswordEntryDialog.Mode.UPDATE,
                     settings.getBlockAccessibility(),
+                    settings.getBlockAutofill(),
                     newPassword -> doBackupCryptWithPassword(
                             uri,
                             newPassword

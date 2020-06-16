@@ -565,4 +565,8 @@ public class Settings {
     public boolean isBackupLocationSet() {
         return !getString(R.string.settings_key_backup_location, "").isEmpty();
     }
+
+    public boolean getBlockAutofill() {
+        return getBoolean(R.string.settings_key_block_autofill, false);
+    }
 }

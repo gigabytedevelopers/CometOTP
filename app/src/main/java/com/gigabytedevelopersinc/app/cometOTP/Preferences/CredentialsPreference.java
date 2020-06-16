@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.preference.DialogPreference;
+
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import android.text.Editable;
@@ -110,6 +112,11 @@ public class CredentialsPreference extends DialogPreference
         if (settings.getBlockAccessibility()) {
             passwordLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
             passwordConfirm.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        }
+
+        if (GeneralUtils.INSTANCE.isOreo() && settings.getBlockAutofill()) {
+            passwordLayout.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
+            passwordConfirm.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
         }
 
         toShortWarning = view.findViewById(R.id.toShortWarning);

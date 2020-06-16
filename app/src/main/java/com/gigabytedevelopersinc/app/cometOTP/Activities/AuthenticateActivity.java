@@ -2,6 +2,8 @@ package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -47,7 +49,7 @@ public class AuthenticateActivity extends ThemedActivity
 
         setTitle(R.string.auth_activity_title);
 
-        if (! settings.getScreenshotsEnabled())
+        if (!settings.getScreenshotsEnabled())
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         setContentView(R.layout.activity_container);
@@ -70,6 +72,9 @@ public class AuthenticateActivity extends ThemedActivity
 
         if (settings.getBlockAccessibility())
             passwordLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+
+        if (GeneralUtils.INSTANCE.isOreo() && settings.getBlockAutofill())
+            passwordLayout.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
 
         passwordLabel.setText(labelMsg);
 

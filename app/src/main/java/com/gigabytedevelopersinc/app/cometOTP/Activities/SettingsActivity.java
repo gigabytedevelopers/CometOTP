@@ -16,6 +16,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
@@ -227,7 +228,7 @@ public class SettingsActivity extends BaseActivity
                 | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
                 | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && settings.isBackupLocationSet())
+        if (GeneralUtils.INSTANCE.isOreo() && settings.isBackupLocationSet())
             intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, settings.getBackupLocation());
 
         startActivityForResult(intent, Constants.INTENT_SETTINGS_BACKUP_LOCATION);
@@ -308,6 +309,15 @@ public class SettingsActivity extends BaseActivity
 
             CredentialsPreference credentialsPreference = (CredentialsPreference) findPreference(getString(R.string.settings_key_auth));
             credentialsPreference.setEncryptionChangeCallback(newKey -> ((SettingsActivity) getActivity()).tryEncryptionChange(settings.getEncryption(), newKey));
+
+            CheckBoxPreference blockAutofill = (CheckBoxPreference) findPreference(getString(R.string.settings_key_block_autofill));
+            if (GeneralUtils.INSTANCE.isOreo()) {
+                blockAutofill.setEnabled(true);
+                blockAutofill.setSummary(R.string.settings_desc_block_autofill);
+            } else {
+                blockAutofill.setEnabled(false);
+                blockAutofill.setSummary(R.string.settings_desc_block_autofill_android);
+            }
 
             // Authentication
             catSecurity = (PreferenceCategory) findPreference(getString(R.string.settings_key_cat_security));

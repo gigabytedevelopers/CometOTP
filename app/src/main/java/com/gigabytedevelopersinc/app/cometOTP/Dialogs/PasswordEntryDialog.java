@@ -1,9 +1,12 @@
 package com.gigabytedevelopersinc.app.cometOTP.Dialogs;
 
 import android.content.Context;
+
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.AppCompatDialog;
+
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -36,7 +39,7 @@ public class PasswordEntryDialog extends AppCompatDialog
     private EditText passwordConfirm;
     private Button okButton, cancelButton;
 
-    public PasswordEntryDialog(Context context, Mode newMode, boolean blockAccessibility, PasswordEnteredCallback newCallback) {
+    public PasswordEntryDialog(Context context, Mode newMode, boolean blockAccessibility, boolean blockAutofill, PasswordEnteredCallback newCallback) {
         super(context, Tools.getThemeResource(context, R.attr.dialogTheme));
 
         setTitle(R.string.dialog_title_enter_password);
@@ -50,6 +53,11 @@ public class PasswordEntryDialog extends AppCompatDialog
         if (blockAccessibility) {
             passwordLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
             passwordConfirm.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        }
+
+        if (GeneralUtils.INSTANCE.isOreo() && blockAutofill) {
+            passwordLayout.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
+            passwordConfirm.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
         }
 
         okButton = findViewById(R.id.buttonOk);
