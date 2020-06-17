@@ -26,6 +26,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
+import java.util.Objects;
 
 public class PasswordEncryptedPreference extends DialogPreference
     implements View.OnClickListener, TextWatcher {
@@ -164,7 +165,7 @@ public class PasswordEncryptedPreference extends DialogPreference
                 getDialog().dismiss();
                 break;
             case (R.id.btnSave):
-                value = passwordInput.getText().toString();
+                value = Objects.requireNonNull(passwordInput.getText()).toString();
                 encryptAndPersist(value);
 
                 getDialog().dismiss();

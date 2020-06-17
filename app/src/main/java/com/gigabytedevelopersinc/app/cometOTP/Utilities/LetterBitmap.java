@@ -15,7 +15,7 @@ import android.util.TypedValue;
 import com.gigabytedevelopersinc.app.cometOTP.R;
 
 /**
- * Orginal http://stackoverflow.com/questions/23122088/colored-boxed-with-letters-a-la-gmail
+ * Original http://stackoverflow.com/questions/23122088/colored-boxed-with-letters-a-la-gmail
  * Used to create a {@link Bitmap} that contains a letter used in the English
  * alphabet or digit, if there is no letter or digit available, a default image
  * is shown instead.
