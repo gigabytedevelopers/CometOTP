@@ -256,6 +256,8 @@ public class MainActivity extends BaseActivity
         speedDial = findViewById(R.id.speedDial);
         speedDial.inflate(R.menu.menu_fab);
 
+        speedDial.getMainFab().setContentDescription(getString(R.string.button_add));
+
         speedDial.setOnActionSelectedListener(speedDialActionItem -> {
             switch (speedDialActionItem.getId()) {
                 case R.id.fabScanQR:
@@ -269,6 +271,22 @@ public class MainActivity extends BaseActivity
                     return false;
                 default:
                     return false;
+            }
+        });
+
+        speedDial.setOnChangeListener(new SpeedDialView.OnChangeListener() {
+            @Override
+            public boolean onMainActionSelected() {
+                return false;
+            }
+
+            @Override
+            public void onToggleChanged(boolean isOpen) {
+                if (isOpen) {
+                    speedDial.getMainFab().setContentDescription(getString(R.string.button_close_menu));
+                } else {
+                    speedDial.getMainFab().setContentDescription(getString(R.string.button_add));
+                }
             }
         });
 

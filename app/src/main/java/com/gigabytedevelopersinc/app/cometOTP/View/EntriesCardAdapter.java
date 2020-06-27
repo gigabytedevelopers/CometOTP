@@ -640,7 +640,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
                     .show();
         } else {
             Snackbar.make((((MainActivity) context).findViewById(R.id.main_content)),
-                    R.string.toast_qr_unsuported,
+                    R.string.toast_qr_unsupported,
                     Snackbar.LENGTH_LONG)
                     .show();
         }
