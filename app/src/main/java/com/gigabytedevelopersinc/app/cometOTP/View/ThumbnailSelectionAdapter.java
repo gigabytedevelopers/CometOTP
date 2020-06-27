@@ -77,8 +77,6 @@ public class ThumbnailSelectionAdapter extends BaseAdapter {
         EntryThumbnail.EntryThumbnails thumb = (EntryThumbnail.EntryThumbnails)getItem(i);
 
         imageView.setImageBitmap(EntryThumbnail.getThumbnailGraphic(context, issuer, label, thumbnailSize, thumb));
-        imageView.setContentDescription(thumb.name());
-
         return imageView;
     }
 }
