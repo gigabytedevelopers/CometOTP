@@ -114,6 +114,14 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/textViewSeparator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:textSize="18sp"
+                        android:text="@string/card_separator" />
+
+                    <TextView
                         android:id="@+id/textViewLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -193,6 +201,7 @@
                         android:layout_gravity="center_vertical"
                         android:padding="@dimen/activity_margin_small"
                         android:background="?android:attr/selectableItemBackground"
+                        android:contentDescription="@string/button_card_options"
                         app:srcCompat="@drawable/ic_more_horiz_grey"/>
 
                         <ImageButton
@@ -202,6 +211,7 @@
                             android:layout_gravity="center_vertical"
                             android:padding="@dimen/activity_margin_small"
                             android:background="?android:attr/selectableItemBackground"
+                            android:contentDescription="@string/button_card_copy"
                             app:srcCompat="@drawable/ic_content_copy_gray" />
                     </LinearLayout>
                 </LinearLayout>
