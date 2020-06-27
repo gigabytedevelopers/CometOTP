@@ -150,12 +150,7 @@ public class SettingsActivity extends BaseActivity
                     fragment.useAndroidSync.setEnabled(true);
             }
         }
-
-        if (fragment.useAutoBackup != null) {
-            fragment.useAutoBackup.setEnabled(BackupHelper.autoBackupType(this) == Constants.BackupType.ENCRYPTED);
-            if (!fragment.useAutoBackup.isEnabled())
-                fragment.useAutoBackup.setValue(Constants.AutoBackup.OFF.toString().toLowerCase(Locale.ENGLISH));
-        }
+        fragment.updateAutoBackup();
     }
 
     private void generateNewEncryptionKey() {
@@ -297,6 +292,20 @@ public class SettingsActivity extends BaseActivity
                     .show();
         }
 
+        public void updateAutoBackup() {
+            if (useAutoBackup != null) {
+                useAutoBackup.setEnabled(BackupHelper.autoBackupType(getActivity()) == Constants.BackupType.ENCRYPTED);
+                if (!useAutoBackup.isEnabled())
+                    useAutoBackup.setValue(Constants.AutoBackup.OFF.toString().toLowerCase(Locale.ENGLISH));
+
+                if (useAutoBackup.isEnabled()) {
+                    useAutoBackup.setSummary(R.string.settings_desc_auto_backup_password_enc);
+                } else {
+                    useAutoBackup.setSummary(R.string.settings_desc_auto_backup_requirements);
+                }
+            }
+        }
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -393,13 +402,11 @@ public class SettingsActivity extends BaseActivity
             });
 
             useAutoBackup = (ListPreference) findPreference(getString(R.string.settings_key_auto_backup_password_enc));
-            useAutoBackup.setEnabled(BackupHelper.autoBackupType(getActivity()) == Constants.BackupType.ENCRYPTED);
-            if(!useAutoBackup.isEnabled())
-                useAutoBackup.setValue(Constants.AutoBackup.OFF.toString().toLowerCase(Locale.ENGLISH));
+            updateAutoBackup();
 
             useAndroidSync = (CheckBoxPreference) findPreference(getString(R.string.settings_key_enable_android_backup_service));
             useAndroidSync.setEnabled(settings.getEncryption() == EncryptionType.PASSWORD);
-            if(!useAndroidSync.isEnabled())
+            if (!useAndroidSync.isEnabled())
                 useAndroidSync.setChecked(false);
 
             if (sharedPref.contains(getString(R.string.settings_key_special_features)) &&
@@ -439,7 +446,7 @@ public class SettingsActivity extends BaseActivity
 
             //Remove Theme Mode selection option for devices below Android 10. Disable theme selection if Theme Mode is set auto
             //TODO: 29 needs to be replaced with VERSION_CODE.Q when compileSdk and targetSdk is updated to 29
-            if(Build.VERSION.SDK_INT < 29) {
+            if (Build.VERSION.SDK_INT < 29) {
                 catUI.removePreference(themeMode);
             } else {
                 if (Objects.equals(sharedPref.getString(getString(R.string.settings_key_theme_mode), getString(R.string.settings_default_theme_mode)), "auto")) {
