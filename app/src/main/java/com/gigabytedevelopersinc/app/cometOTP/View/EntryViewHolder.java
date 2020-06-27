@@ -41,12 +41,9 @@ public class EntryViewHolder extends RecyclerView.ViewHolder
     private FrameLayout thumbnailFrame;
     private ImageView visibleImg;
     private ImageView thumbnailImg;
-    private ImageButton menuButton;
-    private ImageButton copyButton;
     private TextView value;
     private TextView issuer;
     private TextView label;
-    private TextView separator;
     private TextView counter;
     private TextView tags;
     private MaterialProgressBar progressBar;
@@ -65,14 +62,13 @@ public class EntryViewHolder extends RecyclerView.ViewHolder
         coverLayout = v.findViewById(R.id.coverLayout);
         issuer = v.findViewById(R.id.textViewIssuer);
         label = v.findViewById(R.id.textViewLabel);
-        separator = v.findViewById(R.id.textViewSeparator);
         tags = v.findViewById(R.id.textViewTags);
         counterLayout = v.findViewById(R.id.counterLayout);
         counter = v.findViewById(R.id.counter);
         progressBar = v.findViewById(R.id.cardProgressBar);
 
-        menuButton = v.findViewById(R.id.menuButton);
-        copyButton = v.findViewById(R.id.copyButton);
+        ImageButton menuButton = v.findViewById(R.id.menuButton);
+        ImageButton copyButton = v.findViewById(R.id.copyButton);
         ImageView invisibleImg = v.findViewById(R.id.coverImg);
 
         // Style the buttons in the current theme colors
@@ -135,38 +131,21 @@ public class EntryViewHolder extends RecyclerView.ViewHolder
 
         final String tokenFormatted = Tools.formatToken(entry.getCurrentOTP(), settings.getTokenSplitGroupSize());
 
-        String contentHint = "";
-
         String issuerText = entry.getIssuer();
         if (!TextUtils.isEmpty(issuerText)) {
-            issuer.setText(issuerText);
+            issuer.setText(entry.getIssuer());
             issuer.setVisibility(View.VISIBLE);
-
-            contentHint = issuerText;
         } else {
             issuer.setVisibility(View.GONE);
         }
 
         String labelText = entry.getLabel();
         if (!TextUtils.isEmpty(labelText)) {
-            label.setText(labelText);
+            label.setText(entry.getLabel());
             label.setVisibility(View.VISIBLE);
-
-            contentHint = labelText;
         } else {
             label.setVisibility(View.GONE);
         }
-
-        if (!TextUtils.isEmpty(issuerText) && !TextUtils.isEmpty(labelText)) {
-            separator.setVisibility(View.VISIBLE);
-
-            contentHint = issuerText + " - " + labelText;
-        } else {
-            separator.setVisibility(View.GONE);
-        }
-
-        copyButton.setContentDescription(context.getString(R.string.button_card_copy_format, contentHint));
-        menuButton.setContentDescription(context.getString(R.string.button_card_options_format, contentHint));
 
         value.setText(tokenFormatted);
         // save the unformatted token to the tag of this TextView for copy/paste
@@ -177,7 +156,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < entryTags.size(); i++) {
             stringBuilder.append(entryTags.get(i));
-            if(i < entryTags.size() - 1) {
+            if (i < entryTags.size() - 1) {
                 stringBuilder.append(", ");
             }
         }
@@ -305,7 +284,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder
      * */
     public void updateColor(int color) {
         int textColor;
-        if(color == Entry.COLOR_RED) {
+        if (color == Entry.COLOR_RED) {
             textColor = Tools.getThemeColor(context, R.attr.colorExpiring);
         } else {
             textColor = Tools.getThemeColor(context, android.R.attr.textColorSecondary);
