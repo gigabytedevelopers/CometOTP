@@ -14,6 +14,7 @@
     
     <!-- Custom formatting -->
     <string name="format_custom_period">%d s</string>
+    <string name="card_separator" translatable="false">&#160;-&#160;</string>
 
     <!-- Hints -->
     <string name="hint_label">Label</string>
@@ -60,8 +61,11 @@
     <string name="menu_popup_show_qr_code">Show QR Code</string>
     <string name="menu_popup_remove">Remove</string>
 
-    <string name="button_add">Add new account</string>
-    <string name="button_close_menu">Close menu</string>
+    <!-- Buttons -->
+    <string name="button_card_options">More options</string>
+    <string name="button_card_options_format">More options for %1$s</string>
+    <string name="button_card_copy">Copy token</string>
+    <string name="button_card_copy_format">Copy %1$s token</string>
 
     <!-- Toast messages -->
     <string name="toast_auth_failed">Authentication failed, please try again!</string>
@@ -76,7 +80,7 @@
     <string name="toast_qr_error">Could not find/confirm QR code</string>
     <string name="toast_qr_checksum_exception">Checksum verification failed while decoding QR code</string>
     <string name="toast_qr_format_error">Format error in QR code</string>
-    <string name="toast_qr_unsupported">QR Code not supported</string>
+    <string name="toast_qr_unsuported">QR Code not supported</string>
     <string name="toast_qr_failed_to_generate">Failed to generate QR Code</string>
 
     <!-- Errors -->
