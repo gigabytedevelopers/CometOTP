@@ -20,6 +20,7 @@ public class EntryThumbnail {
         Default(R.mipmap.ic_launcher_round),
         OneAndOne(R.drawable.thumb_1and1),
         OnePassword(R.drawable.thumb_1password),
+        TwentyThreeAndMe(R.drawable.thumb_23andme),
         Adafruit(R.drawable.thumb_adafruit),
         AdGuard(R.drawable.thumb_adguard),
         Adobe(R.drawable.thumb_adobe),
