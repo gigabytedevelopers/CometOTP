@@ -220,6 +220,7 @@ public class EntryThumbnail {
         Rockstar(R.drawable.thumb_rockstar),
         Roundcube(R.drawable.thumb_roundcube),
         RSS(R.drawable.thumb_rss),
+        Samsung(R.drawable.thumb_samsung),
         SAP(R.drawable.thumb_sap),
         Scaleway(R.drawable.thumb_scaleway),
         Sciebo(R.drawable.thumb_sciebo),
