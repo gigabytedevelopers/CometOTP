@@ -218,6 +218,7 @@ public class EntryThumbnail {
         Ripio(R.drawable.thumb_ripio),
         Robinhood(R.drawable.thumb_robinhood),
         Rockstar(R.drawable.thumb_rockstar),
+        Roundcube(R.drawable.thumb_roundcube),
         RSS(R.drawable.thumb_rss),
         SAP(R.drawable.thumb_sap),
         Scaleway(R.drawable.thumb_scaleway),
