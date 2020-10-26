@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
+import com.gigabytedevelopersinc.app.cometOTP.View.AutoFillable.AutoFillableTextInputEditText;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.widget.Toolbar;
 import android.text.InputType;
@@ -36,12 +36,13 @@ import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMet
 public class AuthenticateActivity extends ThemedActivity
     implements EditText.OnEditorActionListener, View.OnClickListener {
     private String password;
+    private final AutoFillableTextInputEditText.AutoFillTextListener autoFillTextListener = text -> checkPassword(text.toString());
 
     AuthMethod authMethod;
     String newEncryption = "";
     boolean oldPassword = false;
 
-    TextInputEditText passwordInput;
+    AutoFillableTextInputEditText passwordInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,5 +188,19 @@ public class AuthenticateActivity extends ThemedActivity
     public void onBackPressed() {
         finishWithResult(false, null);
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (settings.getAutoUnlockAfterAutofill()) {
+            passwordInput.setAutoFillTextListener(autoFillTextListener);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        passwordInput.setAutoFillTextListener(null);
+        super.onStop();
     }
 }
