@@ -288,6 +288,7 @@ public class EntryThumbnail {
         Weclapp(R.drawable.thumb_weclapp),
         Whogohost(R.drawable.thumb_whogohost),
         Wikimedia(R.drawable.thumb_wikimedia),
+        Wildduck(R.drawable.thumb_wildduck),
         WooCommerce(R.drawable.thumb_woocommerce),
         Wordpress(R.drawable.thumb_wordpress),
         Workplace(R.drawable.thumb_workplace),
