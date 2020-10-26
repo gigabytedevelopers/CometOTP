@@ -626,6 +626,10 @@ public class MainActivity extends BaseActivity
             }
         });
 
+        if (settings.isFocusSearchOnStartEnabled()) {
+            searchItem.expandActionView();
+        }
+
         return true;
     }
 
