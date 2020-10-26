@@ -240,6 +240,7 @@ public class EntryThumbnail {
         School(R.drawable.thumb_school),
         Sentry(R.drawable.thumb_sentry),
         Sevdesk(R.drawable.thumb_sevdesk),
+        SimpleLogin(R.drawable.thumb_simple_login),
         Skrill(R.drawable.thumb_skrill),
         Slack(R.drawable.thumb_slack),
         Snapchat(R.drawable.thumb_snapchat),
