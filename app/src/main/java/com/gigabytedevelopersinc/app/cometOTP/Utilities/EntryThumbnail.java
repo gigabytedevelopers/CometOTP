@@ -43,7 +43,7 @@ public class EntryThumbnail {
         Autodesk(R.drawable.thumb_autodesk),
         AutoDNS(R.drawable.thumb_autodns),
         AVM(R.drawable.thumb_avm),
-        Babiato(R.drawable.thumb_babiato),
+        BabiatoForums(R.drawable.thumb_babiato),
         Backblaze(R.drawable.thumb_backblaze),
         BattleNet(R.drawable.thumb_battlenet),
         BestBuy(R.drawable.thumb_bestbuy),
@@ -309,8 +309,8 @@ public class EntryThumbnail {
         Zoho(R.drawable.thumb_zoho),
         Zoom(R.drawable.thumb_zoom);
 
-        private int resource;
-        private AssetType assetType;
+        private final int resource;
+        private final AssetType assetType;
 
         EntryThumbnails(int resource) {
             this.resource = resource;
