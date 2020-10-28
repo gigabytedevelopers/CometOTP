@@ -43,7 +43,7 @@ public class EntryThumbnail {
         Autodesk(R.drawable.thumb_autodesk),
         AutoDNS(R.drawable.thumb_autodns),
         AVM(R.drawable.thumb_avm),
-        BabiatoForums(R.drawable.thumb_babiato),
+        Babiato(R.drawable.thumb_babiato),
         Backblaze(R.drawable.thumb_backblaze),
         BattleNet(R.drawable.thumb_battlenet),
         BestBuy(R.drawable.thumb_bestbuy),
