@@ -41,6 +41,8 @@
     <string name="intro_slide4_desc">Your settings have all been saved, you are all set to use
         <b>CometOTP</b> now!</string>
 
+    <string name="intro_slide_android_backup_desc">Android sync is a feature built in to android used to back up app data to a 3rd party service (usually Google). Backups are always encrypted and inaccessible to 3rd parties without your master password. This requires use of Password encryption method.</string>
+
     <!-- Intro -->
     <string name="mi_content_description_skip">Skip</string>
     <string name="mi_content_description_back">Back</string>

@@ -146,6 +146,9 @@
     <string name="settings_toast_clear_cache_success">Cache Storage occupied by CometOTP has
         been cleared!</string>
 
+    <string name="settings_toast_android_sync_enabled">Android sync enabled</string>
+    <string name="settings_toast_android_sync_disabled">Android sync disabled</string>
+
     <string name="settings_dialog_title_warning">Warning</string>
     <string name="settings_dialog_title_error">Error</string>
     <string name="settings_dialog_title_clear_cache">Do you really want to Clear Cache?</string>
