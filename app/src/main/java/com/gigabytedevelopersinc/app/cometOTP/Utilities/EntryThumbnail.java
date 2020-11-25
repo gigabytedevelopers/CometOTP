@@ -10,6 +10,8 @@ import androidx.appcompat.content.res.AppCompatResources;
 
 import com.gigabytedevelopersinc.app.cometOTP.R;
 
+import java.util.regex.Pattern;
+
 public class EntryThumbnail {
     private enum AssetType {
         Bitmap,
@@ -320,6 +322,15 @@ public class EntryThumbnail {
         EntryThumbnails(int resource, AssetType assetType) {
             this.resource = resource;
             this.assetType = assetType;
+        }
+
+        public static EntryThumbnails valueOfFuzzy(String thumbnail) {
+            for (EntryThumbnails entryThumbnails : values()) {
+                Pattern re = Pattern.compile("\\b" + Pattern.quote(entryThumbnails.name()) + "\\b", Pattern.CASE_INSENSITIVE);
+                if (re.matcher(thumbnail).find())
+                    return entryThumbnails;
+            }
+            throw new IllegalArgumentException();
         }
 
         public int getResource() {
