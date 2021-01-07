@@ -169,6 +169,7 @@ public class EntryThumbnail {
         LocalMonero(R.drawable.thumb_localmonero),
         LoginGov(R.drawable.thumb_login_gov),
         LogMeIn(R.drawable.thumb_logmein),
+        Luno(R.drawable.thumb_luno),
         Mailbox(R.drawable.thumb_mailbox),
         Mailchimp(R.drawable.thumb_mailchimp),
         Mailcow(R.drawable.thumb_mailcow),
