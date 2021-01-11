@@ -260,6 +260,7 @@ public class EntryThumbnail {
         Scaleway(R.drawable.thumb_scaleway),
         Sciebo(R.drawable.thumb_sciebo),
         Seafile(R.mipmap.thumb_seafile, AssetType.Bitmap),
+        SelfWealth(R.drawable.thumb_selfwealth),
         School(R.drawable.thumb_school),
         Sentry(R.drawable.thumb_sentry),
         Sevdesk(R.drawable.thumb_sevdesk),
