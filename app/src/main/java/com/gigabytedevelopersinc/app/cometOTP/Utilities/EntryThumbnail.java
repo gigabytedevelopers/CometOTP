@@ -58,6 +58,7 @@ public class EntryThumbnail {
         Bitfinex(R.drawable.thumb_bitfinex),
         Bitmex(R.drawable.thumb_bitmex),
         Bitpanda(R.drawable.thumb_bitpanda),
+        Bitpay(R.drawable.thumb_bitpay),
         Bitstamp(R.drawable.thumb_bitstamp),
         Bittrex(R.drawable.thumb_bittrex),
         Bitwala(R.drawable.thumb_bitwala),
