@@ -226,6 +226,7 @@ public class EntryThumbnail {
         PayWithPrivacy(R.drawable.thumb_paywithprivacy),
         Payza(R.drawable.thumb_payza),
         PCloud(R.drawable.thumb_pcloud),
+        PeeringDB(R.drawable.thumb_peeringdb),
         Phabricator(R.drawable.thumb_phabricator),
         phpMyAdmin(R.drawable.thumb_phpmyadmin),
         Pluralsight(R.drawable.thumb_pluralsight),
