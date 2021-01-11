@@ -68,6 +68,7 @@ public class EntryThumbnail {
         Boxcryptor(R.drawable.thumb_boxcryptor),
         BraveRewards(R.drawable.thumb_braverewards),
         Bugcrowd(R.drawable.thumb_bugcrowd),
+        Celsius(R.drawable.thumb_celsius),
         CEXio(R.drawable.thumb_cexio),
         ChurchTools(R.drawable.thumb_church_tools),
         Cisco(R.drawable.thumb_cisco),
