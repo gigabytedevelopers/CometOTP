@@ -392,6 +392,7 @@ public class MainActivity extends BaseActivity
 
         // ATTENTION: This was auto-generated to handle app links.
         Intent appLinkIntent = getIntent();
+        assert appLinkIntent != null;
         String appLinkAction = appLinkIntent.getAction();
         Uri appLinkData = appLinkIntent.getData();
     }
