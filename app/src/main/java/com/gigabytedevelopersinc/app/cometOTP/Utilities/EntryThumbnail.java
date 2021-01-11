@@ -204,6 +204,7 @@ public class EntryThumbnail {
         NTPPoolProject(R.drawable.thumb_ntppoolproject),
         Oculus(R.drawable.thumb_oculus),
         Office(R.drawable.thumb_office),
+        Okex(R.drawable.thumb_okex),
         Okta(R.drawable.thumb_okta),
         OnlineNet(R.drawable.thumb_online),
         OpenVPN(R.drawable.thumb_openvpn),
