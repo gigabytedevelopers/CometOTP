@@ -179,6 +179,7 @@ public class EntryThumbnail {
         Mailbox(R.drawable.thumb_mailbox),
         Mailchimp(R.drawable.thumb_mailchimp),
         Mailcow(R.drawable.thumb_mailcow),
+        MailDE(R.drawable.thumb_mail_de),
         Mailgun(R.drawable.thumb_mailgun),
         Mailru(R.drawable.thumb_mailru),
         Malwaretips(R.drawable.thumb_malwaretips),
