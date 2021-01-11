@@ -203,6 +203,7 @@ public class EntryThumbnail {
         NameCom(R.drawable.thumb_namecom),
         NAS(R.drawable.thumb_nas),
         netcup(R.drawable.thumb_netcup),
+        netlify(R.drawable.thumb_netlify),
         NewEgg(R.drawable.thumb_newegg),
         Nexo(R.drawable.thumb_nexo),
         NextCloud(R.drawable.thumb_nextcloud),
