@@ -4,13 +4,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask;
+import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask.Result;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.appcompat.widget.Toolbar;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewStub;
@@ -18,25 +20,21 @@ import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper.PBKDF2Credentials;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod;
 
 public class AuthenticateActivity extends ThemedActivity
         implements EditText.OnEditorActionListener, View.OnClickListener {
+
+    private static final String KEY_WAS_TASK_ACTIVE = "AuthenticateActivity.WasTaskActive";
 
     private AuthMethod authMethod;
     private String newEncryption = "";
@@ -44,6 +42,10 @@ public class AuthenticateActivity extends ThemedActivity
     private boolean isAuthUpgrade = false;
 
     private TextInputEditText passwordInput;
+    private Button unlockButton;
+    private ProgressBar unlockProgress;
+
+    private AuthenticationTask activeTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +95,7 @@ public class AuthenticateActivity extends ThemedActivity
         initPasswordLabelView(v);
         initPasswordLayoutView(v);
         initPasswordInputView(v);
-        initUnlockButtonView(v);
+        initUnlockViews(v);
     }
 
     private void initPasswordLabelView(View v) {
@@ -125,79 +127,90 @@ public class AuthenticateActivity extends ThemedActivity
         passwordInput.setOnEditorActionListener(this);
     }
 
-    private void initUnlockButtonView(View v) {
-        Button unlockButton = v.findViewById(R.id.buttonUnlock);
+    private void initUnlockViews(View v) {
+        unlockButton = v.findViewById(R.id.buttonUnlock);
         unlockButton.setOnClickListener(this);
+        unlockButton.setVisibility(View.VISIBLE);
+        unlockProgress = v.findViewById(R.id.unlockProgress);
+        unlockProgress.setVisibility(View.GONE);
     }
 
     @Override
     public void onClick(View view) {
-        checkPassword(Objects.requireNonNull(passwordInput.getText()).toString());
+        startAuthTask(passwordInput.getText().toString());
     }
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_DONE) {
-            checkPassword(v.getText().toString());
+            startAuthTask(v.getText().toString());
             return true;
         }
         return false;
     }
 
-    public void checkPassword(String plainPassword) {
-        if (!isAuthUpgrade) {
-            try {
-                PBKDF2Credentials credentials = EncryptionHelper.generatePBKDF2Credentials(plainPassword, settings.getSalt(), settings.getIterations());
-                byte[] passwordArray = Base64.decode(existingAuthCredentials, Base64.URL_SAFE);
-
-                if (Arrays.equals(passwordArray, credentials.password)) {
-                    finishWithResult(true, credentials.key);
-                } else {
-                    finishWithResult(false, null);
-                }
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException | IllegalArgumentException e) {
-                e.printStackTrace();
-                finishWithResult(false, null);
-            }
-        } else {
-            String hashedPassword = new String(Hex.encodeHex(DigestUtils.sha256(plainPassword)));
-
-            if (hashedPassword.equals(existingAuthCredentials)) {
-                byte[] key = settings.setAuthCredentials(plainPassword);
-
-                if (key == null)
-                    Toast.makeText(this, R.string.settings_toast_auth_upgrade_failed, Toast.LENGTH_LONG).show();
-
-                if (authMethod == AuthMethod.PASSWORD)
-                    settings.removeAuthPasswordHash();
-                else if (authMethod == AuthMethod.PIN)
-                    settings.removeAuthPINHash();
-
-                finishWithResult(true, key);
-            } else {
-                finishWithResult(false, null);
-            }
+    private void startAuthTask(String plainPassword) {
+        // Don't start another task if this was already started.
+        if (activeTask != null) {
+            return;
         }
+        displayUnlockProgress();
+        activeTask = new AuthenticationTask(this, this::handleResult, isAuthUpgrade, existingAuthCredentials, plainPassword);
+        activeTask.execute();
     }
 
-    // End with a result
-    public void finishWithResult(boolean success, byte[] key) {
-        Intent data = new Intent();
+    private void displayUnlockProgress() {
+        passwordInput.setEnabled(false);
+        unlockButton.setEnabled(false);
+        unlockButton.setVisibility(View.INVISIBLE);
+        unlockProgress.setVisibility(View.VISIBLE);
+    }
 
-        if (newEncryption != null && ! newEncryption.isEmpty())
+    private void handleResult(Result result) {
+        activeTask = null;
+        if (result.authUpgradeFailed) {
+            Toast.makeText(this, R.string.settings_toast_auth_upgrade_failed, Toast.LENGTH_LONG).show();
+        }
+        finishWithResult(result.encryptionKey != null, result.encryptionKey);
+    }
+
+    private void finishWithResult(boolean success, byte[] encryptionKey) {
+        Intent data = new Intent();
+        if (newEncryption != null && !newEncryption.isEmpty())
             data.putExtra(Constants.EXTRA_AUTH_NEW_ENCRYPTION, newEncryption);
-        if (key != null)
-            data.putExtra(Constants.EXTRA_AUTH_PASSWORD_KEY, key);
+        if (encryptionKey != null)
+            data.putExtra(Constants.EXTRA_AUTH_PASSWORD_KEY, encryptionKey);
         if (success)
             setResult(RESULT_OK, data);
-
         finish();
     }
 
-    // Go back to the main activity
+    @Override
+    protected void onPause() {
+        super.onPause();
+        completeTaskIfActive();
+    }
+
+    /** @return true if the task was active and was completed, false otherwise. */
+    private boolean completeTaskIfActive() {
+        try {
+            // This will cause the main thread to lock, but ensures that our Activity result will be set.
+            // This task shouldn't take more than 1-2 seconds to complete from starting.
+            if (activeTask != null) {
+                handleResult(activeTask.get());
+                return true;
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e("AuthenticateActivity", "Could not finish active authentication task", e);
+        }
+        return false;
+    }
+
     @Override
     public void onBackPressed() {
-        finishWithResult(false, null);
+        if (!completeTaskIfActive()) {
+            finishWithResult(false, null);
+        }
         super.onBackPressed();
     }
 }
