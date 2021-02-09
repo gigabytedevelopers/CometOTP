@@ -1,14 +1,12 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
-import com.gigabytedevelopersinc.app.cometOTP.View.AutoFillable.AutoFillableTextInputEditText;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
@@ -16,7 +14,6 @@ import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -39,32 +36,39 @@ import java.util.Objects;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod;
 
 public class AuthenticateActivity extends ThemedActivity
-    implements EditText.OnEditorActionListener, View.OnClickListener {
-    private final AutoFillableTextInputEditText.AutoFillTextListener autoFillTextListener = text -> checkPassword(text.toString());
+        implements EditText.OnEditorActionListener, View.OnClickListener {
 
     private AuthMethod authMethod;
     private String newEncryption = "";
-    private boolean oldPassword = false;
-    private String password;
+    private String existingAuthCredentials;
+    private boolean isAuthUpgrade = false;
 
-    private TextInputLayout passwordLayout;
-    AutoFillableTextInputEditText passwordInput;
+    private TextInputEditText passwordInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setTitle(R.string.auth_activity_title);
-
-        if (!settings.getScreenshotsEnabled())
+        if (! settings.getScreenshotsEnabled())
             getWindow().setFlags(LayoutParams.FLAG_SECURE, LayoutParams.FLAG_SECURE);
 
         authMethod = settings.getAuthMethod();
         newEncryption = getIntent().getStringExtra(Constants.EXTRA_AUTH_NEW_ENCRYPTION);
-        password = settings.getAuthCredentials();
-        if (password.isEmpty()) {
-            password = settings.getOldCredentials(authMethod);
-            oldPassword = true;
+        existingAuthCredentials = settings.getAuthCredentials();
+        if (existingAuthCredentials.isEmpty()) {
+            existingAuthCredentials = settings.getOldCredentials(authMethod);
+            isAuthUpgrade = true;
+        }
+
+        // If our password is still empty at this point, we can't do anything.
+        if (existingAuthCredentials.isEmpty()) {
+            int missingPwResId = (authMethod == AuthMethod.PASSWORD)
+                    ? R.string.auth_toast_password_missing : R.string.auth_toast_pin_missing;
+            Toast.makeText(this, missingPwResId, Toast.LENGTH_LONG).show();
+            finishWithResult(true, null);
+        }
+        // If we're not using password or pin for auth method, we have nothing to authenticate here.
+        if (authMethod != AuthMethod.PASSWORD && authMethod != AuthMethod.PIN) {
+            finishWithResult(true, null);
         }
 
         setTitle(R.string.auth_activity_title);
@@ -90,20 +94,6 @@ public class AuthenticateActivity extends ThemedActivity
         initPasswordLayoutView(v);
         initPasswordInputView(v);
         initUnlockButtonView(v);
-
-        if (authMethod == AuthMethod.PASSWORD) {
-            if (password.isEmpty())
-                finishFromEmptyPassword(R.string.auth_toast_password_missing);
-            else
-                setupPasswordFields(R.string.auth_hint_password, (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
-        } else if (authMethod == AuthMethod.PIN) {
-            if (password.isEmpty())
-                finishFromEmptyPassword(R.string.auth_toast_pin_missing);
-            else
-                setupPasswordFields(R.string.auth_hint_pin, (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD));
-        } else {
-            finishWithResult(true, null);
-        }
     }
 
     private void initPasswordLabelView(View v) {
@@ -113,17 +103,24 @@ public class AuthenticateActivity extends ThemedActivity
     }
 
     private void initPasswordLayoutView(View v) {
-        passwordLayout = v.findViewById(R.id.passwordLayout);
+        TextInputLayout passwordLayout = v.findViewById(R.id.passwordLayout);
+
+        int hintResId = (authMethod == AuthMethod.PASSWORD) ? R.string.auth_hint_password : R.string.auth_hint_pin;
+        passwordLayout.setHint(getString(hintResId));
 
         if (settings.getBlockAccessibility())
             passwordLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
 
-        if (GeneralUtils.INSTANCE.isOreo() && settings.getBlockAutofill())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && settings.getBlockAutofill())
             passwordLayout.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
     }
 
     private void initPasswordInputView(View v) {
         passwordInput = v.findViewById(R.id.passwordEdit);
+        int inputType = (authMethod == AuthMethod.PASSWORD)
+                ? (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                : (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        passwordInput.setInputType(inputType);
         passwordInput.setTransformationMethod(new PasswordTransformationMethod());
         passwordInput.setOnEditorActionListener(this);
     }
@@ -131,16 +128,6 @@ public class AuthenticateActivity extends ThemedActivity
     private void initUnlockButtonView(View v) {
         Button unlockButton = v.findViewById(R.id.buttonUnlock);
         unlockButton.setOnClickListener(this);
-    }
-
-    private void finishFromEmptyPassword(@StringRes int missingPwResId) {
-        Toast.makeText(this, missingPwResId, Toast.LENGTH_LONG).show();
-        finishWithResult(true, null);
-    }
-
-    private void setupPasswordFields(@StringRes int hintResId, int inputType) {
-        passwordLayout.setHint(getString(hintResId));
-        passwordInput.setInputType(inputType);
     }
 
     @Override
@@ -158,10 +145,10 @@ public class AuthenticateActivity extends ThemedActivity
     }
 
     public void checkPassword(String plainPassword) {
-        if (! oldPassword) {
+        if (!isAuthUpgrade) {
             try {
                 PBKDF2Credentials credentials = EncryptionHelper.generatePBKDF2Credentials(plainPassword, settings.getSalt(), settings.getIterations());
-                byte[] passwordArray = Base64.decode(password, Base64.URL_SAFE);
+                byte[] passwordArray = Base64.decode(existingAuthCredentials, Base64.URL_SAFE);
 
                 if (Arrays.equals(passwordArray, credentials.password)) {
                     finishWithResult(true, credentials.key);
@@ -175,11 +162,11 @@ public class AuthenticateActivity extends ThemedActivity
         } else {
             String hashedPassword = new String(Hex.encodeHex(DigestUtils.sha256(plainPassword)));
 
-            if (hashedPassword.equals(password)) {
+            if (hashedPassword.equals(existingAuthCredentials)) {
                 byte[] key = settings.setAuthCredentials(plainPassword);
 
                 if (key == null)
-                    Snackbar.make(findViewById(R.id.authenticate), R.string.settings_toast_auth_upgrade_failed, Snackbar.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.settings_toast_auth_upgrade_failed, Toast.LENGTH_LONG).show();
 
                 if (authMethod == AuthMethod.PASSWORD)
                     settings.removeAuthPasswordHash();
@@ -199,10 +186,8 @@ public class AuthenticateActivity extends ThemedActivity
 
         if (newEncryption != null && ! newEncryption.isEmpty())
             data.putExtra(Constants.EXTRA_AUTH_NEW_ENCRYPTION, newEncryption);
-
         if (key != null)
             data.putExtra(Constants.EXTRA_AUTH_PASSWORD_KEY, key);
-
         if (success)
             setResult(RESULT_OK, data);
 
@@ -214,19 +199,5 @@ public class AuthenticateActivity extends ThemedActivity
     public void onBackPressed() {
         finishWithResult(false, null);
         super.onBackPressed();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (settings.getAutoUnlockAfterAutofill()) {
-            passwordInput.setAutoFillTextListener(autoFillTextListener);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        passwordInput.setAutoFillTextListener(null);
-        super.onStop();
     }
 }
