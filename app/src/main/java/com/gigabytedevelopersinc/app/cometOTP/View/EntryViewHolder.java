@@ -134,7 +134,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         String contentHint = "";
         String issuerText = entry.getIssuer();
 
-        if (!TextUtils.isEmpty(issuerText)) {
+        if (!TextUtils.isEmpty(issuerText) && !settings.isHideIssuerEnabled()) {
             issuer.setText(issuerText);
             issuer.setVisibility(View.VISIBLE);
 

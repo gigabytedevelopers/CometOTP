@@ -193,6 +193,12 @@
             android:summary="@string/settings_desc_focus_search_on_start"
             android:defaultValue="false" />
 
+        <CheckBoxPreference
+            android:key="@string/settings_key_hide_issuer"
+            android:title="@string/settings_title_hide_issuer"
+            android:summary="@string/settings_desc_hide_issuer"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
