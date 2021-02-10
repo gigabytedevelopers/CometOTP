@@ -60,8 +60,9 @@ android {
         disable 'ExtraTranslation'
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
+        viewBinding true
     }
 
     compileOptions {
