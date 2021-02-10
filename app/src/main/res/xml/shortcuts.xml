@@ -14,7 +14,7 @@
         android:icon="@drawable/ic_image_shortcut"
         android:shortcutShortLabel="@string/shortcut_name_import_qr"
         android:shortcutLongLabel="@string/shortcut_name_import_qr">
-        <intent android:action="org.shadowice.flocke.andotp.intent.IMPORT_QR" />
+        <intent android:action="com.gigabytedevelopersinc.app.cometOTP.intent.IMPORT_QR" />
     </shortcut>
 
     <shortcut

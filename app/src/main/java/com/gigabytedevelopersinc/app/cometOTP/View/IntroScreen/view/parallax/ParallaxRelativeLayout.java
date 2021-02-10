@@ -95,5 +95,4 @@ public class ParallaxRelativeLayout extends RelativeLayout implements Parallaxab
             this.parallaxFactor = parallaxFactor;
         }
     }
-
 }

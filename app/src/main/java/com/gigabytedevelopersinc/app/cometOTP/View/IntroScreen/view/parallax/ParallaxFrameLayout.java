@@ -104,5 +104,4 @@ public class ParallaxFrameLayout extends FrameLayout implements Parallaxable {
             this.parallaxFactor = parallaxFactor;
         }
     }
-
 }

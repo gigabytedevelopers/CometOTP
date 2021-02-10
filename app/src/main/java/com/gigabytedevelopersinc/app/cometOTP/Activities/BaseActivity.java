@@ -23,13 +23,7 @@ public abstract class BaseActivity extends ThemedActivity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(screenOffReceiver);
-
         super.onDestroy();
-    }
-
-    private void destroyIfNotMain() {
-        if (getClass() != MainActivity.class)
-            finish();
     }
 
     public void setBroadcastCallback(BroadcastReceivedCallback cb) {
@@ -41,13 +35,19 @@ public abstract class BaseActivity extends ThemedActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Objects.equals(intent.getAction(), Intent.ACTION_SCREEN_OFF)) {
-                if (broadcastReceivedCallback != null)
+            if (Objects.requireNonNull(intent.getAction()).equals(Intent.ACTION_SCREEN_OFF)) {
+                if (broadcastReceivedCallback != null) {
                     broadcastReceivedCallback.onReceivedScreenOff();
-
-                destroyIfNotMain();
+                }
+                if (shouldDestroyOnScreenOff()) {
+                    finish();
+                }
             }
         }
+    }
+
+    protected boolean shouldDestroyOnScreenOff() {
+        return true;
     }
 
     interface BroadcastReceivedCallback {

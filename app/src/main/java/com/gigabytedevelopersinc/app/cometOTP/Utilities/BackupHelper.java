@@ -102,7 +102,8 @@ public class BackupHelper {
 
     public static Constants.BackupType autoBackupType(Context context) {
         Settings settings = new Settings(context);
-        if (!settings.isBackupLocationSet()) {
+
+        if(!settings.isBackupLocationSet()) {
             return Constants.BackupType.UNAVAILABLE;
         }
 
@@ -113,11 +114,15 @@ public class BackupHelper {
         return Constants.BackupType.UNAVAILABLE;
     }
 
-    public static boolean backupToFile(Context context, Uri uri, String password, SecretKey encryptionKey)
-    {
+    public static boolean backupToFile(Context context, Uri uri, String password, SecretKey encryptionKey) {
         ArrayList<Entry> entries = DatabaseHelper.loadDatabase(context, encryptionKey);
         String plain = DatabaseHelper.entriesToString(entries);
 
+        return backupToFile(context, uri, password, plain);
+    }
+
+    public static boolean backupToFile(Context context, Uri uri, String password, String plain)
+    {
         boolean success = true;
 
         try {
@@ -137,7 +142,7 @@ public class BackupHelper {
             success = StorageAccessHelper.saveFile(context, uri, data);
         } catch (Exception e) {
             e.printStackTrace();
-            success =  false;
+            success = false;
         }
 
         return success;

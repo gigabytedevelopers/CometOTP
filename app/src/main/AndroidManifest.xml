@@ -6,6 +6,8 @@
     android:installLocation="auto"
     package="com.gigabytedevelopersinc.app.cometOTP">
 
+    <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
+
     <application
         android:allowBackup="true"
         android:backupAgent="com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupAgent"
@@ -33,7 +35,7 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.gigabytedevelopersinc.app.cometOTP.intent.SCAN_QR" />
-                <action android:name="org.shadowice.flocke.andotp.intent.IMPORT_QR" />
+                <action android:name="com.gigabytedevelopersinc.app.cometOTP.intent.IMPORT_QR" />
                 <action android:name="com.gigabytedevelopersinc.app.cometOTP.intent.ENTER_DETAILS" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -55,41 +57,41 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:name=".Activities.AboutActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.AuthenticateActivity"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:name=".Activities.AuthenticateActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.BackupActivity"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:name=".Activities.BackupActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.CacheActivity"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.SettingsActivity"
+            android:name=".Activities.CacheActivity"
+            android:parentActivityName=".Activities.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.IntroScreenActivity"
+            android:name=".Activities.IntroScreenActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/Theme.Intro.Solid" />
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.LicensesActivity"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity"
+            android:name=".Activities.LicensesActivity"
+            android:parentActivityName=".Activities.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.PrivacyPolicyActivity"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity"
+            android:name=".Activities.PrivacyPolicyActivity"
+            android:parentActivityName=".Activities.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.SettingsActivity"
-            android:parentActivityName="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:name=".Activities.SettingsActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.SecureCaptureActivity" />
         <activity
-            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.PanicResponderActivity"
+            android:name=".Activities.PanicResponderActivity"
             android:launchMode="singleInstance"
             android:noHistory="true"
             android:theme="@android:style/Theme.NoDisplay">
@@ -99,13 +101,13 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.gigabytedevelopersinc.app.cometOTP.Receivers.PlainTextBackupBroadcastReceiver">
+        <receiver android:name=".Receivers.PlainTextBackupBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.gigabytedevelopersinc.app.cometOTP.broadcast.PLAIN_TEXT_BACKUP" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.gigabytedevelopersinc.app.cometOTP.Receivers.EncryptedBackupBroadcastReceiver">
+        <receiver android:name=".Receivers.EncryptedBackupBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.gigabytedevelopersinc.app.cometOTP.broadcast.ENCRYPTED_BACKUP" />
             </intent-filter>

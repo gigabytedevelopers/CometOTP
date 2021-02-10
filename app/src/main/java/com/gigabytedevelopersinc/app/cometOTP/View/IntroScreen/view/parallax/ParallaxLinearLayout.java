@@ -104,5 +104,4 @@ public class ParallaxLinearLayout extends LinearLayout implements Parallaxable {
             this.parallaxFactor = parallaxFactor;
         }
     }
-
 }
