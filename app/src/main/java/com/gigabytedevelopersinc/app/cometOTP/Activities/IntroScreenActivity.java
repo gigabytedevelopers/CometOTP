@@ -253,6 +253,7 @@ public class IntroScreenActivity extends IntroActivity {
         private String lengthWarning = "";
         private String noPasswordWarning = "";
         private String confirmPasswordWarning = "";
+        private String passwordMismatchWarning = "";
 
         private TextView desc = null;
         private Spinner selection = null;
@@ -410,6 +411,7 @@ public class IntroScreenActivity extends IntroActivity {
                     lengthWarning = getString(R.string.settings_label_short_password, minLength);
                     noPasswordWarning = getString(R.string.intro_slide3_warn_no_password);
                     confirmPasswordWarning = getString(R.string.intro_slide3_warn_confirm_password);
+                    passwordMismatchWarning = getString(R.string.intro_slide3_warn_password_mismatch);
 
                     focusOnPasswordInput();
                 }
@@ -436,6 +438,7 @@ public class IntroScreenActivity extends IntroActivity {
                     lengthWarning = getString(R.string.settings_label_short_pin, minLength);
                     noPasswordWarning = getString(R.string.intro_slide3_warn_no_pin);
                     confirmPasswordWarning = getString(R.string.intro_slide3_warn_confirm_pin);
+                    passwordMismatchWarning = getString(R.string.intro_slide3_warn_pin_mismatch);
 
                     focusOnPasswordInput();
                 }
@@ -484,6 +487,9 @@ public class IntroScreenActivity extends IntroActivity {
                         if (! confirm.isEmpty() && confirm.equals(password)) {
                             hideWarning();
                             return true;
+                        } else if (! confirm.isEmpty() && ! confirm.equals(password)) {
+                            updateWarning(passwordMismatchWarning);
+                            return false;
                         } else {
                             updateWarning(confirmPasswordWarning);
                             return false;
