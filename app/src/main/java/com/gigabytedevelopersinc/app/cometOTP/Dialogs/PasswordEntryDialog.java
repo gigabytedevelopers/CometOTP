@@ -90,8 +90,7 @@ public class PasswordEntryDialog extends AppCompatDialog
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (passwordInput.getEditableText().length() >= Constants.AUTH_MIN_PASSWORD_LENGTH) {
             tooShortWarning.setVisibility(View.GONE);
-            if (TextUtils.equals(passwordInput.getEditableText(), passwordConfirm.getEditableText()))
-                okButton.setEnabled(true);
+            okButton.setEnabled(TextUtils.equals(passwordInput.getEditableText(), passwordConfirm.getEditableText()));
         }
         else {
             tooShortWarning.setVisibility(View.VISIBLE);
