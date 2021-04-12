@@ -5,7 +5,12 @@ import android.content.Context;
 import android.graphics.ColorFilter;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
@@ -30,25 +35,24 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import static com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity.animatorDuration;
 
 public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
-    private Context context;
+    private final Context context;
     private Callback callback;
     private boolean tapToReveal;
 
-    private CardView card;
-    private LinearLayout valueLayout;
-    private LinearLayout coverLayout;
-    private LinearLayout counterLayout;
-    private FrameLayout thumbnailFrame;
-    private ImageView visibleImg;
-    private ImageView thumbnailImg;
-    private ImageButton menuButton;
-    private ImageButton copyButton;
-    private TextView value;
-    private TextView issuer;
-    private TextView label;
-    private TextView counter;
-    private TextView tags;
-    private MaterialProgressBar progressBar;
+    private final CardView card;
+    private final LinearLayout valueLayout;
+    private final LinearLayout coverLayout;
+    private final LinearLayout counterLayout;
+    private final FrameLayout thumbnailFrame;
+    private final ImageView visibleImg;
+    private final ImageView thumbnailImg;
+    private final ImageButton menuButton;
+    private final ImageButton copyButton;
+    private final TextView value;
+    private final TextView label;
+    private final TextView counter;
+    private final TextView tags;
+    private final MaterialProgressBar progressBar;
 
     public EntryViewHolder(Context context, final View v, boolean tapToReveal) {
         super(v);
@@ -61,7 +65,6 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         thumbnailFrame = v.findViewById(R.id.thumbnailFrame);
         thumbnailImg = v.findViewById(R.id.thumbnailImg);
         coverLayout = v.findViewById(R.id.coverLayout);
-        issuer = v.findViewById(R.id.textViewIssuer);
         label = v.findViewById(R.id.textViewLabel);
         tags = v.findViewById(R.id.textViewTags);
         counterLayout = v.findViewById(R.id.counterLayout);
@@ -132,27 +135,33 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
 
         final String tokenFormatted = Tools.formatToken(entry.getCurrentOTP(), settings.getTokenSplitGroupSize());
 
-        String contentHint = "";
         String issuerText = entry.getIssuer();
+        String labelText = entry.getLabel();
+
+        String contentHint = "";
+        SpannableStringBuilder labelBuilder = new SpannableStringBuilder();
 
         if (!TextUtils.isEmpty(issuerText) && !settings.isHideIssuerEnabled()) {
-            issuer.setText(issuerText);
-            issuer.setVisibility(View.VISIBLE);
+            labelBuilder.append(issuerText);
+
+            labelBuilder.setSpan(new StyleSpan(Typeface.BOLD), 0, issuerText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             contentHint = issuerText;
-        } else {
-            issuer.setVisibility(View.GONE);
         }
 
-        String labelText = entry.getLabel();
+        if (!TextUtils.isEmpty(issuerText) && !TextUtils.isEmpty(labelText) && !settings.isHideIssuerEnabled()) {
+            String separatorText = "\u00a0-\u00a0"; // \u00a0 = non-breaking space
+            labelBuilder.append(separatorText);
+        }
+
         if (!TextUtils.isEmpty(labelText)) {
-            label.setText(labelText);
-            label.setVisibility(View.VISIBLE);
+            labelBuilder.append(labelText);
 
-            contentHint = labelText;
-        } else {
-            label.setVisibility(View.GONE);
+            if (TextUtils.isEmpty(issuerText) || settings.isHideIssuerEnabled())
+                contentHint = labelText;
         }
+
+        label.setText(labelBuilder);
 
         copyButton.setContentDescription(context.getString(R.string.button_card_copy_format, contentHint));
         menuButton.setContentDescription(context.getString(R.string.button_card_options_format, contentHint));
