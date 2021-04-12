@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ConfirmedPasswordTransformationHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.EditorActionHelper;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.AppCompatDialog;
@@ -13,6 +13,7 @@ import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,13 +22,11 @@ import android.widget.TextView;
 import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 
-import java.util.Objects;
-
 /**
  * @author Created by Emmanuel Nwokoma (Founder and CEO at Gigabyte Developers) on 7/15/2018
  **/
 public class PasswordEntryDialog extends AppCompatDialog
-        implements View.OnClickListener, TextWatcher {
+        implements View.OnClickListener, TextWatcher, TextView.OnEditorActionListener {
 
     public enum Mode { ENTER, UPDATE }
 
@@ -79,10 +78,17 @@ public class PasswordEntryDialog extends AppCompatDialog
 
         if (this.dialogMode == Mode.UPDATE) {
             passwordConfirm.setVisibility(View.VISIBLE);
+
             passwordInput.addTextChangedListener(this);
             passwordConfirm.addTextChangedListener(this);
+
+            passwordConfirm.setOnEditorActionListener(this);
         } else if (this.dialogMode == Mode.ENTER) {
             passwordConfirm.setVisibility(View.GONE);
+
+            passwordInput.addTextChangedListener(this);
+
+            passwordInput.setOnEditorActionListener(this);
         }
     }
 
@@ -90,7 +96,8 @@ public class PasswordEntryDialog extends AppCompatDialog
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (passwordInput.getEditableText().length() >= Constants.AUTH_MIN_PASSWORD_LENGTH) {
             tooShortWarning.setVisibility(View.GONE);
-            okButton.setEnabled(TextUtils.equals(passwordInput.getEditableText(), passwordConfirm.getEditableText()));
+
+            okButton.setEnabled(dialogMode == Mode.ENTER || TextUtils.equals(passwordInput.getEditableText(), passwordConfirm.getEditableText()));
         }
         else {
             tooShortWarning.setVisibility(View.VISIBLE);
@@ -100,6 +107,20 @@ public class PasswordEntryDialog extends AppCompatDialog
 
     public void afterTextChanged(Editable s) {}
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (EditorActionHelper.isActionDoneOrKeyboardEnter(actionId, event)) {
+            if (okButton.isEnabled()) okButton.performClick();
+            return true;
+        } else if (EditorActionHelper.isActionUpKeyboardEnter(event)) {
+            // Ignore action up after keyboard enter. Otherwise the cancel button would be selected
+            // after pressing enter with an invalid password.
+            return true;
+        }
+
+        return false;
+    }
 
     // View.OnClickListener
     public void onClick(View view)  {
