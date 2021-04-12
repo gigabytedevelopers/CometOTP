@@ -205,7 +205,7 @@ public class ManualEntryDialog {
 
                     adapter.addEntry(e);
                 } else {
-                    oldEntry.setIssuer(issuer);
+                    oldEntry.setIssuer(issuer,true);
                     oldEntry.setLabel(label);
                     oldEntry.setTags(tagsAdapter.getActiveTags());
 
@@ -223,7 +223,7 @@ public class ManualEntryDialog {
 
                     adapter.addEntry(e);
                 } else {
-                    oldEntry.setIssuer(issuer);
+                    oldEntry.setIssuer(issuer, true);
                     oldEntry.setLabel(label);
                     oldEntry.setTags(tagsAdapter.getActiveTags());
 
