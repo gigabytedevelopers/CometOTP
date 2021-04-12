@@ -1,23 +1,28 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
+import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-
-import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask;
-import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask.Result;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
+
+import android.text.Editable;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -25,27 +30,29 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gigabytedevelopersinc.app.cometOTP.R;
+import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask;
+import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask.Result;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
-
-import java.util.concurrent.ExecutionException;
+import com.gigabytedevelopersinc.app.cometOTP.View.AutoFillable.AutoFillableTextInputEditText;
 
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod;
 
-public class AuthenticateActivity extends ThemedActivity
+public class AuthenticateActivity extends BaseActivity
         implements EditText.OnEditorActionListener, View.OnClickListener {
+    private final AutoFillableTextInputEditText.AutoFillTextListener autoFillTextListener = text -> startAuthTask(text.toString());
 
-    private static final String KEY_WAS_TASK_ACTIVE = "AuthenticateActivity.WasTaskActive";
+    private static final String TAG_TASK_FRAGMENT = "AuthenticateActivity.TaskFragmentTag";
 
     private AuthMethod authMethod;
     private String newEncryption = "";
     private String existingAuthCredentials;
     private boolean isAuthUpgrade = false;
+    private ProcessLifecycleObserver observer;
 
-    private TextInputEditText passwordInput;
+    private TextInputLayout passwordLayout;
+    AutoFillableTextInputEditText passwordInput;
     private Button unlockButton;
     private ProgressBar unlockProgress;
-
-    private AuthenticationTask activeTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +85,16 @@ public class AuthenticateActivity extends ThemedActivity
         initToolbar();
         initPasswordViews();
 
+        setBroadcastCallback(() -> {
+            if (settings.getRelockOnScreenOff()) {
+                cancelBackgroundTask();
+            }
+        });
+
+        observer = new ProcessLifecycleObserver();
+        ProcessLifecycleOwner.get().getLifecycle()
+                .addObserver(observer);
+
         getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
@@ -105,16 +122,15 @@ public class AuthenticateActivity extends ThemedActivity
     }
 
     private void initPasswordLayoutView(View v) {
-        TextInputLayout passwordLayout = v.findViewById(R.id.passwordLayout);
-
+        passwordLayout = v.findViewById(R.id.passwordLayout);
         int hintResId = (authMethod == AuthMethod.PASSWORD) ? R.string.auth_hint_password : R.string.auth_hint_pin;
         passwordLayout.setHint(getString(hintResId));
-
-        if (settings.getBlockAccessibility())
+        if (settings.getBlockAccessibility()) {
             passwordLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && settings.getBlockAutofill())
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && settings.getBlockAutofill()) {
             passwordLayout.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
+        }
     }
 
     private void initPasswordInputView(View v) {
@@ -130,14 +146,72 @@ public class AuthenticateActivity extends ThemedActivity
     private void initUnlockViews(View v) {
         unlockButton = v.findViewById(R.id.buttonUnlock);
         unlockButton.setOnClickListener(this);
-        unlockButton.setVisibility(View.VISIBLE);
         unlockProgress = v.findViewById(R.id.unlockProgress);
-        unlockProgress.setVisibility(View.GONE);
+    }
+
+    private void cancelBackgroundTask() {
+        TaskFragment taskFragment = findTaskFragment();
+        if (taskFragment != null) {
+            taskFragment.task.cancel();
+        }
+        setupUiForTaskState(false);
+    }
+
+    private class ProcessLifecycleObserver implements DefaultLifecycleObserver {
+        @Override
+        public void onStop(LifecycleOwner owner) {
+            if (settings.getRelockOnBackground()) {
+                cancelBackgroundTask();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkBackgroundTask();
+    }
+
+    private void checkBackgroundTask() {
+        TaskFragment taskFragment = findTaskFragment();
+        if (taskFragment != null) {
+            if (taskFragment.task.isCanceled()) {
+                // The task was canceled, so remove the task fragment and reset password input.
+                getFragmentManager().beginTransaction()
+                        .remove(taskFragment)
+                        .commit();
+                resetPasswordInput();
+            } else {
+                taskFragment.task.setCallback(this::handleResult);
+                setupUiForTaskState(true);
+            }
+        }
+    }
+
+    private void resetPasswordInput() {
+        passwordInput.setText("");
+        passwordInput.requestFocus();
+        InputMethodManager keyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        keyboard.showSoftInput(passwordInput, 0);
+    }
+
+    @Nullable
+    private TaskFragment findTaskFragment() {
+        return (TaskFragment) getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
+    }
+
+    private void setupUiForTaskState(boolean isTaskRunning) {
+        passwordLayout.setEnabled(!isTaskRunning);
+        passwordInput.setEnabled(!isTaskRunning);
+        unlockButton.setEnabled(!isTaskRunning);
+        unlockButton.setVisibility(isTaskRunning? View.INVISIBLE : View.VISIBLE);
+        unlockProgress.setVisibility(isTaskRunning ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void onClick(View view) {
-        startAuthTask(passwordInput.getText().toString());
+        Editable text = passwordInput.getText();
+        startAuthTask(text != null ? text.toString() : "");
     }
 
     @Override
@@ -150,24 +224,25 @@ public class AuthenticateActivity extends ThemedActivity
     }
 
     private void startAuthTask(String plainPassword) {
-        // Don't start another task if this was already started.
-        if (activeTask != null) {
-            return;
-        }
-        displayUnlockProgress();
-        activeTask = new AuthenticationTask(this, this::handleResult, isAuthUpgrade, existingAuthCredentials, plainPassword);
-        activeTask.execute();
-    }
+        TaskFragment taskFragment = findTaskFragment();
+        // Don't start a task if we already have an active task running.
+        if (taskFragment == null || taskFragment.task.isCanceled()) {
+            AuthenticationTask task = new AuthenticationTask(this, isAuthUpgrade, existingAuthCredentials, plainPassword);
+            task.setCallback(this::handleResult);
 
-    private void displayUnlockProgress() {
-        passwordInput.setEnabled(false);
-        unlockButton.setEnabled(false);
-        unlockButton.setVisibility(View.INVISIBLE);
-        unlockProgress.setVisibility(View.VISIBLE);
+            if (taskFragment == null) {
+                taskFragment = new TaskFragment();
+                getFragmentManager()
+                        .beginTransaction()
+                        .add(taskFragment, TAG_TASK_FRAGMENT)
+                        .commit();
+            }
+            taskFragment.startTask(task);
+            setupUiForTaskState(true);
+        }
     }
 
     private void handleResult(Result result) {
-        activeTask = null;
         if (result.authUpgradeFailed) {
             Toast.makeText(this, R.string.settings_toast_auth_upgrade_failed, Toast.LENGTH_LONG).show();
         }
@@ -186,31 +261,60 @@ public class AuthenticateActivity extends ThemedActivity
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        completeTaskIfActive();
-    }
-
-    /** @return true if the task was active and was completed, false otherwise. */
-    private boolean completeTaskIfActive() {
-        try {
-            // This will cause the main thread to lock, but ensures that our Activity result will be set.
-            // This task shouldn't take more than 1-2 seconds to complete from starting.
-            if (activeTask != null) {
-                handleResult(activeTask.get());
-                return true;
-            }
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e("AuthenticateActivity", "Could not finish active authentication task", e);
-        }
-        return false;
+    public void onBackPressed() {
+        finishWithResult(false, null);
+        super.onBackPressed();
     }
 
     @Override
-    public void onBackPressed() {
-        if (!completeTaskIfActive()) {
-            finishWithResult(false, null);
+    protected void onStart() {
+        super.onStart();
+        if (settings.getAutoUnlockAfterAutofill()) {
+            passwordInput.setAutoFillTextListener(autoFillTextListener);
         }
-        super.onBackPressed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // We don't want the task to callback to a dead activity and cause a memory leak, so null it here.
+        TaskFragment taskFragment = findTaskFragment();
+        if (taskFragment != null) {
+            taskFragment.task.setCallback(null);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        passwordInput.setAutoFillTextListener(null);
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        ProcessLifecycleOwner.get().getLifecycle()
+                .removeObserver(observer);
+        super.onDestroy();
+    }
+
+    @Override
+    protected boolean shouldDestroyOnScreenOff() {
+        return false;
+    }
+
+    /** Retained instance fragment to hold a running {@link AuthenticationTask} between configuration changes.*/
+    public static class TaskFragment extends Fragment {
+
+        AuthenticationTask task;
+
+        public TaskFragment() {
+            super();
+            setRetainInstance(true);
+        }
+
+        public void startTask(@NonNull AuthenticationTask task) {
+            this.task = task;
+            task.execute();
+        }
     }
 }
