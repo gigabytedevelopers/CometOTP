@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.R;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
@@ -226,15 +227,26 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         thumbnailImg.requestLayout();
     }
 
-    public void setLabelScroll(boolean active) {
-        if (active) {
-            label.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-            label.setHorizontallyScrolling(true);
-            label.setSelected(true);
-        } else {
-            label.setEllipsize(TextUtils.TruncateAt.END);
-            label.setHorizontallyScrolling(false);
-            label.setSelected(false);
+    public void setLabelScroll(Constants.LabelDisplay labelDisplay) {
+        switch (labelDisplay) {
+            case TRUNCATE:
+                label.setEllipsize(TextUtils.TruncateAt.END);
+                label.setHorizontallyScrolling(false);
+                label.setSelected(false);
+                label.setMaxLines(1);
+                break;
+            case SCROLL:
+                label.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                label.setHorizontallyScrolling(true);
+                label.setSelected(true);
+                label.setMaxLines(1);
+                break;
+            case MULTILINE:
+                label.setEllipsize(null);
+                label.setHorizontallyScrolling(false);
+                label.setSelected(false);
+                label.setMaxLines(10);
+                break;
         }
     }
 

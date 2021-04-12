@@ -27,7 +27,8 @@
     <string name="settings_key_theme_mode" translatable="false">perf_theme_mode</string>
     <string name="settings_key_theme" translatable="false">pref_theme</string>
     <string name="settings_key_label_size" translatable="false">pref_label_size_sp</string>
-    <string name="settings_key_label_scroll" translatable="false">pref_label_scroll</string>
+    <string name="settings_key_label_scroll" translatable="false">pref_label_scroll</string>            <!-- Deprecated -->
+    <string name="settings_key_label_display" translatable="false">pref_label_display</string>
     <string name="settings_key_tap_single" translatable="false">pref_tap_single</string>
     <string name="settings_key_tap_double" translatable="false">pref_tap_double</string>
     <string name="settings_key_minimize_on_copy" translatable="false">pref_minimize_on_copy</string>
@@ -79,6 +80,7 @@
     <string name="settings_default_theme_mode" translatable="false">auto</string>
     <string name="settings_default_theme" translatable="false">light</string>
     <integer name="settings_default_label_size">18</integer>
+    <string name="settings_default_label_display" translatable="false">truncate</string>
     <string name="settings_default_tap_single" translatable="false">nothing</string>
     <string name="settings_default_tap_double" translatable="false">nothing</string>
     <string name="settings_default_thumbnail_size" translatable="false">46dp</string>
@@ -144,6 +146,12 @@
         <item>light</item>
         <item>dark</item>
         <item>black</item>
+    </string-array>
+
+    <string-array name="settings_values_label_display" translatable="false">
+        <item>truncate</item>
+        <item>scroll</item>
+        <item>multiline</item>
     </string-array>
 
     <string-array name="settings_values_thumbnail_size" translatable="false">
