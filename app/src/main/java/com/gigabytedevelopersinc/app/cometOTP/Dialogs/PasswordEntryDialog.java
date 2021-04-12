@@ -41,7 +41,7 @@ public class PasswordEntryDialog extends AppCompatDialog
     private final TextInputEditText passwordInput;
     private final EditText passwordConfirm;
     private final Button okButton;
-    private final TextView toShortWarning;
+    private final TextView tooShortWarning;
 
     public PasswordEntryDialog(Context context, Mode newMode, boolean blockAccessibility, boolean blockAutofill, PasswordEnteredCallback newCallback) {
         super(context, Tools.getThemeResource(context, R.attr.dialogTheme));
@@ -52,8 +52,8 @@ public class PasswordEntryDialog extends AppCompatDialog
         TextInputLayout passwordLayout = findViewById(R.id.passwordInputLayout);
         passwordInput = findViewById(R.id.passwordInput);
         passwordConfirm = findViewById(R.id.passwordConfirm);
-        toShortWarning = findViewById(R.id.toShortWarning);
-        toShortWarning.setText(getContext().getString(R.string.settings_label_short_password, Constants.AUTH_MIN_PASSWORD_LENGTH));
+        tooShortWarning = findViewById(R.id.tooShortWarning);
+        tooShortWarning.setText(getContext().getString(R.string.settings_label_short_password, Constants.AUTH_MIN_PASSWORD_LENGTH));
         ConfirmedPasswordTransformationHelper.setup(passwordLayout, passwordInput, passwordConfirm);
 
         if (blockAccessibility) {
@@ -89,12 +89,12 @@ public class PasswordEntryDialog extends AppCompatDialog
     // TextWatcher
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (passwordInput.getEditableText().length() >= Constants.AUTH_MIN_PASSWORD_LENGTH) {
-            toShortWarning.setVisibility(View.GONE);
+            tooShortWarning.setVisibility(View.GONE);
             if (TextUtils.equals(passwordInput.getEditableText(), passwordConfirm.getEditableText()))
                 okButton.setEnabled(true);
         }
         else {
-            toShortWarning.setVisibility(View.VISIBLE);
+            tooShortWarning.setVisibility(View.VISIBLE);
             okButton.setEnabled(false);
         }
     }

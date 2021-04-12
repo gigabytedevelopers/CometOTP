@@ -63,7 +63,7 @@ public class CredentialsPreference extends DialogPreference
     private TextInputLayout passwordLayout;
     private TextInputEditText passwordInput;
     private EditText passwordConfirm;
-    private TextView toShortWarning;
+    private TextView tooShortWarning;
 
     private Button btnSave;
 
@@ -119,7 +119,7 @@ public class CredentialsPreference extends DialogPreference
             passwordConfirm.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
         }
 
-        toShortWarning = view.findViewById(R.id.toShortWarning);
+        tooShortWarning = view.findViewById(R.id.tooShortWarning);
 
         passwordInput.addTextChangedListener(this);
         passwordConfirm.addTextChangedListener(this);
@@ -209,7 +209,7 @@ public class CredentialsPreference extends DialogPreference
         String password = passwordInput.getEditableText().toString();
 
         if (password.length() >= minLength) {
-            toShortWarning.setVisibility(View.GONE);
+            tooShortWarning.setVisibility(View.GONE);
 
             String confirm = passwordConfirm.getEditableText().toString();
 
@@ -219,7 +219,7 @@ public class CredentialsPreference extends DialogPreference
                 btnSave.setEnabled(false);
             }
         } else {
-            toShortWarning.setVisibility(View.VISIBLE);
+            tooShortWarning.setVisibility(View.VISIBLE);
         }
     }
 
@@ -244,7 +244,7 @@ public class CredentialsPreference extends DialogPreference
             passwordConfirm.setTransformationMethod(new PasswordTransformationMethod());
 
             minLength = Constants.AUTH_MIN_PASSWORD_LENGTH;
-            toShortWarning.setText(getContext().getString(R.string.settings_label_short_password, minLength));
+            tooShortWarning.setText(getContext().getString(R.string.settings_label_short_password, minLength));
 
             passwordInput.requestFocus();
             UIHelper.showKeyboard(getContext(), passwordInput);
@@ -263,7 +263,7 @@ public class CredentialsPreference extends DialogPreference
             passwordConfirm.setTransformationMethod(new PasswordTransformationMethod());
 
             minLength = Constants.AUTH_MIN_PIN_LENGTH;
-            toShortWarning.setText(getContext().getString(R.string.settings_label_short_pin, minLength));
+            tooShortWarning.setText(getContext().getString(R.string.settings_label_short_pin, minLength));
 
             passwordInput.requestFocus();
             UIHelper.showKeyboard(getContext(), passwordInput);
