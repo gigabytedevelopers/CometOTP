@@ -146,7 +146,9 @@ public class AuthenticateActivity extends BaseActivity
     private void initUnlockViews(View v) {
         unlockButton = v.findViewById(R.id.buttonUnlock);
         unlockButton.setOnClickListener(this);
+        unlockButton.setVisibility(View.VISIBLE);
         unlockProgress = v.findViewById(R.id.unlockProgress);
+        unlockProgress.setVisibility(View.GONE);
     }
 
     private void cancelBackgroundTask() {
