@@ -222,6 +222,7 @@ public class EntryThumbnail {
         Okex(R.drawable.thumb_okex),
         Okta(R.drawable.thumb_okta),
         OnlineNet(R.drawable.thumb_online),
+        Onshape(R.drawable.thumb_onshape),
         OpenVPN(R.drawable.thumb_openvpn),
         OpenVZ(R.drawable.thumb_openvz),
         OPNsense(R.drawable.thumb_opnsense),
