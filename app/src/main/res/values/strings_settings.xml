@@ -24,6 +24,7 @@
     <string name="settings_title_auto_unlock_after_autofill">Unlock automatically after autofill</string>
 
     <string name="settings_title_theme_mode">Theme Mode</string>
+    <string name="settings_title_theme_black_auto">Black Theme</string>
     <string name="settings_title_theme">Theme</string>
     <string name="settings_title_label_size">Label Font Size</string>
     <string name="settings_title_label_display">Label display</string>
@@ -79,6 +80,7 @@
     <string name="settings_desc_auto_unlock_after_autofill">Unlock if the password has been filled
         in by autofill</string>
     <string name="settings_desc_autofill_requires_android_o">Remember! This feature requires Android 8.0 (Oreo) upwards</string>
+    <string name="settings_desc_theme_black_auto">Use the black theme in dark mode</string>
     <string name="settings_desc_minimize_on_copy">App will be minimized when you copy the OTP to clipboard</string>
     <string name="settings_desc_search_values">Define which values should be included when searching</string>
     <string name="settings_desc_label_highlight_token">Highlights token in red if it\'s expiring in 8 seconds</string>

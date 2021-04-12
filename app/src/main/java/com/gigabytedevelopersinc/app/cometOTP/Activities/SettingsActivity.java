@@ -126,8 +126,9 @@ public class SettingsActivity extends BaseActivity
 
         if (key.equals(getString(R.string.settings_key_theme)) ||
                 key.equals(getString(R.string.settings_key_special_features)) ||
+                key.equals(getString(R.string.settings_key_backup_location)) ||
                 key.equals(getString(R.string.settings_key_theme_mode)) ||
-                key.equals(getString(R.string.settings_key_backup_location))) {
+                key.equals(getString(R.string.settings_key_theme_black_auto))) {
             recreate();
         } else if(key.equals(getString(R.string.settings_key_encryption))) {
             if (settings.getEncryption() != EncryptionType.PASSWORD) {
@@ -276,6 +277,7 @@ public class SettingsActivity extends BaseActivity
         EditTextPreference pgpEncryptionKey;
         OpenPgpKeyPreference pgpSigningKey;
         ListPreference themeMode;
+        CheckBoxPreference themeBlack;
         ListPreference theme;
 
         public void encryptionChangeWithDialog(final EncryptionType encryptionType) {
@@ -340,6 +342,7 @@ public class SettingsActivity extends BaseActivity
             catUI = (PreferenceCategory) findPreference(getString(R.string.settings_key_cat_ui));
             encryption = (ListPreference) findPreference(getString(R.string.settings_key_encryption));
             themeMode = (ListPreference) findPreference(getString(R.string.settings_key_theme_mode));
+            themeBlack = (CheckBoxPreference) findPreference(getString(R.string.settings_key_theme_black_auto));
             theme = (ListPreference) findPreference(getString(R.string.settings_key_theme));
 
             encryption.setOnPreferenceChangeListener((preference, o) -> {
@@ -439,8 +442,12 @@ public class SettingsActivity extends BaseActivity
             // Remove Theme Mode selection option for devices below Android 10. Disable theme selection if Theme Mode is set auto
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 catUI.removePreference(themeMode);
+                catUI.removePreference(themeBlack);
             } else {
-                theme.setEnabled(!sharedPref.getString(getString(R.string.settings_key_theme_mode), getString(R.string.settings_default_theme_mode)).equals("auto"));
+                if (sharedPref.getString(getString(R.string.settings_key_theme_mode), getString(R.string.settings_default_theme_mode)).equals("auto"))
+                    catUI.removePreference(theme);
+                else
+                    catUI.removePreference(themeBlack);
             }
 
             Preference clearCache = findPreference(getString(R.string.settings_key_clear_cache));

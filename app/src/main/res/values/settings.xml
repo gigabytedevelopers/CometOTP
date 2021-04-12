@@ -25,6 +25,7 @@
 
     <string name="settings_key_cat_ui" translatable="false">perf_cat_ui</string>
     <string name="settings_key_theme_mode" translatable="false">perf_theme_mode</string>
+    <string name="settings_key_theme_black_auto" translatable="false">pref_theme_black_auto</string>
     <string name="settings_key_theme" translatable="false">pref_theme</string>
     <string name="settings_key_label_size" translatable="false">pref_label_size_sp</string>
     <string name="settings_key_label_scroll" translatable="false">pref_label_scroll</string>            <!-- Deprecated -->
