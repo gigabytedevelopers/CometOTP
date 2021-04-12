@@ -220,6 +220,7 @@ public class EntryThumbnail {
         NoStarchPress(R.drawable.thumb_no_starch_press),
         NPM(R.drawable.thumb_npm),
         NTPPoolProject(R.drawable.thumb_ntppoolproject),
+        NVIDIA(R.drawable.thumb_nvidia),
         Oculus(R.drawable.thumb_oculus),
         Office(R.drawable.thumb_office),
         Okex(R.drawable.thumb_okex),
