@@ -21,7 +21,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,8 +40,6 @@ import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide.FragmentSli
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide.SimpleSlide;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-
-import java.util.Objects;
 
 public class IntroScreenActivity extends IntroActivity {
     private Settings settings;

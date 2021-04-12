@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod;
@@ -29,8 +28,8 @@ import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.Encrypt
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode;
 
 public class Settings {
-    private Context context;
-    private SharedPreferences settings;
+    private final Context context;
+    private final SharedPreferences settings;
 
     public Settings(Context context) {
         this.context = context;
@@ -109,12 +108,14 @@ public class Settings {
         return settings.getInt(getResString(keyId), defaultValue);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private long getLong(int keyId, long defaultValue) {
         return settings.getLong(getResString(keyId), defaultValue);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private Set<String> getStringSet(int keyId, Set<String> defaultValue) {
-        return new HashSet<>(Objects.requireNonNull(settings.getStringSet(getResString(keyId), defaultValue)));
+        return new HashSet<>(settings.getStringSet(getResString(keyId), defaultValue));
     }
 
     private void setBoolean(int keyId, boolean value) {
@@ -123,6 +124,7 @@ public class Settings {
                 .apply();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void setInt(int keyId, int value) {
         settings.edit()
                 .putInt(getResString(keyId), value)
@@ -135,6 +137,7 @@ public class Settings {
                 .apply();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void setStringSet(int keyId, Set<String> value) {
         settings.edit()
                 .putStringSet(getResString(keyId), value)
@@ -147,6 +150,7 @@ public class Settings {
                 .apply();
     }
 
+    @SuppressWarnings("ApplySharedPref")
     public void clear(boolean keep_auth) {
         AuthMethod authMethod = getAuthMethod();
         String authCredentials = getAuthCredentials();
@@ -300,8 +304,7 @@ public class Settings {
         int theme = R.style.AppTheme_NoActionBar;
         String themeMode = getString(R.string.settings_key_theme_mode, R.string.settings_default_theme_mode);
 
-        //TODO: 29 needs to be replaced with VERSION_CODE.Q when compileSdk and targetSdk is updated to 29
-        if(Build.VERSION.SDK_INT >= 29 && themeMode.equals("auto")){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && themeMode.equals("auto")) {
             switch (context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) {
                 //Dark Mode
                 case Configuration.UI_MODE_NIGHT_YES:
@@ -486,10 +489,12 @@ public class Settings {
     }
 
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean getScreenshotsEnabled() {
         return getBoolean(R.string.settings_key_enable_screenshot, false);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean getUsedTokensDialogShown() {
         return getBoolean(R.string.settings_key_last_used_dialog_shown, false);
     }

@@ -1,7 +1,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
-import android.app.backup.BackupManager;
 import android.app.AlertDialog;
+import android.app.backup.BackupManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -14,34 +14,31 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
-import com.google.android.material.snackbar.Snackbar;
+import android.provider.DocumentsContract;
+import android.util.Log;
+import android.view.ViewStub;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
-import android.provider.DocumentsContract;
-import android.util.Log;
-import android.view.ViewStub;
-import android.widget.TextView;
-
-import org.openintents.openpgp.util.OpenPgpAppPreference;
-import org.openintents.openpgp.util.OpenPgpKeyPreference;
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference;
 import com.gigabytedevelopersinc.app.cometOTP.R;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
+import com.google.android.material.snackbar.Snackbar;
+
+import org.openintents.openpgp.util.OpenPgpAppPreference;
+import org.openintents.openpgp.util.OpenPgpKeyPreference;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.crypto.SecretKey;
 
@@ -263,21 +260,19 @@ public class SettingsActivity extends BaseActivity
                 settings.setBackupLocation(treeUri);
             }
         } else {
+            // Handled in OpenPgpKeyPreference
             fragment.pgpSigningKey.handleOnActivityResult(requestCode, resultCode, data);
         }
     }
 
     public static class SettingsFragment extends PreferenceFragment {
-        PreferenceCategory catSecurity;
         PreferenceCategory catUI;
 
         Settings settings;
         ListPreference encryption;
-        Preference backupLocation;
         ListPreference useAutoBackup;
         CheckBoxPreference useAndroidSync;
 
-        OpenPgpAppPreference pgpProvider;
         EditTextPreference pgpEncryptionKey;
         OpenPgpKeyPreference pgpSigningKey;
         ListPreference themeMode;
@@ -342,7 +337,6 @@ public class SettingsActivity extends BaseActivity
             }
 
             // Authentication
-            catSecurity = (PreferenceCategory) findPreference(getString(R.string.settings_key_cat_security));
             catUI = (PreferenceCategory) findPreference(getString(R.string.settings_key_cat_ui));
             encryption = (ListPreference) findPreference(getString(R.string.settings_key_encryption));
             themeMode = (ListPreference) findPreference(getString(R.string.settings_key_theme_mode));
@@ -376,7 +370,7 @@ public class SettingsActivity extends BaseActivity
             });
 
             // Backup location
-            backupLocation = findPreference(getString(R.string.settings_key_backup_location));
+            Preference backupLocation = findPreference(getString(R.string.settings_key_backup_location));
 
             if (settings.isBackupLocationSet()) {
                 backupLocation.setSummary(R.string.settings_desc_backup_location_set);
@@ -390,25 +384,16 @@ public class SettingsActivity extends BaseActivity
             });
 
             // OpenPGP
-            pgpProvider = (OpenPgpAppPreference) findPreference(getString(R.string.settings_key_openpgp_provider));
+            OpenPgpAppPreference pgpProvider = (OpenPgpAppPreference) findPreference(getString(R.string.settings_key_openpgp_provider));
             pgpEncryptionKey = (EditTextPreference) findPreference(getString(R.string.settings_key_openpgp_key_encrypt));
             pgpSigningKey = (OpenPgpKeyPreference) findPreference(getString(R.string.settings_key_openpgp_key_sign));
 
             pgpSigningKey.setOpenPgpProvider(pgpProvider.getValue());
 
-            if (pgpProvider.getValue() != null && ! pgpProvider.getValue().isEmpty()) {
-                pgpEncryptionKey.setEnabled(true);
-            } else {
-                pgpEncryptionKey.setEnabled(false);
-            }
+            pgpEncryptionKey.setEnabled(pgpProvider.getValue() != null && !pgpProvider.getValue().isEmpty());
 
             pgpProvider.setOnPreferenceChangeListener((preference, newValue) -> {
-                if (newValue != null && ! ((String) newValue).isEmpty()) {
-                    pgpEncryptionKey.setEnabled(true);
-                } else {
-                    pgpEncryptionKey.setEnabled(false);
-                }
-
+                pgpEncryptionKey.setEnabled(newValue != null && !((String) newValue).isEmpty());
                 pgpSigningKey.setOpenPgpProvider((String) newValue);
 
                 return true;
@@ -429,13 +414,8 @@ public class SettingsActivity extends BaseActivity
                 Preference clearKeyStore = findPreference(getString(R.string.settings_key_clear_keystore));
                 clearKeyStore.setOnPreferenceClickListener(preference -> {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    TextView title = new TextView(getActivity());
-                    title.setText(R.string.settings_dialog_title_clear_keystore);
-                    title.setTextColor(getResources().getColor(R.color.colorPrimary));
-                    title.setPadding(50, 50, 0, 0);
-                    title.setTextSize(20);
-                    builder.setCustomTitle(title);
-                    //builder.setTitle(R.string.settings_dialog_title_clear_keystore);
+
+                    builder.setTitle(R.string.settings_dialog_title_clear_keystore);
                     if (settings.getEncryption() == EncryptionType.PASSWORD)
                         builder.setMessage(R.string.settings_dialog_msg_clear_keystore_password);
                     else if (settings.getEncryption() == EncryptionType.KEYSTORE)
@@ -452,21 +432,15 @@ public class SettingsActivity extends BaseActivity
                     });
 
                     builder.setCancelable(false).create().show();
-
                     return false;
                 });
             }
 
-            //Remove Theme Mode selection option for devices below Android 10. Disable theme selection if Theme Mode is set auto
-            //TODO: 29 needs to be replaced with VERSION_CODE.Q when compileSdk and targetSdk is updated to 29
-            if (Build.VERSION.SDK_INT < 29) {
+            // Remove Theme Mode selection option for devices below Android 10. Disable theme selection if Theme Mode is set auto
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 catUI.removePreference(themeMode);
             } else {
-                if (Objects.equals(sharedPref.getString(getString(R.string.settings_key_theme_mode), getString(R.string.settings_default_theme_mode)), "auto")) {
-                    theme.setEnabled(false);
-                } else {
-                    theme.setEnabled(true);
-                }
+                theme.setEnabled(!sharedPref.getString(getString(R.string.settings_key_theme_mode), getString(R.string.settings_default_theme_mode)).equals("auto"));
             }
 
             Preference clearCache = findPreference(getString(R.string.settings_key_clear_cache));
