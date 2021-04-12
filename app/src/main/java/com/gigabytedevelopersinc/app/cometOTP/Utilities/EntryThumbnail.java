@@ -322,6 +322,7 @@ public class EntryThumbnail {
         VagrantCloud(R.drawable.thumb_vagrant_cloud),
         VexxHost(R.drawable.thumb_vexxhost),
         VK(R.drawable.thumb_vk),
+        VMware(R.drawable.thumb_vmware),
         Vultr(R.drawable.thumb_vultr),
         Wallabag(R.drawable.thumb_wallabag),
         Wallet(R.drawable.thumb_wallet),
