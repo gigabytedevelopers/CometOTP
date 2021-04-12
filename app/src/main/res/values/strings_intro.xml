@@ -40,6 +40,9 @@
     <string name="intro_slide3_warn_pin_mismatch">PINs do not match!</string>
 
     <string name="intro_slide4_title">Finished</string>
+    <string name="intro_slide4_title_failed">Setup failed</string>
+    <string name="intro_slide4_desc_failed">Failed to set a password, this intro will be shown again
+        the next time!</string>
     <string name="intro_slide4_desc">Your settings have all been saved, you are all set to use
         <b>CometOTP</b> now!</string>
 

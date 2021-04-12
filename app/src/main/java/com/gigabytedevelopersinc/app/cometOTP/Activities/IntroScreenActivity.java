@@ -3,12 +3,15 @@ package com.gigabytedevelopersinc.app.cometOTP.Activities;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.KeyguardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +25,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ConfirmedPasswordTransformationHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.EditorActionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.IntroActivity;
@@ -45,23 +51,53 @@ public class IntroScreenActivity extends IntroActivity {
     private AuthenticationFragment authenticationFragment;
     private AndroidSyncFragment androidSyncFragment;
 
+    private boolean setupFinished = false;
+
     private void saveSettings() {
         Constants.EncryptionType encryptionType = encryptionFragment.getEncryptionType();
         Constants.AuthMethod authMethod = authenticationFragment.getAuthMethod();
+
+        String password = null;
+
+        if (authMethod == Constants.AuthMethod.PASSWORD || authMethod == Constants.AuthMethod.PIN) {
+            password = authenticationFragment.getPassword();
+
+            if (password == null || password.isEmpty()) {
+                SimpleSlide finalSlide = (SimpleSlide) getSlide(getCount() - 1);
+
+                if (finalSlide != null) {
+                    Fragment finalFragment = finalSlide.getFragment();
+
+                    if (finalFragment != null) {
+                        View finalView = finalFragment.getView();
+
+                        if (finalView != null) {
+                            TextView title = finalView.findViewById(R.id.mi_title);
+                            TextView desc = finalView.findViewById(R.id.mi_description);
+
+                            title.setText(R.string.intro_slide4_title_failed);
+                            desc.setText(R.string.intro_slide4_desc_failed);
+                        }
+                    }
+                }
+
+                return;
+            }
+        }
 
         settings.setEncryption(encryptionType);
         settings.setAuthMethod(authMethod);
         settings.setAndroidBackupServiceEnabled(androidSyncFragment.getSyncEnabled());
 
-        if (authMethod == Constants.AuthMethod.PASSWORD || authMethod == Constants.AuthMethod.PIN) {
-            String password = authenticationFragment.getPassword();
+        if (authMethod == Constants.AuthMethod.PASSWORD || authMethod == Constants.AuthMethod.PIN)
             settings.setAuthCredentials(password);
-        }
 
         settings.setFirstTimeWarningShown(true);
+        setupFinished = true;
     }
 
-    @Override protected void onCreate(Bundle savedInstanceState){
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         settings = new Settings(this);
@@ -117,7 +153,6 @@ public class IntroScreenActivity extends IntroActivity {
                 .build()
         );
 
-
         addOnNavigationBlockedListener((position, direction) -> {
             if (position == 2)
                 authenticationFragment.flashWarning();
@@ -126,7 +161,7 @@ public class IntroScreenActivity extends IntroActivity {
         addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                if (position == getSlides().size() - 1)
+                if (position == getCount() - 1)
                     saveSettings();
             }
 
@@ -138,6 +173,13 @@ public class IntroScreenActivity extends IntroActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
+    }
+
+    @Override
+    public Intent onSendActivityResult(int result) {
+        Intent data = new Intent();
+        data.putExtra(Constants.EXTRA_INTRO_FINISHED, setupFinished);
+        return data;
     }
 
     @Override
@@ -212,8 +254,8 @@ public class IntroScreenActivity extends IntroActivity {
     }
 
     public static class AndroidSyncFragment extends SlideFragment {
-        private Switch introAndroidSync;
-        private EncryptionFragment encryptionFragment;
+        private SwitchCompat introAndroidSync;
+        private final EncryptionFragment encryptionFragment;
 
         public AndroidSyncFragment(EncryptionFragment encryptionFragment) {
             this.encryptionFragment = encryptionFragment;
@@ -230,12 +272,10 @@ public class IntroScreenActivity extends IntroActivity {
             View root = inflater.inflate(R.layout.component_intro_android_sync, container, false);
 
             introAndroidSync = root.findViewById(R.id.introAndroidSync);
-            introAndroidSync.setOnCheckedChangeListener((compoundButton, b) -> {
-                compoundButton.setText( b ?
-                        R.string.settings_toast_android_sync_enabled :
-                        R.string.settings_toast_android_sync_disabled
-                );
-            });
+            introAndroidSync.setOnCheckedChangeListener((compoundButton, b) -> compoundButton.setText( b ?
+                    R.string.settings_toast_android_sync_enabled :
+                    R.string.settings_toast_android_sync_disabled
+            ));
 
             introAndroidSync.setChecked(encryptionFragment.getEncryptionType() != Constants.EncryptionType.KEYSTORE);
             introAndroidSync.setEnabled(encryptionFragment.getEncryptionType() != Constants.EncryptionType.KEYSTORE);
@@ -244,7 +284,7 @@ public class IntroScreenActivity extends IntroActivity {
         }
     }
 
-    public static class AuthenticationFragment extends SlideFragment {
+    public static class AuthenticationFragment extends SlideFragment implements TextView.OnEditorActionListener {
         private Constants.EncryptionType encryptionType = Constants.EncryptionType.KEYSTORE;
 
         private int slidePos = -1;
@@ -298,6 +338,7 @@ public class IntroScreenActivity extends IntroActivity {
                 selectionMapping.put(i, authValues[i]);
         }
 
+        @SuppressWarnings("SameParameterValue")
         private void updateWarning(int resId) {
             updateWarning(getString(resId));
         }
@@ -331,7 +372,10 @@ public class IntroScreenActivity extends IntroActivity {
         }
 
         public String getPassword() {
-            return Objects.requireNonNull(passwordInput.getText()).toString();
+            if (passwordInput.getText() != null)
+                return passwordInput.getText().toString();
+            else
+                return null;
         }
 
         @Override
@@ -466,9 +510,23 @@ public class IntroScreenActivity extends IntroActivity {
             passwordInput.addTextChangedListener(textWatcher);
             passwordConfirm.addTextChangedListener(textWatcher);
 
+            passwordConfirm.setOnEditorActionListener(this);
+
             selection.setSelection(selectionMapping.indexOfValue(Constants.AuthMethod.PASSWORD));
 
             return root;
+        }
+
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (EditorActionHelper.isActionDoneOrKeyboardEnter(actionId, event)) {
+                nextSlide();
+                return true;
+            } else {
+                // Ignore action up after keyboard enter. Otherwise the go-back button would be selected
+                // after pressing enter with an invalid password.
+                return EditorActionHelper.isActionUpKeyboardEnter(event);
+            }
         }
 
         @Override
@@ -476,20 +534,26 @@ public class IntroScreenActivity extends IntroActivity {
             Constants.AuthMethod authMethod = selectionMapping.get(selection.getSelectedItemPosition());
 
             if (authMethod == Constants.AuthMethod.PIN || authMethod == Constants.AuthMethod.PASSWORD) {
-                String password = Objects.requireNonNull(passwordInput.getText()).toString();
+                String password = null;
+
+                if (passwordInput.getText() != null)
+                    password = passwordInput.getText().toString();
+
                 String confirm = passwordConfirm.getText().toString();
 
-                if (! password.isEmpty()) {
+                if (password != null && !password.isEmpty()) {
                     if (password.length() < minLength) {
                         updateWarning(lengthWarning);
                         return false;
                     } else {
-                        if (! confirm.isEmpty() && confirm.equals(password)) {
-                            hideWarning();
-                            return true;
-                        } else if (! confirm.isEmpty() && ! confirm.equals(password)) {
-                            updateWarning(passwordMismatchWarning);
-                            return false;
+                        if (!confirm.isEmpty()) {
+                            if (confirm.equals(password)) {
+                                hideWarning();
+                                return true;
+                            } else {
+                                updateWarning(passwordMismatchWarning);
+                                return false;
+                            }
                         } else {
                             updateWarning(confirmPasswordWarning);
                             return false;
@@ -500,7 +564,11 @@ public class IntroScreenActivity extends IntroActivity {
                     return false;
                 }
             } else if (authMethod == Constants.AuthMethod.DEVICE) {
-                KeyguardManager km = (KeyguardManager) Objects.requireNonNull(getContext()).getSystemService(KEYGUARD_SERVICE);
+                Context context = getContext();
+                if (context == null)
+                    return false;
+
+                KeyguardManager km = (KeyguardManager) context.getSystemService(KEYGUARD_SERVICE);
 
                 if (! km.isKeyguardSecure()) {
                     updateWarning(R.string.settings_toast_auth_device_not_secure);
