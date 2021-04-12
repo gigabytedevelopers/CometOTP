@@ -67,6 +67,7 @@ public class EntryThumbnail {
         Bitwarden(R.drawable.thumb_bitwarden),
         BlockchainInfo(R.drawable.thumb_blockchain_info),
         BlockFi(R.drawable.thumb_blockfi),
+        Box(R.drawable.thumb_box),
         Boxcryptor(R.drawable.thumb_boxcryptor),
         BraveRewards(R.drawable.thumb_braverewards),
         Bugcrowd(R.drawable.thumb_bugcrowd),
