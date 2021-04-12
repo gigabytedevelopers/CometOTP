@@ -323,6 +323,7 @@ public class EntryThumbnail {
         Vultr(R.drawable.thumb_vultr),
         Wallabag(R.drawable.thumb_wallabag),
         Wallet(R.drawable.thumb_wallet),
+        WalletsOne(R.drawable.thumb_wallets_one),
         Wargaming(R.drawable.thumb_wargaming),
         Wasabi(R.drawable.thumb_wasabi),
         WebDe(R.drawable.thumb_web_de),
