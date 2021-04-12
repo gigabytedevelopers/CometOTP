@@ -56,6 +56,7 @@ public class Entry {
     public static final int COLOR_RED = 1;
     private static final int EXPIRY_TIME = 8;
     private int color = COLOR_DEFAULT;
+    private long listId = 0;
 
     public Entry(){}
 
@@ -346,10 +347,6 @@ public class Entry {
         return period;
     }
 
-    public void setPeriod(int period) {
-        this.period = period;
-    }
-
     public long getCounter() {
         return counter;
     }
@@ -362,10 +359,6 @@ public class Entry {
         return digits;
     }
 
-    public void setDigits(int digits) {
-        this.digits = digits;
-    }
-
     public List<String> getTags() { return tags; }
 
     public void setTags(List<String> tags) { this.tags = tags; }
@@ -376,10 +369,6 @@ public class Entry {
 
     public TokenCalculator.HashAlgorithm getAlgorithm() {
         return this.algorithm;
-    }
-
-    public void setAlgorithm(TokenCalculator.HashAlgorithm algorithm) {
-        this.algorithm = algorithm;
     }
 
     public boolean hasNonDefaultPeriod() {
@@ -420,6 +409,14 @@ public class Entry {
 
     public String getCurrentOTP() {
         return currentOTP;
+    }
+
+    public long getListId() {
+        return listId;
+    }
+
+    public void setListId(long newId) {
+        listId = newId;
     }
 
     public boolean updateOTP() {
@@ -482,9 +479,13 @@ public class Entry {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
         Entry entry = (Entry) o;
+
         return type == entry.type &&
                 period == entry.period &&
                 counter == entry.counter &&
@@ -520,9 +521,9 @@ public class Entry {
 
     /**
      * Returns the label with issuer prefix removed (if present)
-     * @param issuer
-     * @param label
-     * @return
+     * @param issuer - Name of the issuer to remove from the label
+     * @param label - Full label from which the issuer should be removed
+     * @return - label with the issuer removed
      */
     private String getStrippedLabel(String issuer, String label) {
         if (issuer == null || issuer.isEmpty() || !label.startsWith(issuer + ":")) {
