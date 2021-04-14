@@ -131,6 +131,7 @@ public class EntryThumbnail {
         Floatplane(R.drawable.thumb_floatplane),
         Friendica(R.drawable.thumb_friendica),
         Fritz(R.drawable.thumb_fritz),
+        FTX(R.drawable.thumb_ftx),
         Gamepad(R.drawable.thumb_gamepad),
         Gandi(R.drawable.thumb_gandi),
         GigabyteDevelopers(R.drawable.thumb_gigabyte_developers),
