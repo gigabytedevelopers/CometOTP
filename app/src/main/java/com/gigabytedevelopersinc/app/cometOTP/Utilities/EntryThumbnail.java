@@ -226,6 +226,7 @@ public class EntryThumbnail {
         Nexo(R.drawable.thumb_nexo),
         NextCloud(R.drawable.thumb_nextcloud),
         NextDNS(R.drawable.thumb_nextdns),
+        NexusMods(R.drawable.thumb_nexusmods),
         Nintendo(R.drawable.thumb_nintendo),
         NoStarchPress(R.drawable.thumb_no_starch_press),
         NPM(R.drawable.thumb_npm),
