@@ -148,6 +148,7 @@ public class EntryThumbnail {
         GovUK(R.drawable.thumb_govuk),
         Grammarly(R.drawable.thumb_grammarly),
         Greenhost(R.drawable.thumb_greenhost),
+        GTwoA(R.drawable.thumb_g2a),
         HackerOne(R.drawable.thumb_hackerone),
         Heroku(R.drawable.thumb_heroku),
         Hetzner(R.drawable.thumb_hetzner),
