@@ -273,6 +273,7 @@ public class EntryThumbnail {
         PyPI(R.drawable.thumb_pypi),
         PythonAnywhere(R.drawable.thumb_python_anywhere),
         Rackspace(R.drawable.thumb_rackspace),
+        Razer(R.drawable.thumb_razer),
         Reddit(R.drawable.thumb_reddit),
         RipeNNC(R.drawable.thumb_ripe_ncc),
         Ripio(R.drawable.thumb_ripio),
