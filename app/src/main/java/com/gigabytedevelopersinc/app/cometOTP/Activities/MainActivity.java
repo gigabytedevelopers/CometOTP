@@ -17,6 +17,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 
+import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScanQRCodeFromFile;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,6 +36,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -205,6 +207,18 @@ public class MainActivity extends BaseActivity
         adapter.filterByTags(tagsDrawerAdapter.getActiveTags());
     }
 
+    private void checkAutomaticTime() {
+        int autoTime = Settings.Global.getInt(getContentResolver(), Settings.Global.AUTO_TIME, 0);
+
+        if (autoTime == 0)
+            HideableDialog.ShowHideableDialog(
+                    this,
+                    R.string.dialog_title_auto_time,
+                    R.string.dialog_msg_auto_time,
+                    R.string.settings_key_dialog_hide_auto_time
+            );
+    }
+
     // Initialize the main application
     @SuppressLint("WrongConstant")
     @Override
@@ -255,6 +269,8 @@ public class MainActivity extends BaseActivity
         if (!settings.getFirstTimeWarningShown()) {
             showFirstTimeWarning();
         }
+
+        checkAutomaticTime();
 
         speedDial = findViewById(R.id.speedDial);
         speedDial.inflate(R.menu.menu_fab);

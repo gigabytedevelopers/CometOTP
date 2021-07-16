@@ -98,6 +98,7 @@
     <string name="dialog_title_qr_code">QR Code</string>
 
     <string name="dialog_title_enter_password">Enter password</string>
+    <string name="dialog_title_auto_time">Automatic time</string>
 
     <string name="dialog_label_enter_password">Enter password</string>
     <string name="dialog_label_confirm_password">Confirm password</string>
@@ -123,6 +124,12 @@
         Thanks!
     </string>
     <string name="feedback_email_title">Send Feedback about CometOTP</string>
+
+    <string name="dialog_msg_auto_time">Please enable the <b>Automatic date &amp; time</b> option in
+        your phones <b>Settings</b> to ensure the correct generation of time-based
+        one-time-passwords (TOTP).</string>
+
+    <string name="dialog_hint_dont_show_again">Don\'t show this message again.</string>
 
     <!-- Shortcuts -->
     <string name="shortcut_name_scan_qr">Scan QR code</string>

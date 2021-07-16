@@ -96,7 +96,7 @@ public class Settings {
         return settings.getString(getResString(keyId), defaultValue);
     }
 
-    private boolean getBoolean(int keyId, boolean defaultValue) {
+    public boolean getBoolean(int keyId, boolean defaultValue) {
         return settings.getBoolean(getResString(keyId), defaultValue);
     }
 
@@ -118,7 +118,7 @@ public class Settings {
         return new HashSet<>(settings.getStringSet(getResString(keyId), defaultValue));
     }
 
-    private void setBoolean(int keyId, boolean value) {
+    public void setBoolean(int keyId, boolean value) {
         settings.edit()
                 .putBoolean(getResString(keyId), value)
                 .apply();
