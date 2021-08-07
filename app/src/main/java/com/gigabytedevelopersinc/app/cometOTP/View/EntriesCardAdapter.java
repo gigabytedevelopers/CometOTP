@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -75,7 +76,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         this.context = context;
         this.tagsFilterAdapter = tagsFilterAdapter;
         this.settings = new Settings(context);
-        this.taskHandler = new Handler();
+        this.taskHandler = new Handler(Looper.getMainLooper());
         this.entries = new EntryList();
 
         setHasStableIds(true);

@@ -187,7 +187,9 @@ public class Settings {
         settings.registerOnSharedPreferenceChangeListener(listener);
     }
 
-
+    public void unregisterPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        settings.unregisterOnSharedPreferenceChangeListener(listener);
+    }
 
     public boolean getTapToReveal() {
         return getTapSingle() == Constants.TapMode.REVEAL || getTapDouble() == Constants.TapMode.REVEAL;

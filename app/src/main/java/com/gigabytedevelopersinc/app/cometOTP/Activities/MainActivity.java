@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog;
@@ -189,10 +190,7 @@ public class MainActivity extends BaseActivity
             SortMode mode = settings.getSortMode();
             adapter.setSortMode(mode);
 
-            if (mode == SortMode.UNSORTED)
-                touchHelperCallback.setDragEnabled(true);
-            else
-                touchHelperCallback.setDragEnabled(false);
+            touchHelperCallback.setDragEnabled(mode == SortMode.UNSORTED);
         }
     }
 
@@ -278,19 +276,16 @@ public class MainActivity extends BaseActivity
         speedDial.getMainFab().setContentDescription(getString(R.string.button_add));
 
         speedDial.setOnActionSelectedListener(speedDialActionItem -> {
-            switch (speedDialActionItem.getId()) {
-                case R.id.fabScanQR:
-                    scanQRCode();
-                    return false;
-                case R.id.fabEnterDetails:
-                    ManualEntryDialog.show(MainActivity.this, settings, adapter);
-                    return false;
-                case R.id.fabScanQRFromImage:
-                    showOpenFileSelector(Constants.INTENT_MAIN_QR_OPEN_IMAGE);
-                    return false;
-                default:
-                    return false;
-            }
+            int actionId = speedDialActionItem.getId();
+
+            if (actionId == R.id.fabScanQR)
+                scanQRCode();
+            else if (actionId == R.id.fabEnterDetails)
+                ManualEntryDialog.show(MainActivity.this, settings, adapter);
+            else if (actionId == R.id.fabScanQRFromImage)
+                showOpenFileSelector(Constants.INTENT_MAIN_QR_OPEN_IMAGE);
+
+            return false;
         });
 
         speedDial.setOnChangeListener(new SpeedDialView.OnChangeListener() {
@@ -394,7 +389,7 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        handler = new Handler();
+        handler = new Handler(Looper.getMainLooper());
         handlerTask = new Runnable() {
             @Override
             public void run() {
@@ -428,22 +423,27 @@ public class MainActivity extends BaseActivity
             String intentAction = callingIntent.getAction();
             callingIntent.setAction(null);
 
-            if (intentAction.equals(INTENT_SCAN_QR)) {
-                scanQRCode();
-            } else if (intentAction.equals(INTENT_IMPORT_QR)) {
-                showOpenFileSelector(Constants.INTENT_MAIN_QR_OPEN_IMAGE);
-            } else if (intentAction.equals(INTENT_ENTER_DETAILS)) {
-                ManualEntryDialog.show(MainActivity.this, settings, adapter);
-            } else if (intentAction.equals(Intent.ACTION_VIEW) && !requireAuthentication) {
-                try {
-                    Entry entry = new Entry(callingIntent.getDataString());
-                    entry.updateOTP(false);
-                    entry.setLastUsed(System.currentTimeMillis());
-                    adapter.addEntry(entry);
-                    Toast.makeText(this, R.string.toast_intent_creation_succeeded, Toast.LENGTH_LONG).show();
-                } catch (Exception e) {
-                    Toast.makeText(this, R.string.toast_intent_creation_failed, Toast.LENGTH_LONG).show();
-                }
+            switch (intentAction) {
+                case INTENT_SCAN_QR:
+                    scanQRCode();
+                    break;
+                case INTENT_IMPORT_QR:
+                    showOpenFileSelector(Constants.INTENT_MAIN_QR_OPEN_IMAGE);
+                    break;
+                case INTENT_ENTER_DETAILS:
+                    ManualEntryDialog.show(MainActivity.this, settings, adapter);
+                    break;
+                case Intent.ACTION_VIEW:
+                    try {
+                        Entry entry = new Entry(callingIntent.getDataString());
+                        entry.updateOTP(false);
+                        entry.setLastUsed(System.currentTimeMillis());
+                        adapter.addEntry(entry);
+                        Toast.makeText(this, R.string.toast_intent_creation_succeeded, Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(this, R.string.toast_intent_creation_failed, Toast.LENGTH_LONG).show();
+                    }
+                    break;
             }
         }
 
@@ -888,8 +888,6 @@ public class MainActivity extends BaseActivity
             for(int i = 0; i < tagsDrawerListView.getChildCount(); i++) {
                 CheckedTextView childCheckBox = (CheckedTextView) tagsDrawerListView.getChildAt(i);
                 childCheckBox.setChecked(checkedTextView.isChecked());
-                /*tagsDrawerAdapter.setTagState(childCheckBox.getText().toString(), childCheckBox.isChecked());
-                settings.setTagToggle(childCheckBox.getText().toString(), childCheckBox.isChecked());*/
             }
 
             for (String tag: tagsDrawerAdapter.getTags()) {
@@ -899,12 +897,8 @@ public class MainActivity extends BaseActivity
 
             if(checkedTextView.isChecked()) {
                 adapter.filterByTags(tagsDrawerAdapter.getActiveTags());
-                tagsDrawerLayout.closeDrawers();
-                Snackbar.make(findViewById(R.id.main_content), "You will start seeing accounts that are tagged", Snackbar.LENGTH_LONG).show();
             } else {
                 adapter.filterByTags(new ArrayList<>());
-                tagsDrawerLayout.closeDrawers();
-                Snackbar.make(findViewById(R.id.main_content), "You will stop seeing accounts that are tagged", Snackbar.LENGTH_LONG).show();
             }
         });
         allTagsButton.setChecked(settings.getAllTagsToggle());
@@ -922,15 +916,6 @@ public class MainActivity extends BaseActivity
                     settings.setTagToggle(tag, false);
                     tagsDrawerAdapter.setTagState(tag, false);
                 }
-            }
-
-            if(checkedTextView.isChecked()) {
-                tagsDrawerLayout.closeDrawers();
-                Snackbar.make(findViewById(R.id.main_content), "You will start seeing accounts that are not tagged", Snackbar.LENGTH_LONG).show();
-            } else {
-                allTagsButton.setChecked(true);
-                tagsDrawerLayout.closeDrawers();
-                Snackbar.make(findViewById(R.id.main_content), "You will stop seeing accounts that are not tagged", Snackbar.LENGTH_LONG).show();
             }
 
             settings.setNoTagsToggle(checkedTextView.isChecked());
@@ -1025,6 +1010,7 @@ public class MainActivity extends BaseActivity
         return true;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void showOpenFileSelector(int intentId){
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -1041,7 +1027,7 @@ public class MainActivity extends BaseActivity
                 adapter.addEntry(e);
                 refreshTags();
             } catch (Exception e) {
-                Snackbar.make(findViewById(R.id.main_content), R.string.toast_invalid_qr_code, Snackbar.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.toast_invalid_qr_code, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -1073,6 +1059,12 @@ public class MainActivity extends BaseActivity
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    protected void onDestroy() {
+        settings.unregisterPreferenceChangeListener(this);
+        super.onDestroy();
+    }
+
     /**
      * This function will hide the progress bar if the token list is empty along with
      * showing a view which has instruction on how to add the tokens
@@ -1082,5 +1074,10 @@ public class MainActivity extends BaseActivity
         progressBar.setVisibility((settings.isHideGlobalTimeoutEnabled() || itemCount <= 0) ? View.GONE : View.VISIBLE);
         emptyListView.setVisibility(itemCount > 0 ? View.GONE : View.VISIBLE);
 
+    }
+
+    @Override
+    protected boolean shouldDestroyOnScreenOff() {
+        return false;
     }
 }

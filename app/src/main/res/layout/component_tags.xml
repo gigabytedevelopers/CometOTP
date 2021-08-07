@@ -197,12 +197,13 @@
     <LinearLayout
         android:id="@+id/exit_button"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackgroundBorderless"
         android:gravity="center|bottom"
+        android:paddingTop="@dimen/activity_margin"
         android:paddingBottom="@dimen/activity_margin"
         android:orientation="vertical">
 
