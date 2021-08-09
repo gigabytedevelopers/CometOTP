@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId "com.gigabytedevelopersinc.app.CometOTP"
         minSdkVersion 22
-        targetSdkVersion 31
+        targetSdkVersion 30
         versionCode 34
         versionName "5.5.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
