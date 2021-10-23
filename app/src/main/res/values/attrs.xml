@@ -11,4 +11,10 @@
     <declare-styleable name="ParallaxLayout_Layout">
         <attr name="layout_parallaxFactor" format="float" />
     </declare-styleable>
+
+    <declare-styleable name="NumberPickerPreference">
+        <attr name="minValue" format="integer|reference"/>
+        <attr name="maxValue" format="integer|reference"/>
+        <attr name="wrapSelectorWheel" format="boolean"/>
+    </declare-styleable>
 </resources>

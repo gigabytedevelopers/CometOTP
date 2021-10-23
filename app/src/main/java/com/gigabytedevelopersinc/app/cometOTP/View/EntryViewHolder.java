@@ -49,6 +49,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
     private final ImageButton menuButton;
     private final ImageButton copyButton;
     private final TextView value;
+    private final TextView valuePrev;
     private final TextView label;
     private final TextView counter;
     private final TextView tags;
@@ -60,6 +61,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
 
         card = v.findViewById(R.id.card_view);
         value = v.findViewById(R.id.valueText);
+        valuePrev = v.findViewById(R.id.valueTextPrev);
         valueLayout = v.findViewById(R.id.valueLayout);
         visibleImg = v.findViewById(R.id.valueImg);
         thumbnailFrame = v.findViewById(R.id.thumbnailFrame);
@@ -169,6 +171,21 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         value.setText(tokenFormatted);
         // save the unformatted token to the tag of this TextView for copy/paste
         value.setTag(entry.getCurrentOTP());
+
+        if (settings.getShowPrevToken()) {
+            String tokenPrev = entry.getPrevOTP();
+
+            if (tokenPrev != null && !tokenPrev.isEmpty()) {
+                String tokenFormattedPrev = Tools.formatToken(tokenPrev, settings.getTokenSplitGroupSize());
+
+                valuePrev.setVisibility(View.VISIBLE);
+                valuePrev.setText(tokenFormattedPrev);
+            } else {
+                valuePrev.setVisibility(View.GONE);
+            }
+        } else {
+            valuePrev.setVisibility(View.GONE);
+        }
 
         List<String> entryTags = entry.getTags();
 
@@ -321,5 +338,6 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         }
 
         value.setTextColor(textColor);
+        valuePrev.setTextColor(textColor);
     }
 }

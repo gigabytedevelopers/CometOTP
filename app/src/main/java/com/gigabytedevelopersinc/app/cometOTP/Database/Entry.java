@@ -3,6 +3,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Database;
 import android.net.Uri;
 
 import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.codec.binary.Hex;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,11 +18,12 @@ import java.util.Objects;
 
 public class Entry {
     public enum OTPType {
-        TOTP, HOTP, STEAM
+        TOTP, HOTP, MOTP, STEAM
     }
 
     private static final OTPType DEFAULT_TYPE = OTPType.TOTP;
     private static final int DEFAULT_PERIOD = 30;
+    private static final String MOTP_NO_PIN_CODE = "PINREQ";
 
     private static final String JSON_SECRET = "secret";
     private static final String JSON_ISSUER = "issuer";
@@ -45,6 +47,7 @@ public class Entry {
     private String issuer;
     private String label;
     private String currentOTP;
+    private String prevOTP;
     private boolean visible = false;
     private Runnable hideTask = null;
     private long last_update = 0;
@@ -56,6 +59,7 @@ public class Entry {
     public static final int COLOR_RED = 1;
     private static final int EXPIRY_TIME = 8;
     private int color = COLOR_DEFAULT;
+    private String pin = "";
     private long listId = 0;
 
     public Entry(){}
@@ -84,6 +88,16 @@ public class Entry {
         setThumbnailFromIssuer(issuer);
     }
 
+    public Entry(OTPType type, String secret, String issuer, String label, List<String> tags) {
+        this.type = type;
+        this.secret = secret.getBytes();
+        this.issuer = issuer;
+        this.label = label;
+        this.tags = tags;
+        this.period = TokenCalculator.TOTP_DEFAULT_PERIOD;
+        setThumbnailFromIssuer(issuer);
+    }
+
     public Entry(String contents) throws Exception {
         contents = contents.replaceFirst("otpauth", "http");
         Uri uri = Uri.parse(contents);
@@ -99,6 +113,9 @@ public class Entry {
                 break;
             case "hotp":
                 type = OTPType.HOTP;
+                break;
+            case "motp":
+                type = OTPType.MOTP;
                 break;
             case "steam":
                 type = OTPType.STEAM;
@@ -133,8 +150,15 @@ public class Entry {
 
         this.issuer = issuer;
         this.label = label;
-        assert secret != null;
-        this.secret = new Base32().decode(secret.toUpperCase());
+
+        if (secret == null)
+            throw new Exception("Empty secret");
+
+        if (type == OTPType.MOTP) {
+            this.secret = secret.getBytes();
+        } else {
+            this.secret = new Base32().decode(secret.toUpperCase());
+        }
 
         if (digits != null) {
             this.digits = Integer.parseInt(digits);
@@ -270,6 +294,9 @@ public class Entry {
             case STEAM:
                 type = "steam";
                 break;
+            case MOTP:
+                type = "motp";
+                break;
             default:
                 return null;
         }
@@ -278,9 +305,16 @@ public class Entry {
                 .authority(type)
                 .appendPath(this.label)
                 .appendQueryParameter("secret", new Base32().encodeAsString(this.secret));
+
+        if (this.type == OTPType.MOTP)
+            builder.appendQueryParameter("secret", new String(this.secret));
+        else
+            builder.appendQueryParameter("secret", new Base32().encodeAsString(this.secret));
+
         if (this.issuer != null) {
             builder.appendQueryParameter("issuer", this.issuer);
         }
+
         switch (this.type) {
             case HOTP:
                 builder.appendQueryParameter("counter", Long.toString(this.counter));
@@ -289,20 +323,24 @@ public class Entry {
                     builder.appendQueryParameter("period", Integer.toString(this.period));
                 break;
         }
+
         if (this.digits != TokenCalculator.TOTP_DEFAULT_DIGITS) {
             builder.appendQueryParameter("digits", Integer.toString(this.digits));
         }
+
         if (this.algorithm != TokenCalculator.DEFAULT_ALGORITHM) {
             builder.appendQueryParameter("algorithm", this.algorithm.name());
         }
+
         for (String tag : this.tags) {
             builder.appendQueryParameter("tags", tag);
         }
+
         return builder.build();
     }
 
     public boolean isTimeBased() {
-        return type == OTPType.TOTP || type == OTPType.STEAM;
+        return type == OTPType.TOTP || type == OTPType.STEAM || type == OTPType.MOTP;
     }
 
     public boolean isCounterBased() { return type == OTPType.HOTP; }
@@ -320,7 +358,10 @@ public class Entry {
     }
 
     public String getSecretEncoded() {
-        return new String(new Base32().encode(secret));
+        if (type == OTPType.MOTP)
+            return new String(secret);
+        else
+            return new String(new Base32().encode(secret));
     }
 
     public void setSecret(byte[] secret) {
@@ -422,6 +463,18 @@ public class Entry {
         return currentOTP;
     }
 
+    public String getPrevOTP() {
+        return prevOTP;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
+    }
+
     public long getListId() {
         return listId;
     }
@@ -430,20 +483,49 @@ public class Entry {
         listId = newId;
     }
 
-    public boolean updateOTP(boolean force) {
-        if (type == OTPType.TOTP || type == OTPType.STEAM) {
+    public boolean updateOTP(boolean updateNow) {
+        if (type == OTPType.TOTP || type == OTPType.STEAM || type == OTPType.MOTP) {
             long time = System.currentTimeMillis() / 1000;
             long counter = time / this.getPeriod();
 
-            if (force || counter > last_update) {
-                if (type == OTPType.TOTP)
-                    currentOTP = TokenCalculator.TOTP_RFC6238(secret, period, digits, algorithm);
-                else if (type == OTPType.STEAM)
-                    currentOTP = TokenCalculator.TOTP_Steam(secret, period, digits, algorithm);
+            if (updateNow || counter > last_update) {
+                // Store the previous token so we don't have to recalculate it every time
+                if (currentOTP != null && !currentOTP.isEmpty())
+                    prevOTP = currentOTP;
+                else
+                    prevOTP = "";
+
+                switch (type) {
+                    case TOTP:
+                        currentOTP = TokenCalculator.TOTP_RFC6238(secret, period, digits, algorithm, 0);
+
+                        if (prevOTP == null || prevOTP.isEmpty())
+                            prevOTP = TokenCalculator.TOTP_RFC6238(secret, period, digits, algorithm, -1);
+
+                        break;
+                    case STEAM:
+                        currentOTP = TokenCalculator.TOTP_Steam(secret, period, digits, algorithm, 0);
+
+                        if (prevOTP == null || prevOTP.isEmpty())
+                            prevOTP = TokenCalculator.TOTP_Steam(secret, period, digits, algorithm, -1);
+
+                        break;
+                    case MOTP:
+                        String currentPin = this.getPin();
+
+                        if (currentPin.isEmpty()) {
+                            currentOTP = MOTP_NO_PIN_CODE;
+                        } else {
+                            currentOTP = TokenCalculator.MOTP(currentPin, new String(this.secret), time, 0);
+
+                            if (prevOTP == null || prevOTP.isEmpty())
+                                prevOTP = TokenCalculator.MOTP(currentPin, new String(this.secret), time, -1);
+                        }
+
+                        break;
+                }
 
                 last_update = counter;
-
-                //New OTP. Change color to default color
                 setColor(COLOR_DEFAULT);
                 return true;
             } else {
@@ -520,9 +602,12 @@ public class Entry {
         return color;
     }
 
-    public static boolean validateSecret(String secret) {
+    public static boolean validateSecret(String secret, OTPType type) {
         try {
-            new Base32().decode(secret.toUpperCase());
+            if (type == OTPType.MOTP)
+                Hex.decodeHex(secret);
+            else
+                new Base32().decode(secret.toUpperCase());
         } catch (Exception e) {
             return false;
         }

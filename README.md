@@ -85,7 +85,6 @@ So make sure you have a **current backup** before switching!
  * [material-intro](https://github.com/heinrichreimer/material-intro)
  * [MaterialProgressBar](https://github.com/DreaminginCodeZH/MaterialProgressBar)
  * [OpenPGP API library](https://github.com/open-keychain/openpgp-api)
- * [VNTNumberPickerPreference](https://github.com/vanniktech/VNTNumberPickerPreference)
  * [ZXing Android Embedded](https://github.com/journeyapps/zxing-android-embedded)
 
 #### Code examples used:

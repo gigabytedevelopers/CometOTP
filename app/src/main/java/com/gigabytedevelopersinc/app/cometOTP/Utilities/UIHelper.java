@@ -15,19 +15,28 @@ public class UIHelper {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(titleId)
                 .setMessage(messageId)
-                .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
-                    if(onOk != null)
-                        onOk.run();
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(onOk != null)
+                            onOk.run();
+                    }
                 })
-                .setCancelable(false)
                 .create()
                 .show();
     }
 
-    public static void showKeyboard(Context context, View view) {
+    public static void showKeyboard(Context context, View view){
+        showKeyboard(context,view,false);
+    }
+
+    public static void showKeyboard(Context context, View view, Boolean showForced) {
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(view, 0);
+            if(showForced)
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            else
+                imm.showSoftInput(view, 0);
         }
     }
 
