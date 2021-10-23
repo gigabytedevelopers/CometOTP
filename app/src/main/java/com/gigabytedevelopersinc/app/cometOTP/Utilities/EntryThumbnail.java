@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
+
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.content.res.AppCompatResources;
 
@@ -423,7 +425,7 @@ public class EntryThumbnail {
 		
         if (thumbnail == EntryThumbnails.Default && size > 0) {
             LetterBitmap letterBitmap = new LetterBitmap(context);
-            String letterSrc = issuer.isEmpty() ? label : issuer;
+            String letterSrc = TextUtils.isEmpty(issuer) ? label : issuer;
             return letterBitmap.getLetterTile(letterSrc, letterSrc, size, size);
         } else if (thumbnail != EntryThumbnails.Default) {
 
