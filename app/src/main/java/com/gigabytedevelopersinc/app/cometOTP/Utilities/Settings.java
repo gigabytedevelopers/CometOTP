@@ -461,8 +461,13 @@ public class Settings {
     }
 
     public void setTagToggle(String tag, Boolean value) {
-        Set<String> toggledTags = getStringSet(R.string.settings_key_tags_toggles, new HashSet<>());
-        if(value)
+        Set<String> toggledTagsPref = getStringSet(R.string.settings_key_tags_toggles, new HashSet<>());
+        Set<String> toggledTags = Collections.emptySet();
+
+        if (toggledTagsPref != null)
+            toggledTags = new HashSet<>(toggledTagsPref);
+
+        if (value)
             toggledTags.remove(tag);
         else
             toggledTags.add(tag);
