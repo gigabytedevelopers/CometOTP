@@ -432,7 +432,7 @@ public class EntryThumbnail {
             try {
                 if (thumbnail.getAssetType() == AssetType.Vector) {
                     Drawable drawable = AppCompatResources.getDrawable(context, thumbnail.getResource());
-                    assert drawable != null;
+                    assert drawable != null; // The thumbnail should always have a drawable
                     Bitmap bitmap = Bitmap.createBitmap(drawable.getMinimumWidth(), drawable.getMinimumHeight(), Bitmap.Config.ARGB_8888);
                     Canvas canvas = new Canvas(bitmap);
                     drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());

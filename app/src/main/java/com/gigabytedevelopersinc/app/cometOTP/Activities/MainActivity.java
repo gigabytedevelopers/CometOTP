@@ -90,6 +90,7 @@ public class MainActivity extends BaseActivity
     private SpeedDialView speedDial;
     private BottomSheetDialog mBottomSheetDialog;
     private MenuItem sortMenu;
+    private MenuItem searchMenu;
     private SimpleItemTouchHelperCallback touchHelperCallback;
 
     private EncryptionType encryptionType = EncryptionType.KEYSTORE;
@@ -97,6 +98,7 @@ public class MainActivity extends BaseActivity
 
     private boolean recreateActivity = false;
     private boolean cacheEncKey = false;
+    private boolean focusSearchOnCreate = false;
 
     private Handler handler;
     private Runnable handlerTask;
@@ -410,6 +412,9 @@ public class MainActivity extends BaseActivity
         if (savedInstanceState != null) {
             setFilterString(savedInstanceState.getString("filterString", ""));
         }
+
+        if (settings.isFocusSearchOnStartEnabled())
+            focusSearchMenu();
     }
 
     private void checkIntent() {
@@ -651,8 +656,8 @@ public class MainActivity extends BaseActivity
             }
         }
 
-        MenuItem searchItem = menu.findItem(R.id.menu_search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchMenu = menu.findItem(R.id.menu_search);
+        SearchView searchView = (SearchView) searchMenu.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -666,7 +671,7 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+        searchMenu.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
                 speedDial.setVisibility(View.GONE);
@@ -690,11 +695,19 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        if (settings.isFocusSearchOnStartEnabled()) {
-            searchItem.expandActionView();
+        if (focusSearchOnCreate) {
+            searchMenu.expandActionView();
+            focusSearchOnCreate = false;
         }
 
         return true;
+    }
+
+    private void focusSearchMenu() {
+        if (searchMenu != null)
+            searchMenu.expandActionView();
+        else
+            focusSearchOnCreate = true;
     }
 
     private void setFilterString(String newText) {
