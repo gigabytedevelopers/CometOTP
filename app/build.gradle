@@ -19,8 +19,8 @@ android {
         applicationId "com.gigabytedevelopersinc.app.CometOTP"
         minSdkVersion 22
         targetSdkVersion 31
-        versionCode 35
-        versionName "5.6.0"
+        versionCode 36
+        versionName "5.6.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
