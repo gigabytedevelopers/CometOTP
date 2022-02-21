@@ -12,6 +12,9 @@
 
     <attr name="navigationBarColor" format="reference" />
 
+    <!-- Icons -->
+    <attr name="black_white" format="reference"/>
+
     <!-- General styles -->
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
@@ -36,6 +39,9 @@
         <item name="dialogTheme">@style/DialogTheme</item>
 
         <item name="colorExpiring">@color/expiring_red_dark</item>
+
+        <!-- Icons -->
+        <item name="black_white">@color/black</item>
     </style>
 
     <style name="AppTheme" parent="AppBaseTheme"/>
@@ -73,6 +79,9 @@
         <item name="dialogTheme">@style/DialogTheme.Dark</item>
 
         <item name="colorExpiring">@color/expiring_red_light</item>
+
+        <!-- Icons -->
+        <item name="black_white">@color/white</item>
     </style>
 
     <style name="AppTheme.Dark" parent = "AppBaseTheme.Dark"/>
@@ -103,6 +112,9 @@
         <item name="dialogTheme">@style/DialogTheme.Dark</item>
 
         <item name="colorExpiring">@color/expiring_red_light</item>
+
+        <!-- Icons -->
+        <item name="black_white">@color/white</item>
     </style>
 
     <style name="AppTheme.Black" parent="AppBaseTheme.Black"/>

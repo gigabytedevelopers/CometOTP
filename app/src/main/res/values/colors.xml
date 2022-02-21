@@ -25,6 +25,8 @@
 
     <color name="dark_thumbnail_background">#ffe0e0e0</color> <!-- material_grey_300 -->
 
+    <color name="white">#ffffff</color>
+
     <color name="fab_small_label_background">#212121</color>
 
     <!-- Material Design Colors -->
