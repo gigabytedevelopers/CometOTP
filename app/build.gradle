@@ -53,12 +53,6 @@ android {
         }
     }
 
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
-        disable 'MissingTranslation'
-        disable 'ExtraTranslation'
-    }
 
     buildFeatures {
         dataBinding true
@@ -76,6 +70,11 @@ android {
 
     kotlinOptions {
         jvmTarget = '11'
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        disable 'MissingTranslation', 'ExtraTranslation'
     }
 }
 
