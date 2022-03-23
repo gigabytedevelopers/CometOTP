@@ -27,6 +27,7 @@ public class EntryThumbnail {
         OnePassword(R.drawable.thumb_1password),
         OneXBet(R.drawable.thumb_1xbet),
         TwentyThreeAndMe(R.drawable.thumb_23andme),
+        Activision(R.drawable.thumb_activision),
         Adafruit(R.drawable.thumb_adafruit),
         AdGuard(R.drawable.thumb_adguard),
         Adobe(R.drawable.thumb_adobe),
