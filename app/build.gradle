@@ -94,10 +94,10 @@ dependencies {
     implementation "com.github.aakira:expandable-layout:1.6.0"
     implementation "com.google.android.material:material:1.6.0"
     implementation "com.journeyapps:zxing-android-embedded:4.1.0"
-    implementation "com.leinardi.android:speed-dial:3.1.1"
+    implementation "com.leinardi.android:speed-dial:3.3.0"
     implementation "me.zhanghai.android.materialprogressbar:library:1.6.1"
     implementation "com.github.open-keychain.open-keychain:openpgp-api:v5.7.1"
-    implementation 'saschpe.android:customtabs:2.0.3'
+    implementation 'de.peilicke.sascha:android-customtabs:3.0.3'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
