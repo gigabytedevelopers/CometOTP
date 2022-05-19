@@ -1,37 +1,33 @@
+@file:Suppress("PackageName")
 package com.gigabytedevelopersinc.app.cometOTP.Activities
 
-import saschpe.android.customtabs.CustomTabsHelper.Companion.addKeepAliveExtra
-import saschpe.android.customtabs.CustomTabsHelper.Companion.openCustomTab
-import com.gigabytedevelopersinc.app.cometOTP.Activities.BaseActivity
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.annotation.SuppressLint
-import android.os.Bundle
-import com.gigabytedevelopersinc.app.cometOTP.R
-import android.view.ViewStub
-import androidx.browser.customtabs.CustomTabsIntent
-import android.graphics.ColorFilter
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
-import com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity
-import android.content.pm.PackageManager
-import com.google.android.material.snackbar.Snackbar
-import saschpe.android.customtabs.WebViewFallback
-import android.content.Intent
-import androidx.cardview.widget.CardView
-import com.github.aakira.expandablelayout.ExpandableLinearLayout
-import com.gigabytedevelopersinc.app.cometOTP.Activities.PrivacyPolicyActivity
-import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Bundle
 import android.view.View
+import android.view.ViewStub
 import android.widget.*
 import androidx.appcompat.widget.Toolbar
-import com.gigabytedevelopersinc.app.cometOTP.Activities.LicensesActivity
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.cardview.widget.CardView
+import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
-import java.lang.Exception
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
+import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter
+import com.github.aakira.expandablelayout.ExpandableLinearLayout
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
+import saschpe.android.customtabs.CustomTabsHelper.Companion.addKeepAliveExtra
+import saschpe.android.customtabs.CustomTabsHelper.Companion.openCustomTab
+import saschpe.android.customtabs.WebViewFallback
 
 class AboutActivity : BaseActivity() {
     private var mBottomSheetDialog: BottomSheetDialog? = null
+
     @SuppressLint("IntentReset")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +56,7 @@ class AboutActivity : BaseActivity() {
             e.printStackTrace()
         }
         val versionLayout = v.findViewById<LinearLayout>(R.id.about_layout_version)
-        versionLayout.setOnClickListener { view: View? ->
+        versionLayout.setOnClickListener {
             val thisTap = System.currentTimeMillis()
             if (thisTap - lastTap < 500) {
                 taps = taps + 1
@@ -87,26 +83,26 @@ class AboutActivity : BaseActivity() {
         val changelog = v.findViewById<LinearLayout>(R.id.about_layout_changelog)
         val source = v.findViewById<LinearLayout>(R.id.about_layout_source)
         val licenses = v.findViewById<LinearLayout>(R.id.about_layout_licenses)
-        license.setOnClickListener { view: View? -> openURI(MIT_URI) }
-        changelog.setOnClickListener { view: View? ->
+        license.setOnClickListener { openURI(MIT_URI) }
+        changelog.setOnClickListener {
             openCustomTab(
                 this, customTabsIntent,
                 Uri.parse(changeLogUrl),
                 WebViewFallback()
             )
         }
-        source.setOnClickListener { view: View? -> openURI(WHATSAPP_URI) }
-        licenses.setOnClickListener { view: View? -> showLicenses() }
+        source.setOnClickListener { openURI(WHATSAPP_URI) }
+        licenses.setOnClickListener { showLicenses() }
         val author1GitHub = v.findViewById<TextView>(R.id.about_author1_github)
         val author1Paypal = v.findViewById<TextView>(R.id.about_author1_paypal)
-        author1GitHub.setOnClickListener { view: View? ->
+        author1GitHub.setOnClickListener {
             try {
                 openURI(AUTHOR1_GITHUB)
             } catch (ignored: Exception) {
                 copyToClipboard(AUTHOR1_GITHUB)
             }
         }
-        author1Paypal.setOnClickListener { view: View? ->
+        author1Paypal.setOnClickListener {
             try {
                 openURI(AUTHOR1_PAYPAL)
             } catch (ignored: Exception) {
@@ -114,9 +110,9 @@ class AboutActivity : BaseActivity() {
             }
         }
         val author2App = v.findViewById<TextView>(R.id.about_author2_app)
-        author2App.setOnClickListener { view: View? -> openURI(AUTHOR2_APP) }
+        author2App.setOnClickListener { openURI(AUTHOR2_APP) }
         val bugReport = v.findViewById<LinearLayout>(R.id.about_layout_bugs)
-        bugReport.setOnClickListener { view: View? ->
+        bugReport.setOnClickListener {
             val feedback = Intent(Intent.ACTION_SENDTO)
             feedback.type = "text/html"
             feedback.data = Uri.parse("mailto:")
@@ -131,13 +127,13 @@ class AboutActivity : BaseActivity() {
         val expandButton = v.findViewById<Button>(R.id.thumb_expand_button)
         val expand = v.findViewById<CardView>(R.id.thumb_expand)
         val expandLayout = v.findViewById<ExpandableLinearLayout>(R.id.thumb_disclaimer)
-        val privacypolicy = v.findViewById<LinearLayout>(R.id.privacy_policy)
-        privacypolicy.setOnClickListener { view: View? ->
+        val privacyPolicy = v.findViewById<LinearLayout>(R.id.privacy_policy)
+        privacyPolicy.setOnClickListener {
             val privacyPolicyIntent = Intent(this@AboutActivity, PrivacyPolicyActivity::class.java)
             startActivityForResult(privacyPolicyIntent, Constants.INTENT_MAIN_PRIVACYPOLICY)
         }
-        expand.setOnClickListener { view: View? -> expandLayout.toggle() }
-        expandButton.setOnClickListener { view: View? -> expandLayout.toggle() }
+        expand.setOnClickListener { expandLayout.toggle() }
+        expandButton.setOnClickListener { expandLayout.toggle() }
         expandLayout.setListener(object : ExpandableLayoutListenerAdapter() {
             override fun onOpened() {
                 super.onOpened()
@@ -164,7 +160,7 @@ class AboutActivity : BaseActivity() {
     private fun enableSpecialFeatures() {
         val bottomSheetLayout = layoutInflater.inflate(R.layout.bottom_sheet_special_features, null)
         bottomSheetLayout.findViewById<View>(R.id.button_no)
-            .setOnClickListener { v: View? -> mBottomSheetDialog!!.dismiss() }
+            .setOnClickListener { mBottomSheetDialog!!.dismiss() }
         bottomSheetLayout.findViewById<View>(R.id.button_yes).setOnClickListener { v: View? ->
             mBottomSheetDialog!!.dismiss()
             settings.specialFeatures = true
@@ -190,13 +186,13 @@ class AboutActivity : BaseActivity() {
         super.onBackPressed()
     }
 
-    fun openURI(uri: String?) {
+    private fun openURI(uri: String?) {
         val openURI = Intent(Intent.ACTION_VIEW)
         openURI.data = Uri.parse(uri)
         startActivity(openURI)
     }
 
-    fun copyToClipboard(uri: String?) {
+    private fun copyToClipboard(uri: String?) {
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("CometOTP", uri)
         clipboard.setPrimaryClip(clip)
@@ -208,7 +204,7 @@ class AboutActivity : BaseActivity() {
         //Toast.makeText(this, getString(R.string.about_toast_copied_to_clipboard), Toast.LENGTH_SHORT).show();
     }
 
-    fun showLicenses() {
+    private fun showLicenses() {
         val licensesIntent = Intent(this, LicensesActivity::class.java)
         startActivityForResult(licensesIntent, Constants.INTENT_MAIN_LICENSES)
         /*String backgroundColor = Tools.getCSSRGBAString(Tools.getThemeColor(this, R.attr.colorBackgroundFloating));
@@ -231,7 +227,7 @@ class AboutActivity : BaseActivity() {
         private const val WHATSAPP_URI = "https://chat.whatsapp.com/HvUjQXAkMne3hjSiy1sUpc"
 
         // private static final String CHANGELOG_URI = GITHUB_URI + "/blob/master/CHANGELOG.md";
-        private const val MIT_URI = GITHUB_URI + "/blob/master/LICENSE.txt"
+        private const val MIT_URI = "$GITHUB_URI/blob/master/LICENSE.txt"
         private const val AUTHOR1_GITHUB = "https://github.com/gigabytedevelopers"
         private const val AUTHOR1_PAYPAL = "https://paypal.me/gigabtedevelopers"
 
