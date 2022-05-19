@@ -8,7 +8,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "CometOTP-${variant.name}-${variant.versionName}.apk"
@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId "com.gigabytedevelopersinc.app.CometOTP"
         minSdkVersion 22
-        targetSdkVersion 31
+        targetSdkVersion 32
         versionCode 36
         versionName "5.6.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
