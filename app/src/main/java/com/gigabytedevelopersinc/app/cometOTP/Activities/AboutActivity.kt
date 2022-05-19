@@ -1,251 +1,216 @@
-package com.gigabytedevelopersinc.app.cometOTP.Activities;
+package com.gigabytedevelopersinc.app.cometOTP.Activities
 
-import android.annotation.SuppressLint;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.graphics.ColorFilter;
-import android.net.Uri;
-import android.os.Bundle;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.snackbar.Snackbar;
+import saschpe.android.customtabs.CustomTabsHelper.Companion.addKeepAliveExtra
+import saschpe.android.customtabs.CustomTabsHelper.Companion.openCustomTab
+import com.gigabytedevelopersinc.app.cometOTP.Activities.BaseActivity
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import android.annotation.SuppressLint
+import android.os.Bundle
+import com.gigabytedevelopersinc.app.cometOTP.R
+import android.view.ViewStub
+import androidx.browser.customtabs.CustomTabsIntent
+import android.graphics.ColorFilter
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
+import com.gigabytedevelopersinc.app.cometOTP.Activities.AboutActivity
+import android.content.pm.PackageManager
+import com.google.android.material.snackbar.Snackbar
+import saschpe.android.customtabs.WebViewFallback
+import android.content.Intent
+import androidx.cardview.widget.CardView
+import com.github.aakira.expandablelayout.ExpandableLinearLayout
+import com.gigabytedevelopersinc.app.cometOTP.Activities.PrivacyPolicyActivity
+import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.net.Uri
+import android.view.View
+import android.widget.*
+import androidx.appcompat.widget.Toolbar
+import com.gigabytedevelopersinc.app.cometOTP.Activities.LicensesActivity
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
+import java.lang.Exception
 
-import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.cardview.widget.CardView;
-import androidx.appcompat.widget.Toolbar;
-import android.view.View;
-import android.view.ViewStub;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
-import com.github.aakira.expandablelayout.ExpandableLinearLayout;
-
-import com.gigabytedevelopersinc.app.cometOTP.R;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
-
-import saschpe.android.customtabs.CustomTabsHelper;
-import saschpe.android.customtabs.WebViewFallback;
-
-public class AboutActivity extends BaseActivity {
-    private static final String GITHUB_URI = "https://github.com/gigabytedevelopers/CometOTP";
-    private static final String WHATSAPP_URI = "https://chat.whatsapp.com/HvUjQXAkMne3hjSiy1sUpc";
-    // private static final String CHANGELOG_URI = GITHUB_URI + "/blob/master/CHANGELOG.md";
-    private static final String MIT_URI = GITHUB_URI + "/blob/master/LICENSE.txt";
-
-    private static final String AUTHOR1_GITHUB = "https://github.com/gigabytedevelopers";
-    private static final String AUTHOR1_PAYPAL = "https://paypal.me/gigabtedevelopers";
-
-    // private static final String AUTHOR2_GITHUB = "https://github.com";
-    private static final String AUTHOR2_APP = "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2";
-    private static final String changeLogUrl = "https://gigabytedevelopersinc.com/apps/cometotp/changelog";
-
-    // private static final String BUGREPORT_URI = GITHUB_URI + "/issues";
-
-    static final int[] imageResources = {
-            R.id.aboutImgVersion, R.id.aboutImgLicense, R.id.aboutImgChangelog, R.id.aboutImgSource,
-            R.id.aboutImgOpenSource, R.id.aboutImgAuthor1, R.id.aboutImgAuthor2, R.id.aboutImgBugs
-    };
-
-    static long lastTap = 0;
-    static int taps = 0;
-    static Toast currentToast = null;
-
-    private BottomSheetDialog mBottomSheetDialog;
-
+class AboutActivity : BaseActivity() {
+    private var mBottomSheetDialog: BottomSheetDialog? = null
     @SuppressLint("IntentReset")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setTitle(R.string.about_activity_title);
-        setContentView(R.layout.activity_container);
-
-        Toolbar toolbar = findViewById(R.id.container_toolbar);
-        setSupportActionBar(toolbar);
-
-        ViewStub stub = findViewById(R.id.container_stub);
-        stub.setLayoutResource(R.layout.content_about);
-        View v = stub.inflate();
-
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        builder.setShowTitle(true);
-        CustomTabsIntent customTabsIntent = builder.build();
-        builder.setToolbarColor(getResources().getColor(R.color.colorPrimary));
-        CustomTabsHelper.addKeepAliveExtra(this, customTabsIntent.intent);
-
-        ColorFilter filter = Tools.getThemeColorFilter(this, android.R.attr.textColorSecondary);
-        for (int i : imageResources) {
-            ImageView imgView = v.findViewById(i);
-            imgView.getDrawable().setColorFilter(filter);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setTitle(R.string.about_activity_title)
+        setContentView(R.layout.activity_container)
+        val toolbar = findViewById<Toolbar>(R.id.container_toolbar)
+        setSupportActionBar(toolbar)
+        val stub = findViewById<ViewStub>(R.id.container_stub)
+        stub.layoutResource = R.layout.content_about
+        val v = stub.inflate()
+        val builder = CustomTabsIntent.Builder()
+        builder.setShowTitle(true)
+        val customTabsIntent = builder.build()
+        builder.setToolbarColor(resources.getColor(R.color.colorPrimary))
+        addKeepAliveExtra(this, customTabsIntent.intent)
+        val filter = Tools.getThemeColorFilter(this, android.R.attr.textColorSecondary)
+        for (i in imageResources) {
+            val imgView = v.findViewById<ImageView>(i)
+            imgView.drawable.colorFilter = filter
         }
-
-        String versionName = "";
+        var versionName = ""
         try {
-            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            versionName = packageInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            versionName = packageInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
         }
-
-        LinearLayout versionLayout = v.findViewById(R.id.about_layout_version);
-
-        versionLayout.setOnClickListener(view -> {
-            long thisTap = System.currentTimeMillis();
-
+        val versionLayout = v.findViewById<LinearLayout>(R.id.about_layout_version)
+        versionLayout.setOnClickListener { view: View? ->
+            val thisTap = System.currentTimeMillis()
             if (thisTap - lastTap < 500) {
-                taps = taps + 1;
-
-                if (currentToast != null && taps <= 7)
-                    currentToast.cancel();
-
-                if (taps >= 3 && taps <= 7)
-                    currentToast = Toast.makeText(getBaseContext(), String.valueOf(taps), Toast.LENGTH_SHORT);
-
+                taps = taps + 1
+                if (currentToast != null && taps <= 7) currentToast!!.cancel()
+                if (taps >= 3 && taps <= 7) currentToast = Toast.makeText(
+                    baseContext, taps.toString(), Toast.LENGTH_SHORT
+                )
                 if (taps == 7) {
-                    if (settings.getSpecialFeatures())
-                        Snackbar.make(findViewById(R.id.about), R.string.about_toast_special_features_enabled, Snackbar.LENGTH_LONG).show();
-                    else
-                        enableSpecialFeatures();
+                    if (settings.specialFeatures) Snackbar.make(
+                        findViewById(R.id.about),
+                        R.string.about_toast_special_features_enabled,
+                        Snackbar.LENGTH_LONG
+                    ).show() else enableSpecialFeatures()
                 }
-
-                if (currentToast != null)
-                    currentToast.show();
+                if (currentToast != null) currentToast!!.show()
             } else {
-                taps = 0;
+                taps = 0
             }
-
-            lastTap = thisTap;
-        });
-
-        TextView version = v.findViewById(R.id.about_text_version);
-        version.setText(versionName);
-
-        LinearLayout license = v.findViewById(R.id.about_layout_license);
-        LinearLayout changelog = v.findViewById(R.id.about_layout_changelog);
-        LinearLayout source = v.findViewById(R.id.about_layout_source);
-        LinearLayout licenses = v.findViewById(R.id.about_layout_licenses);
-        license.setOnClickListener(view -> openURI(MIT_URI));
-        changelog.setOnClickListener(view -> CustomTabsHelper.openCustomTab(this, customTabsIntent,
+            lastTap = thisTap
+        }
+        val version = v.findViewById<TextView>(R.id.about_text_version)
+        version.text = versionName
+        val license = v.findViewById<LinearLayout>(R.id.about_layout_license)
+        val changelog = v.findViewById<LinearLayout>(R.id.about_layout_changelog)
+        val source = v.findViewById<LinearLayout>(R.id.about_layout_source)
+        val licenses = v.findViewById<LinearLayout>(R.id.about_layout_licenses)
+        license.setOnClickListener { view: View? -> openURI(MIT_URI) }
+        changelog.setOnClickListener { view: View? ->
+            openCustomTab(
+                this, customTabsIntent,
                 Uri.parse(changeLogUrl),
-                new WebViewFallback()));
-        source.setOnClickListener(view -> openURI(WHATSAPP_URI));
-        licenses.setOnClickListener(view -> showLicenses());
-
-        TextView author1GitHub = v.findViewById(R.id.about_author1_github);
-        TextView author1Paypal = v.findViewById(R.id.about_author1_paypal);
-
-        author1GitHub.setOnClickListener(view -> {
+                WebViewFallback()
+            )
+        }
+        source.setOnClickListener { view: View? -> openURI(WHATSAPP_URI) }
+        licenses.setOnClickListener { view: View? -> showLicenses() }
+        val author1GitHub = v.findViewById<TextView>(R.id.about_author1_github)
+        val author1Paypal = v.findViewById<TextView>(R.id.about_author1_paypal)
+        author1GitHub.setOnClickListener { view: View? ->
             try {
-                openURI(AUTHOR1_GITHUB);
-            } catch(Exception ignored) {
-                copyToClipboard(AUTHOR1_GITHUB);
+                openURI(AUTHOR1_GITHUB)
+            } catch (ignored: Exception) {
+                copyToClipboard(AUTHOR1_GITHUB)
             }
-        });
-        author1Paypal.setOnClickListener(view -> {
+        }
+        author1Paypal.setOnClickListener { view: View? ->
             try {
-                openURI(AUTHOR1_PAYPAL);
-            } catch(Exception ignored) {
-                copyToClipboard(AUTHOR1_PAYPAL);
+                openURI(AUTHOR1_PAYPAL)
+            } catch (ignored: Exception) {
+                copyToClipboard(AUTHOR1_PAYPAL)
             }
-        });
-
-        TextView author2App = v.findViewById(R.id.about_author2_app);
-        author2App.setOnClickListener(view -> openURI(AUTHOR2_APP));
-
-        LinearLayout bugReport = v.findViewById(R.id.about_layout_bugs);
-        bugReport.setOnClickListener(view -> {
-            final Intent feedback = new Intent(Intent.ACTION_SENDTO);
-            feedback.setType("text/html");
-            feedback.setData(Uri.parse("mailto:"));
-            feedback.putExtra(Intent.EXTRA_EMAIL, new String[]{ getString(R.string.feedback_email_address)});
-            feedback.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback_email_subject));
-            feedback.putExtra(Intent.EXTRA_TEXT, getString(R.string.feedback_email_message));
-            startActivity(Intent.createChooser(feedback, getString(R.string.feedback_email_title)));
-        });
-
-        final Button expandButton = v.findViewById(R.id.thumb_expand_button);
-        final CardView expand = v.findViewById(R.id.thumb_expand);
-        final ExpandableLinearLayout expandLayout = v.findViewById(R.id.thumb_disclaimer);
-        final LinearLayout privacypolicy = v.findViewById(R.id.privacy_policy);
-
-        privacypolicy.setOnClickListener(view -> {
-            Intent privacyPolicyIntent = new Intent(AboutActivity.this, PrivacyPolicyActivity.class);
-            startActivityForResult(privacyPolicyIntent, Constants.INTENT_MAIN_PRIVACYPOLICY);
-        });
-
-        expand.setOnClickListener(view -> expandLayout.toggle());
-
-        expandButton.setOnClickListener(view -> expandLayout.toggle());
-
-        expandLayout.setListener(new ExpandableLayoutListenerAdapter() {
-            @Override
-            public void onOpened() {
-                super.onOpened();
-                expandButton.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_up, 0);
+        }
+        val author2App = v.findViewById<TextView>(R.id.about_author2_app)
+        author2App.setOnClickListener { view: View? -> openURI(AUTHOR2_APP) }
+        val bugReport = v.findViewById<LinearLayout>(R.id.about_layout_bugs)
+        bugReport.setOnClickListener { view: View? ->
+            val feedback = Intent(Intent.ACTION_SENDTO)
+            feedback.type = "text/html"
+            feedback.data = Uri.parse("mailto:")
+            feedback.putExtra(
+                Intent.EXTRA_EMAIL,
+                arrayOf(getString(R.string.feedback_email_address))
+            )
+            feedback.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback_email_subject))
+            feedback.putExtra(Intent.EXTRA_TEXT, getString(R.string.feedback_email_message))
+            startActivity(Intent.createChooser(feedback, getString(R.string.feedback_email_title)))
+        }
+        val expandButton = v.findViewById<Button>(R.id.thumb_expand_button)
+        val expand = v.findViewById<CardView>(R.id.thumb_expand)
+        val expandLayout = v.findViewById<ExpandableLinearLayout>(R.id.thumb_disclaimer)
+        val privacypolicy = v.findViewById<LinearLayout>(R.id.privacy_policy)
+        privacypolicy.setOnClickListener { view: View? ->
+            val privacyPolicyIntent = Intent(this@AboutActivity, PrivacyPolicyActivity::class.java)
+            startActivityForResult(privacyPolicyIntent, Constants.INTENT_MAIN_PRIVACYPOLICY)
+        }
+        expand.setOnClickListener { view: View? -> expandLayout.toggle() }
+        expandButton.setOnClickListener { view: View? -> expandLayout.toggle() }
+        expandLayout.setListener(object : ExpandableLayoutListenerAdapter() {
+            override fun onOpened() {
+                super.onOpened()
+                expandButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    0,
+                    0,
+                    R.drawable.ic_arrow_up,
+                    0
+                )
             }
 
-            @Override
-            public void onClosed() {
-                super.onClosed();
-                expandButton.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_down, 0);
+            override fun onClosed() {
+                super.onClosed()
+                expandButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    0,
+                    0,
+                    R.drawable.ic_arrow_down,
+                    0
+                )
             }
-        });
+        })
     }
 
-    private void enableSpecialFeatures() {
-        final View bottomSheetLayout = getLayoutInflater().inflate(R.layout.bottom_sheet_special_features, null);
-        (bottomSheetLayout.findViewById(R.id.button_no)).setOnClickListener(v -> mBottomSheetDialog.dismiss());
-        (bottomSheetLayout.findViewById(R.id.button_yes)).setOnClickListener(v -> {
-            mBottomSheetDialog.dismiss();
-            settings.setSpecialFeatures(true);
-            Snackbar.make(findViewById(R.id.about), R.string.about_toast_special_features,
-                    Snackbar.LENGTH_LONG).show();
-        });
-        mBottomSheetDialog = new BottomSheetDialog(this);
-        mBottomSheetDialog.setContentView(bottomSheetLayout);
-        mBottomSheetDialog.setCancelable(false);
-        mBottomSheetDialog.show();
+    private fun enableSpecialFeatures() {
+        val bottomSheetLayout = layoutInflater.inflate(R.layout.bottom_sheet_special_features, null)
+        bottomSheetLayout.findViewById<View>(R.id.button_no)
+            .setOnClickListener { v: View? -> mBottomSheetDialog!!.dismiss() }
+        bottomSheetLayout.findViewById<View>(R.id.button_yes).setOnClickListener { v: View? ->
+            mBottomSheetDialog!!.dismiss()
+            settings.specialFeatures = true
+            Snackbar.make(
+                findViewById(R.id.about), R.string.about_toast_special_features,
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+        mBottomSheetDialog = BottomSheetDialog(this)
+        mBottomSheetDialog!!.setContentView(bottomSheetLayout)
+        mBottomSheetDialog!!.setCancelable(false)
+        mBottomSheetDialog!!.show()
     }
 
     // Go back to the main activity
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
 
-    @Override
-    public void onBackPressed() {
-        finish();
-        super.onBackPressed();
+    override fun onBackPressed() {
+        finish()
+        super.onBackPressed()
     }
 
-    public void openURI(String uri) {
-        Intent openURI = new Intent(Intent.ACTION_VIEW);
-        openURI.setData(Uri.parse(uri));
-        startActivity(openURI);
+    fun openURI(uri: String?) {
+        val openURI = Intent(Intent.ACTION_VIEW)
+        openURI.data = Uri.parse(uri)
+        startActivity(openURI)
     }
 
-    public void copyToClipboard(String uri) {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("CometOTP", uri);
-        clipboard.setPrimaryClip(clip);
-        Snackbar.make(findViewById(R.id.about), getString(R.string.about_toast_copied_to_clipboard), Snackbar.LENGTH_LONG).show();
+    fun copyToClipboard(uri: String?) {
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("CometOTP", uri)
+        clipboard.setPrimaryClip(clip)
+        Snackbar.make(
+            findViewById(R.id.about),
+            getString(R.string.about_toast_copied_to_clipboard),
+            Snackbar.LENGTH_LONG
+        ).show()
         //Toast.makeText(this, getString(R.string.about_toast_copied_to_clipboard), Toast.LENGTH_SHORT).show();
     }
 
-
-    public void showLicenses() {
-        Intent licensesIntent = new Intent(this, LicensesActivity.class);
-        startActivityForResult(licensesIntent, Constants.INTENT_MAIN_LICENSES);
+    fun showLicenses() {
+        val licensesIntent = Intent(this, LicensesActivity::class.java)
+        startActivityForResult(licensesIntent, Constants.INTENT_MAIN_LICENSES)
         /*String backgroundColor = Tools.getCSSRGBAString(Tools.getThemeColor(this, R.attr.colorBackgroundFloating));
         String textColor = Tools.getCSSRGBAString(Tools.getThemeColor(this, android.R.attr.textColorPrimary));
         String textColorSecondary = Tools.getCSSRGBAString(Tools.getThemeColor(this, android.R.attr.textColorSecondary));
@@ -259,5 +224,29 @@ public class AboutActivity extends BaseActivity {
                 .build();
 
         dialog.show();*/
+    }
+
+    companion object {
+        private const val GITHUB_URI = "https://github.com/gigabytedevelopers/CometOTP"
+        private const val WHATSAPP_URI = "https://chat.whatsapp.com/HvUjQXAkMne3hjSiy1sUpc"
+
+        // private static final String CHANGELOG_URI = GITHUB_URI + "/blob/master/CHANGELOG.md";
+        private const val MIT_URI = GITHUB_URI + "/blob/master/LICENSE.txt"
+        private const val AUTHOR1_GITHUB = "https://github.com/gigabytedevelopers"
+        private const val AUTHOR1_PAYPAL = "https://paypal.me/gigabtedevelopers"
+
+        // private static final String AUTHOR2_GITHUB = "https://github.com";
+        private const val AUTHOR2_APP =
+            "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+        private const val changeLogUrl = "https://gigabytedevelopersinc.com/apps/cometotp/changelog"
+
+        // private static final String BUGREPORT_URI = GITHUB_URI + "/issues";
+        val imageResources = intArrayOf(
+            R.id.aboutImgVersion, R.id.aboutImgLicense, R.id.aboutImgChangelog, R.id.aboutImgSource,
+            R.id.aboutImgOpenSource, R.id.aboutImgAuthor1, R.id.aboutImgAuthor2, R.id.aboutImgBugs
+        )
+        var lastTap: Long = 0
+        var taps = 0
+        var currentToast: Toast? = null
     }
 }
