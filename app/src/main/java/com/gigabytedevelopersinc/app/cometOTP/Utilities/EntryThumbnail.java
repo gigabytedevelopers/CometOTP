@@ -274,6 +274,7 @@ public class EntryThumbnail {
         Payza(R.drawable.thumb_payza),
         PCloud(R.drawable.thumb_pcloud),
         PeeringDB(R.drawable.thumb_peeringdb),
+        Percona(R.drawable.thumb_percona),
         Phabricator(R.drawable.thumb_phabricator),
         phpMyAdmin(R.drawable.thumb_phpmyadmin),
         Pixelfed(R.drawable.thumb_pixelfed),
