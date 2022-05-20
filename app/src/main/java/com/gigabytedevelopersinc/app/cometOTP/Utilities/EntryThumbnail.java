@@ -291,6 +291,7 @@ public class EntryThumbnail {
         ProtonMail(R.drawable.thumb_protonmail),
         ProtonVPN(R.drawable.thumb_protonvpn),
         Proxmox(R.drawable.thumb_proxmox),
+        PulseHeberg(R.drawable.thumb_pulseheberg),
         Purse(R.drawable.thumb_purse),
         Pushover(R.drawable.thumb_pushover),
         PyPI(R.drawable.thumb_pypi),
