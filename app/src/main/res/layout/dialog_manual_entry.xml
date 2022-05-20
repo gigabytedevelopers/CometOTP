@@ -165,7 +165,7 @@
             android:textAlignment="viewStart"
             android:text="@string/label_advanced"/>
 
-        <com.github.aakira.expandablelayout.ExpandableLinearLayout
+        <com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout
             android:id="@+id/dialog_expand_layout"
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -239,7 +239,7 @@
 
             </LinearLayout>
 
-        </com.github.aakira.expandablelayout.ExpandableLinearLayout>
+        </com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout>
 
     </LinearLayout>
 

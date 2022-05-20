@@ -20,8 +20,8 @@ import android.widget.TextView;
 
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter;
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter;
-import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
-import com.github.aakira.expandablelayout.ExpandableLinearLayout;
+import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLayoutListenerAdapter;
+import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout;
 
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity;
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;

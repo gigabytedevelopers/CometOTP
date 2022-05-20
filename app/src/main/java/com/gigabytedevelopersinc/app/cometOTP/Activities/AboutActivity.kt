@@ -17,8 +17,8 @@ import androidx.cardview.widget.CardView
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
-import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter
-import com.github.aakira.expandablelayout.ExpandableLinearLayout
+import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLayoutListenerAdapter
+import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import saschpe.android.customtabs.CustomTabsHelper.Companion.addKeepAliveExtra

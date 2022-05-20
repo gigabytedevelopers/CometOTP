@@ -565,7 +565,7 @@
                         android:textAlignment="viewStart" />
                 </RelativeLayout>
 
-                <com.github.aakira.expandablelayout.ExpandableLinearLayout
+                <com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout
                     android:id="@+id/thumb_disclaimer"
                     android:orientation="vertical"
                     android:layout_width="match_parent"
@@ -586,7 +586,7 @@
                             android:layout_height="0dp"
                             android:text="@string/thumbnails_disclaimer"/>
                     </LinearLayout>
-                </com.github.aakira.expandablelayout.ExpandableLinearLayout>
+                </com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
