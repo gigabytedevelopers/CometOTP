@@ -379,6 +379,7 @@ public class EntryThumbnail {
         WebDe(R.drawable.thumb_web_de),
         Weclapp(R.drawable.thumb_weclapp),
         Whogohost(R.drawable.thumb_whogohost),
+        Werknemerloket(R.drawable.thumb_werknemerloket),
         Wikimedia(R.drawable.thumb_wikimedia),
         Wildduck(R.drawable.thumb_wildduck),
         WooCommerce(R.drawable.thumb_woocommerce),
