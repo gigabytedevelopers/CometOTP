@@ -322,6 +322,7 @@ public class EntryThumbnail {
         ServiceNow(R.drawable.thumb_servicenow),
         Sevdesk(R.drawable.thumb_sevdesk),
         SimpleLogin(R.drawable.thumb_simple_login),
+        ShoppeeCom(R.drawable.thumb_shoppee_com),
         Skrill(R.drawable.thumb_skrill),
         Slack(R.drawable.thumb_slack),
         Smartbill(R.drawable.thumb_smartbill),
