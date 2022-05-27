@@ -124,6 +124,7 @@ public class EntryThumbnail {
         Ecloud(R.drawable.thumb_ecloud),
         ElectronicArts(R.drawable.thumb_electronic_arts),
         Email(R.drawable.thumb_email),
+        Eneba(R.drawable.thumb_eneba),
         Envato(R.drawable.thumb_envato),
         EpicGames(R.drawable.thumb_epic_games),
         ESEA(R.drawable.thumb_esea),
