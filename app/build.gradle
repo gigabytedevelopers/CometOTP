@@ -80,29 +80,29 @@ android {
 }
 
 dependencies {
-    def lifecycle_version = "2.4.1"
+    def lifecycle_version = "2.5.1"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "commons-codec:commons-codec:1.15"
-    implementation "androidx.appcompat:appcompat:1.4.2"
-    implementation "androidx.browser:browser:1.4.0"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.browser:browser:1.5.0"
     implementation "androidx.cardview:cardview:1.0.0"
-    implementation "androidx.core:core-ktx:1.8.0"
+    implementation "androidx.core:core-ktx:1.9.0"
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
-    implementation "com.google.android.material:material:1.6.1"
+    implementation "com.google.android.material:material:1.8.0"
     implementation "com.journeyapps:zxing-android-embedded:4.1.0"
     implementation "com.leinardi.android:speed-dial:3.3.0"
     implementation "me.zhanghai.android.materialprogressbar:library:1.6.1"
     implementation "com.github.open-keychain.open-keychain:openpgp-api:v5.7.1"
     implementation 'de.peilicke.sascha:android-customtabs:3.0.3'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
 }
 configurations {
     implementation.exclude group: "com.android.support", module: "customtabs"
