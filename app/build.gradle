@@ -97,6 +97,7 @@ dependencies {
     implementation "me.zhanghai.android.materialprogressbar:library:1.6.1"
     implementation "com.github.open-keychain.open-keychain:openpgp-api:v5.7.1"
     implementation 'de.peilicke.sascha:android-customtabs:3.0.3'
+    implementation 'me.zhanghai.android.fastscroll:library:1.2.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

@@ -78,6 +78,8 @@ import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMet
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode;
 
+import me.zhanghai.android.fastscroll.FastScrollerBuilder;
+
 public class MainActivity extends BaseActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static long animatorDuration = 1000;
@@ -310,6 +312,7 @@ public class MainActivity extends BaseActivity
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
+        new FastScrollerBuilder(recList).useMd2Style().build();
 
         tagsDrawerAdapter = new TagsAdapter(this, new HashMap<>());
         adapter = new EntriesCardAdapter(this, tagsDrawerAdapter);
