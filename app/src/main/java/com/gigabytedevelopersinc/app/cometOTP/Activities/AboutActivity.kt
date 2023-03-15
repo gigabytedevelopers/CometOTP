@@ -181,6 +181,7 @@ class AboutActivity : BaseActivity() {
         return true
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         finish()
         super.onBackPressed()

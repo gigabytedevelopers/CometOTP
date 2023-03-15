@@ -518,7 +518,7 @@ public class MainActivity extends BaseActivity
         super.onSaveInstanceState(outState);
         outState.putString("filterString", filterString);
 
-        if (cacheEncKey) {
+        if (cacheEncKey && adapter.getEncryptionKey() != null) {
             outState.putByteArray("encKey", adapter.getEncryptionKey().getEncoded());
             cacheEncKey = false;
         }
@@ -726,7 +726,9 @@ public class MainActivity extends BaseActivity
 
         if (id == R.id.action_backup) {
             Intent backupIntent = new Intent(this, BackupActivity.class);
-            backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
+            if (adapter.getEncryptionKey() != null) {
+                backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
+            }
             startActivityForResult(backupIntent, Constants.INTENT_MAIN_BACKUP);
         } else if (id == R.id.action_settings) {
             Intent settingsIntent = new Intent(this, SettingsActivity.class);

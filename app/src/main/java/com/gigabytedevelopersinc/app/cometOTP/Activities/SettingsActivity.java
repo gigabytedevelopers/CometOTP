@@ -94,7 +94,9 @@ public class SettingsActivity extends BaseActivity
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, encryptionChanged);
-        outState.putByteArray(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, encryptionKey.getEncoded());
+        if (encryptionKey != null) {
+            outState.putByteArray(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, encryptionKey.getEncoded());
+        }
     }
 
     public void finishWithResult() {
@@ -154,7 +156,7 @@ public class SettingsActivity extends BaseActivity
                     (settings.getAndroidBackupServiceEnabled() ? "enabled" : "disabled"));
 
             int message = settings.getAndroidBackupServiceEnabled() ? R.string.settings_toast_android_sync_enabled : R.string.settings_toast_android_sync_disabled;
-            Snackbar.make(findViewById(R.id.container_content), message, Snackbar.LENGTH_SHORT);
+            Snackbar.make(findViewById(R.id.container_content), message, Snackbar.LENGTH_SHORT).show();
         }
         fragment.updateAutoBackup();
     }

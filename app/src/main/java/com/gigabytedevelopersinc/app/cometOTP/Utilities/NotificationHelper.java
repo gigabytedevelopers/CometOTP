@@ -1,6 +1,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 
-import android.app.Notification;
+import static android.content.Context.NOTIFICATION_SERVICE;
+
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -8,8 +9,6 @@ import android.content.Context;
 import androidx.core.app.NotificationCompat;
 
 import com.gigabytedevelopersinc.app.cometOTP.R;
-
-import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NotificationHelper {
     private static String channelId(Constants.NotificationChannel channel) {
@@ -53,7 +52,8 @@ public class NotificationHelper {
     }
 
     public static void notify(Context context, Constants.NotificationChannel channel , int resIdTitle, String resBody) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, (Notification) null)
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, (Notification) null)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channel.name())
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(context.getText(resIdTitle))
                 .setStyle(new NotificationCompat.BigTextStyle()
