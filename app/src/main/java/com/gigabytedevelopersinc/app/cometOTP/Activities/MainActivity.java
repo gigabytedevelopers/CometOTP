@@ -76,6 +76,7 @@ import javax.crypto.SecretKey;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AppStart;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType;
+import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.FILENAME_DATABASE;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode;
 
 import me.zhanghai.android.fastscroll.FastScrollerBuilder;
