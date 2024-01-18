@@ -1,5 +1,6 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import android.view.ViewStub;
@@ -15,6 +16,7 @@ public class LicensesActivity extends BaseActivity {
     //private WebView mWebView;
 
     @Override
+    @SuppressLint("MissingInflatedId")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
