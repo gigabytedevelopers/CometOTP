@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewStub
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.cardview.widget.CardView
@@ -128,9 +129,11 @@ class AboutActivity : BaseActivity() {
         val expand = v.findViewById<CardView>(R.id.thumb_expand)
         val expandLayout = v.findViewById<ExpandableLinearLayout>(R.id.thumb_disclaimer)
         val privacyPolicy = v.findViewById<LinearLayout>(R.id.privacy_policy)
+
         privacyPolicy.setOnClickListener {
             val privacyPolicyIntent = Intent(this@AboutActivity, PrivacyPolicyActivity::class.java)
-            startActivityForResult(privacyPolicyIntent, Constants.INTENT_MAIN_PRIVACYPOLICY)
+            //startActivityForResult(privacyPolicyIntent, Constants.INTENT_MAIN_PRIVACYPOLICY)
+            resultLauncher.launch(privacyPolicyIntent)
         }
         expand.setOnClickListener { expandLayout.toggle() }
         expandButton.setOnClickListener { expandLayout.toggle() }
@@ -157,6 +160,15 @@ class AboutActivity : BaseActivity() {
         })
     }
 
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // There are no request codes
+            val data: Intent? = result.data
+            //doSomeOperations()
+        }
+    }
+
+    @SuppressLint("InflateParams")
     private fun enableSpecialFeatures() {
         val bottomSheetLayout = layoutInflater.inflate(R.layout.bottom_sheet_special_features, null)
         bottomSheetLayout.findViewById<View>(R.id.button_no)
@@ -207,7 +219,8 @@ class AboutActivity : BaseActivity() {
 
     private fun showLicenses() {
         val licensesIntent = Intent(this, LicensesActivity::class.java)
-        startActivityForResult(licensesIntent, Constants.INTENT_MAIN_LICENSES)
+        //startActivityForResult(licensesIntent, Constants.INTENT_MAIN_LICENSES)
+        resultLauncher.launch(licensesIntent)
         /*String backgroundColor = Tools.getCSSRGBAString(Tools.getThemeColor(this, R.attr.colorBackgroundFloating));
         String textColor = Tools.getCSSRGBAString(Tools.getThemeColor(this, android.R.attr.textColorPrimary));
         String textColorSecondary = Tools.getCSSRGBAString(Tools.getThemeColor(this, android.R.attr.textColorSecondary));
