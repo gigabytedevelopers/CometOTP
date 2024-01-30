@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewStub
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -165,6 +166,8 @@ class AboutActivity : BaseActivity() {
                 )
             }
         })
+
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -195,16 +198,16 @@ class AboutActivity : BaseActivity() {
     }
 
     // Go back to the main activity
-    override fun onSupportNavigateUp(): Boolean {
+    /*override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
 
-    }
+    }*/
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        finish()
-        super.onBackPressed()
+    private val onBackPressedCallback = object: OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            finish()
+        }
     }
 
     private fun openURI(uri: String?) {
