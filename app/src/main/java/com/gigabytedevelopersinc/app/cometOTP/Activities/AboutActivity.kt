@@ -13,10 +13,11 @@ import android.view.ViewStub
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import com.gigabytedevelopersinc.app.cometOTP.R
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLayoutListenerAdapter
 import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout
@@ -25,6 +26,7 @@ import com.google.android.material.snackbar.Snackbar
 import saschpe.android.customtabs.CustomTabsHelper.Companion.addKeepAliveExtra
 import saschpe.android.customtabs.CustomTabsHelper.Companion.openCustomTab
 import saschpe.android.customtabs.WebViewFallback
+
 
 class AboutActivity : BaseActivity() {
     private var mBottomSheetDialog: BottomSheetDialog? = null
@@ -41,8 +43,13 @@ class AboutActivity : BaseActivity() {
         val v = stub.inflate()
         val builder = CustomTabsIntent.Builder()
         builder.setShowTitle(true)
+        val params = CustomTabColorSchemeParams.Builder()
+            //.setNavigationBarColor(ContextCompat.getColor(this, R.color.background))
+            .setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
+            //.setSecondaryToolbarColor(ContextCompat.getColor(activity, R.color.background))
+            .build()
+        builder.setColorSchemeParams(CustomTabsIntent.COLOR_SCHEME_DARK, params)
         val customTabsIntent = builder.build()
-        builder.setToolbarColor(resources.getColor(R.color.colorPrimary))
         addKeepAliveExtra(this, customTabsIntent.intent)
         val filter = Tools.getThemeColorFilter(this, android.R.attr.textColorSecondary)
         for (i in imageResources) {
@@ -191,6 +198,7 @@ class AboutActivity : BaseActivity() {
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
+
     }
 
     @Deprecated("Deprecated in Java")
