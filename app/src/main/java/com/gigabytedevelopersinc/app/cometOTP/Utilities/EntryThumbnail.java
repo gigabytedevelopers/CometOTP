@@ -82,6 +82,7 @@ public class EntryThumbnail {
         Braintrust(R.drawable.thumb_braintrust),
         BraveRewards(R.drawable.thumb_braverewards),
         Bugcrowd(R.drawable.thumb_bugcrowd),
+        Busha(R.drawable.thumb_busha),
         Celsius(R.drawable.thumb_celsius),
         CEXio(R.drawable.thumb_cexio),
         Charles_Schwab(R.drawable.thumb_charles_schwab),
