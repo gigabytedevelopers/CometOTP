@@ -102,3 +102,11 @@ So make sure you have a **current backup** before switching!
 #### Previously used code examples:
 
  * [FloatingActionMenuAndroid](https://github.com/pmahsky/FloatingActionMenuAndroid)
+
+#### Contributors:
+
+* [Okocha Ebube](https://github.com/marcusjnr/)
+* [Nwokoma Emmanuel](https://github.com/enwokoma)
+* [Oboh Albert](https://github.com/a-oboh)
+
+
