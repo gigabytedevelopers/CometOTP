@@ -8,7 +8,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdk 34
+    compileSdk 35
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach {
             outputFileName = "CometOTP-${variant.name}-${variant.versionName}.apk"
@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId "com.gigabytedevelopersinc.app.CometOTP"
         minSdkVersion 22
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 39
         versionName "5.7.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -45,7 +45,8 @@ android {
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            testCoverageEnabled = true
+            enableUnitTestCoverage true
+            enableAndroidTestCoverage true
 
             tasks.withType(JavaCompile) {
                 options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"

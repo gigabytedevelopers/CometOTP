@@ -60,7 +60,7 @@ class AboutActivity : BaseActivity() {
         var versionName = ""
         try {
             val packageInfo = packageManager.getPackageInfo(packageName, 0)
-            versionName = packageInfo.versionName
+            versionName = packageInfo.versionName.toString()
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
