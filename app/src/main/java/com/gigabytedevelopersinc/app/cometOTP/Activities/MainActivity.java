@@ -33,6 +33,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -165,9 +167,25 @@ public class MainActivity extends BaseActivity
                 .initiateScan();
     }
 
+    private final ActivityResultLauncher<Intent> intentActivityLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        // Handle returned data
+                        // Example: String someData = data.getStringExtra("key");
+                        data.getStringExtra("key");
+                    }
+                }
+            }
+    );
+
+
     private void showFirstTimeWarning() {
         Intent introIntent = new Intent(this, IntroScreenActivity.class);
-        startActivityForResult(introIntent, Constants.INTENT_MAIN_INTRO);
+        intentActivityLauncher.launch(introIntent);
+
     }
 
     public void authenticate(int messageId) {
@@ -178,12 +196,13 @@ public class MainActivity extends BaseActivity
             assert km != null;
             if (km.isKeyguardSecure()) {
                 Intent authIntent = km.createConfirmDeviceCredentialIntent(getString(R.string.dialog_title_auth), getString(R.string.dialog_msg_auth));
-                startActivityForResult(authIntent, Constants.INTENT_MAIN_AUTHENTICATE);
+                intentActivityLauncher.launch(authIntent);
             }
         } else if (authMethod == AuthMethod.PASSWORD || authMethod == AuthMethod.PIN) {
             Intent authIntent = new Intent(this, AuthenticateActivity.class);
             authIntent.putExtra(Constants.EXTRA_AUTH_MESSAGE, messageId);
-            startActivityForResult(authIntent, Constants.INTENT_MAIN_AUTHENTICATE);
+            intentActivityLauncher.launch(authIntent);
+
         }
     }
 
@@ -317,7 +336,7 @@ public class MainActivity extends BaseActivity
             else if (actionId == R.id.fabEnterDetails)
                 ManualEntryDialog.show(MainActivity.this, settings, adapter);
             else if (actionId == R.id.fabScanQRFromImage)
-                showOpenFileSelector(Constants.INTENT_MAIN_QR_OPEN_IMAGE);
+                showOpenFileSelector();
 
             return false;
         });
@@ -466,7 +485,7 @@ public class MainActivity extends BaseActivity
                     scanQRCode();
                     break;
                 case INTENT_IMPORT_QR:
-                    showOpenFileSelector(Constants.INTENT_MAIN_QR_OPEN_IMAGE);
+                    showOpenFileSelector();
                     break;
                 case INTENT_ENTER_DETAILS:
                     ManualEntryDialog.show(MainActivity.this, settings, adapter);
@@ -766,12 +785,12 @@ public class MainActivity extends BaseActivity
             if (adapter.getEncryptionKey() != null) {
                 backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
             }
-            startActivityForResult(backupIntent, Constants.INTENT_MAIN_BACKUP);
+            intentActivityLauncher.launch(backupIntent);
         } else if (id == R.id.action_settings) {
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             if (adapter.getEncryptionKey() != null)
                 settingsIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            startActivityForResult(settingsIntent, Constants.INTENT_MAIN_SETTINGS);
+            intentActivityLauncher.launch(settingsIntent);
         } else if (id == R.id.action_about){
             Intent aboutIntent = new Intent(this, AboutActivity.class);
             startActivity(aboutIntent);
@@ -891,14 +910,14 @@ public class MainActivity extends BaseActivity
         menu_backup.setOnClickListener(v -> {
             Intent backupIntent = new Intent(MainActivity.this, BackupActivity.class);
             backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            startActivityForResult(backupIntent, Constants.INTENT_MAIN_BACKUP);
+            intentActivityLauncher.launch(backupIntent);
             tagsDrawerLayout.closeDrawers();
         });
         menu_settings.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
             if (adapter.getEncryptionKey() != null)
                 settingsIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            startActivityForResult(settingsIntent, Constants.INTENT_MAIN_SETTINGS);
+            intentActivityLauncher.launch(settingsIntent);
             tagsDrawerLayout.closeDrawers();
         });
         menu_about.setOnClickListener(v -> {
@@ -1060,11 +1079,11 @@ public class MainActivity extends BaseActivity
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void showOpenFileSelector(int intentId){
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
-        startActivityForResult(intent, intentId);
+    private void showOpenFileSelector(){
+        Intent fileSelectorIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        fileSelectorIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        fileSelectorIntent.setType("image/*");
+        intentActivityLauncher.launch(fileSelectorIntent);
     }
 
     private void addQRCode(String result){
