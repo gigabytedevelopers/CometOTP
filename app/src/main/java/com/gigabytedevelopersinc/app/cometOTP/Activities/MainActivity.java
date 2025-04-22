@@ -79,7 +79,6 @@ import javax.crypto.SecretKey;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AppStart;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType;
-import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.FILENAME_DATABASE;
 import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode;
 
 import me.zhanghai.android.fastscroll.FastScrollerBuilder;
@@ -245,8 +244,10 @@ public class MainActivity extends BaseActivity
         super.onCreate(savedInstanceState);
 
         setTitle(R.string.app_name);
-        SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = getSharedPreferences(
+                this.getPackageName() + "_preferences",
+                Context.MODE_PRIVATE
+        );
 
         switch (checkAppStart(this, sharedPreferences)) {
             case NORMAL:
@@ -580,7 +581,9 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+        assert key != null;
         if (key.equals(getString(R.string.settings_key_label_size)) ||
                 key.equals(getString(R.string.settings_key_label_display)) ||
                 key.equals(getString(R.string.settings_key_split_group_size)) ||
@@ -715,6 +718,7 @@ public class MainActivity extends BaseActivity
 
         searchMenu = menu.findItem(R.id.menu_search);
         SearchView searchView = (SearchView) searchMenu.getActionView();
+        assert searchView != null;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -730,7 +734,7 @@ public class MainActivity extends BaseActivity
 
         searchMenu.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
-            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+            public boolean onMenuItemActionExpand(@NonNull MenuItem menuItem) {
                 speedDial.setVisibility(View.GONE);
                 touchHelperCallback.setDragEnabled(false);
                 if (sortMenu != null)
@@ -739,7 +743,7 @@ public class MainActivity extends BaseActivity
             }
 
             @Override
-            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+            public boolean onMenuItemActionCollapse(@NonNull MenuItem menuItem) {
                 speedDial.setVisibility(View.VISIBLE);
 
                 if (adapter == null || adapter.getSortMode() == SortMode.UNSORTED)
