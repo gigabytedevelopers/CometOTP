@@ -2,16 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/fabEnterDetails"
-        android:title="@string/button_enter_details"
-        android:icon="@drawable/ic_edit_white" />
+        android:title="@string/button_enter_details" />
 
     <item
         android:id="@+id/fabScanQRFromImage"
-        android:title="@string/button_qr_from_image"
-        android:icon="@drawable/ic_image_white" />
+        android:title="@string/button_qr_from_image" />
 
     <item
         android:id="@+id/fabScanQR"
-        android:title="@string/button_scan_qr"
-        android:icon="@drawable/ic_camera_white" />
+        android:title="@string/button_scan_qr" />
 </menu>

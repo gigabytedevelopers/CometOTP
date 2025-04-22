@@ -65,6 +65,7 @@ import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLi
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
 import java.util.ArrayList;
@@ -273,6 +274,38 @@ public class MainActivity extends BaseActivity
 
         speedDial = findViewById(R.id.speedDial);
         speedDial.inflate(R.menu.menu_fab);
+
+        // Add these configurations
+        speedDial.setMainFabOpenedIconColor(getResources().getColor(android.R.color.white));
+        speedDial.setMainFabClosedIconColor(getResources().getColor(android.R.color.white));
+
+        // Ensure action items use the correct tint
+        speedDial.addActionItem(
+                new SpeedDialActionItem.Builder(R.id.fabScanQR, R.drawable.ic_camera_white)
+                        .setTheme(R.style.AppTheme)
+                        .setFabBackgroundColor(getResources().getColor(R.color.colorPrimaryDark))
+                        .setFabImageTintColor(getResources().getColor(android.R.color.white))
+                        .setLabel(getString(R.string.button_scan_qr))
+                        .create()
+        );
+
+        speedDial.addActionItem(
+            new SpeedDialActionItem.Builder(R.id.fabEnterDetails, R.drawable.ic_edit_white)
+                .setTheme(R.style.AppTheme)
+                .setFabBackgroundColor(getResources().getColor(R.color.colorPrimaryDark))
+                .setFabImageTintColor(getResources().getColor(android.R.color.white))
+                .setLabel(getString(R.string.button_enter_details))
+                .create()
+        );
+
+        speedDial.addActionItem(
+            new SpeedDialActionItem.Builder(R.id.fabScanQRFromImage, R.drawable.ic_image_white)
+                .setTheme(R.style.AppTheme)
+                .setFabBackgroundColor(getResources().getColor(R.color.colorPrimaryDark))
+                .setFabImageTintColor(getResources().getColor(android.R.color.white))
+                .setLabel(getString(R.string.button_qr_from_image))
+                .create()
+        );
 
         speedDial.getMainFab().setContentDescription(getString(R.string.button_add));
 
