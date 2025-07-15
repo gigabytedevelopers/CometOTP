@@ -60,9 +60,6 @@ So make sure you have a **current backup** before switching!
 
  * **Bug reports and feature requests**: You can report bugs and request features in the [Issue tracker](https://github.com/gigabytedevelopers/CometOTP/issues) on GitHub.
 
-#### Contributors:
-
-
 ## Screenshots:
 
 [<img width=200 alt="Main Activity" src="./assets/screenshots/screen_1.png">](./assets/screenshots/screen_1.png)
