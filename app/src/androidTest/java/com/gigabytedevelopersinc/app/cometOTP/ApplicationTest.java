@@ -52,6 +52,7 @@ public class ApplicationTest {
         assertEquals(94287082, TokenCalculator.TOTP_RFC6238(keySHA1,   TokenCalculator.TOTP_DEFAULT_PERIOD, 59L, 8, TokenCalculator.HashAlgorithm.SHA1));
         assertEquals(46119246, TokenCalculator.TOTP_RFC6238(keySHA256, TokenCalculator.TOTP_DEFAULT_PERIOD, 59L, 8, TokenCalculator.HashAlgorithm.SHA256));
         assertEquals(90693936, TokenCalculator.TOTP_RFC6238(keySHA512, TokenCalculator.TOTP_DEFAULT_PERIOD, 59L, 8, TokenCalculator.HashAlgorithm.SHA512));
+        assertEquals(84755224, TokenCalculator.TOTP_RFC6238(keySHA1, TokenCalculator.TOTP_DEFAULT_PERIOD, 59L, 8, TokenCalculator.HashAlgorithm.SHA1, -1));
 
         assertEquals(7081804,  TokenCalculator.TOTP_RFC6238(keySHA1,   TokenCalculator.TOTP_DEFAULT_PERIOD, 1111111109L, 8, TokenCalculator.HashAlgorithm.SHA1));
         assertEquals(68084774, TokenCalculator.TOTP_RFC6238(keySHA256, TokenCalculator.TOTP_DEFAULT_PERIOD, 1111111109L, 8, TokenCalculator.HashAlgorithm.SHA256));
