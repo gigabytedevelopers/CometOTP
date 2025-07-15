@@ -303,8 +303,7 @@ public class Entry {
         Uri.Builder builder = new Uri.Builder()
                 .scheme("otpauth")
                 .authority(type)
-                .appendPath(this.label)
-                .appendQueryParameter("secret", new Base32().encodeAsString(this.secret));
+                .appendPath(this.label);
 
         if (this.type == OTPType.MOTP)
             builder.appendQueryParameter("secret", new String(this.secret));
@@ -318,6 +317,7 @@ public class Entry {
         switch (this.type) {
             case HOTP:
                 builder.appendQueryParameter("counter", Long.toString(this.counter));
+                break;
             case TOTP:
                 if (this.period != TokenCalculator.TOTP_DEFAULT_PERIOD)
                     builder.appendQueryParameter("period", Integer.toString(this.period));
