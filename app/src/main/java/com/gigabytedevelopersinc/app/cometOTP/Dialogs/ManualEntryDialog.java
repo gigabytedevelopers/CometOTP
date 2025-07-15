@@ -333,7 +333,7 @@ public class ManualEntryDialog {
             if (oldType == Entry.OTPType.TOTP || oldType == Entry.OTPType.STEAM) {
                 periodInput.setText(String.format(Locale.ENGLISH, "%d", oldEntry.getPeriod()));
             } else if (oldType == Entry.OTPType.HOTP) {
-                periodInput.setText(String.format(Locale.ENGLISH, "%d", oldEntry.getPeriod()));
+                counterInput.setText(String.format(Locale.ENGLISH, "%d", oldEntry.getCounter()));
             }
 
             for(String tag: oldEntry.getTags()) {
@@ -358,6 +358,7 @@ public class ManualEntryDialog {
             algorithmInput.setEnabled(false);
             digitsInput.setEnabled(oldType != Entry.OTPType.STEAM);
             periodInput.setEnabled(oldType != Entry.OTPType.STEAM);
+            counterInput.setEnabled(oldType == Entry.OTPType.HOTP);
         }
     }
 
