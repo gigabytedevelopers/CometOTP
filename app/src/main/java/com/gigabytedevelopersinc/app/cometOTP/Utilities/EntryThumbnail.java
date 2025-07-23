@@ -448,9 +448,25 @@ public class EntryThumbnail {
         private final int resource;
         private final AssetType assetType;
 
+        // --- Caches for optimized lookups ---
+        private static final Map<String, EntryThumbnails> NAME_TO_ENUM_IGNORE_CASE_MAP = new HashMap<>();
+        // For fuzzy matching, pre-compile patterns.
+        // Consider if a simpler "contains" check is sufficient for most cases.
+        private static final Map<Pattern, EntryThumbnails> FUZZY_PATTERN_TO_ENUM_MAP = new HashMap<>();
+
+        static {
+            for (EntryThumbnails entry : values()) {
+                NAME_TO_ENUM_IGNORE_CASE_MAP.put(entry.name().toLowerCase(Locale.ROOT), entry);
+
+                // Pre-compile pattern for fuzzy search
+                // The \\b ensures word boundaries, which is good.
+                Pattern re = Pattern.compile("\\b" + Pattern.quote(entry.name()) + "\\b", Pattern.CASE_INSENSITIVE);
+                FUZZY_PATTERN_TO_ENUM_MAP.put(re, entry);
+            }
+        }
+
         EntryThumbnails(int resource) {
-            this.resource = resource;
-            this.assetType = AssetType.Vector;
+            this(resource, AssetType.Vector); // Delegate to the other constructor
         }
 
         EntryThumbnails(int resource, AssetType assetType) {
@@ -459,25 +475,37 @@ public class EntryThumbnail {
         }
 
         public static EntryThumbnails valueOfFuzzy(String thumbnail) {
-            for (EntryThumbnails entryThumbnails : values()) {
-                Pattern re = Pattern.compile("\\b" + Pattern.quote(entryThumbnails.name()) + "\\b", Pattern.CASE_INSENSITIVE);
-                if (re.matcher(thumbnail).find())
-                    return entryThumbnails;
+            if (thumbnail == null) { // Add null check
+                throw new IllegalArgumentException("Thumbnail string cannot be null");
             }
-            throw new IllegalArgumentException();
+            for (Map.Entry<Pattern, EntryThumbnails> entry : FUZZY_PATTERN_TO_ENUM_MAP.entrySet()) {
+                if (entry.getKey().matcher(thumbnail).find()) {
+                    return entry.getValue();
+                }
+            }
+            // Consider returning Default or null instead of throwing an exception
+            // if a match is not strictly required.
+            throw new IllegalArgumentException("No matching thumbnail found for (fuzzy): " + thumbnail);
         }
 
         public int getResource() {
             return resource;
         }
+
         public AssetType getAssetType() {
             return assetType;
         }
 
         public static EntryThumbnails valueOfIgnoreCase(String thumbnail) {
-            for (EntryThumbnails entryThumbnails : values())
-                if (entryThumbnails.name().equalsIgnoreCase(thumbnail)) return entryThumbnails;
-            throw new IllegalArgumentException();
+            if (thumbnail == null) { // Add null check
+                throw new IllegalArgumentException("Thumbnail string cannot be null");
+            }
+            EntryThumbnails result = NAME_TO_ENUM_IGNORE_CASE_MAP.get(thumbnail.toLowerCase(Locale.ROOT));
+            if (result != null) {
+                return result;
+            }
+            // Consider returning Default or null
+            throw new IllegalArgumentException("No matching thumbnail found for (ignore case): " + thumbnail);
         }
     }
 
