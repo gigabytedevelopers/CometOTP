@@ -6,11 +6,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewStub
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
@@ -18,14 +21,14 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLayoutListenerAdapter
 import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
-import saschpe.android.customtabs.CustomTabsHelper.Companion.addKeepAliveExtra
-import saschpe.android.customtabs.CustomTabsHelper.Companion.openCustomTab
+import saschpe.android.customtabs.CustomTabsHelper
 import saschpe.android.customtabs.WebViewFallback
 
 
@@ -51,7 +54,8 @@ class AboutActivity : BaseActivity() {
             .build()
         builder.setColorSchemeParams(CustomTabsIntent.COLOR_SCHEME_DARK, params)
         val customTabsIntent = builder.build()
-        addKeepAliveExtra(this, customTabsIntent.intent)
+        val customTabsCompanion = CustomTabsHelper.Companion
+        customTabsCompanion.addKeepAliveExtra(this, customTabsIntent.intent)
         val filter = Tools.getThemeColorFilter(this, android.R.attr.textColorSecondary)
         for (i in imageResources) {
             val imgView = v.findViewById<ImageView>(i)
@@ -94,9 +98,9 @@ class AboutActivity : BaseActivity() {
         val licenses = v.findViewById<LinearLayout>(R.id.about_layout_licenses)
         license.setOnClickListener { openURI(MIT_URI) }
         changelog.setOnClickListener {
-            openCustomTab(
+            customTabsCompanion.openCustomTab(
                 this, customTabsIntent,
-                Uri.parse(changeLogUrl),
+                changeLogUrl.toUri(),
                 WebViewFallback()
             )
         }
@@ -124,7 +128,7 @@ class AboutActivity : BaseActivity() {
         bugReport.setOnClickListener {
             val feedback = Intent(Intent.ACTION_SENDTO)
             feedback.type = "text/html"
-            feedback.data = Uri.parse("mailto:")
+            feedback.data = "mailto:".toUri()
             feedback.putExtra(
                 Intent.EXTRA_EMAIL,
                 arrayOf(getString(R.string.feedback_email_address))
@@ -212,7 +216,9 @@ class AboutActivity : BaseActivity() {
 
     private fun openURI(uri: String?) {
         val openURI = Intent(Intent.ACTION_VIEW)
-        openURI.data = Uri.parse(uri)
+        if (uri != null) {
+            openURI.data = uri.toUri()
+        }
         startActivity(openURI)
     }
 
