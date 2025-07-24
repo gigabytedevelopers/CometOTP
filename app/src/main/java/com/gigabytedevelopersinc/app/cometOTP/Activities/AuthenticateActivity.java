@@ -1,6 +1,8 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -205,7 +207,7 @@ public class AuthenticateActivity extends BaseActivity
         if (taskFragment != null) {
             if (taskFragment.task.isCanceled()) {
                 // The task was canceled, so remove the task fragment and reset password input.
-                getFragmentManager().beginTransaction()
+                getSupportFragmentManager().beginTransaction()
                         .remove(taskFragment)
                         .commit();
                 resetPasswordInput();
@@ -225,7 +227,7 @@ public class AuthenticateActivity extends BaseActivity
 
     @Nullable
     private TaskFragment findTaskFragment() {
-        return (TaskFragment) getFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
+        return (TaskFragment) getSupportFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT);
     }
 
     private void setupUiForTaskState(boolean isTaskRunning) {
@@ -260,7 +262,7 @@ public class AuthenticateActivity extends BaseActivity
 
             if (taskFragment == null) {
                 taskFragment = new TaskFragment();
-                getFragmentManager()
+                getSupportFragmentManager()
                         .beginTransaction()
                         .add(taskFragment, TAG_TASK_FRAGMENT)
                         .commit();

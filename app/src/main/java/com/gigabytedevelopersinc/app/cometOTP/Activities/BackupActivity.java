@@ -1,7 +1,9 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -267,7 +269,7 @@ public class BackupActivity extends BaseActivity {
         // Clean up the task fragment
         BackupTaskFragment backupTaskFragment = findBackupTaskFragment();
         if (backupTaskFragment != null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .remove(backupTaskFragment)
                     .commit();
         }
@@ -301,7 +303,7 @@ public class BackupActivity extends BaseActivity {
         // Clean up the task fragment
         RestoreTaskFragment restoreTaskFragment = findRestoreTaskFragment();
         if (restoreTaskFragment != null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .remove(restoreTaskFragment)
                     .commit();
         }
@@ -604,6 +606,7 @@ public class BackupActivity extends BaseActivity {
                     if (settings.getOpenPGPVerify()) {
                         OpenPgpSignatureResult sigResult = result.getParcelableExtra(OpenPgpApi.RESULT_SIGNATURE);
 
+                        assert sigResult != null;
                         if (sigResult.getResult() == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED) {
                             restoreEntries(outputStreamToString(os), true);
                         } else {
@@ -637,12 +640,12 @@ public class BackupActivity extends BaseActivity {
 
     @Nullable
     private BackupTaskFragment findBackupTaskFragment() {
-        return (BackupTaskFragment) getFragmentManager().findFragmentByTag(TAG_BACKUP_TASK_FRAGMENT);
+        return (BackupTaskFragment) getSupportFragmentManager().findFragmentByTag(TAG_BACKUP_TASK_FRAGMENT);
     }
 
     @Nullable
     private RestoreTaskFragment findRestoreTaskFragment() {
-        return (RestoreTaskFragment) getFragmentManager().findFragmentByTag(TAG_RESTORE_TASK_FRAGMENT);
+        return (RestoreTaskFragment) getSupportFragmentManager().findFragmentByTag(TAG_RESTORE_TASK_FRAGMENT);
     }
 
     private void startBackupTask(GenericBackupTask task) {
@@ -653,7 +656,7 @@ public class BackupActivity extends BaseActivity {
         if ((backupTaskFragment == null || backupTaskFragment.task.isCanceled()) && (restoreTaskFragment == null || restoreTaskFragment.task.isCanceled())) {
             if (backupTaskFragment == null) {
                 backupTaskFragment = new BackupTaskFragment();
-                getFragmentManager()
+                getSupportFragmentManager()
                         .beginTransaction()
                         .add(backupTaskFragment, TAG_BACKUP_TASK_FRAGMENT)
                         .commit();
@@ -673,7 +676,7 @@ public class BackupActivity extends BaseActivity {
         if ((backupTaskFragment == null || backupTaskFragment.task.isCanceled()) && (restoreTaskFragment == null || restoreTaskFragment.task.isCanceled())) {
             if (restoreTaskFragment == null) {
                 restoreTaskFragment = new RestoreTaskFragment();
-                getFragmentManager()
+                getSupportFragmentManager()
                         .beginTransaction()
                         .add(restoreTaskFragment, TAG_RESTORE_TASK_FRAGMENT)
                         .commit();
@@ -691,7 +694,7 @@ public class BackupActivity extends BaseActivity {
         if (backupTaskFragment != null) {
             if (backupTaskFragment.task.isCanceled()) {
                 // The task was canceled or has finished, so remove the task fragment.
-                getFragmentManager().beginTransaction()
+                getSupportFragmentManager().beginTransaction()
                         .remove(backupTaskFragment)
                         .commit();
             } else {
@@ -708,7 +711,7 @@ public class BackupActivity extends BaseActivity {
         if (restoreTaskFragment != null) {
             if (restoreTaskFragment.task.isCanceled()) {
                 // The task was canceled or has finished, so remove the task fragment.
-                getFragmentManager().beginTransaction()
+                getSupportFragmentManager().beginTransaction()
                         .remove(restoreTaskFragment)
                         .commit();
             } else {
