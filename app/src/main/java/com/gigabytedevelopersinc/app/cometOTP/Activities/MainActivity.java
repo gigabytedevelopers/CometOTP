@@ -180,6 +180,20 @@ public class MainActivity extends BaseActivity
             }
     );
 
+    private final ActivityResultLauncher<Intent> authenticateActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() != RESULT_OK) {
+                    Toast.makeText(getBaseContext(), R.string.toast_auth_failed_fatal, Toast.LENGTH_LONG).show();
+                    finishAndRemoveTask();
+                } else {
+                    requireAuthentication = false;
+                    byte[] authKey = null;
+                    if (result.getData() != null)
+                        authKey = result.getData().getByteArrayExtra(Constants.EXTRA_AUTH_PASSWORD_KEY);
+                    updateEncryption(authKey);
+                }
+            });
 
     private void showFirstTimeWarning() {
         Intent introIntent = new Intent(this, IntroScreenActivity.class);
@@ -200,7 +214,7 @@ public class MainActivity extends BaseActivity
         } else if (authMethod == AuthMethod.PASSWORD || authMethod == AuthMethod.PIN) {
             Intent authIntent = new Intent(this, AuthenticateActivity.class);
             authIntent.putExtra(Constants.EXTRA_AUTH_MESSAGE, messageId);
-            intentActivityLauncher.launch(authIntent);
+            authenticateActivityResultLauncher.launch(authIntent);
 
         }
     }
@@ -637,20 +651,6 @@ public class MainActivity extends BaseActivity
             if (recreateActivity) {
                 cacheEncKey = true;
                 recreate();
-            }
-        } else if (requestCode == Constants.INTENT_MAIN_AUTHENTICATE) {
-            if (resultCode != RESULT_OK) {
-                Toast.makeText(getBaseContext(), R.string.toast_auth_failed_fatal, Toast.LENGTH_LONG).show();
-                finishAndRemoveTask();
-            } else {
-                requireAuthentication = false;
-
-                byte[] authKey = null;
-
-                if (intent != null)
-                    authKey = intent.getByteArrayExtra(Constants.EXTRA_AUTH_PASSWORD_KEY);
-
-                updateEncryption(authKey);
             }
         } else if (requestCode == Constants.INTENT_MAIN_QR_OPEN_IMAGE && resultCode == RESULT_OK) {
             if (intent != null) {
