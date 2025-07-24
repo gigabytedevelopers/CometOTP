@@ -24,6 +24,25 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
+
+        /*// Example versioning scheme
+        def majorVersion = 6
+        def minorVersion = 0
+        def patchVersion = 1
+        def buildNumber = 5 // Or derive this from CI or a counter
+
+        // Calculate versionCode based on the scheme
+        // Pad numbers to ensure consistent length for each component if needed
+        // (e.g., MMNNPPBBB -> 060001005 for 6.0.1 build 5)
+        // A simpler scheme could be: major * 10000 + minor * 100 + patch
+        // For this example, let's keep it simple and assume a direct calculation:
+        versionCode majorVersion * 1000000 + minorVersion * 10000 + patchVersion * 100 + buildNumber
+        versionName "${majorVersion}.${minorVersion}.${patchVersion}"
+
+        // For the given "6.0.1", if this is build 1:
+        // versionCode 6000101 // Assuming MMNNPPB (Major, Minor, Patch, Build)
+        // versionName "6.0.1"*/
+
     }
 
     signingConfigs {
