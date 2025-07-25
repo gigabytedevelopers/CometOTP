@@ -176,7 +176,11 @@ public class MainActivity extends BaseActivity
                         // Example: String someData = data.getStringExtra("key");
                         data.getStringExtra("key");
                     }
+                } else {
+                    Toast.makeText(getBaseContext(), R.string.toast_auth_failed_fatal, Toast.LENGTH_LONG).show();
+                    finishAndRemoveTask();
                 }
+
             }
     );
 
