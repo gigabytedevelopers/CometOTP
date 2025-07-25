@@ -1,11 +1,14 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 
+import static androidx.fragment.app.FragmentManager.TAG;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -501,11 +504,12 @@ public class EntryThumbnail {
             if (thumbnail == null) { // Add null check
                 throw new IllegalArgumentException("Thumbnail string cannot be null");
             }
-            EntryThumbnails result = NAME_TO_ENUM_IGNORE_CASE_MAP.get(thumbnail.toLowerCase(Locale.ROOT));
+            EntryThumbnails result = NAME_TO_ENUM_IGNORE_CASE_MAP.get(thumbnail.replace(".", "").toLowerCase(Locale.ROOT));
             if (result != null) {
                 return result;
             }
             // Consider returning Default or null
+            Log.e("Thumbnail", "No matching thumbnail found for (ignore case): " + thumbnail);
             throw new IllegalArgumentException("No matching thumbnail found for (ignore case): " + thumbnail);
         }
     }
