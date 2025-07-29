@@ -1,7 +1,5 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 
-import static androidx.fragment.app.FragmentManager.TAG;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -536,7 +534,7 @@ public class EntryThumbnail {
                     return BitmapFactory.decodeResource(context.getResources(), thumbnail.getResource());
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                e.fillInStackTrace();
             }
         }
 
