@@ -494,7 +494,7 @@ public class EntryThumbnail {
             return resource;
         }
 
-        public AssetType getAssetType() {
+        AssetType getAssetType() {
             return assetType;
         }
 
