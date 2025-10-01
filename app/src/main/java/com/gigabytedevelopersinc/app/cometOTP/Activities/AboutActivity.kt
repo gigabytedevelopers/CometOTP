@@ -187,7 +187,7 @@ class AboutActivity : BaseActivity() {
         val bottomSheetLayout = layoutInflater.inflate(R.layout.bottom_sheet_special_features, null)
         bottomSheetLayout.findViewById<View>(R.id.button_no)
             .setOnClickListener { mBottomSheetDialog!!.dismiss() }
-        bottomSheetLayout.findViewById<View>(R.id.button_yes).setOnClickListener { v: View? ->
+        bottomSheetLayout.findViewById<View>(R.id.button_yes).setOnClickListener {
             mBottomSheetDialog!!.dismiss()
             settings.specialFeatures = true
             Snackbar.make(

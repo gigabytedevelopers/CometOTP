@@ -189,7 +189,7 @@ public class AuthenticateActivity extends BaseActivity
 
     private class ProcessLifecycleObserver implements DefaultLifecycleObserver {
         @Override
-        public void onStop(LifecycleOwner owner) {
+        public void onStop(@NonNull LifecycleOwner owner) {
             if (settings.getRelockOnBackground()) {
                 cancelBackgroundTask();
             }
