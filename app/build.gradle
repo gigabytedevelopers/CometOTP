@@ -7,6 +7,15 @@ def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
+def versionPropsFile = file('version.properties')
+def versionProps = new Properties()
+versionProps.load(new FileInputStream(versionPropsFile))
+
+def versionMajor = versionProps['VERSION_MAJOR'].toInteger()
+def versionMinor = versionProps['VERSION_MINOR'].toInteger()
+def versionPatch = versionProps['VERSION_PATCH'].toInteger()
+def versionBuild = versionProps['VERSION_BUILD'].toInteger()
+
 android {
     compileSdk 36
     applicationVariants.configureEach { variant ->
@@ -19,34 +28,14 @@ android {
         applicationId "com.gigabytedevelopersinc.app.CometOTP"
         minSdkVersion 22
         targetSdkVersion 36
-        versionCode 41
-        versionName "6.0.1"
+        versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
-
-        /*// Example versioning scheme
-        def majorVersion = 6
-        def minorVersion = 0
-        def patchVersion = 1
-        def buildNumber = 5 // Or derive this from CI or a counter
-
-        // Calculate versionCode based on the scheme
-        // Pad numbers to ensure consistent length for each component if needed
-        // (e.g., MMNNPPBBB -> 060001005 for 6.0.1 build 5)
-        // A simpler scheme could be: major * 10000 + minor * 100 + patch
-        // For this example, let's keep it simple and assume a direct calculation:
-        versionCode majorVersion * 1000000 + minorVersion * 10000 + patchVersion * 100 + buildNumber
-        versionName "${majorVersion}.${minorVersion}.${patchVersion}"
-
-        // For the given "6.0.1", if this is build 1:
-        // versionCode 6000101 // Assuming MMNNPPB (Major, Minor, Patch, Build)
-        // versionName "6.0.1"*/
-
     }
 
     signingConfigs {
-        release
         release {
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
@@ -59,7 +48,7 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             applicationIdSuffix = ".dev"
@@ -96,6 +85,25 @@ android {
         disable 'MissingTranslation', 'ExtraTranslation'
     }
     namespace 'com.gigabytedevelopersinc.app.cometOTP'
+}
+
+task('incrementVersionBuild') {
+    doLast {
+        versionProps.load(new FileInputStream(versionPropsFile))
+
+        def newVersionBuild = versionProps['VERSION_BUILD'].toInteger() + 1
+        versionProps['VERSION_BUILD'] = newVersionBuild.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+    }
+}
+
+afterEvaluate {
+    tasks.named('assembleRelease').configure {
+        dependsOn 'incrementVersionBuild'
+    }
+    tasks.named('assembleDebug').configure {
+        dependsOn 'incrementVersionBuild'
+    }
 }
 
 dependencies {
