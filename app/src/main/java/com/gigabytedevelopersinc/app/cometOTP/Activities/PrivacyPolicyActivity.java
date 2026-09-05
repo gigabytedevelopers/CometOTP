@@ -3,6 +3,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Activities;
 import android.os.Bundle;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -41,18 +42,20 @@ public class PrivacyPolicyActivity extends BaseActivity {
 
         viewPager.setAdapter(privacyPolicyPageAdapter);
         tabLayout.setupWithViewPager(viewPager);
+
+        // Predictive back: onBackPressed() is no longer invoked when targeting Android 16+.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
     // Go back to the main activity
     @Override
     public boolean onSupportNavigateUp() {
         finish();
         return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        finish();
-        super.onBackPressed();
     }
 
     private class PrivacyPolicyPageAdapter extends FragmentPagerAdapter {

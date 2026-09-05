@@ -153,6 +153,7 @@
 
     <string name="settings_toast_android_sync_enabled">Android sync enabled</string>
     <string name="settings_toast_android_sync_disabled">Android sync disabled</string>
+    <string name="settings_toast_notifications_denied">Notifications are disabled, so the results of broadcast-triggered backups will not be shown</string>
 
     <string name="settings_dialog_title_warning">Warning</string>
     <string name="settings_dialog_title_error">Error</string>

@@ -1,8 +1,6 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 
 import android.content.Context;
-import android.os.Build;
-import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
@@ -49,24 +47,13 @@ public class KeyStoreHelper {
             final Calendar end = new GregorianCalendar();
             end.add(Calendar.YEAR, 100);
 
-            AlgorithmParameterSpec spec;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                spec = new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                        .setCertificateSubject(new X500Principal("CN=" + alias))
-                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1)
-                        .setCertificateSerialNumber(BigInteger.ONE)
-                        .setCertificateNotBefore(start.getTime())
-                        .setCertificateNotAfter(end.getTime())
-                        .build();
-            } else {
-                spec = new KeyPairGeneratorSpec.Builder(context)
-                        .setAlias(alias)
-                        .setSubject(new X500Principal("CN=" + alias))
-                        .setSerialNumber(BigInteger.ONE)
-                        .setStartDate(start.getTime())
-                        .setEndDate(end.getTime())
-                        .build();
-            }
+            AlgorithmParameterSpec spec = new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setCertificateSubject(new X500Principal("CN=" + alias))
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1)
+                    .setCertificateSerialNumber(BigInteger.ONE)
+                    .setCertificateNotBefore(start.getTime())
+                    .setCertificateNotAfter(end.getTime())
+                    .build();
 
             KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
 

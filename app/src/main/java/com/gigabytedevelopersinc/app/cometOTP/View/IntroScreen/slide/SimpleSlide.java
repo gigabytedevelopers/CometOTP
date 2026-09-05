@@ -536,13 +536,13 @@ public class SimpleSlide implements Slide, RestorableSlide, ButtonCtaSlide {
             int textColorSecondary;
 
             if (backgroundRes != 0 &&
-                    ColorUtils.calculateLuminance(ContextCompat.getColor(Objects.requireNonNull(getContext()), backgroundRes)) < 0.6) {
+                    ColorUtils.calculateLuminance(ContextCompat.getColor(requireContext(), backgroundRes)) < 0.6) {
                 //Use light text color
                 textColorPrimary = ContextCompat.getColor(getContext(), R.color.mi_text_color_primary_dark);
                 textColorSecondary = ContextCompat.getColor(getContext(), R.color.mi_text_color_secondary_dark);
             } else {
                 //Use dark text color
-                textColorPrimary = ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.mi_text_color_primary_light);
+                textColorPrimary = ContextCompat.getColor(requireContext(), R.color.mi_text_color_primary_light);
                 textColorSecondary = ContextCompat.getColor(getContext(), R.color.mi_text_color_secondary_light);
             }
 

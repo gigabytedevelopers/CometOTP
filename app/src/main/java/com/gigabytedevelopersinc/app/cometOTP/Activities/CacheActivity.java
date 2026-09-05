@@ -1,5 +1,6 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -23,6 +24,7 @@ public class CacheActivity extends BaseActivity {
     private BottomSheetDialog mBottomSheetDialog;
 
     @Override
+    @SuppressLint("MissingInflatedId")   // the ids live in the layout inflated through the ViewStub
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

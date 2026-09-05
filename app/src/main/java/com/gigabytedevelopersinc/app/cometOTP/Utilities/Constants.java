@@ -1,9 +1,5 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 
-import android.os.Environment;
-
-import java.io.File;
-
 public class Constants {
     // Enums
     public enum AppStart {
@@ -50,31 +46,6 @@ public class Constants {
         TRUNCATE, SCROLL, MULTILINE
     }
 
-    // Intents (Format: A0x with A = parent Activity, x = number of the intent)
-    public final static int INTENT_MAIN_AUTHENTICATE            = 100;
-    public final static int INTENT_MAIN_SETTINGS                = 101;
-    public final static int INTENT_MAIN_BACKUP                  = 102;
-    public final static int INTENT_MAIN_INTRO                   = 103;
-    public final static int INTENT_MAIN_LICENSES                = 104;
-    public final static int INTENT_MAIN_CHANGELOG               = 105;
-    public final static int INTENT_MAIN_WHATSNEW                = 106;
-    public final static int INTENT_MAIN_PRIVACYPOLICY           = 107;
-    public final static int INTENT_MAIN_CLEARCACHE              = 108;
-    public final static int INTENT_MAIN_QR_OPEN_IMAGE           = 109;
-
-    public final static int INTENT_BACKUP_OPEN_DOCUMENT_PLAIN   = 200;
-    public final static int INTENT_BACKUP_SAVE_DOCUMENT_PLAIN   = 201;
-    public final static int INTENT_BACKUP_OPEN_DOCUMENT_CRYPT   = 202;
-    public final static int INTENT_BACKUP_SAVE_DOCUMENT_CRYPT   = 203;
-    public final static int INTENT_BACKUP_OPEN_DOCUMENT_PGP     = 204;
-    public final static int INTENT_BACKUP_SAVE_DOCUMENT_PGP     = 205;
-    public final static int INTENT_BACKUP_ENCRYPT_PGP           = 206;
-    public final static int INTENT_BACKUP_DECRYPT_PGP           = 207;
-    public final static int INTENT_BACKUP_OPEN_DOCUMENT_CRYPT_OLD   = 208;
-
-    public static final int INTENT_SETTINGS_AUTHENTICATE        = 300;
-    public static final int INTENT_SETTINGS_BACKUP_LOCATION     = 301;
-
     // Intent extras
     public final static String EXTRA_AUTH_PASSWORD_KEY              = "password_key";
     public final static String EXTRA_AUTH_NEW_ENCRYPTION            = "new_encryption";
@@ -116,8 +87,6 @@ public class Constants {
     public final static String FILENAME_DATABASE_BACKUP = "secrets.dat.bck";
 
     // Backup files
-    public final static String BACKUP_FOLDER            = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CometOTP";
-
     public final static String BACKUP_FILENAME_PLAIN    = "otp_accounts.json";
     public final static String BACKUP_FILENAME_CRYPT    = "otp_accounts.json.aes";
     public final static String BACKUP_FILENAME_PGP      = "otp_accounts.json.gpg";

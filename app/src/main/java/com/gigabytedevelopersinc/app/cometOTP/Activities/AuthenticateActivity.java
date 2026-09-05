@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import com.google.android.material.textfield.TextInputLayout;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -99,6 +100,15 @@ public class AuthenticateActivity extends BaseActivity
                 .addObserver(observer);
 
         getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        // Predictive back: onBackPressed() is no longer invoked when targeting Android 16+.
+        // Leaving the screen without authenticating reports a cancelled result to the caller.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finishWithResult(false, null);
+            }
+        });
     }
 
     private void initToolbar() {
@@ -288,12 +298,6 @@ public class AuthenticateActivity extends BaseActivity
         if (success)
             setResult(RESULT_OK, data);
         finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-        finishWithResult(false, null);
-        super.onBackPressed();
     }
 
     @Override

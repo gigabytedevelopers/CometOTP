@@ -1,9 +1,11 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.backup.BackupManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,8 +20,12 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.ViewStub;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference;
@@ -51,6 +57,50 @@ public class SettingsActivity extends BaseActivity
 
     SecretKey encryptionKey = null;
     boolean encryptionChanged = false;
+
+    /* Activity result launchers (replace the request-code based onActivityResult()). */
+    private final ActivityResultLauncher<Intent> authenticateLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                Intent data = result.getData();
+
+                if (result.getResultCode() == RESULT_OK && data != null) {
+                    byte[] authKey = data.getByteArrayExtra(Constants.EXTRA_AUTH_PASSWORD_KEY);
+                    String newEnc = data.getStringExtra(Constants.EXTRA_AUTH_NEW_ENCRYPTION);
+
+                    if (authKey != null && authKey.length > 0 && newEnc != null && !newEnc.isEmpty()) {
+                        EncryptionType newEncType = EncryptionType.valueOf(newEnc);
+                        tryEncryptionChange(newEncType, authKey);
+                    } else {
+                        Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_no_key, Snackbar.LENGTH_LONG).show();
+                    }
+                } else {
+                    Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_auth_failed, Snackbar.LENGTH_LONG).show();
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> backupLocationLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                Intent data = result.getData();
+
+                if (result.getResultCode() == RESULT_OK && data != null && data.getData() != null) {
+                    Uri treeUri = data.getData();
+                    // Both flags were requested in requestBackupAccess(); persist exactly those.
+                    final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+                    getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
+                    settings.setBackupLocation(treeUri);
+                }
+            });
+
+    // Android 13+ (API 33): the results of broadcast-triggered backups are reported through
+    // notifications, which need the POST_NOTIFICATIONS runtime permission.
+    private final ActivityResultLauncher<String> notificationPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            granted -> {
+                if (!granted)
+                    Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_notifications_denied, Snackbar.LENGTH_LONG).show();
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +137,14 @@ public class SettingsActivity extends BaseActivity
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
+
+        // Predictive back: onBackPressed() is no longer invoked when targeting Android 16+.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finishWithResult();
+            }
+        });
     }
 
     @Override
@@ -116,15 +174,12 @@ public class SettingsActivity extends BaseActivity
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        finishWithResult();
-        super.onBackPressed();
-    }
-
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
         BackupManager backupManager = new BackupManager(this);
         backupManager.dataChanged();
+
+        if (key == null)
+            return;
 
         if (key.equals(getString(R.string.settings_key_theme)) ||
                 key.equals(getString(R.string.settings_key_special_features)) ||
@@ -157,8 +212,19 @@ public class SettingsActivity extends BaseActivity
 
             int message = settings.getAndroidBackupServiceEnabled() ? R.string.settings_toast_android_sync_enabled : R.string.settings_toast_android_sync_disabled;
             Snackbar.make(findViewById(R.id.container_content), message, Snackbar.LENGTH_SHORT).show();
+        } else if (key.equals(getString(R.string.settings_key_backup_broadcasts))) {
+            if (!settings.getBackupBroadcasts().isEmpty())
+                ensureNotificationPermission();
         }
         fragment.updateAutoBackup();
+    }
+
+    private void ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            return;
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
     }
 
     private void generateNewEncryptionKey() {
@@ -172,7 +238,7 @@ public class SettingsActivity extends BaseActivity
         Intent authIntent = new Intent(this, AuthenticateActivity.class);
         authIntent.putExtra(Constants.EXTRA_AUTH_NEW_ENCRYPTION, newEnc.name());
         authIntent.putExtra(Constants.EXTRA_AUTH_MESSAGE, R.string.auth_msg_confirm_encryption);
-        startActivityForResult(authIntent, Constants.INTENT_SETTINGS_AUTHENTICATE);
+        authenticateLauncher.launch(authIntent);
     }
 
     private boolean tryEncryptionChange(EncryptionType newEnc, byte[] newKey) {
@@ -234,38 +300,17 @@ public class SettingsActivity extends BaseActivity
         if (GeneralUtils.INSTANCE.isOreo() && settings.isBackupLocationSet())
             intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, settings.getBackupLocation());
 
-        startActivityForResult(intent, Constants.INTENT_SETTINGS_BACKUP_LOCATION);
+        backupLocationLauncher.launch(intent);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == Constants.INTENT_SETTINGS_AUTHENTICATE) {
-            if (resultCode == RESULT_OK) {
-                byte[] authKey = data.getByteArrayExtra(Constants.EXTRA_AUTH_PASSWORD_KEY);
-                String newEnc = data.getStringExtra(Constants.EXTRA_AUTH_NEW_ENCRYPTION);
-
-                if (authKey != null && authKey.length > 0 && newEnc != null && !newEnc.isEmpty()) {
-                    EncryptionType newEncType = EncryptionType.valueOf(newEnc);
-                    tryEncryptionChange(newEncType, authKey);
-                } else {
-                    Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_no_key, Snackbar.LENGTH_LONG).show();
-                }
-            } else {
-                Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_auth_failed, Snackbar.LENGTH_LONG).show();
-            }
-        } else if (requestCode == Constants.INTENT_SETTINGS_BACKUP_LOCATION && resultCode == RESULT_OK) {
-            Uri treeUri = data.getData();
-            if (treeUri != null) {
-                final int takeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
-                settings.setBackupLocation(treeUri);
-            }
-        } else {
-            // Handled in OpenPgpKeyPreference
+        // OpenPgpKeyPreference (openpgp-api) still starts its key chooser with the request-code
+        // based API, so this is the only result that has to be routed by hand.
+        if (fragment != null && fragment.pgpSigningKey != null)
             fragment.pgpSigningKey.handleOnActivityResult(requestCode, resultCode, data);
-        }
     }
 
     public static class SettingsFragment extends PreferenceFragment {
@@ -455,7 +500,7 @@ public class SettingsActivity extends BaseActivity
             Preference clearCache = findPreference(getString(R.string.settings_key_clear_cache));
             clearCache.setOnPreferenceClickListener(preference -> {
                 Intent clearCacheIntent = new Intent(getActivity(), CacheActivity.class);
-                startActivityForResult(clearCacheIntent, Constants.INTENT_MAIN_CLEARCACHE);
+                startActivity(clearCacheIntent);
                 return false;
             });
         }

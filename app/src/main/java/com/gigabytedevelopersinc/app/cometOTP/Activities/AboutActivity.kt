@@ -144,7 +144,6 @@ class AboutActivity : BaseActivity() {
 
         privacyPolicy.setOnClickListener {
             val privacyPolicyIntent = Intent(this@AboutActivity, PrivacyPolicyActivity::class.java)
-            //startActivityForResult(privacyPolicyIntent, Constants.INTENT_MAIN_PRIVACYPOLICY)
             resultLauncher.launch(privacyPolicyIntent)
         }
         expand.setOnClickListener { expandLayout.toggle() }
@@ -236,7 +235,6 @@ class AboutActivity : BaseActivity() {
 
     private fun showLicenses() {
         val licensesIntent = Intent(this, LicensesActivity::class.java)
-        //startActivityForResult(licensesIntent, Constants.INTENT_MAIN_LICENSES)
         resultLauncher.launch(licensesIntent)
         /*String backgroundColor = Tools.getCSSRGBAString(Tools.getThemeColor(this, R.attr.colorBackgroundFloating));
         String textColor = Tools.getCSSRGBAString(Tools.getThemeColor(this, android.R.attr.textColorPrimary));

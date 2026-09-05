@@ -29,7 +29,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -43,6 +42,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.IntDef;
@@ -56,9 +56,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -200,6 +204,25 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
 
         setContentView(R.layout.mi_activity_intro);
         initViews();
+
+        // Predictive back: onBackPressed() is no longer invoked when targeting Android 16+.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                onBackNavigation();
+            }
+        });
+
+        // Edge-to-edge (enforced from Android 15 / API 35): keep the pager and the navigation
+        // buttons out of the system bars and above the on-screen keyboard. On older platforms
+        // the window still fits the system windows itself and these insets are simply zero.
+        ViewCompat.setOnApplyWindowInsetsListener(miFrame, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout()
+                    | WindowInsetsCompat.Type.ime());
+            v.setPadding(bars.left, fullscreen ? 0 : bars.top, bars.right, bars.bottom);
+            return insets;
+        });
     }
 
     @Override
@@ -248,8 +271,11 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
         outState.putBoolean(KEY_BUTTON_CTA_VISIBLE, buttonCtaVisible);
     }
 
-    @Override
-    public void onBackPressed() {
+    /**
+     * Called for the system back gesture/button. Returns to the previous slide when there is
+     * one, otherwise cancels the intro. Subclasses may override to change this behaviour.
+     */
+    protected void onBackNavigation() {
         if (position > 0) {
             previousSlide();
             return;
@@ -259,7 +285,7 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
             setResult(RESULT_CANCELED, returnIntent);
         else
             setResult(RESULT_CANCELED);
-        super.onBackPressed();
+        finish();
     }
 
     public Intent onSendActivityResult(int result) {
@@ -286,7 +312,6 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
         getWindow().getDecorView().setSystemUiVisibility(systemUiVisibility);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setFullscreenFlags(boolean fullscreen) {
         int fullscreenFlags = View.SYSTEM_UI_FLAG_FULLSCREEN;
         fullscreenFlags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
@@ -600,7 +625,8 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
             }
         } else {
             TypedValue typedValue = new TypedValue();
-            TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{R.attr.colorPrimary});
+            // colorPrimary is an AppCompat attribute; R classes are non-transitive since AGP 9
+            TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{androidx.appcompat.R.attr.colorPrimary});
             colorPrimary = a.getColor(0, 0);
             a.recycle();
         }
@@ -692,34 +718,29 @@ public class IntroActivity extends AppCompatActivity implements IntroNavigation 
         ((Button) miButtonCta.getChildAt(0)).setTextColor(textColorButtonCta);
         ((Button) miButtonCta.getChildAt(1)).setTextColor(textColorButtonCta);
 
-        getWindow().setStatusBarColor(backgroundDark);
+        // From Android 15 (API 35) the system bars are transparent (edge-to-edge) and these
+        // setters are deprecated no-ops; the frame background already shows behind the bars.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            getWindow().setStatusBarColor(backgroundDark);
 
-        if (position == adapter.getCount()) {
-            getWindow().setNavigationBarColor(Color.TRANSPARENT);
-        } else if (position + positionOffset >= adapter.getCount() - 1) {
-            TypedValue typedValue = new TypedValue();
-            TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.navigationBarColor});
+            if (position == adapter.getCount()) {
+                getWindow().setNavigationBarColor(Color.TRANSPARENT);
+            } else if (position + positionOffset >= adapter.getCount() - 1) {
+                TypedValue typedValue = new TypedValue();
+                TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.navigationBarColor});
 
-            int defaultNavigationBarColor = a.getColor(0, Color.BLACK);
+                int defaultNavigationBarColor = a.getColor(0, Color.BLACK);
 
-            a.recycle();
+                a.recycle();
 
-            int navigationBarColor = (Integer) evaluator.evaluate(positionOffset, defaultNavigationBarColor, Color.TRANSPARENT);
-            getWindow().setNavigationBarColor(navigationBarColor);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int systemUiVisibility = getWindow().getDecorView().getSystemUiVisibility();
-            int flagLightStatusBar = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-            if (ColorUtils.calculateLuminance(backgroundDark) > 0.4) {
-                //Light background
-                systemUiVisibility |= flagLightStatusBar;
-            } else {
-                //Dark background
-                systemUiVisibility &= ~flagLightStatusBar;
+                int navigationBarColor = (Integer) evaluator.evaluate(positionOffset, defaultNavigationBarColor, Color.TRANSPARENT);
+                getWindow().setNavigationBarColor(navigationBarColor);
             }
-            getWindow().getDecorView().setSystemUiVisibility(systemUiVisibility);
         }
+
+        // Light status bar icons on light backgrounds (no-op below Android 6)
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        insetsController.setAppearanceLightStatusBars(ColorUtils.calculateLuminance(backgroundDark) > 0.4);
     }
 
     private void updateButtonCta() {

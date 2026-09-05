@@ -7,6 +7,10 @@
 
     <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
 
+    <!-- Android 13+ (API 33): notifications are only shown once the user has granted this
+         runtime permission. It is requested when backup broadcasts are enabled in the settings. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:backupAgent="com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupAgent"
@@ -14,7 +18,9 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:enableOnBackInvokedCallback="true"
+        android:theme="@style/AppTheme"
+        tools:targetApi="tiramisu">
 
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
@@ -44,8 +50,7 @@
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
-            <intent-filter android:autoVerify="true"
-                tools:targetApi="m">
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -73,9 +78,10 @@
             android:name=".Activities.CacheActivity"
             android:parentActivityName=".Activities.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <!-- No fixed orientation: Android 16+ ignores orientation locks on large screens and the
+             intro has landscape layouts and restores its state when recreated. -->
         <activity
             android:name=".Activities.IntroScreenActivity"
-            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/Theme.Intro.Solid" />
         <activity

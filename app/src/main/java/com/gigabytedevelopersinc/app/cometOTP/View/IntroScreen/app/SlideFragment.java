@@ -27,7 +27,6 @@ package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app;
 import androidx.fragment.app.Fragment;
 import android.view.View;
 
-import java.util.Objects;
 
 public class SlideFragment extends Fragment implements IntroNavigation {
 
@@ -88,6 +87,6 @@ public class SlideFragment extends Fragment implements IntroNavigation {
      * @deprecated
      */
     public View getContentView() {
-        return Objects.requireNonNull(getActivity()).findViewById(android.R.id.content);
+        return requireActivity().findViewById(android.R.id.content);
     }
 }

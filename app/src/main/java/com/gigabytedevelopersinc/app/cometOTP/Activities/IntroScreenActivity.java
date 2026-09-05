@@ -24,7 +24,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
@@ -38,26 +40,42 @@ import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.IntroActivity
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.SlideFragment;
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide.FragmentSlide;
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide.SimpleSlide;
+import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide.Slide;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class IntroScreenActivity extends IntroActivity {
+    private static final String STATE_ENCRYPTION_TYPE = "IntroScreenActivity.encryptionType";
+    private static final String STATE_AUTH_METHOD = "IntroScreenActivity.authMethod";
+    private static final String STATE_SYNC_ENABLED = "IntroScreenActivity.syncEnabled";
+    private static final String STATE_SETUP_FINISHED = "IntroScreenActivity.setupFinished";
+
+    // Slide positions, see onCreate()
+    static final int SLIDE_WELCOME = 0;
+    static final int SLIDE_ENCRYPTION = 1;
+    static final int SLIDE_AUTHENTICATION = 2;
+    static final int SLIDE_ANDROID_SYNC = 3;
+    static final int SLIDE_FINISHED = 4;
+
     private Settings settings;
 
-    private EncryptionFragment encryptionFragment;
-    private AuthenticationFragment authenticationFragment;
-    private AndroidSyncFragment androidSyncFragment;
+    /* The activity is the source of truth for the choices made on the slides. The fragments
+     * report their changes here and read their initial state back from here, so the intro
+     * survives being recreated (rotation on large screens, where Android 16+ ignores the
+     * portrait lock, or process death) without relying on fragment instances that the
+     * FragmentManager may have restored on its own. */
+    private Constants.EncryptionType encryptionType = Constants.EncryptionType.KEYSTORE;
+    private Constants.AuthMethod authMethod = Constants.AuthMethod.NONE;
+    private boolean syncEnabled = false;
 
     private boolean setupFinished = false;
 
     private void saveSettings() {
-        Constants.EncryptionType encryptionType = encryptionFragment.getEncryptionType();
-        Constants.AuthMethod authMethod = authenticationFragment.getAuthMethod();
-
         String password = null;
 
         if (authMethod == Constants.AuthMethod.PASSWORD || authMethod == Constants.AuthMethod.PIN) {
-            password = authenticationFragment.getPassword();
+            AuthenticationFragment authenticationFragment = getAuthenticationFragment();
+            password = authenticationFragment != null ? authenticationFragment.getPassword() : null;
 
             if (password == null || password.isEmpty()) {
                 SimpleSlide finalSlide = (SimpleSlide) getSlide(getCount() - 1);
@@ -84,7 +102,7 @@ public class IntroScreenActivity extends IntroActivity {
 
         settings.setEncryption(encryptionType);
         settings.setAuthMethod(authMethod);
-        settings.setAndroidBackupServiceEnabled(androidSyncFragment.getSyncEnabled());
+        settings.setAndroidBackupServiceEnabled(syncEnabled);
 
         if (authMethod == Constants.AuthMethod.PASSWORD || authMethod == Constants.AuthMethod.PIN)
             settings.setAuthCredentials(password);
@@ -99,11 +117,12 @@ public class IntroScreenActivity extends IntroActivity {
 
         settings = new Settings(this);
 
-        encryptionFragment = new EncryptionFragment();
-        authenticationFragment = new AuthenticationFragment();
-        androidSyncFragment = new AndroidSyncFragment(encryptionFragment);
-
-        encryptionFragment.setEncryptionChangedCallback(newEncryptionType -> authenticationFragment.updateEncryptionType(newEncryptionType));
+        if (savedInstanceState != null) {
+            encryptionType = Constants.EncryptionType.valueOf(savedInstanceState.getString(STATE_ENCRYPTION_TYPE, encryptionType.name()));
+            authMethod = Constants.AuthMethod.valueOf(savedInstanceState.getString(STATE_AUTH_METHOD, authMethod.name()));
+            syncEnabled = savedInstanceState.getBoolean(STATE_SYNC_ENABLED, syncEnabled);
+            setupFinished = savedInstanceState.getBoolean(STATE_SETUP_FINISHED, setupFinished);
+        }
 
         setButtonBackFunction(BUTTON_BACK_FUNCTION_BACK);
 
@@ -120,24 +139,21 @@ public class IntroScreenActivity extends IntroActivity {
         addSlide(new FragmentSlide.Builder()
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
-                .fragment(encryptionFragment)
-                .build()
-        );
-
-        // Tell the fragment where it is located
-        authenticationFragment.setSlidePos(getSlides().size());
-
-        addSlide(new FragmentSlide.Builder()
-                .background(R.color.colorPrimary)
-                .backgroundDark(R.color.colorPrimaryDark)
-                .fragment(authenticationFragment)
+                .fragment(new EncryptionFragment())
                 .build()
         );
 
         addSlide(new FragmentSlide.Builder()
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
-                .fragment(androidSyncFragment)
+                .fragment(new AuthenticationFragment())
+                .build()
+        );
+
+        addSlide(new FragmentSlide.Builder()
+                .background(R.color.colorPrimary)
+                .backgroundDark(R.color.colorPrimaryDark)
+                .fragment(new AndroidSyncFragment())
                 .build()
         );
 
@@ -151,8 +167,11 @@ public class IntroScreenActivity extends IntroActivity {
         );
 
         addOnNavigationBlockedListener((position, direction) -> {
-            if (position == 2)
-                authenticationFragment.flashWarning();
+            if (position == SLIDE_AUTHENTICATION) {
+                AuthenticationFragment authenticationFragment = getAuthenticationFragment();
+                if (authenticationFragment != null)
+                    authenticationFragment.flashWarning();
+            }
         });
 
         addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -173,6 +192,15 @@ public class IntroScreenActivity extends IntroActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(STATE_ENCRYPTION_TYPE, encryptionType.name());
+        outState.putString(STATE_AUTH_METHOD, authMethod.name());
+        outState.putBoolean(STATE_SYNC_ENABLED, syncEnabled);
+        outState.putBoolean(STATE_SETUP_FINISHED, setupFinished);
+    }
+
+    @Override
     public Intent onSendActivityResult(int result) {
         Intent data = new Intent();
         data.putExtra(Constants.EXTRA_INTRO_FINISHED, setupFinished);
@@ -180,23 +208,69 @@ public class IntroScreenActivity extends IntroActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        // We don't want users to quit the intro screen and end up in an uninitialized state
+    protected void onBackNavigation() {
+        // We don't want users to quit the intro screen and end up in an uninitialized state,
+        // so the back gesture only walks back through the slides.
+        if (getCurrentSlidePosition() > 0)
+            previousSlide();
+    }
+
+    /* Accessors for the slide fragments. The adapter swaps in the instances restored by the
+     * FragmentManager, so they are always looked up instead of being cached in fields. */
+    @Nullable
+    private <T extends Fragment> T getSlideFragment(int position, Class<T> type) {
+        if (position < 0 || position >= getCount())
+            return null;
+
+        Slide slide = getSlide(position);
+        if (!(slide instanceof FragmentSlide))
+            return null;
+
+        Fragment fragment = ((FragmentSlide) slide).getFragment();
+        return type.isInstance(fragment) ? type.cast(fragment) : null;
+    }
+
+    @Nullable
+    private AuthenticationFragment getAuthenticationFragment() {
+        return getSlideFragment(SLIDE_AUTHENTICATION, AuthenticationFragment.class);
+    }
+
+    @Nullable
+    static IntroScreenActivity hostOf(Fragment fragment) {
+        return fragment.getActivity() instanceof IntroScreenActivity ? (IntroScreenActivity) fragment.getActivity() : null;
+    }
+
+    Constants.EncryptionType getEncryptionType() {
+        return encryptionType;
+    }
+
+    Constants.AuthMethod getAuthMethod() {
+        return authMethod;
+    }
+
+    void onEncryptionTypeSelected(Constants.EncryptionType newEncryptionType) {
+        encryptionType = newEncryptionType;
+
+        AuthenticationFragment authenticationFragment = getAuthenticationFragment();
+        if (authenticationFragment != null)
+            authenticationFragment.updateEncryptionType(newEncryptionType);
+    }
+
+    void onAuthMethodSelected(Constants.AuthMethod newAuthMethod) {
+        authMethod = newAuthMethod;
+    }
+
+    void onSyncEnabledChanged(boolean enabled) {
+        syncEnabled = enabled;
     }
 
     public static class EncryptionFragment extends SlideFragment {
-        private EncryptionChangedCallback encryptionChangedCallback = null;
-
         private Spinner selection;
         private TextView desc;
 
         private SparseArray<Constants.EncryptionType> selectionMapping;
 
         public EncryptionFragment() {
-        }
-
-        public void setEncryptionChangedCallback(EncryptionChangedCallback cb) {
-            encryptionChangedCallback = cb;
         }
 
         private void generateSelectionMapping() {
@@ -208,6 +282,9 @@ public class IntroScreenActivity extends IntroActivity {
         }
 
         public Constants.EncryptionType getEncryptionType() {
+            if (selection == null || selectionMapping == null)
+                return Constants.EncryptionType.KEYSTORE;
+
             return selectionMapping.get(selection.getSelectedItemPosition());
         }
 
@@ -231,8 +308,9 @@ public class IntroScreenActivity extends IntroActivity {
                     else if (encryptionType == Constants.EncryptionType.KEYSTORE)
                         desc.setText(R.string.intro_slide2_desc_keystore);
 
-                    if (encryptionChangedCallback != null)
-                        encryptionChangedCallback.onEncryptionChanged(encryptionType);
+                    IntroScreenActivity host = hostOf(EncryptionFragment.this);
+                    if (host != null)
+                        host.onEncryptionTypeSelected(encryptionType);
                 }
 
                 @Override
@@ -240,27 +318,23 @@ public class IntroScreenActivity extends IntroActivity {
                 }
             });
 
-            selection.setSelection(selectionMapping.indexOfValue(Constants.EncryptionType.KEYSTORE));
+            IntroScreenActivity host = hostOf(this);
+            Constants.EncryptionType initialType = host != null ? host.getEncryptionType() : Constants.EncryptionType.KEYSTORE;
+            selection.setSelection(selectionMapping.indexOfValue(initialType));
 
             return root;
-        }
-
-        public interface EncryptionChangedCallback {
-            void onEncryptionChanged(Constants.EncryptionType newEncryptionType);
         }
     }
 
     public static class AndroidSyncFragment extends SlideFragment {
         private SwitchCompat introAndroidSync;
-        private final EncryptionFragment encryptionFragment;
 
-        public AndroidSyncFragment(EncryptionFragment encryptionFragment) {
-            this.encryptionFragment = encryptionFragment;
+        public AndroidSyncFragment() {
         }
 
         public boolean getSyncEnabled()
         {
-            return introAndroidSync.isChecked();
+            return introAndroidSync != null && introAndroidSync.isChecked();
         }
 
         @Override
@@ -268,14 +342,23 @@ public class IntroScreenActivity extends IntroActivity {
                                  Bundle savedInstanceState) {
             View root = inflater.inflate(R.layout.component_intro_android_sync, container, false);
 
-            introAndroidSync = root.findViewById(R.id.introAndroidSync);
-            introAndroidSync.setOnCheckedChangeListener((compoundButton, b) -> compoundButton.setText( b ?
-                    R.string.settings_toast_android_sync_enabled :
-                    R.string.settings_toast_android_sync_disabled
-            ));
+            IntroScreenActivity host = hostOf(this);
+            boolean syncPossible = host != null && host.getEncryptionType() != Constants.EncryptionType.KEYSTORE;
 
-            introAndroidSync.setChecked(encryptionFragment.getEncryptionType() != Constants.EncryptionType.KEYSTORE);
-            introAndroidSync.setEnabled(encryptionFragment.getEncryptionType() != Constants.EncryptionType.KEYSTORE);
+            introAndroidSync = root.findViewById(R.id.introAndroidSync);
+            introAndroidSync.setOnCheckedChangeListener((compoundButton, b) -> {
+                compoundButton.setText(b ?
+                        R.string.settings_toast_android_sync_enabled :
+                        R.string.settings_toast_android_sync_disabled
+                );
+
+                IntroScreenActivity activity = hostOf(AndroidSyncFragment.this);
+                if (activity != null)
+                    activity.onSyncEnabledChanged(b);
+            });
+
+            introAndroidSync.setChecked(syncPossible);
+            introAndroidSync.setEnabled(syncPossible);
 
             return root;
         }
@@ -283,8 +366,6 @@ public class IntroScreenActivity extends IntroActivity {
 
     public static class AuthenticationFragment extends SlideFragment implements TextView.OnEditorActionListener {
         private Constants.EncryptionType encryptionType = Constants.EncryptionType.KEYSTORE;
-
-        private int slidePos = -1;
 
         private int minLength = Constants.AUTH_MIN_PASSWORD_LENGTH;
         private String lengthWarning = "";
@@ -303,10 +384,6 @@ public class IntroScreenActivity extends IntroActivity {
         private SparseArray<Constants.AuthMethod> selectionMapping;
 
         public AuthenticationFragment() {
-        }
-
-        public void setSlidePos(int pos) {
-            slidePos = pos;
         }
 
         public void updateEncryptionType(Constants.EncryptionType encryptionType) {
@@ -350,12 +427,15 @@ public class IntroScreenActivity extends IntroActivity {
         }
 
         public void flashWarning() {
+            if (authWarnings == null)
+                return;
+
             if (authWarnings.getText().toString().isEmpty()) {
                 authWarnings.setVisibility(View.GONE);
             } else {
                 authWarnings.setVisibility(View.VISIBLE);
                 ObjectAnimator animator = ObjectAnimator.ofInt(authWarnings, "backgroundColor",
-                        Color.TRANSPARENT, getResources().getColor(R.color.warning_red), Color.TRANSPARENT);
+                        Color.TRANSPARENT, ContextCompat.getColor(requireContext(), R.color.warning_red), Color.TRANSPARENT);
                 animator.setDuration(500);
                 animator.setRepeatCount(0);
                 animator.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -365,11 +445,15 @@ public class IntroScreenActivity extends IntroActivity {
         }
 
         public Constants.AuthMethod getAuthMethod() {
+            if (selection == null || selectionMapping == null)
+                return Constants.AuthMethod.NONE;
+
             return selectionMapping.get(selection.getSelectedItemPosition());
         }
 
+        @Nullable
         public String getPassword() {
-            if (passwordInput.getText() != null)
+            if (passwordInput != null && passwordInput.getText() != null)
                 return passwordInput.getText().toString();
             else
                 return null;
@@ -389,6 +473,21 @@ public class IntroScreenActivity extends IntroActivity {
             passwordConfirm = root.findViewById(R.id.introPasswordConfirm);
 
             generateSelectionMapping();
+
+            // Pick up the choices made so far (also after the activity has been recreated)
+            IntroScreenActivity host = hostOf(this);
+            Constants.AuthMethod initialMethod = Constants.AuthMethod.NONE;
+            if (host != null) {
+                encryptionType = host.getEncryptionType();
+                initialMethod = host.getAuthMethod();
+            }
+            if (encryptionType == Constants.EncryptionType.PASSWORD) {
+                desc.setText(R.string.intro_slide3_desc_password);
+                if (initialMethod != Constants.AuthMethod.PASSWORD && initialMethod != Constants.AuthMethod.PIN)
+                    initialMethod = Constants.AuthMethod.PASSWORD;
+            } else {
+                desc.setText(R.string.intro_slide3_desc_keystore);
+            }
 
             final String[] authEntries = getResources().getStringArray(R.array.settings_entries_auth);
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getIntroActivity(), android.R.layout.simple_spinner_item, authEntries) {
@@ -419,6 +518,10 @@ public class IntroScreenActivity extends IntroActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     Constants.AuthMethod authMethod = selectionMapping.get(i);
+
+                    IntroScreenActivity activity = hostOf(AuthenticationFragment.this);
+                    if (activity != null)
+                        activity.onAuthMethodSelected(authMethod);
 
                     if (authMethod == Constants.AuthMethod.PASSWORD) {
                         setupForPasswordInput();
@@ -458,7 +561,7 @@ public class IntroScreenActivity extends IntroActivity {
                 }
 
                 private void focusOnPasswordInput() {
-                    if (getIntroActivity().getCurrentSlidePosition() == slidePos) {
+                    if (getIntroActivity().getCurrentSlidePosition() == SLIDE_AUTHENTICATION) {
                         passwordInput.requestFocus();
                         UIHelper.showKeyboard(getContext(), passwordInput);
                     }
@@ -509,7 +612,7 @@ public class IntroScreenActivity extends IntroActivity {
 
             passwordConfirm.setOnEditorActionListener(this);
 
-            selection.setSelection(selectionMapping.indexOfValue(Constants.AuthMethod.NONE));
+            selection.setSelection(selectionMapping.indexOfValue(initialMethod));
 
             return root;
         }
@@ -528,6 +631,11 @@ public class IntroScreenActivity extends IntroActivity {
 
         @Override
         public boolean canGoForward() {
+            if (selection == null || passwordInput == null || passwordConfirm == null) {
+                // The view has not been created (yet); nothing to validate against.
+                return false;
+            }
+
             Constants.AuthMethod authMethod = selectionMapping.get(selection.getSelectedItemPosition());
 
             if (authMethod == Constants.AuthMethod.PIN || authMethod == Constants.AuthMethod.PASSWORD) {

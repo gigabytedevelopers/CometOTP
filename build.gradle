@@ -1,13 +1,16 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '2.1.20'
+    // AGP 9.x ships built-in Kotlin support; the Kotlin Gradle plugin only needs to be on the
+    // build classpath (it is no longer applied to the app module). Keep it in sync with AGP.
+    ext.kotlin_version = '2.2.21'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.11.1'
+        // AGP 9.4 is the first plugin release that supports compileSdk 37 (Android 17).
+        classpath 'com.android.tools.build:gradle:9.4.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -19,10 +22,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://jitpack.io" }
+        maven { url = "https://jitpack.io" }
     }
 }
 
 tasks.register('clean', Delete) {
-    delete(rootProject.buildDir)
+    delete(rootProject.layout.buildDirectory)
 }

@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
+
 import java.util.Objects;
 
 public abstract class BaseActivity extends ThemedActivity {
@@ -17,7 +19,10 @@ public abstract class BaseActivity extends ThemedActivity {
         super.onCreate(savedInstanceState);
 
         screenOffReceiver = new ScreenOffReceiver();
-        registerReceiver(screenOffReceiver, screenOffReceiver.filter);
+        // ACTION_SCREEN_OFF is a protected system broadcast, so the receiver does not need to be
+        // reachable from other apps. Android 14+ (API 34) requires the export flag to be explicit.
+        ContextCompat.registerReceiver(this, screenOffReceiver, screenOffReceiver.filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

@@ -1,6 +1,6 @@
+// AGP 9.x provides built-in Kotlin support, so the "kotlin-android" plugin must not be applied
+// here any more. "kotlin-kapt" was unused (no annotation processors) and has been dropped.
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 
 // Load keystore
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -17,83 +17,94 @@ def versionPatch = versionProps['VERSION_PATCH'].toInteger()
 def versionBuild = versionProps['VERSION_BUILD'].toInteger()
 
 android {
-    compileSdk 36
-    applicationVariants.configureEach { variant ->
-        variant.outputs.configureEach {
-            outputFileName = "CometOTP-${variant.name}-${variant.versionName}.apk"
-        }
-    }
+    namespace = 'com.gigabytedevelopersinc.app.cometOTP'
+
+    // Android 17 (API 37). Keep compileSdk and targetSdk in lock-step: targeting the latest
+    // platform disables the compatibility modes the OS would otherwise apply to the app.
+    compileSdk = 37
 
     defaultConfig {
-        applicationId "com.gigabytedevelopersinc.app.CometOTP"
-        minSdkVersion 22
-        targetSdkVersion 36
-        versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
-        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.gigabytedevelopersinc.app.CometOTP"
+        // Android 6.0: current AndroidX/Material releases no longer support API 22.
+        minSdk = 23
+        targetSdk = 37
+        versionCode = versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+        versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        multiDexEnabled true
+        multiDexEnabled = true
     }
 
     signingConfigs {
         release {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
+            storeFile = file(keystoreProperties['storeFile'])
+            storePassword = keystoreProperties['storePassword']
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig = signingConfigs.release
+            minifyEnabled = false
+            proguardFiles(getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro')
         }
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            enableUnitTestCoverage true
-            enableAndroidTestCoverage true
-
-            tasks.withType(JavaCompile) {
-                options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-            }
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
         }
-    }
-
-    buildFeatures {
-        dataBinding true
-        viewBinding true
     }
 
     compileOptions {
         // Flag to enable support for the new language APIs
-        coreLibraryDesugaringEnabled true
+        coreLibraryDesugaringEnabled = true
 
         // Sets Java compatibility to Java 17
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = '17'
+    kotlin {
+        compilerOptions {
+            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        }
     }
+
     lint {
-        abortOnError false
-        checkReleaseBuilds false
-        disable 'MissingTranslation', 'ExtraTranslation'
+        abortOnError = false
+        checkReleaseBuilds = false
+        disable += ['MissingTranslation', 'ExtraTranslation']
     }
-    namespace 'com.gigabytedevelopersinc.app.cometOTP'
 }
 
-task('incrementVersionBuild') {
-    doLast {
-        versionProps.load(new FileInputStream(versionPropsFile))
+// Name the APKs "CometOTP-<variant>-<versionName>.apk" using the new Variant API
+// (the legacy applicationVariants API was removed in AGP 9).
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName.set(output.versionName.map { name ->
+                "CometOTP-${variant.name}-${name}.apk".toString()
+            })
+        }
+    }
+}
 
-        def newVersionBuild = versionProps['VERSION_BUILD'].toInteger() + 1
-        versionProps['VERSION_BUILD'] = newVersionBuild.toString()
-        versionProps.store(versionPropsFile.newWriter(), null)
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
+tasks.register('incrementVersionBuild') {
+    def propsFile = versionPropsFile
+    doLast {
+        def props = new Properties()
+        props.load(new FileInputStream(propsFile))
+
+        def newVersionBuild = props['VERSION_BUILD'].toInteger() + 1
+        props['VERSION_BUILD'] = newVersionBuild.toString()
+        props.store(propsFile.newWriter(), null)
     }
 }
 
@@ -107,31 +118,29 @@ afterEvaluate {
 }
 
 dependencies {
-    // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
     // AndroidX Core
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.appcompat:appcompat-resources:1.7.1'
-    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
+    implementation 'androidx.appcompat:appcompat-resources:1.8.0'
+    implementation 'androidx.core:core-ktx:1.19.0'
+    implementation 'androidx.documentfile:documentfile:1.1.0'   // used directly by BackupHelper (no longer transitive)
     implementation "androidx.cardview:cardview:1.0.0"
 
     // UI & Layout
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.browser:browser:1.8.0'
+    implementation 'com.google.android.material:material:1.14.0'
+    implementation 'androidx.browser:browser:1.10.0'
     implementation "com.leinardi.android:speed-dial:3.3.0"
     implementation "me.zhanghai.android.materialprogressbar:library:1.6.1"
     implementation 'me.zhanghai.android.fastscroll:library:1.3.0'
 
     // Lifecycle
-    def lifecycle_version = "2.9.2" // Updated to the latest consistent version
+    def lifecycle_version = "2.11.0"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
     // Utilities
-    implementation 'commons-codec:commons-codec:1.18.0'
+    implementation 'commons-codec:commons-codec:1.22.1'
     implementation "com.journeyapps:zxing-android-embedded:4.3.0"
     implementation "com.github.open-keychain.open-keychain:openpgp-api:v5.7.1"
     implementation 'de.peilicke.sascha:android-customtabs:3.1.1'
@@ -139,8 +148,8 @@ dependencies {
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test:runner:1.6.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }

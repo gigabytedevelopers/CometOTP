@@ -191,16 +191,13 @@ public class CredentialsPreference extends DialogPreference
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case (R.id.btnCancel):
-                getDialog().dismiss();
-                break;
-            case (R.id.btnSave):
-                saveValues();
-                getDialog().dismiss();
-                break;
-            default:
-                break;
+        // Resource ids are not compile-time constants any more (AGP 9), so no switch here.
+        int id = view.getId();
+        if (id == R.id.btnCancel) {
+            getDialog().dismiss();
+        } else if (id == R.id.btnSave) {
+            saveValues();
+            getDialog().dismiss();
         }
     }
 

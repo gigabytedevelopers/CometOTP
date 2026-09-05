@@ -19,7 +19,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +32,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -40,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.pm.PackageInfoCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -65,8 +66,8 @@ import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter;
 import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLayoutListenerAdapter;
 import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
@@ -129,7 +130,7 @@ public class MainActivity extends BaseActivity
                     context.getPackageName(), 0);
             int lastVersionCode = sharedPreferences.getInt(
                     LAST_APP_VERSION, -1);
-            int currentVersionCode = pInfo.versionCode;
+            int currentVersionCode = (int) PackageInfoCompat.getLongVersionCode(pInfo);
             appStart = checkAppStart(currentVersionCode, lastVersionCode);
 
             // Update version in preferences
@@ -158,28 +159,74 @@ public class MainActivity extends BaseActivity
 
     // QR code scanning
     private void scanQRCode(){
-        new IntentIntegrator(MainActivity.this)
+        ScanOptions options = new ScanOptions()
                 .setOrientationLocked(false)
                 .setBarcodeImageEnabled(true)
                 .setBeepEnabled(false)
-                .setCaptureActivity(SecureCaptureActivity.class)
-                .initiateScan();
+                .setCaptureActivity(SecureCaptureActivity.class);
+        scanQrLauncher.launch(options);
     }
 
-    private final ActivityResultLauncher<Intent> intentActivityLauncher = registerForActivityResult(
+    /* Activity result launchers. Each launcher owns the handling of exactly one kind of result,
+     * replacing the request-code based onActivityResult() which is not delivered for activities
+     * started through the Activity Result API. */
+
+    private final ActivityResultLauncher<ScanOptions> scanQrLauncher = registerForActivityResult(
+            new ScanContract(),
+            result -> {
+                if (result != null && result.getContents() != null)
+                    addQRCode(result.getContents());
+            });
+
+    private final ActivityResultLauncher<Intent> introLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    Intent data = result.getData();
-                    if (data != null) {
-                        // Handle returned data
-                        // Example: String someData = data.getStringExtra("key");
-                        data.getStringExtra("key");
-                    }
-                }
-            }
-    );
+                boolean setupFinished = false;
 
+                if (result.getResultCode() == RESULT_OK && result.getData() != null)
+                    setupFinished = result.getData().getBooleanExtra(Constants.EXTRA_INTRO_FINISHED, false);
+
+                if (!setupFinished)
+                    finishAndRemoveTask();
+            });
+
+    private final ActivityResultLauncher<Intent> backupLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null
+                        && result.getData().getBooleanExtra("reload", false)) {
+                    adapter.loadEntries();
+                    refreshTags();
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> settingsLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() != RESULT_OK || result.getData() == null)
+                    return;
+
+                boolean encryptionChanged = result.getData().getBooleanExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, false);
+                byte[] newKey = result.getData().getByteArrayExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY);
+
+                if (encryptionChanged)
+                    updateEncryption(newKey);
+
+                if (recreateActivity) {
+                    cacheEncKey = true;
+                    recreate();
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> qrImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null)
+                    addQRCode(ScanQRCodeFromFile.scanQRImage(this, result.getData().getData()));
+            });
+
+    // Shared by the password/PIN screen and the device-credential prompt: any result other than
+    // RESULT_OK means the user could not be authenticated and the app must not stay open.
     private final ActivityResultLauncher<Intent> authenticateActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -197,8 +244,7 @@ public class MainActivity extends BaseActivity
 
     private void showFirstTimeWarning() {
         Intent introIntent = new Intent(this, IntroScreenActivity.class);
-        intentActivityLauncher.launch(introIntent);
-
+        introLauncher.launch(introIntent);
     }
 
     public void authenticate(int messageId) {
@@ -209,13 +255,12 @@ public class MainActivity extends BaseActivity
             assert km != null;
             if (km.isKeyguardSecure()) {
                 Intent authIntent = km.createConfirmDeviceCredentialIntent(getString(R.string.dialog_title_auth), getString(R.string.dialog_msg_auth));
-                intentActivityLauncher.launch(authIntent);
+                authenticateActivityResultLauncher.launch(authIntent);
             }
         } else if (authMethod == AuthMethod.PASSWORD || authMethod == AuthMethod.PIN) {
             Intent authIntent = new Intent(this, AuthenticateActivity.class);
             authIntent.putExtra(Constants.EXTRA_AUTH_MESSAGE, messageId);
             authenticateActivityResultLauncher.launch(authIntent);
-
         }
     }
 
@@ -299,6 +344,7 @@ public class MainActivity extends BaseActivity
         });
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
+        getOnBackPressedDispatcher().addCallback(this, closeOverlaysOnBack);
 
         if (!settings.getFirstTimeWarningShown()) {
             showFirstTimeWarning();
@@ -369,6 +415,7 @@ public class MainActivity extends BaseActivity
                 } else {
                     speedDial.getMainFab().setContentDescription(getString(R.string.button_add));
                 }
+                closeOverlaysOnBack.setEnabled(isOpen || isTagsDrawerOpen());
             }
         });
 
@@ -626,47 +673,6 @@ public class MainActivity extends BaseActivity
         tagsToggle.onConfigurationChanged(newConfig);
     }
 
-    // Activity results
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if(result != null) {
-            if(result.getContents() != null) {
-                addQRCode(result.getContents());
-            }
-        } else if (requestCode == Constants.INTENT_MAIN_BACKUP && resultCode == RESULT_OK) {
-            if (intent.getBooleanExtra("reload", false)) {
-                adapter.loadEntries();
-                refreshTags();
-            }
-        } else if (requestCode == Constants.INTENT_MAIN_SETTINGS && resultCode == RESULT_OK) {
-            boolean encryptionChanged = intent.getBooleanExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, false);
-            byte[] newKey = intent.getByteArrayExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY);
-
-            if (encryptionChanged)
-                updateEncryption(newKey);
-
-            if (recreateActivity) {
-                cacheEncKey = true;
-                recreate();
-            }
-        } else if (requestCode == Constants.INTENT_MAIN_QR_OPEN_IMAGE && resultCode == RESULT_OK) {
-            if (intent != null) {
-                addQRCode(ScanQRCodeFromFile.scanQRImage(this, intent.getData()));
-            }
-        } else if (requestCode == Constants.INTENT_MAIN_INTRO) {
-            boolean setupFinished = false;
-
-            if (resultCode == RESULT_OK && intent != null)
-                setupFinished = intent.getBooleanExtra(Constants.EXTRA_INTRO_FINISHED, false);
-
-            if (!setupFinished)
-                finishAndRemoveTask();
-        }
-    }
-
     private void updateEncryption(byte[] newKey) {
         SecretKey encryptionKey = null;
 
@@ -789,12 +795,12 @@ public class MainActivity extends BaseActivity
             if (adapter.getEncryptionKey() != null) {
                 backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
             }
-            intentActivityLauncher.launch(backupIntent);
+            backupLauncher.launch(backupIntent);
         } else if (id == R.id.action_settings) {
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             if (adapter.getEncryptionKey() != null)
                 settingsIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            intentActivityLauncher.launch(settingsIntent);
+            settingsLauncher.launch(settingsIntent);
         } else if (id == R.id.action_about){
             Intent aboutIntent = new Intent(this, AboutActivity.class);
             startActivity(aboutIntent);
@@ -901,6 +907,7 @@ public class MainActivity extends BaseActivity
                 super.onDrawerOpened(drawerView);
                 Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.label_tags);
                 invalidateOptionsMenu();
+                closeOverlaysOnBack.setEnabled(true);
             }
 
             @Override
@@ -908,20 +915,22 @@ public class MainActivity extends BaseActivity
                 super.onDrawerClosed(view);
                 Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.app_name);
                 invalidateOptionsMenu();
+                updateBackCallbackState();
             }
         };
 
         menu_backup.setOnClickListener(v -> {
             Intent backupIntent = new Intent(MainActivity.this, BackupActivity.class);
-            backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            intentActivityLauncher.launch(backupIntent);
+            if (adapter.getEncryptionKey() != null)
+                backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
+            backupLauncher.launch(backupIntent);
             tagsDrawerLayout.closeDrawers();
         });
         menu_settings.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
             if (adapter.getEncryptionKey() != null)
                 settingsIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            intentActivityLauncher.launch(settingsIntent);
+            settingsLauncher.launch(settingsIntent);
             tagsDrawerLayout.closeDrawers();
         });
         menu_about.setOnClickListener(v -> {
@@ -1087,7 +1096,7 @@ public class MainActivity extends BaseActivity
         Intent fileSelectorIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         fileSelectorIntent.addCategory(Intent.CATEGORY_OPENABLE);
         fileSelectorIntent.setType("image/*");
-        intentActivityLauncher.launch(fileSelectorIntent);
+        qrImageLauncher.launch(fileSelectorIntent);
     }
 
     private void addQRCode(String result){
@@ -1112,23 +1121,28 @@ public class MainActivity extends BaseActivity
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (speedDial.isOpen()) {
+    /* Predictive back: with the OnBackInvokedCallback enabled (the default when targeting
+     * Android 16+), KEYCODE_BACK is no longer dispatched. The callback is only enabled while the
+     * speed dial or the tags drawer is open, so the system back animation still runs otherwise. */
+    private final OnBackPressedCallback closeOverlaysOnBack = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            if (speedDial != null && speedDial.isOpen()) {
                 speedDial.close();
-                return true;
-            }
-
-            if (tagsDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            } else if (isTagsDrawerOpen()) {
                 tagsDrawerLayout.closeDrawer(GravityCompat.START);
-                return true;
             }
-
-            return super.onKeyDown(keyCode, event);
+            updateBackCallbackState();
         }
+    };
 
-        return super.onKeyDown(keyCode, event);
+    private boolean isTagsDrawerOpen() {
+        return tagsDrawerLayout != null && tagsDrawerLayout.isDrawerOpen(GravityCompat.START);
+    }
+
+    private void updateBackCallbackState() {
+        boolean speedDialOpen = speedDial != null && speedDial.isOpen();
+        closeOverlaysOnBack.setEnabled(speedDialOpen || isTagsDrawerOpen());
     }
 
     @Override

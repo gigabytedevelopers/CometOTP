@@ -1,6 +1,7 @@
 language: java
 
-jdk: openjdk8
+# AGP 9.4 / Gradle 9.6 require JDK 17 or newer.
+jdk: openjdk17
 
 build:
   ci:

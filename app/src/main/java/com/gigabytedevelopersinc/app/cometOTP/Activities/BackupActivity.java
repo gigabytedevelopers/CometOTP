@@ -8,13 +8,19 @@ import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.IntentCompat;
+import androidx.core.os.BundleCompat;
+import androidx.core.util.Consumer;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -86,6 +92,45 @@ public class BackupActivity extends BaseActivity {
     private boolean reload = false;
     private boolean allowExit = true;
 
+    private enum PgpOperation { ENCRYPT, DECRYPT }
+
+    private static final String STATE_ENCRYPT_TARGET = "BackupActivity.encryptTargetFile";
+    private static final String STATE_DECRYPT_SOURCE = "BackupActivity.decryptSourceFile";
+
+    /* Activity result launchers. One launcher per document flow replaces the request-code based
+     * onActivityResult(); they are registered as fields so they survive activity recreation. */
+    private final ActivityResultLauncher<Intent> openPlainLauncher = registerDocumentLauncher(this::doRestorePlain);
+    private final ActivityResultLauncher<Intent> savePlainLauncher = registerDocumentLauncher(this::doBackupPlain);
+    private final ActivityResultLauncher<Intent> openCryptLauncher = registerDocumentLauncher(uri -> doRestoreCrypt(uri, false));
+    private final ActivityResultLauncher<Intent> openCryptOldLauncher = registerDocumentLauncher(uri -> doRestoreCrypt(uri, true));
+    private final ActivityResultLauncher<Intent> saveCryptLauncher = registerDocumentLauncher(this::doBackupCrypt);
+    private final ActivityResultLauncher<Intent> openPgpLauncher = registerDocumentLauncher(uri -> restoreEncryptedWithPGP(uri, null));
+    private final ActivityResultLauncher<Intent> savePgpLauncher = registerDocumentLauncher(uri -> backupEncryptedWithPGP(uri, null));
+
+    // OpenKeychain user interaction (key selection / passphrase) is driven through a PendingIntent
+    private final ActivityResultLauncher<IntentSenderRequest> pgpEncryptLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartIntentSenderForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK)
+                    backupEncryptedWithPGP(encryptTargetFile, result.getData());
+            });
+    private final ActivityResultLauncher<IntentSenderRequest> pgpDecryptLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartIntentSenderForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK)
+                    restoreEncryptedWithPGP(decryptSourceFile, result.getData());
+            });
+
+    private ActivityResultLauncher<Intent> registerDocumentLauncher(Consumer<Uri> onDocumentSelected) {
+        return registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Intent data = result.getData();
+                    if (result.getResultCode() == RESULT_OK && data != null && data.getData() != null)
+                        onDocumentSelected.accept(data.getData());
+                });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +148,21 @@ public class BackupActivity extends BaseActivity {
         Intent callingIntent = getIntent();
         byte[] keyMaterial = callingIntent.getByteArrayExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY);
         encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial);
+
+        if (savedInstanceState != null) {
+            encryptTargetFile = BundleCompat.getParcelable(savedInstanceState, STATE_ENCRYPT_TARGET, Uri.class);
+            decryptSourceFile = BundleCompat.getParcelable(savedInstanceState, STATE_DECRYPT_SOURCE, Uri.class);
+        }
+
+        // Predictive back: onBackPressed() is no longer invoked when targeting Android 16+.
+        // Leaving is blocked while a backup or restore task is running.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (allowExit)
+                    finishWithResult();
+            }
+        });
 
         Spinner spBackupType = v.findViewById(R.id.backupType);
         btnBackup = v.findViewById(R.id.buttonBackup);
@@ -134,10 +194,10 @@ public class BackupActivity extends BaseActivity {
                     backupPlainWithWarning();
                     break;
                 case ENCRYPTED:
-                    showSaveFileSelector(Constants.BACKUP_MIMETYPE_CRYPT, Constants.BackupType.ENCRYPTED, Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT);
+                    showSaveFileSelector(Constants.BACKUP_MIMETYPE_CRYPT, Constants.BackupType.ENCRYPTED, saveCryptLauncher, () -> doBackupCrypt(null));
                     break;
                 case OPEN_PGP:
-                    showSaveFileSelector(Constants.BACKUP_MIMETYPE_PGP, Constants.BackupType.OPEN_PGP, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP);
+                    showSaveFileSelector(Constants.BACKUP_MIMETYPE_PGP, Constants.BackupType.OPEN_PGP, savePgpLauncher, () -> backupEncryptedWithPGP(null, null));
                     break;
             }
         });
@@ -145,16 +205,16 @@ public class BackupActivity extends BaseActivity {
         btnRestore.setOnClickListener(view -> {
             switch (backupType) {
                 case PLAIN_TEXT:
-                    showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN);
+                    showOpenFileSelector(openPlainLauncher);
                     break;
                 case ENCRYPTED:
                     if (chkOldFormat.isChecked())
-                        showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT_OLD);
+                        showOpenFileSelector(openCryptOldLauncher);
                     else
-                        showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT);
+                        showOpenFileSelector(openCryptLauncher);
                     break;
                 case OPEN_PGP:
-                    showOpenFileSelector(Constants.INTENT_BACKUP_OPEN_DOCUMENT_PGP);
+                    showOpenFileSelector(openPgpLauncher);
                     break;
             }
         });
@@ -237,11 +297,10 @@ public class BackupActivity extends BaseActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        if (allowExit) {
-            finishWithResult();
-            super.onBackPressed();
-        }
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(STATE_ENCRYPT_TARGET, encryptTargetFile);
+        outState.putParcelable(STATE_DECRYPT_SOURCE, decryptSourceFile);
     }
 
     @Override
@@ -287,7 +346,7 @@ public class BackupActivity extends BaseActivity {
                 OpenPgpApi api = new OpenPgpApi(this, pgpServiceConnection.getService());
                 Intent resultIntent = api.executeApi(result.decryptIntent, is, os);
 
-                handleOpenPGPResult(resultIntent, os, result.uri, Constants.INTENT_BACKUP_DECRYPT_PGP);
+                handleOpenPGPResult(resultIntent, os, result.uri, PgpOperation.DECRYPT);
             } else {
                 restoreEntries(result.payload, false);
             }
@@ -331,53 +390,15 @@ public class BackupActivity extends BaseActivity {
         progressRestore.setVisibility(running ? View.VISIBLE : View.GONE);
     }
 
-    // Get the result from external activities
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
-        if (requestCode == Constants.INTENT_BACKUP_OPEN_DOCUMENT_PLAIN && resultCode == RESULT_OK) {
-            if (intent != null) {
-                doRestorePlain(intent.getData());
-            }
-        } else if (requestCode == Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN && resultCode == RESULT_OK) {
-            if (intent != null) {
-                doBackupPlain(intent.getData());
-            }
-        } else if (requestCode == Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT && resultCode == RESULT_OK) {
-            if (intent != null) {
-                doRestoreCrypt(intent.getData(), false);
-            }
-        } else if (requestCode == Constants.INTENT_BACKUP_OPEN_DOCUMENT_CRYPT_OLD && resultCode == RESULT_OK) {
-            if (intent != null) {
-                doRestoreCrypt(intent.getData(), true);
-            }
-        } else if (requestCode == Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT && resultCode == RESULT_OK) {
-            if (intent != null) {
-                doBackupCrypt(intent.getData());
-            }
-        } else if (requestCode == Constants.INTENT_BACKUP_OPEN_DOCUMENT_PGP && resultCode == RESULT_OK) {
-            if (intent != null)
-                restoreEncryptedWithPGP(intent.getData(), null);
-        } else if (requestCode == Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP && resultCode == RESULT_OK) {
-            if (intent != null)
-                backupEncryptedWithPGP(intent.getData(), null);
-        } else if (requestCode == Constants.INTENT_BACKUP_ENCRYPT_PGP && resultCode == RESULT_OK) {
-            backupEncryptedWithPGP(encryptTargetFile, intent);
-        } else if (requestCode == Constants.INTENT_BACKUP_DECRYPT_PGP && resultCode == RESULT_OK) {
-            restoreEncryptedWithPGP(decryptSourceFile, intent);
-        }
-    }
-
     /* Generic functions for all backup/restore options */
 
-    private void showOpenFileSelector(int intentId) {
+    private void showOpenFileSelector(ActivityResultLauncher<Intent> launcher) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
 
         try {
-            startActivityForResult(intent, intentId);
+            launcher.launch(intent);
             return;
         } catch (ActivityNotFoundException e) {
             Log.d(TAG, "Failed to use ACTION_OPEN_DOCUMENT, no matching activity found!");
@@ -386,29 +407,29 @@ public class BackupActivity extends BaseActivity {
         intent.setAction(Intent.ACTION_GET_CONTENT);
 
         try {
-            startActivityForResult(intent, intentId);
+            launcher.launch(intent);
         } catch (ActivityNotFoundException e) {
             Log.d(TAG, "Failed to use ACTION_GET_CONTENT, no matching activity found!");
             Toast.makeText(this, R.string.backup_toast_file_selection_failed, Toast.LENGTH_LONG).show();
         }
     }
 
-    private void showSaveFileSelector(String mimeType, Constants.BackupType backupType, int intentId) {
+    /**
+     * @param launcher         receives the document created by the system file picker
+     * @param backupToLocation runs the backup into the configured backup location instead,
+     *                         when the user chose not to be asked for a file every time
+     */
+    private void showSaveFileSelector(String mimeType, Constants.BackupType backupType,
+                                      ActivityResultLauncher<Intent> launcher, Runnable backupToLocation) {
         if (settings.getBackupAsk()) {
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType(mimeType);
             intent.putExtra(Intent.EXTRA_TITLE, BackupHelper.backupFilename(this, backupType));
-            startActivityForResult(intent, intentId);
+            launcher.launch(intent);
         } else {
             if (settings.isBackupLocationSet()) {
-                if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN) {
-                    doBackupPlain(null);
-                } else if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_CRYPT) {
-                    doBackupCrypt(null);
-                } else if (intentId == Constants.INTENT_BACKUP_SAVE_DOCUMENT_PGP) {
-                    backupEncryptedWithPGP(null, null);
-                }
+                backupToLocation.run();
             } else {
                 Toast.makeText(this, R.string.backup_toast_no_location, Toast.LENGTH_LONG).show();
             }
@@ -474,7 +495,7 @@ public class BackupActivity extends BaseActivity {
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        showSaveFileSelector(Constants.BACKUP_MIMETYPE_PLAIN, Constants.BackupType.PLAIN_TEXT, Constants.INTENT_BACKUP_SAVE_DOCUMENT_PLAIN);
+                        showSaveFileSelector(Constants.BACKUP_MIMETYPE_PLAIN, Constants.BackupType.PLAIN_TEXT, savePlainLauncher, () -> doBackupPlain(null));
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -589,22 +610,22 @@ public class BackupActivity extends BaseActivity {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         OpenPgpApi api = new OpenPgpApi(this, pgpServiceConnection.getService());
         Intent result = api.executeApi(encryptIntent, is, os);
-        handleOpenPGPResult(result, os, uri, Constants.INTENT_BACKUP_ENCRYPT_PGP);
+        handleOpenPGPResult(result, os, uri, PgpOperation.ENCRYPT);
     }
 
     public String outputStreamToString(ByteArrayOutputStream os) {
         return new String(os.toByteArray(), StandardCharsets.UTF_8);
     }
 
-    public void handleOpenPGPResult(Intent result, ByteArrayOutputStream os, Uri file, int requestCode) {
+    private void handleOpenPGPResult(Intent result, ByteArrayOutputStream os, Uri file, PgpOperation operation) {
         if (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR) == OpenPgpApi.RESULT_CODE_SUCCESS) {
-            if (requestCode == Constants.INTENT_BACKUP_ENCRYPT_PGP) {
+            if (operation == PgpOperation.ENCRYPT) {
                 if (os != null)
                     doBackupEncrypted(file, outputStreamToString(os));
-            } else if (requestCode == Constants.INTENT_BACKUP_DECRYPT_PGP) {
+            } else if (operation == PgpOperation.DECRYPT) {
                 if (os != null) {
                     if (settings.getOpenPGPVerify()) {
-                        OpenPgpSignatureResult sigResult = result.getParcelableExtra(OpenPgpApi.RESULT_SIGNATURE);
+                        OpenPgpSignatureResult sigResult = IntentCompat.getParcelableExtra(result, OpenPgpApi.RESULT_SIGNATURE, OpenPgpSignatureResult.class);
 
                         assert sigResult != null;
                         if (sigResult.getResult() == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED) {
@@ -618,23 +639,24 @@ public class BackupActivity extends BaseActivity {
                 }
             }
         } else if (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR) == OpenPgpApi.RESULT_CODE_USER_INTERACTION_REQUIRED) {
-            PendingIntent pi = result.getParcelableExtra(OpenPgpApi.RESULT_INTENT);
+            PendingIntent pi = IntentCompat.getParcelableExtra(result, OpenPgpApi.RESULT_INTENT, PendingIntent.class);
+            if (pi == null)
+                return;
 
-            // Small hack to keep the target file even after user interaction
-            if (requestCode == Constants.INTENT_BACKUP_ENCRYPT_PGP) {
+            // Remember the target file across the user interaction (also survives recreation, see
+            // onSaveInstanceState) and continue the same operation once the user is done.
+            IntentSenderRequest request = new IntentSenderRequest.Builder(pi.getIntentSender()).build();
+            if (operation == PgpOperation.ENCRYPT) {
                 encryptTargetFile = file;
-            } else if (requestCode == Constants.INTENT_BACKUP_DECRYPT_PGP) {
+                pgpEncryptLauncher.launch(request);
+            } else if (operation == PgpOperation.DECRYPT) {
                 decryptSourceFile = file;
-            }
-
-            try {
-                startIntentSenderForResult(pi.getIntentSender(), requestCode, null, 0, 0, 0);
-            } catch (IntentSender.SendIntentException e) {
-                e.printStackTrace();
+                pgpDecryptLauncher.launch(request);
             }
         } else if (result.getIntExtra(OpenPgpApi.RESULT_CODE, OpenPgpApi.RESULT_CODE_ERROR) == OpenPgpApi.RESULT_CODE_ERROR) {
-            OpenPgpError error = result.getParcelableExtra(OpenPgpApi.RESULT_ERROR);
-            Toast.makeText(this, String.format(getString(R.string.backup_toast_openpgp_error), error.getMessage()), Toast.LENGTH_LONG).show();
+            OpenPgpError error = IntentCompat.getParcelableExtra(result, OpenPgpApi.RESULT_ERROR, OpenPgpError.class);
+            String message = error != null ? error.getMessage() : "";
+            Toast.makeText(this, String.format(getString(R.string.backup_toast_openpgp_error), message), Toast.LENGTH_LONG).show();
         }
     }
 

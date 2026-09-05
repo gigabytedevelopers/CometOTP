@@ -160,18 +160,15 @@ public class PasswordEncryptedPreference extends DialogPreference
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case (R.id.btnCancel):
-                getDialog().dismiss();
-                break;
-            case (R.id.btnSave):
-                value = Objects.requireNonNull(passwordInput.getText()).toString();
-                encryptAndPersist(value);
+        // Resource ids are not compile-time constants any more (AGP 9), so no switch here.
+        int id = view.getId();
+        if (id == R.id.btnCancel) {
+            getDialog().dismiss();
+        } else if (id == R.id.btnSave) {
+            value = Objects.requireNonNull(passwordInput.getText()).toString();
+            encryptAndPersist(value);
 
-                getDialog().dismiss();
-                break;
-            default:
-                break;
+            getDialog().dismiss();
         }
     }
 
