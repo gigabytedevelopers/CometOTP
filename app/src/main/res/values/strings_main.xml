@@ -121,7 +121,7 @@
         to the <b>Settings</b> page and switch the <b>Database Encryption</b> to <b>Password/PIN</b>.</string>
 
     <!-- Report and Feedback -->
-    <string name="feedback_email_address">support@gigabytedevelopersinc.com</string>
+    <string name="feedback_email_address">support@gigabytedevelopers.com</string>
     <string name="feedback_email_subject">Feedback about CometOTP</string>
     <string name="feedback_email_message"><b>Hello dear Gigabyte Developers!</b> \n
         Good day and a warm welcome to you all. \n\n\n

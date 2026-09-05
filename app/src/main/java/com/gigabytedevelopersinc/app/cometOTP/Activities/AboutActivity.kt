@@ -263,7 +263,7 @@ class AboutActivity : BaseActivity() {
         // private static final String AUTHOR2_GITHUB = "https://github.com";
         private const val AUTHOR2_APP =
             "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
-        private const val changeLogUrl = "https://gigabytedevelopersinc.com/apps/cometotp/changelog"
+        private const val changeLogUrl = "https://gigabytedevelopers.com/apps/cometotp/changelog"
 
         // private static final String BUGREPORT_URI = GITHUB_URI + "/issues";
         val imageResources = intArrayOf(

@@ -58,7 +58,7 @@
 
                 <data
                     android:scheme="https"
-                    android:host="gigabytedevelopersinc.com"
+                    android:host="gigabytedevelopers.com"
                     android:pathPattern="/apps/cometOTP" />
             </intent-filter>
         </activity>
