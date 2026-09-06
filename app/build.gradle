@@ -44,17 +44,28 @@ android {
         }
     }
 
+    // Pass -PminifyDebug to build a shrunk debug APK for testing the R8 keep rules on the ".dev"
+    // package without touching the production install (R8 shrinks but does not rename classes in
+    // debuggable builds, so only release builds are obfuscated).
+    def minifyDebug = project.hasProperty('minifyDebug')
+
     buildTypes {
         release {
             signingConfig = signingConfigs.release
-            minifyEnabled = false
+            // Google Play's "App optimization" check requires code shrinking, obfuscation and
+            // resource shrinking. The mapping file is bundled automatically for crash de-obfuscation.
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles(getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro')
         }
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            enableUnitTestCoverage = true
-            enableAndroidTestCoverage = true
+            enableUnitTestCoverage = !minifyDebug
+            enableAndroidTestCoverage = !minifyDebug
+            minifyEnabled = minifyDebug
+            shrinkResources = minifyDebug
+            proguardFiles(getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro')
         }
     }
 
@@ -110,6 +121,9 @@ tasks.register('incrementVersionBuild') {
 
 afterEvaluate {
     tasks.named('assembleRelease').configure {
+        dependsOn 'incrementVersionBuild'
+    }
+    tasks.named('bundleRelease').configure {
         dependsOn 'incrementVersionBuild'
     }
     tasks.named('assembleDebug').configure {
