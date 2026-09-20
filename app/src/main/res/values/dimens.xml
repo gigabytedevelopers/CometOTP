@@ -13,9 +13,40 @@
     <dimen name="margin_normal">16dp</dimen>
     <dimen name="margin_large">25dp</dimen>
 
-    <dimen name="card_corner_radius">10dp</dimen>
+    <!-- Design system: spacing scale -->
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_md">16dp</dimen>
+    <dimen name="space_lg">24dp</dimen>
+    <dimen name="space_xl">32dp</dimen>
+
+    <!-- Design system: shapes -->
+    <dimen name="radius_sm">8dp</dimen>
+    <dimen name="radius_md">12dp</dimen>
+    <dimen name="radius_lg">16dp</dimen>
+    <dimen name="radius_sheet">24dp</dimen>
+    <dimen name="radius_pill">100dp</dimen>
+
+    <!-- Design system: components -->
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="input_height">52dp</dimen>
+    <dimen name="app_bar_height">64dp</dimen>
+    <dimen name="bottom_bar_height">64dp</dimen>
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="countdown_size">28dp</dimen>
+    <dimen name="countdown_stroke">2.5dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="issuer_icon_size">44dp</dimen>
+    <dimen name="issuer_icon_radius">10dp</dimen>
+    <dimen name="tag_chip_height">18dp</dimen>
+    <dimen name="tag_bar_width">4dp</dimen>
+    <dimen name="sheet_handle_width">40dp</dimen>
+    <dimen name="sheet_handle_height">4dp</dimen>
+
+    <dimen name="card_corner_radius">12dp</dimen>
     <dimen name="card_padding_without_corners">14dp</dimen>
-    <dimen name="card_thumbnail_size">46dp</dimen>
+    <dimen name="card_thumbnail_size">44dp</dimen>
 
     <!-- The default letter tile text size (relative to the height of the tile) -->
     <item name="tile_letter_font_size_scale" type="dimen" format="float">0.75</item>
@@ -35,7 +66,7 @@
     <dimen name="fab_base_horizontal_offset">16dp</dimen>
     <dimen name="fab_base_vertical_offset">16dp</dimen>
 
-    <dimen name="fab_recyclerview_padding">84dp</dimen><!-- 52dp (FAB size) + 2x fab_base_vertical_offset) -->
+    <dimen name="fab_recyclerview_padding">96dp</dimen><!-- bottom bar + FAB overlap -->
 
     <!-- Intro Screen -->
     <dimen name="mi_baseline">16dp</dimen>
