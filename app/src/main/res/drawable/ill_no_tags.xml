@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty tags: phone outline with a tag chip and an "add" button -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200"
+    android:tint="?attr/colorPrimary">
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M56,14 h88 a14,14 0 0 1 14,14 v144 a14,14 0 0 1 -14,14 h-88 a14,14 0 0 1 -14,-14 v-144 a14,14 0 0 1 14,-14 z" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M88,26 h24 M86,172 h28" />
+    <!-- tag chip -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2.5"
+        android:fillColor="#00000000"
+        android:pathData="M66,60 h68 a8,8 0 0 1 8,8 v0 a8,8 0 0 1 -8,8 h-68 a8,8 0 0 1 -8,-8 v0 a8,8 0 0 1 8,-8 z" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M70,64 h6 l3,4 -3,4 h-6 z" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M86,68 h36" />
+    <!-- add button -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M100,112 m-16,0 a16,16 0 1 0 32,0 a16,16 0 1 0 -32,0" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M100,104 v16 M92,112 h16" />
+</vector>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty state: phone outline holding a service card and an "add" button -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200"
+    android:tint="?attr/colorPrimary">
+    <!-- phone body -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M56,14 h88 a14,14 0 0 1 14,14 v144 a14,14 0 0 1 -14,14 h-88 a14,14 0 0 1 -14,-14 v-144 a14,14 0 0 1 14,-14 z" />
+    <!-- speaker slot -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M88,26 h24" />
+    <!-- home indicator -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M86,172 h28" />
+    <!-- service card -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2.5"
+        android:fillColor="#00000000"
+        android:pathData="M60,54 h80 a6,6 0 0 1 6,6 v26 a6,6 0 0 1 -6,6 h-80 a6,6 0 0 1 -6,-6 v-26 a6,6 0 0 1 6,-6 z" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M66,64 h18 M66,74 h30 M66,80 h22" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M120,66 h14 a4,4 0 0 1 4,4 v0 a4,4 0 0 1 -4,4 h-14 a4,4 0 0 1 -4,-4 v0 a4,4 0 0 1 4,-4 z" />
+    <!-- add button -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M100,118 m-16,0 a16,16 0 1 0 32,0 a16,16 0 1 0 -32,0" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M100,110 v16 M92,118 h16" />
+</vector>

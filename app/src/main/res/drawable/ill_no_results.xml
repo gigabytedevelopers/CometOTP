@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty search: phone outline with a service card and a magnifier -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200"
+    android:tint="?attr/colorPrimary">
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M48,30 h88 a14,14 0 0 1 14,14 v130 a14,14 0 0 1 -14,14 h-88 a14,14 0 0 1 -14,-14 v-130 a14,14 0 0 1 14,-14 z" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M80,42 h24 M78,174 h28" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2.5"
+        android:fillColor="#00000000"
+        android:pathData="M52,86 h80 a6,6 0 0 1 6,6 v26 a6,6 0 0 1 -6,6 h-80 a6,6 0 0 1 -6,-6 v-26 a6,6 0 0 1 6,-6 z" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M58,96 h18 M58,106 h30 M58,112 h22" />
+    <!-- magnifier -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="4"
+        android:fillColor="#00000000"
+        android:pathData="M152,42 m-20,0 a20,20 0 1 0 40,0 a20,20 0 1 0 -40,0" />
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M166,56 l18,18" />
+</vector>
