@@ -13,8 +13,9 @@
 
     <ImageView
         android:id="@+id/emptyIllustration"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
         android:contentDescription="@null"
         app:srcCompat="@drawable/ill_empty_services" />
 
