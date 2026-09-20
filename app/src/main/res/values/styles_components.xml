@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================================
+         Typography (Oxygen)
+         ============================================================ -->
+    <style name="TextAppearance.Comet.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+    </style>
+    <style name="TextAppearance.Comet.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+    </style>
+    <style name="TextAppearance.Comet.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+    </style>
+    <style name="TextAppearance.Comet.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Comet.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Comet.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Comet.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Comet.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Comet.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Comet.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+    </style>
+    <style name="TextAppearance.Comet.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+    </style>
+    <style name="TextAppearance.Comet.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+    </style>
+    <style name="TextAppearance.Comet.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Comet.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+    </style>
+    <style name="TextAppearance.Comet.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+    </style>
+
+    <!-- App specific text roles -->
+    <style name="TextAppearance.Comet.Code" parent="TextAppearance.Comet.TitleLarge">
+        <item name="android:textSize">22sp</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="TextAppearance.Comet.Caption" parent="TextAppearance.Comet.BodySmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+    <style name="TextAppearance.Comet.Overline" parent="TextAppearance.Comet.LabelSmall">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+    <style name="TextAppearance.Comet.SheetTitle" parent="TextAppearance.Comet.TitleMedium">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="TextAppearance.Comet.EmptyTitle" parent="TextAppearance.Comet.TitleMedium">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- ============================================================
+         Shapes
+         ============================================================ -->
+    <style name="ShapeAppearance.Comet.Small" parent="ShapeAppearance.Material3.Corner.Small">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_sm</item>
+    </style>
+    <style name="ShapeAppearance.Comet.Medium" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_md</item>
+    </style>
+    <style name="ShapeAppearance.Comet.Large" parent="ShapeAppearance.Material3.Corner.Large">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_lg</item>
+    </style>
+    <style name="ShapeAppearance.Comet.Sheet" parent="ShapeAppearance.Material3.Corner.ExtraLarge">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_sheet</item>
+    </style>
+    <style name="ShapeAppearance.Comet.SheetTop" parent="ShapeAppearance.Comet.Sheet">
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+    <style name="ShapeAppearance.Comet.Pill" parent="ShapeAppearance.Material3.Corner.Full">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    <style name="ShapeAppearance.Comet.IssuerIcon" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/issuer_icon_radius</item>
+    </style>
+
+    <!-- ============================================================
+         Buttons
+         ============================================================ -->
+    <style name="Widget.Comet.Button" parent="Widget.Material3.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">@dimen/space_lg</item>
+        <item name="android:paddingEnd">@dimen/space_lg</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="backgroundTint">@color/btn_filled_background</item>
+        <item name="android:textColor">@color/btn_filled_text</item>
+        <item name="iconTint">@color/btn_filled_text</item>
+    </style>
+
+    <style name="Widget.Comet.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="iconTint">?attr/colorPrimary</item>
+    </style>
+
+    <style name="Widget.Comet.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="strokeColor">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="Widget.Comet.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="iconTint">?attr/colorPrimary</item>
+    </style>
+
+    <style name="Widget.Comet.Button.Text.Danger">
+        <item name="android:textColor">?attr/colorError</item>
+        <item name="iconTint">?attr/colorError</item>
+    </style>
+
+    <style name="Widget.Comet.Button.Icon" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">?attr/colorOnSurface</item>
+        <item name="iconSize">@dimen/icon_size</item>
+    </style>
+
+    <!-- Bottom bar / toolbar icon buttons -->
+    <style name="Widget.Comet.BarIcon" parent="Widget.Material3.Button.IconButton">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="iconSize">@dimen/icon_size</item>
+        <item name="iconTint">@color/bar_icon_tint</item>
+    </style>
+
+    <style name="Widget.Comet.Fab" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="tint">?attr/colorOnPrimary</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Comet.Pill</item>
+        <item name="elevation">4dp</item>
+    </style>
+
+    <style name="Widget.Comet.ExtendedFab" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="iconTint">?attr/colorOnPrimary</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Comet.Pill</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- ============================================================
+         Cards and lists
+         ============================================================ -->
+    <style name="Widget.Comet.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+        <item name="rippleColor">@color/ripple_primary</item>
+    </style>
+
+    <style name="Widget.Comet.ListRow" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:paddingStart">@dimen/space_md</item>
+        <item name="android:paddingEnd">@dimen/space_md</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.Comet.Divider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?attr/colorOutlineVariant</item>
+    </style>
+
+    <!-- ============================================================
+         Inputs
+         ============================================================ -->
+    <style name="Widget.Comet.TextInput" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">1.5dp</item>
+        <item name="boxStrokeColor">@color/input_stroke</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Medium</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_md</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_md</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_md</item>
+        <item name="hintTextColor">?attr/colorPrimary</item>
+        <item name="android:textColorHint">?attr/colorTextHint</item>
+        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="startIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="errorTextColor">?attr/colorError</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Comet.TextInput</item>
+    </style>
+
+    <style name="ThemeOverlay.Comet.TextInput" parent="ThemeOverlay.Material3.TextInputEditText.FilledBox">
+        <item name="editTextStyle">@style/Widget.Comet.TextInputEditText</item>
+    </style>
+
+    <style name="Widget.Comet.TextInputEditText" parent="Widget.Material3.TextInputEditText.FilledBox">
+        <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+
+    <!-- Exposed dropdown flavour of the same field -->
+    <style name="Widget.Comet.TextInput.Dropdown" parent="Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu">
+        <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">1.5dp</item>
+        <item name="boxStrokeColor">@color/input_stroke</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_md</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_md</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_md</item>
+        <item name="hintTextColor">?attr/colorPrimary</item>
+        <item name="android:textColorHint">?attr/colorTextHint</item>
+        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Plain pill input (search bar, PIN entry) -->
+    <style name="Widget.Comet.PillField" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/bg_pill_field</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:paddingStart">@dimen/space_md</item>
+        <item name="android:paddingEnd">@dimen/space_md</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColorHint">?attr/colorTextHint</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- ============================================================
+         Chips, toolbar, sheets, dialogs
+         ============================================================ -->
+    <style name="Widget.Comet.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_background</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="chipCornerRadius">@dimen/radius_pill</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelMedium</item>
+        <item name="checkedIconVisible">false</item>
+    </style>
+
+    <style name="Widget.Comet.TagChip" parent="">
+        <item name="android:background">@drawable/bg_tag_chip</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelSmall</item>
+        <item name="android:textSize">9sp</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Widget.Comet.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="titleTextAppearance">@style/TextAppearance.Comet.TitleLarge</item>
+        <item name="titleTextColor">?attr/colorOnSurface</item>
+        <item name="navigationIconTint">?attr/colorOnSurface</item>
+        <item name="android:background">?android:attr/colorBackground</item>
+        <item name="titleMarginStart">0dp</item>
+        <item name="contentInsetStartWithNavigation">0dp</item>
+    </style>
+
+    <style name="ThemeOverlay.Comet.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Comet.BottomSheet</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+    </style>
+
+    <style name="Widget.Comet.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.SheetTop</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
+        <item name="android:elevation">8dp</item>
+    </style>
+
+    <style name="ThemeOverlay.Comet.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.Comet.Sheet</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/Widget.Comet.DialogTitle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Comet.Button.Text</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Comet.Button.Text</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Comet.Button.Text</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
+    </style>
+
+    <style name="Widget.Comet.DialogTitle" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Comet.SheetTitle</item>
+    </style>
+
+    <!-- Sheet handle / grabber -->
+    <style name="Widget.Comet.SheetHandle" parent="">
+        <item name="android:layout_width">@dimen/sheet_handle_width</item>
+        <item name="android:layout_height">@dimen/sheet_handle_height</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_marginTop">@dimen/space_sm</item>
+        <item name="android:background">@drawable/bg_sheet_handle</item>
+    </style>
+</resources>

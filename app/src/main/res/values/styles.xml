@@ -15,21 +15,105 @@
     <!-- Icons -->
     <attr name="black_white" format="reference"/>
 
+    <!-- Design system: extra semantic colours exposed to layouts -->
+    <attr name="colorTextHint" format="reference|color" />
+    <attr name="colorSuccess" format="reference|color" />
+    <attr name="colorWarning" format="reference|color" />
+    <attr name="colorBottomBar" format="reference|color" />
+
     <!-- General styles -->
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3.Light" />
 
     <style name="Theme.Intro.Solid" parent="Theme.Intro">
         <item name="android:windowIsTranslucent">false</item>
     </style>
 
-    <!-- Light application theme -->
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <!-- ============================================================
+         Light application theme
+         ============================================================ -->
+    <style name="AppBaseTheme" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Material colour roles -->
+        <item name="colorPrimary">@color/primary_500</item>
+        <item name="colorOnPrimary">@color/neutral_0</item>
+        <item name="colorPrimaryContainer">@color/primary_50</item>
+        <item name="colorOnPrimaryContainer">@color/primary_900</item>
+        <item name="colorPrimaryInverse">@color/primary_200</item>
+        <item name="colorSecondary">@color/primary_400</item>
+        <item name="colorOnSecondary">@color/neutral_0</item>
+        <item name="colorSecondaryContainer">@color/primary_100</item>
+        <item name="colorOnSecondaryContainer">@color/primary_900</item>
+        <item name="colorTertiary">@color/system_blue</item>
+        <item name="colorError">@color/system_red</item>
+        <item name="colorOnError">@color/neutral_0</item>
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="colorOnSurface">@color/text_primary_light</item>
+        <item name="colorSurfaceVariant">@color/surface_light_variant</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary_light</item>
+        <item name="colorSurfaceContainer">@color/surface_light</item>
+        <item name="colorSurfaceContainerLow">@color/surface_light</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_light_variant</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_light_variant</item>
+        <item name="colorOutline">@color/neutral_300</item>
+        <item name="colorOutlineVariant">@color/neutral_200</item>
+        <item name="android:colorBackground">@color/background_light</item>
+        <item name="colorOnBackground">@color/text_primary_light</item>
+        <item name="colorTextHint">@color/text_hint_light</item>
+        <item name="colorSuccess">@color/system_green</item>
+        <item name="colorWarning">@color/system_yellow</item>
+        <item name="colorBottomBar">@color/surface_light</item>
 
+        <!-- Legacy AppCompat roles still read by older widgets -->
+        <item name="colorPrimaryDark">@color/primary_700</item>
+        <item name="colorAccent">@color/primary_500</item>
+        <item name="android:textColorPrimary">@color/text_primary_light</item>
+        <item name="android:textColorSecondary">@color/text_secondary_light</item>
+        <item name="android:textColorHint">@color/text_hint_light</item>
+
+        <!-- System bars -->
+        <item name="android:statusBarColor">@color/background_light</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/surface_light</item>
+
+        <!-- Typography, shapes, widgets -->
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Comet.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Comet.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Comet.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Comet.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Comet.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Comet.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Comet.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Comet.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Comet.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Comet.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Comet.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Comet.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Comet.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Comet.LabelSmall</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Comet.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Comet.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Comet.Large</item>
+        <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.Comet.Small</item>
+        <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.Comet.Medium</item>
+        <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.Comet.Large</item>
+        <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.Comet.Sheet</item>
+        <item name="materialButtonStyle">@style/Widget.Comet.Button</item>
+        <item name="borderlessButtonStyle">@style/Widget.Comet.Button.Text</item>
+        <item name="materialCardViewStyle">@style/Widget.Comet.Card</item>
+        <item name="textInputStyle">@style/Widget.Comet.TextInput</item>
+        <item name="toolbarStyle">@style/Widget.Comet.Toolbar</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Comet.BottomSheetDialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Comet.MaterialAlertDialog</item>
+        <item name="switchStyle">@style/Widget.Material3.CompoundButton.MaterialSwitch</item>
+        <item name="chipStyle">@style/Widget.Comet.Chip</item>
+        <item name="floatingActionButtonStyle">@style/Widget.Comet.Fab</item>
+        <item name="extendedFloatingActionButtonStyle">@style/Widget.Comet.ExtendedFab</item>
+
+        <!-- App specific -->
         <item name="windowBackground">?android:attr/colorBackground</item>
-        <item name="navigationBarColor">?android:attr/colorBackground</item>
+        <item name="navigationBarColor">@color/surface_light</item>
 
         <item name="colorGithub">@color/github_dark</item>
         <item name="colorPaypal">@color/paypal_dark</item>
@@ -38,7 +122,7 @@
         <item name="cardStyle">@style/CardViewStyle</item>
         <item name="dialogTheme">@style/DialogTheme</item>
 
-        <item name="colorExpiring">@color/expiring_red_dark</item>
+        <item name="colorExpiring">@color/system_red</item>
 
         <!-- Icons -->
         <item name="black_white">@color/black</item>
@@ -51,26 +135,104 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="CardViewStyle" parent="CardView">
+    <style name="CardViewStyle" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
         <item name="cardUseCompatPadding">true</item>
         <item name="contentPadding">@dimen/activity_margin</item>
     </style>
 
-    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.MinWidth">
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="DialogTheme" parent="Theme.Material3.Light.Dialog.MinWidth">
+        <item name="colorPrimary">@color/primary_500</item>
+        <item name="colorAccent">@color/primary_500</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
     </style>
 
-    <!-- Dark application theme. -->
-    <style name="AppBaseTheme.Dark" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <!-- ============================================================
+         Dark application theme
+         ============================================================ -->
+    <style name="AppBaseTheme.Dark" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/primary_300</item>
+        <item name="colorOnPrimary">@color/primary_900</item>
+        <item name="colorPrimaryContainer">@color/primary_800</item>
+        <item name="colorOnPrimaryContainer">@color/primary_50</item>
+        <item name="colorPrimaryInverse">@color/primary_500</item>
+        <item name="colorSecondary">@color/primary_200</item>
+        <item name="colorOnSecondary">@color/primary_900</item>
+        <item name="colorSecondaryContainer">@color/primary_800</item>
+        <item name="colorOnSecondaryContainer">@color/primary_50</item>
+        <item name="colorTertiary">@color/system_blue</item>
+        <item name="colorError">@color/system_red</item>
+        <item name="colorOnError">@color/neutral_0</item>
+        <item name="colorSurface">@color/surface_dark</item>
+        <item name="colorOnSurface">@color/text_primary_dark</item>
+        <item name="colorSurfaceVariant">@color/surface_dark_variant</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary_dark</item>
+        <item name="colorSurfaceContainer">@color/surface_dark</item>
+        <item name="colorSurfaceContainerLow">@color/surface_dark</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_dark_variant</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_dark_variant</item>
+        <item name="colorOutline">@color/neutral_700</item>
+        <item name="colorOutlineVariant">@color/neutral_800</item>
+        <item name="android:colorBackground">@color/background_dark</item>
+        <item name="colorOnBackground">@color/text_primary_dark</item>
+        <item name="colorTextHint">@color/text_hint_dark</item>
+        <item name="colorSuccess">@color/system_green</item>
+        <item name="colorWarning">@color/system_yellow</item>
+        <item name="colorBottomBar">@color/surface_dark</item>
+
+        <item name="colorPrimaryDark">@color/background_dark</item>
+        <item name="colorAccent">@color/primary_300</item>
+        <item name="android:textColorPrimary">@color/text_primary_dark</item>
+        <item name="android:textColorSecondary">@color/text_secondary_dark</item>
+        <item name="android:textColorHint">@color/text_hint_dark</item>
+
+        <item name="android:statusBarColor">@color/background_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/surface_dark</item>
+
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Comet.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Comet.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Comet.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Comet.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Comet.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Comet.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Comet.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Comet.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Comet.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Comet.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Comet.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Comet.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Comet.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Comet.LabelSmall</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Comet.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Comet.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Comet.Large</item>
+        <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.Comet.Small</item>
+        <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.Comet.Medium</item>
+        <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.Comet.Large</item>
+        <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.Comet.Sheet</item>
+        <item name="materialButtonStyle">@style/Widget.Comet.Button</item>
+        <item name="borderlessButtonStyle">@style/Widget.Comet.Button.Text</item>
+        <item name="materialCardViewStyle">@style/Widget.Comet.Card</item>
+        <item name="textInputStyle">@style/Widget.Comet.TextInput</item>
+        <item name="toolbarStyle">@style/Widget.Comet.Toolbar</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Comet.BottomSheetDialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Comet.MaterialAlertDialog</item>
+        <item name="switchStyle">@style/Widget.Material3.CompoundButton.MaterialSwitch</item>
+        <item name="chipStyle">@style/Widget.Comet.Chip</item>
+        <item name="floatingActionButtonStyle">@style/Widget.Comet.Fab</item>
+        <item name="extendedFloatingActionButtonStyle">@style/Widget.Comet.ExtendedFab</item>
 
         <item name="windowBackground">?android:attr/colorBackground</item>
-        <item name="navigationBarColor">?android:attr/colorBackground</item>
+        <item name="navigationBarColor">@color/surface_dark</item>
         <item name="thumbnailBackground">@color/dark_thumbnail_background</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
 
         <item name="colorGithub">@color/github_light</item>
         <item name="colorPaypal">@color/paypal_light</item>
@@ -78,7 +240,7 @@
         <item name="cardStyle">@style/CardViewStyle</item>
         <item name="dialogTheme">@style/DialogTheme.Dark</item>
 
-        <item name="colorExpiring">@color/expiring_red_light</item>
+        <item name="colorExpiring">@color/system_red</item>
 
         <!-- Icons -->
         <item name="black_white">@color/white</item>
@@ -91,36 +253,41 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="DialogTheme.Dark" parent="Theme.AppCompat.Dialog.MinWidth">
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="DialogTheme.Dark" parent="Theme.Material3.Dark.Dialog.MinWidth">
+        <item name="colorPrimary">@color/primary_300</item>
+        <item name="colorAccent">@color/primary_300</item>
+        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
     </style>
 
-    <!-- Black application theme. -->
-    <style name="AppBaseTheme.Black" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <!-- ============================================================
+         Black (AMOLED) application theme
+         ============================================================ -->
+    <style name="AppBaseTheme.Black" parent="AppBaseTheme.Dark">
+        <item name="colorSurface">@color/neutral_1000</item>
+        <item name="colorSurfaceContainer">@color/neutral_1000</item>
+        <item name="colorSurfaceContainerLow">@color/neutral_1000</item>
+        <item name="colorSurfaceVariant">@color/neutral_900</item>
+        <item name="colorSurfaceContainerHigh">@color/neutral_900</item>
+        <item name="colorSurfaceContainerHighest">@color/neutral_900</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="colorBottomBar">@color/neutral_1000</item>
+        <item name="colorOutline">@color/neutral_800</item>
+
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
 
         <item name="windowBackground">@android:color/black</item>
         <item name="navigationBarColor">@color/black</item>
-        <item name="thumbnailBackground">@color/dark_thumbnail_background</item>
-
-        <item name="colorGithub">@color/github_light</item>
-        <item name="colorPaypal">@color/paypal_light</item>
 
         <item name="cardStyle">@style/CardViewStyle.Black</item>
-        <item name="dialogTheme">@style/DialogTheme.Dark</item>
-
-        <item name="colorExpiring">@color/expiring_red_light</item>
-
-        <!-- Icons -->
-        <item name="black_white">@color/white</item>
     </style>
 
     <style name="AppTheme.Black" parent="AppBaseTheme.Black"/>
 
     <style name="CardViewStyle.Black">
-        <item name="cardBackgroundColor">@android:color/black</item>
+        <item name="cardBackgroundColor">@color/neutral_900</item>
     </style>
 
     <style name="AppTheme.Black.NoActionBar">
@@ -128,30 +295,18 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="CustomDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <!--buttons color-->
+    <!-- ============================================================
+         Legacy custom dialog themes (still referenced by drawables)
+         ============================================================ -->
+    <style name="CustomDialogTheme" parent="Theme.Material3.Light.Dialog.Alert">
         <item name="colorAccent">@color/colorAccent</item>
-        <!--title and message color-->
         <item name="android:textColorPrimary">@android:color/primary_text_dark_nodisable</item>
-        <!--dialog background-->
         <item name="android:windowBackground">@drawable/background_error_dialog</item>
     </style>
-    <style name="CustomWarningDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <!--buttons color-->
-        <item name="colorAccent">@color/colorAccent</item>
-        <!--title and message color-->
-        <item name="android:textColorPrimary">@android:color/primary_text_dark_nodisable</item>
+    <style name="CustomWarningDialogTheme" parent="CustomDialogTheme">
         <item name="android:windowTitleStyle">@color/colorWarningTextYellow</item>
-        <!--dialog background-->
-        <item name="android:windowBackground">@drawable/background_error_dialog</item>
     </style>
-    <style name="CustomErrorDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <!--buttons color-->
-        <item name="colorAccent">@color/colorAccent</item>
-        <!--title and message color-->
-        <item name="android:textColorPrimary">@android:color/primary_text_dark_nodisable</item>
+    <style name="CustomErrorDialogTheme" parent="CustomDialogTheme">
         <item name="android:windowTitleStyle">@color/colorWarningTextYellow</item>
-        <!--dialog background-->
-        <item name="android:windowBackground">@drawable/background_error_dialog</item>
     </style>
 </resources>
