@@ -41,4 +41,16 @@
             <enum name="overshoot" value="10" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="CountdownRingView">
+        <attr name="ringColor" format="color|reference" />
+        <attr name="ringExpiringColor" format="color|reference" />
+        <attr name="ringTrackColor" format="color|reference" />
+        <attr name="ringTextColor" format="color|reference" />
+        <attr name="ringStrokeWidth" format="dimension" />
+        <attr name="ringTextSize" format="dimension" />
+        <attr name="ringShowText" format="boolean" />
+        <attr name="ringHighlightExpiring" format="boolean" />
+        <attr name="ringExpiringThreshold" format="integer" />
+    </declare-styleable>
 </resources>
