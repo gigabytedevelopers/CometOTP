@@ -390,6 +390,13 @@
         <item name="android:textColor">@color/nav_row_text</item>
     </style>
 
+    <style name="Widget.Comet.NavRow.Destructive">
+        <item name="android:background">@drawable/bg_nav_row_destructive</item>
+        <item name="android:drawableTint">@color/nav_row_text_destructive</item>
+        <item name="drawableTint">@color/nav_row_text_destructive</item>
+        <item name="android:textColor">@color/nav_row_text_destructive</item>
+    </style>
+
     <style name="Widget.Comet.SortOption" parent="Widget.Material3.CompoundButton.RadioButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>

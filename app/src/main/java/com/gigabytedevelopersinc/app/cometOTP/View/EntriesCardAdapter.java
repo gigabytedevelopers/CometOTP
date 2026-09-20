@@ -16,8 +16,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,9 +26,9 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity;
@@ -48,6 +46,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.ItemTouchHelperAdapter;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -63,6 +62,9 @@ import static com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMod
 
 public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
     implements ItemTouchHelperAdapter, Filterable {
+    /** How long a tapped option stays highlighted before its sheet closes. */
+    private static final long CARD_OPTION_FEEDBACK_MS = 180L;
+
     private final Context context;
     private final Handler taskHandler;
     private EntryFilter filter;
@@ -653,47 +655,58 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         }
     }
 
+    /**
+     * Options for a single service, as the bottom sheet the redesign uses for every other menu.
+     * The tapped row fills in before the sheet closes, matching the navigation and add sheets.
+     */
     private void showPopupMenu(View view, final int pos) {
-        View menuItemView = view.findViewById(R.id.menuButton);
-        PopupMenu popup = new PopupMenu(view.getContext(), menuItemView);
-        MenuInflater inflate = popup.getMenuInflater();
-        inflate.inflate(R.menu.menu_popup, popup.getMenu());
+        Entry entry = displayedEntries.get(pos);
 
-        if (displayedEntries.get(pos).getType() == Entry.OTPType.MOTP){
-            MenuItem item = popup.getMenu().findItem(R.id.menu_popup_establishPin);
-            item.setVisible(true);
+        BottomSheetDialog sheet = new BottomSheetDialog(context);
+        sheet.setContentView(R.layout.sheet_card_options);
+
+        TextView title = sheet.findViewById(R.id.card_options_title);
+        if (title != null) {
+            String issuer = entry.getIssuer();
+            title.setText(TextUtils.isEmpty(issuer) ? entry.getLabel() : issuer);
         }
 
+        View pin = sheet.findViewById(R.id.card_options_pin);
+        if (pin != null && entry.getType() == Entry.OTPType.MOTP)
+            pin.setVisibility(View.VISIBLE);
 
-        popup.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
+        bindOption(sheet, R.id.card_options_copy,
+                () -> copyHandler(pos, displayedEntries.get(pos).getCurrentOTP(),
+                        settings.isMinimizeAppOnCopyEnabled()));
+        bindOption(sheet, R.id.card_options_edit,
+                () -> ManualEntryDialog.show((MainActivity) context, settings, EntriesCardAdapter.this,
+                        entries.getEntry(getRealIndex(pos)),
+                        () -> saveAndRefresh(settings.getAutoBackupEncryptedFullEnabled(), pos)));
+        bindOption(sheet, R.id.card_options_image, () -> changeThumbnail(pos));
+        bindOption(sheet, R.id.card_options_qr, () -> showQRCode(pos));
+        bindOption(sheet, R.id.card_options_pin, () -> establishPIN(pos));
+        bindOption(sheet, R.id.card_options_keystrokes, () -> sendKeystrokes(pos));
+        bindOption(sheet, R.id.card_options_remove, () -> removeItem(pos));
 
-            if (id == R.id.menu_popup_copy) {
-                copyHandler(pos, displayedEntries.get(pos).getCurrentOTP(), settings.isMinimizeAppOnCopyEnabled());
-                return true;
-            } else if (id == R.id.menu_popup_edit) {
-                ManualEntryDialog.show((MainActivity) context, settings, EntriesCardAdapter.this, entries.getEntry(getRealIndex(pos)), () -> saveAndRefresh(settings.getAutoBackupEncryptedFullEnabled(), pos));
-                return true;
-            } else if(id == R.id.menu_popup_changeImage) {
-                changeThumbnail(pos);
-                return true;
-            } else if (id == R.id.menu_popup_establishPin) {
-                establishPIN(pos);
-                return true;
-            } else if (id == R.id.menu_popup_show_qr_code) {
-                showQRCode(pos);
-                return true;
-            }  else if (id == R.id.menu_popup_remove) {
-                removeItem(pos);
-                return true;
-            } else if (id == R.id.menu_send_keystrokes) {
-                sendKeystrokes(pos);
-                return true;
-            } else {
-                return false;
-            }
+        sheet.show();
+    }
+
+    private void bindOption(BottomSheetDialog sheet, int id, Runnable action) {
+        View row = sheet.findViewById(id);
+        if (row == null)
+            return;
+
+        row.setOnClickListener(v -> {
+            if (!v.isEnabled())
+                return;
+
+            v.setSelected(true);
+            v.setEnabled(false);
+            v.postDelayed(() -> {
+                sheet.dismiss();
+                action.run();
+            }, CARD_OPTION_FEEDBACK_MS);
         });
-        popup.show();
     }
 
     public void setSortMode(SortMode mode) {
