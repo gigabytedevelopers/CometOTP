@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.view.ViewStub
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -19,13 +18,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
-import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLayoutListenerAdapter
-import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import saschpe.android.customtabs.CustomTabsHelper
@@ -56,11 +52,6 @@ class AboutActivity : BaseActivity() {
         val customTabsIntent = builder.build()
         val customTabsCompanion = CustomTabsHelper.Companion
         customTabsCompanion.addKeepAliveExtra(this, customTabsIntent.intent)
-        val filter = Tools.getThemeColorFilter(this, android.R.attr.textColorSecondary)
-        for (i in imageResources) {
-            val imgView = v.findViewById<ImageView>(i)
-            imgView.drawable.colorFilter = filter
-        }
         var versionName = ""
         try {
             val packageInfo = packageManager.getPackageInfo(packageName, 0)
@@ -137,38 +128,22 @@ class AboutActivity : BaseActivity() {
             feedback.putExtra(Intent.EXTRA_TEXT, getString(R.string.feedback_email_message))
             startActivity(Intent.createChooser(feedback, getString(R.string.feedback_email_title)))
         }
-        val expandButton = v.findViewById<Button>(R.id.thumb_expand_button)
-        val expand = v.findViewById<CardView>(R.id.thumb_expand)
-        val expandLayout = v.findViewById<ExpandableLinearLayout>(R.id.thumb_disclaimer)
+        val expandButton = v.findViewById<ImageView>(R.id.thumb_expand_button)
+        val expand = v.findViewById<LinearLayout>(R.id.thumb_expand)
+        val disclaimer = v.findViewById<TextView>(R.id.thumb_disclaimer)
         val privacyPolicy = v.findViewById<LinearLayout>(R.id.privacy_policy)
 
         privacyPolicy.setOnClickListener {
             val privacyPolicyIntent = Intent(this@AboutActivity, PrivacyPolicyActivity::class.java)
             resultLauncher.launch(privacyPolicyIntent)
         }
-        expand.setOnClickListener { expandLayout.toggle() }
-        expandButton.setOnClickListener { expandLayout.toggle() }
-        expandLayout.setListener(object : ExpandableLayoutListenerAdapter() {
-            override fun onOpened() {
-                super.onOpened()
-                expandButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    0,
-                    0,
-                    R.drawable.ic_arrow_up,
-                    0
-                )
-            }
-
-            override fun onClosed() {
-                super.onClosed()
-                expandButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    0,
-                    0,
-                    R.drawable.ic_arrow_down,
-                    0
-                )
-            }
-        })
+        expand.setOnClickListener {
+            val open = disclaimer.visibility != View.VISIBLE
+            disclaimer.visibility = if (open) View.VISIBLE else View.GONE
+            expandButton.setImageResource(
+                if (open) R.drawable.ic_expand_less else R.drawable.ic_expand_more
+            )
+        }
 
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }

@@ -398,4 +398,71 @@
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
+
+    <!-- About / settings style rows -->
+    <style name="Widget.Comet.AboutRow" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">60dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:paddingStart">@dimen/space_sm</item>
+        <item name="android:paddingEnd">@dimen/space_sm</item>
+        <item name="android:paddingTop">@dimen/space_sm</item>
+        <item name="android:paddingBottom">@dimen/space_sm</item>
+    </style>
+
+    <style name="Widget.Comet.AboutRowIcon" parent="">
+        <item name="android:layout_width">@dimen/icon_size</item>
+        <item name="android:layout_height">@dimen/icon_size</item>
+        <item name="android:contentDescription">@null</item>
+        <item name="tint">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.Comet.AboutRowText" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">@dimen/space_md</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="Widget.Comet.AboutRowTitle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.Comet.AboutRowSubtitle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.Caption</item>
+    </style>
+
+    <style name="Widget.Comet.AboutRowChevron" parent="">
+        <item name="android:layout_width">@dimen/icon_size</item>
+        <item name="android:layout_height">@dimen/icon_size</item>
+        <item name="android:contentDescription">@null</item>
+        <item name="srcCompat">@drawable/ic_chevron_right</item>
+        <item name="tint">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="Widget.Comet.SectionHeader" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">@dimen/space_sm</item>
+        <item name="android:paddingEnd">@dimen/space_sm</item>
+        <item name="android:paddingTop">@dimen/space_lg</item>
+        <item name="android:paddingBottom">@dimen/space_sm</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.Overline</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
 </resources>

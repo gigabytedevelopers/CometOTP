@@ -135,6 +135,17 @@ public class TagEditSheet {
                 .setPositiveButton(android.R.string.ok, null)
                 .show());
 
+        final Runnable validate = () -> {
+            Editable text = nameInput.getText();
+            String value = text != null ? text.toString().trim() : "";
+            boolean duplicate = !value.isEmpty()
+                    && !value.equalsIgnoreCase(existingTag)
+                    && containsIgnoreCase(takenNames, value);
+
+            nameLayout.setError(duplicate ? context.getString(R.string.tags_error_exists) : null);
+            submit.setEnabled(!TextUtils.isEmpty(value) && !duplicate);
+        };
+
         nameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -146,15 +157,12 @@ public class TagEditSheet {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String value = s.toString().trim();
-                boolean duplicate = !value.isEmpty()
-                        && !value.equalsIgnoreCase(existingTag)
-                        && containsIgnoreCase(takenNames, value);
-
-                nameLayout.setError(duplicate ? context.getString(R.string.tags_error_exists) : null);
-                submit.setEnabled(!TextUtils.isEmpty(value) && !duplicate);
+                validate.run();
             }
         });
+
+        // Editing an existing tag starts with a valid name, so enable the button right away
+        validate.run();
 
         close.setOnClickListener(v -> sheet.dismiss());
         submit.setOnClickListener(v -> {
