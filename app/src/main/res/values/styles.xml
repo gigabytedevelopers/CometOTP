@@ -33,12 +33,12 @@
          ============================================================ -->
     <style name="AppBaseTheme" parent="Theme.Material3.Light.NoActionBar">
         <!-- Material colour roles -->
-        <item name="colorPrimary">@color/primary_500</item>
+        <item name="colorPrimary">@color/primary_800</item>
         <item name="colorOnPrimary">@color/neutral_0</item>
         <item name="colorPrimaryContainer">@color/primary_50</item>
         <item name="colorOnPrimaryContainer">@color/primary_900</item>
         <item name="colorPrimaryInverse">@color/primary_200</item>
-        <item name="colorSecondary">@color/primary_400</item>
+        <item name="colorSecondary">@color/primary_600</item>
         <item name="colorOnSecondary">@color/neutral_0</item>
         <item name="colorSecondaryContainer">@color/primary_100</item>
         <item name="colorOnSecondaryContainer">@color/primary_900</item>
@@ -63,8 +63,8 @@
         <item name="colorBottomBar">@color/surface_light</item>
 
         <!-- Legacy AppCompat roles still read by older widgets -->
-        <item name="colorPrimaryDark">@color/primary_700</item>
-        <item name="colorAccent">@color/primary_500</item>
+        <item name="colorPrimaryDark">@color/primary_900</item>
+        <item name="colorAccent">@color/primary_800</item>
         <item name="android:textColorPrimary">@color/text_primary_light</item>
         <item name="android:textColorSecondary">@color/text_secondary_light</item>
         <item name="android:textColorHint">@color/text_hint_light</item>
@@ -158,8 +158,8 @@
          Dark application theme
          ============================================================ -->
     <style name="AppBaseTheme.Dark" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/primary_300</item>
-        <item name="colorOnPrimary">@color/primary_900</item>
+        <item name="colorPrimary">@color/primary_500</item>
+        <item name="colorOnPrimary">@color/neutral_0</item>
         <item name="colorPrimaryContainer">@color/primary_800</item>
         <item name="colorOnPrimaryContainer">@color/primary_50</item>
         <item name="colorPrimaryInverse">@color/primary_500</item>
@@ -185,10 +185,10 @@
         <item name="colorTextHint">@color/text_hint_dark</item>
         <item name="colorSuccess">@color/system_green</item>
         <item name="colorWarning">@color/system_yellow</item>
-        <item name="colorBottomBar">@color/surface_dark</item>
+        <item name="colorBottomBar">@color/bottom_bar_dark</item>
 
         <item name="colorPrimaryDark">@color/background_dark</item>
-        <item name="colorAccent">@color/primary_300</item>
+        <item name="colorAccent">@color/primary_500</item>
         <item name="android:textColorPrimary">@color/text_primary_dark</item>
         <item name="android:textColorSecondary">@color/text_secondary_dark</item>
         <item name="android:textColorHint">@color/text_hint_dark</item>
@@ -260,7 +260,7 @@
 
     <style name="DialogTheme.Dark" parent="Theme.Material3.Dark.Dialog.MinWidth">
         <item name="colorPrimary">@color/primary_300</item>
-        <item name="colorAccent">@color/primary_300</item>
+        <item name="colorAccent">@color/primary_500</item>
         <item name="android:fontFamily">@font/oxygen</item>
         <item name="fontFamily">@font/oxygen</item>
         <item name="android:windowBackground">@drawable/bg_dialog</item>
