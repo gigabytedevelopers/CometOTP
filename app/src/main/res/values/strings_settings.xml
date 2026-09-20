@@ -289,17 +289,4 @@
     <string name="settings_entry_launcher_icon_classic">Classic</string>
     <string name="settings_toast_launcher_icon">App icon updated. Your home screen may take a moment to catch up.</string>
 
-    <string-array name="settings_entries_launcher_icon">
-        <item>@string/settings_entry_launcher_icon_blue</item>
-        <item>@string/settings_entry_launcher_icon_mono</item>
-        <item>@string/settings_entry_launcher_icon_white</item>
-        <item>@string/settings_entry_launcher_icon_classic</item>
-    </string-array>
-
-    <string-array name="settings_values_launcher_icon" translatable="false">
-        <item>blue</item>
-        <item>mono</item>
-        <item>white</item>
-        <item>classic</item>
-    </string-array>
 </resources>
