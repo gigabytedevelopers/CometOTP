@@ -7,14 +7,65 @@ def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
-def versionPropsFile = file('version.properties')
-def versionProps = new Properties()
-versionProps.load(new FileInputStream(versionPropsFile))
+/*
+ * Versioning
+ *
+ * version.properties holds VERSION_MAJOR/MINOR/PATCH (the user-visible versionName) and
+ * VERSION_BUILD, which is bumped automatically for every release build. The build number is
+ * incremented by IncrementVersionBuildTask, and the release variant's versionCode is wired to
+ * that task's output (see androidComponents below), so:
+ *   - debug builds never touch version.properties,
+ *   - any build that produces a release artifact (assembleRelease, bundleRelease, installRelease)
+ *     increments the build number and packages the incremented value in the same build,
+ *   - the task runs on every release build (it is never skipped as up-to-date or restored
+ *     from the build cache).
+ */
+abstract class IncrementVersionBuildTask extends DefaultTask {
+    /** version.properties; read and rewritten with VERSION_BUILD + 1 */
+    @OutputFile
+    abstract RegularFileProperty getVersionFile()
 
-def versionMajor = versionProps['VERSION_MAJOR'].toInteger()
-def versionMinor = versionProps['VERSION_MINOR'].toInteger()
-def versionPatch = versionProps['VERSION_PATCH'].toInteger()
-def versionBuild = versionProps['VERSION_BUILD'].toInteger()
+    /** Receives the computed versionCode, consumed by the release variant */
+    @OutputFile
+    abstract RegularFileProperty getVersionCodeFile()
+
+    IncrementVersionBuildTask() {
+        // Side-effecting by design: increments on every execution
+        doNotTrackState("Increments the build number on every release build")
+    }
+
+    static Properties loadVersion(File file) {
+        def props = new Properties()
+        file.withInputStream { props.load(it) }
+        return props
+    }
+
+    static int versionCodeOf(Properties props) {
+        return props['VERSION_MAJOR'].toInteger() * 1000000 +
+                props['VERSION_MINOR'].toInteger() * 10000 +
+                props['VERSION_PATCH'].toInteger() * 100 +
+                props['VERSION_BUILD'].toInteger()
+    }
+
+    static String versionNameOf(Properties props) {
+        return "${props['VERSION_MAJOR']}.${props['VERSION_MINOR']}.${props['VERSION_PATCH']}"
+    }
+
+    @TaskAction
+    void increment() {
+        def file = versionFile.get().asFile
+        def props = loadVersion(file)
+        props['VERSION_BUILD'] = (props['VERSION_BUILD'].toInteger() + 1).toString()
+        file.withWriter { props.store(it, null) }
+
+        def code = versionCodeOf(props)
+        versionCodeFile.get().asFile.text = code.toString()
+        logger.lifecycle("Release build number incremented: VERSION_BUILD=${props['VERSION_BUILD']} (versionCode ${code})")
+    }
+}
+
+def versionPropsFile = file('version.properties')
+def versionProps = IncrementVersionBuildTask.loadVersion(versionPropsFile)
 
 android {
     namespace = 'com.gigabytedevelopersinc.app.cometOTP'
@@ -28,8 +79,10 @@ android {
         // Android 6.0: current AndroidX/Material releases no longer support API 22.
         minSdk = 23
         targetSdk = 37
-        versionCode = versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
-        versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+        // Values as currently stored; the release variant overrides versionCode with the
+        // incremented value (see androidComponents below).
+        versionCode = IncrementVersionBuildTask.versionCodeOf(versionProps)
+        versionName = IncrementVersionBuildTask.versionNameOf(versionProps)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled = true
@@ -91,9 +144,27 @@ android {
     }
 }
 
-// Name the APKs "CometOTP-<variant>-<versionName>.apk" using the new Variant API
-// (the legacy applicationVariants API was removed in AGP 9).
+def incrementVersionBuild = tasks.register('incrementVersionBuild', IncrementVersionBuildTask) {
+    group = 'versioning'
+    description = 'Increments VERSION_BUILD in version.properties (runs automatically for release builds).'
+    versionFile = versionPropsFile
+    versionCodeFile = layout.buildDirectory.file('version/release-version-code.txt')
+}
+
 androidComponents {
+    // Release builds: versionCode comes from the increment task, which makes every release
+    // artifact depend on it (and only release artifacts).
+    onVariants(selector().withBuildType('release')) { variant ->
+        def incrementedVersionCode = incrementVersionBuild
+                .flatMap { it.versionCodeFile }
+                .map { it.asFile.text.trim().toInteger() }
+        variant.outputs.each { output ->
+            output.versionCode.set(incrementedVersionCode)
+        }
+    }
+
+    // Name the APKs "CometOTP-<variant>-<versionName>.apk" (new Variant API; the legacy
+    // applicationVariants API was removed in AGP 9).
     onVariants(selector().all()) { variant ->
         variant.outputs.each { output ->
             output.outputFileName.set(output.versionName.map { name ->
@@ -105,30 +176,6 @@ androidComponents {
 
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-}
-
-tasks.register('incrementVersionBuild') {
-    def propsFile = versionPropsFile
-    doLast {
-        def props = new Properties()
-        props.load(new FileInputStream(propsFile))
-
-        def newVersionBuild = props['VERSION_BUILD'].toInteger() + 1
-        props['VERSION_BUILD'] = newVersionBuild.toString()
-        props.store(propsFile.newWriter(), null)
-    }
-}
-
-afterEvaluate {
-    tasks.named('assembleRelease').configure {
-        dependsOn 'incrementVersionBuild'
-    }
-    tasks.named('bundleRelease').configure {
-        dependsOn 'incrementVersionBuild'
-    }
-    tasks.named('assembleDebug').configure {
-        dependsOn 'incrementVersionBuild'
-    }
 }
 
 dependencies {
