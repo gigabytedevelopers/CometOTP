@@ -148,4 +148,25 @@
 
     <!-- Empty List Text -->
     <string name="empty_list_view_text">Start adding your tokens by pressing \"+\" at the bottom</string>
+
+    <!-- Redesign: home shell -->
+    <string name="search_hint">Search</string>
+    <string name="button_close_search">Close search</string>
+    <string name="button_clear_search">Clear search</string>
+    <string name="button_main_menu">Main menu</string>
+    <string name="button_setup_key">Setup Key</string>
+    <string name="sheet_title_sort">Sort by</string>
+    <string name="label_filter_by_tags">Filter by tags</string>
+    <string name="empty_services_title">No services added yet</string>
+    <string name="empty_services_subtitle">Use the + button to add a new service</string>
+    <string name="empty_search_title">No services found</string>
+    <string name="empty_search_subtitle">Try searching again</string>
+
+    <!-- Redesign: navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_tags">Tags</string>
+    <string name="nav_security">Security</string>
+    <string name="nav_support">Support &amp; FAQs</string>
+    <string name="nav_backup">Backup</string>
+    <string name="nav_settings">Settings</string>
 </resources>

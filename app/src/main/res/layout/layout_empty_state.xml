@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/emptyStateRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_xl"
+    android:paddingEnd="@dimen/space_xl"
+    android:paddingBottom="@dimen/fab_recyclerview_padding">
+
+    <ImageView
+        android:id="@+id/emptyIllustration"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:contentDescription="@null"
+        app:srcCompat="@drawable/ill_empty_services" />
+
+    <TextView
+        android:id="@+id/emptyTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_lg"
+        android:gravity="center"
+        android:text="@string/empty_services_title"
+        android:textAppearance="@style/TextAppearance.Comet.EmptyTitle" />
+
+    <TextView
+        android:id="@+id/emptySubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_sm"
+        android:gravity="center"
+        android:text="@string/empty_services_subtitle"
+        android:textAppearance="@style/TextAppearance.Comet.BodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        tools:text="Use the + button to add a new service" />
+
+</LinearLayout>

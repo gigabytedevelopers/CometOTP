@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="?attr/windowBackground"
     android:overScrollMode="never"
-    app:layout_behavior="@string/speeddial_snackbar_behavior" >
+     >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -55,7 +55,7 @@
             android:layout_weight="1"
             android:gravity="center|bottom"
             android:orientation="vertical"
-            app:layout_behavior="@string/speeddial_snackbar_behavior">
+            >
             <Button
                 android:id="@+id/clear_cache_button"
                 android:layout_width="wrap_content"

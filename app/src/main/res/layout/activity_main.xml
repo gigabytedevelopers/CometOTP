@@ -3,56 +3,134 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/windowBackground"
+    android:background="?android:attr/colorBackground"
     android:fitsSystemWindows="true"
     tools:context="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:background="?android:attr/colorBackground"
+        app:elevation="0dp"
+        app:liftOnScroll="false">
 
-        <RelativeLayout
-            android:gravity="top"
-            android:background="?attr/colorPrimary"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="@dimen/app_bar_height"
+            android:background="?android:attr/colorBackground"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp">
 
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:navigationIcon="?homeAsUpIndicator"
-                app:popupTheme="?attr/actionBarPopupTheme" />
+                android:layout_height="match_parent">
 
-            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/toolbar"
-                android:max="3000"
-                android:progress="1500"
-                app:mpb_progressStyle="horizontal"
-                app:mpb_useIntrinsicPadding="false"
-                app:mpb_showProgressBackground="false"
-                style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding" />
+                <!-- Default: centred brand + global countdown -->
+                <LinearLayout
+                    android:id="@+id/appBarBrand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-        </RelativeLayout>
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:contentDescription="@null"
+                        app:srcCompat="@drawable/ic_logo_mark_black" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_sm"
+                        android:text="@string/app_name"
+                        android:textAppearance="@style/TextAppearance.Comet.TitleLarge"
+                        android:textColor="?attr/colorOnSurface" />
+
+                </LinearLayout>
+
+                <com.gigabytedevelopersinc.app.cometOTP.View.CountdownRingView
+                    android:id="@+id/appBarCountdown"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="@dimen/space_md"
+                    app:ringTextSize="10sp" />
+
+                <!-- Search mode: back arrow + pill field -->
+                <LinearLayout
+                    android:id="@+id/appBarSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/space_xs"
+                    android:paddingEnd="@dimen/space_md"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <ImageButton
+                        android:id="@+id/searchBack"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/button_close_search"
+                        app:srcCompat="@drawable/ic_arrow_back"
+                        app:tint="?attr/colorOnSurface" />
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/searchField"
+                            style="@style/Widget.Comet.PillField"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:autofillHints="no"
+                            android:hint="@string/search_hint"
+                            android:imeOptions="actionSearch"
+                            android:inputType="text"
+                            android:maxLines="1"
+                            android:paddingEnd="44dp"
+                            tools:ignore="RtlSymmetry" />
+
+                        <ImageButton
+                            android:id="@+id/searchClear"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:layout_gravity="end|center_vertical"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/button_clear_search"
+                            android:padding="12dp"
+                            app:srcCompat="@drawable/ic_close"
+                            app:tint="?attr/colorOnSurface" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+        </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <RelativeLayout
-        android:id="@+id/main_content"
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.drawerlayout.widget.DrawerLayout
-            android:id="@+id/drawer_layout"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -60,43 +138,76 @@
                 android:id="@+id/cardList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_alignParentStart="true"
-                android:paddingTop="@dimen/activity_margin_xsmall"
+                android:clipToPadding="false"
+                android:paddingTop="@dimen/space_xs"
                 android:paddingBottom="@dimen/fab_recyclerview_padding"
-                android:clipToPadding="false" />
+                android:scrollbars="none" />
 
-            <TextView
+            <include
+                android:id="@+id/emptyState"
+                layout="@layout/layout_empty_state"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingStart="@dimen/activity_margin_small"
-                android:paddingEnd="@dimen/activity_margin_small"
-                android:clipToPadding="false"
-                android:text="@string/empty_list_view_text"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                tools:visibility="visible"
                 android:visibility="gone"
-                android:id="@+id/emptyListView"/>
+                tools:visibility="visible" />
 
-            <include layout="@layout/component_tags" />
+        </FrameLayout>
 
-        </androidx.drawerlayout.widget.DrawerLayout>
+        <include layout="@layout/component_tags" />
 
-    </RelativeLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
 
-    <com.leinardi.android.speeddial.SpeedDialOverlayLayout
-        android:id="@+id/speedDialOverlay"
+    <!-- Bottom bar -->
+    <FrameLayout
+        android:id="@+id/bottomBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_height="@dimen/bottom_bar_height"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_bottom_bar"
+        android:elevation="6dp">
 
-    <com.leinardi.android.speeddial.SpeedDialView
-        android:id="@+id/speedDial"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/menuButton"
+            style="@style/Widget.Comet.BarIcon"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="@dimen/space_sm"
+            android:contentDescription="@string/button_main_menu"
+            app:icon="@drawable/ic_menu" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="@dimen/space_sm"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/searchButton"
+                style="@style/Widget.Comet.BarIcon"
+                android:contentDescription="@string/menu_main_search"
+                app:icon="@drawable/ic_search" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sortButton"
+                style="@style/Widget.Comet.BarIcon"
+                android:contentDescription="@string/menu_main_sort"
+                app:icon="@drawable/ic_sort" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        style="@style/Widget.Comet.Fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        app:sdMainFabClosedSrc="@drawable/ic_add_white"
-        app:sdOverlayLayout="@id/speedDialOverlay" />
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="36dp"
+        android:contentDescription="@string/button_add"
+        app:elevation="8dp"
+        app:srcCompat="@drawable/ic_add"
+        app:tint="?attr/colorOnPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

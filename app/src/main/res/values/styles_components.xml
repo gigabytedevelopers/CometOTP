@@ -369,4 +369,33 @@
         <item name="android:layout_marginTop">@dimen/space_sm</item>
         <item name="android:background">@drawable/bg_sheet_handle</item>
     </style>
+
+    <!-- Navigation / action rows inside bottom sheets -->
+    <style name="Widget.Comet.NavRow" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:background">@drawable/bg_nav_row</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">@dimen/space_md</item>
+        <item name="android:paddingEnd">@dimen/space_md</item>
+        <item name="android:drawablePadding">@dimen/space_md</item>
+        <item name="android:drawableTint">@color/nav_row_text</item>
+        <item name="drawableTint">@color/nav_row_text</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/nav_row_text</item>
+    </style>
+
+    <style name="Widget.Comet.SortOption" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:paddingStart">@dimen/space_sm</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
 </resources>

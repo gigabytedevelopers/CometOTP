@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_md"
+    android:paddingEnd="@dimen/space_md"
+    android:paddingBottom="@dimen/space_lg">
+
+    <View style="@style/Widget.Comet.SheetHandle" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_md" />
+
+    <TextView
+        android:id="@+id/nav_home"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/nav_home"
+        app:drawableStartCompat="@drawable/ic_home" />
+
+    <TextView
+        android:id="@+id/nav_tags"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/nav_tags"
+        app:drawableStartCompat="@drawable/ic_tag" />
+
+    <TextView
+        android:id="@+id/nav_security"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/nav_security"
+        app:drawableStartCompat="@drawable/ic_shield" />
+
+    <TextView
+        android:id="@+id/nav_support"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/nav_support"
+        app:drawableStartCompat="@drawable/ic_support" />
+
+    <TextView
+        android:id="@+id/nav_backup"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/nav_backup"
+        app:drawableStartCompat="@drawable/ic_backup_cloud" />
+
+    <TextView
+        android:id="@+id/nav_settings"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/nav_settings"
+        app:drawableStartCompat="@drawable/ic_settings_gear" />
+
+    <TextView
+        android:id="@+id/nav_about"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/menu_main_about"
+        app:drawableStartCompat="@drawable/ic_info_outline" />
+
+</LinearLayout>

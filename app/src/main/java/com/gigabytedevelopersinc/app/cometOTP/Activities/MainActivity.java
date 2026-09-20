@@ -1,6 +1,5 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
@@ -10,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -18,28 +16,26 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.text.Editable;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.LinearInterpolator;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CheckedTextView;
-import android.widget.LinearLayout;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -60,20 +56,18 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.NotificationHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScanQRCodeFromFile;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
+import com.gigabytedevelopersinc.app.cometOTP.View.CountdownRingView;
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter;
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.SimpleItemTouchHelperCallback;
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter;
-import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLayoutListenerAdapter;
-import com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout.ExpandableLinearLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
-import com.leinardi.android.speeddial.SpeedDialActionItem;
-import com.leinardi.android.speeddial.SpeedDialView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 import javax.crypto.SecretKey;
 
@@ -93,11 +87,8 @@ public class MainActivity extends BaseActivity
     private static final String INTENT_ENTER_DETAILS = "com.gigabytedevelopersinc.app.cometOTP.intent.ENTER_DETAILS";
 
     private EntriesCardAdapter adapter;
-    private SpeedDialView speedDial;
-    private BottomSheetDialog mBottomSheetDialog;
-    private MenuItem sortMenu;
-    private MenuItem searchMenu;
     private SimpleItemTouchHelperCallback touchHelperCallback;
+    private BottomSheetDialog activeSheet;
 
     private EncryptionType encryptionType = EncryptionType.KEYSTORE;
     private boolean requireAuthentication = false;
@@ -109,15 +100,25 @@ public class MainActivity extends BaseActivity
     private Handler handler;
     private Runnable handlerTask;
 
+    // Home shell views
+    private View appBarBrand;
+    private View appBarSearch;
+    private EditText searchField;
+    private CountdownRingView appBarCountdown;
+    private View bottomBar;
+    private FloatingActionButton fab;
+    private View emptyState;
+    private ImageView emptyIllustration;
+    private TextView emptyTitle;
+    private TextView emptySubtitle;
+
     private DrawerLayout tagsDrawerLayout;
     private ListView tagsDrawerListView;
     private TagsAdapter tagsDrawerAdapter;
-    private ActionBarDrawerToggle tagsToggle;
     private String filterString;
+    private boolean searchMode = false;
 
     private CountDownTimer countDownTimer;
-    private ProgressBar progressBar;
-    private TextView emptyListView;
 
     private static final String LAST_APP_VERSION = "1";
     private static AppStart appStart = null;
@@ -135,7 +136,7 @@ public class MainActivity extends BaseActivity
 
             // Update version in preferences
             sharedPreferences.edit()
-                    .putInt(LAST_APP_VERSION, currentVersionCode).apply(); // must use commit here or app may not update prefs in time and app will loop into walkthrough
+                    .putInt(LAST_APP_VERSION, currentVersionCode).apply();
         } catch (PackageManager.NameNotFoundException ignored) {
         }
         return appStart;
@@ -146,12 +147,6 @@ public class MainActivity extends BaseActivity
             return AppStart.FIRST_TIME;
         } else if (lastVersionCode < currentVersionCode) {
             return AppStart.FIRST_TIME_VERSION;
-        } else if (lastVersionCode > currentVersionCode) {
-            /*Log.w(TAG, "Current version code (" + currentVersionCode
-                    + ") is less then the one recognized on last startup ("
-                    + lastVersionCode
-                    + "). Defensively assuming normal app start.");*/
-            return AppStart.NORMAL;
         } else {
             return AppStart.NORMAL;
         }
@@ -167,9 +162,7 @@ public class MainActivity extends BaseActivity
         scanQrLauncher.launch(options);
     }
 
-    /* Activity result launchers. Each launcher owns the handling of exactly one kind of result,
-     * replacing the request-code based onActivityResult() which is not delivered for activities
-     * started through the Activity Result API. */
+    /* Activity result launchers. Each launcher owns the handling of exactly one kind of result. */
 
     private final ActivityResultLauncher<ScanOptions> scanQrLauncher = registerForActivityResult(
             new ScanContract(),
@@ -273,11 +266,6 @@ public class MainActivity extends BaseActivity
         }
     }
 
-    private void saveSortMode(SortMode mode) {
-        if (settings != null)
-            settings.setSortMode(mode);
-    }
-
     private void populateAdapter() {
         adapter.loadEntries();
         tagsDrawerAdapter.setTags(TagsAdapter.createTagsMap(adapter.getEntries(), settings));
@@ -310,14 +298,8 @@ public class MainActivity extends BaseActivity
 
         switch (checkAppStart(this, sharedPreferences)) {
             case NORMAL:
-                // We don't want to get on the user's nerves
-                break;
             case FIRST_TIME_VERSION:
-                // TODO show what's new
-                break;
             case FIRST_TIME:
-                // TODO show a tutorial
-                break;
             default:
                 break;
         }
@@ -326,9 +308,6 @@ public class MainActivity extends BaseActivity
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         settings.registerPreferenceChangeListener(this);
@@ -352,75 +331,7 @@ public class MainActivity extends BaseActivity
 
         checkAutomaticTime();
 
-        speedDial = findViewById(R.id.speedDial);
-        speedDial.inflate(R.menu.menu_fab);
-
-        // Add these configurations
-        speedDial.setMainFabOpenedIconColor(getResources().getColor(android.R.color.white));
-        speedDial.setMainFabClosedIconColor(getResources().getColor(android.R.color.white));
-
-        // Ensure action items use the correct tint
-        speedDial.addActionItem(
-                new SpeedDialActionItem.Builder(R.id.fabScanQR, R.drawable.ic_camera_white)
-                        .setTheme(R.style.AppTheme)
-                        .setFabBackgroundColor(getResources().getColor(R.color.colorPrimaryDark))
-                        .setFabImageTintColor(getResources().getColor(android.R.color.white))
-                        .setLabel(getString(R.string.button_scan_qr))
-                        .create()
-        );
-
-        speedDial.addActionItem(
-            new SpeedDialActionItem.Builder(R.id.fabEnterDetails, R.drawable.ic_edit_white)
-                .setTheme(R.style.AppTheme)
-                .setFabBackgroundColor(getResources().getColor(R.color.colorPrimaryDark))
-                .setFabImageTintColor(getResources().getColor(android.R.color.white))
-                .setLabel(getString(R.string.button_enter_details))
-                .create()
-        );
-
-        speedDial.addActionItem(
-            new SpeedDialActionItem.Builder(R.id.fabScanQRFromImage, R.drawable.ic_image_white)
-                .setTheme(R.style.AppTheme)
-                .setFabBackgroundColor(getResources().getColor(R.color.colorPrimaryDark))
-                .setFabImageTintColor(getResources().getColor(android.R.color.white))
-                .setLabel(getString(R.string.button_qr_from_image))
-                .create()
-        );
-
-        speedDial.getMainFab().setContentDescription(getString(R.string.button_add));
-
-        speedDial.setOnActionSelectedListener(speedDialActionItem -> {
-            int actionId = speedDialActionItem.getId();
-
-            if (actionId == R.id.fabScanQR)
-                scanQRCode();
-            else if (actionId == R.id.fabEnterDetails)
-                ManualEntryDialog.show(MainActivity.this, settings, adapter);
-            else if (actionId == R.id.fabScanQRFromImage)
-                showOpenFileSelector();
-
-            return false;
-        });
-
-        speedDial.setOnChangeListener(new SpeedDialView.OnChangeListener() {
-            @Override
-            public boolean onMainActionSelected() {
-                return false;
-            }
-
-            @Override
-            public void onToggleChanged(boolean isOpen) {
-                if (isOpen) {
-                    speedDial.getMainFab().setContentDescription(getString(R.string.button_close_menu));
-                } else {
-                    speedDial.getMainFab().setContentDescription(getString(R.string.button_add));
-                }
-                closeOverlaysOnBack.setEnabled(isOpen || isTagsDrawerOpen());
-            }
-        });
-
-        progressBar = findViewById(R.id.progressBar);
-        emptyListView = findViewById(R.id.emptyListView);
+        setupHomeShell();
 
         RecyclerView recList = findViewById(R.id.cardList);
         recList.setHasFixedSize(true);
@@ -436,37 +347,37 @@ public class MainActivity extends BaseActivity
             @Override
             public void onChanged() {
                 super.onChanged();
-                hideProgressBar();
+                updateEmptyState();
             }
 
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
                 super.onItemRangeChanged(positionStart, itemCount);
-                hideProgressBar();
+                updateEmptyState();
             }
 
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
                 super.onItemRangeChanged(positionStart, itemCount, payload);
-                hideProgressBar();
+                updateEmptyState();
             }
 
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                hideProgressBar();
+                updateEmptyState();
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
                 super.onItemRangeRemoved(positionStart, itemCount);
-                hideProgressBar();
+                updateEmptyState();
             }
 
             @Override
             public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
                 super.onItemRangeMoved(fromPosition, toPosition, itemCount);
-                hideProgressBar();
+                updateEmptyState();
             }
         });
 
@@ -509,15 +420,8 @@ public class MainActivity extends BaseActivity
         handlerTask = new Runnable() {
             @Override
             public void run() {
-                if (!settings.isHideGlobalTimeoutEnabled()) {
-                    int progress = (int) (TokenCalculator.TOTP_DEFAULT_PERIOD - (System.currentTimeMillis() / 1000) % TokenCalculator.TOTP_DEFAULT_PERIOD);
-                    progressBar.setProgress(progress * 100);
-
-                    ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", (progress - 1) * 100);
-                    animation.setDuration(animatorDuration);
-                    animation.setInterpolator(new LinearInterpolator());
-                    animation.start();
-                }
+                if (!settings.isHideGlobalTimeoutEnabled())
+                    appBarCountdown.update(TokenCalculator.TOTP_DEFAULT_PERIOD);
 
                 adapter.updateTimeBasedTokens();
 
@@ -528,11 +432,225 @@ public class MainActivity extends BaseActivity
         setupDrawer();
 
         if (savedInstanceState != null) {
-            setFilterString(savedInstanceState.getString("filterString", ""));
+            String savedFilter = savedInstanceState.getString("filterString", "");
+            if (!TextUtils.isEmpty(savedFilter)) {
+                enterSearchMode(false);
+                searchField.setText(savedFilter);
+            }
+            setFilterString(savedFilter);
         }
 
         if (settings.isFocusSearchOnStartEnabled())
             focusSearchMenu();
+    }
+
+    /* ------------------------------------------------------------------------------------------
+     * Home shell: app bar, bottom bar, FAB, sheets, search mode
+     * ------------------------------------------------------------------------------------------ */
+
+    private void setupHomeShell() {
+        appBarBrand = findViewById(R.id.appBarBrand);
+        appBarSearch = findViewById(R.id.appBarSearch);
+        searchField = findViewById(R.id.searchField);
+        appBarCountdown = findViewById(R.id.appBarCountdown);
+        bottomBar = findViewById(R.id.bottomBar);
+        fab = findViewById(R.id.fab);
+        emptyState = findViewById(R.id.emptyState);
+        emptyIllustration = emptyState.findViewById(R.id.emptyIllustration);
+        emptyTitle = emptyState.findViewById(R.id.emptyTitle);
+        emptySubtitle = emptyState.findViewById(R.id.emptySubtitle);
+
+        appBarCountdown.setHighlightExpiring(settings.isHighlightTokenOptionEnabled());
+        appBarCountdown.setVisibility(settings.isHideGlobalTimeoutEnabled() ? View.GONE : View.VISIBLE);
+
+        fab.setOnClickListener(v -> showAddSheet());
+        findViewById(R.id.menuButton).setOnClickListener(v -> showNavigationSheet());
+        findViewById(R.id.searchButton).setOnClickListener(v -> enterSearchMode(true));
+        findViewById(R.id.sortButton).setOnClickListener(v -> showSortSheet());
+
+        findViewById(R.id.searchBack).setOnClickListener(v -> exitSearchMode());
+        findViewById(R.id.searchClear).setOnClickListener(v -> searchField.setText(""));
+
+        searchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (searchMode)
+                    setFilterString(s.toString());
+            }
+        });
+        searchField.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                UIHelper.hideKeyboard(this, searchField);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void enterSearchMode(boolean focus) {
+        if (searchMode)
+            return;
+
+        searchMode = true;
+        appBarBrand.setVisibility(View.GONE);
+        appBarCountdown.setVisibility(View.GONE);
+        appBarSearch.setVisibility(View.VISIBLE);
+        bottomBar.setVisibility(View.GONE);
+        fab.hide();
+        touchHelperCallback.setDragEnabled(false);
+        updateEmptyState();
+        updateBackCallbackState();
+
+        if (focus) {
+            searchField.requestFocus();
+            UIHelper.showKeyboard(this, searchField);
+        }
+    }
+
+    private void exitSearchMode() {
+        if (!searchMode)
+            return;
+
+        UIHelper.hideKeyboard(this, searchField);
+        searchMode = false;
+        searchField.setText("");
+        setFilterString("");
+
+        appBarSearch.setVisibility(View.GONE);
+        appBarBrand.setVisibility(View.VISIBLE);
+        appBarCountdown.setVisibility(settings.isHideGlobalTimeoutEnabled() ? View.GONE : View.VISIBLE);
+        bottomBar.setVisibility(View.VISIBLE);
+        fab.show();
+
+        if (adapter == null || adapter.getSortMode() == SortMode.UNSORTED)
+            touchHelperCallback.setDragEnabled(true);
+
+        updateEmptyState();
+        updateBackCallbackState();
+    }
+
+    private BottomSheetDialog openSheet(int layoutRes) {
+        dismissSheet();
+        BottomSheetDialog sheet = new BottomSheetDialog(this);
+        sheet.setContentView(layoutRes);
+        sheet.setOnDismissListener(d -> {
+            if (activeSheet == d)
+                activeSheet = null;
+        });
+        activeSheet = sheet;
+        sheet.show();
+        return sheet;
+    }
+
+    private void dismissSheet() {
+        if (activeSheet != null) {
+            activeSheet.dismiss();
+            activeSheet = null;
+        }
+    }
+
+    private void bindSheetAction(BottomSheetDialog sheet, @IdRes int id, Runnable action) {
+        View v = sheet.findViewById(id);
+        if (v != null)
+            v.setOnClickListener(view -> {
+                sheet.dismiss();
+                action.run();
+            });
+    }
+
+    private void showAddSheet() {
+        BottomSheetDialog sheet = openSheet(R.layout.sheet_add_service);
+        bindSheetAction(sheet, R.id.add_scan_qr, this::scanQRCode);
+        bindSheetAction(sheet, R.id.add_qr_from_image, this::showOpenFileSelector);
+        bindSheetAction(sheet, R.id.add_setup_key, () -> ManualEntryDialog.show(MainActivity.this, settings, adapter));
+    }
+
+    private void showNavigationSheet() {
+        BottomSheetDialog sheet = openSheet(R.layout.sheet_navigation);
+        View home = sheet.findViewById(R.id.nav_home);
+        if (home != null)
+            home.setSelected(true);
+
+        bindSheetAction(sheet, R.id.nav_home, () -> {});
+        bindSheetAction(sheet, R.id.nav_tags, () -> tagsDrawerLayout.openDrawer(GravityCompat.START));
+        bindSheetAction(sheet, R.id.nav_security, this::openSettings);
+        bindSheetAction(sheet, R.id.nav_support, this::openAbout);
+        bindSheetAction(sheet, R.id.nav_backup, this::openBackup);
+        bindSheetAction(sheet, R.id.nav_settings, this::openSettings);
+        bindSheetAction(sheet, R.id.nav_about, this::openAbout);
+    }
+
+    private void showSortSheet() {
+        BottomSheetDialog sheet = openSheet(R.layout.sheet_sort);
+        RadioGroup group = sheet.findViewById(R.id.sortGroup);
+        if (group == null)
+            return;
+
+        group.check(sortModeToId(adapter != null ? adapter.getSortMode() : settings.getSortMode()));
+        group.setOnCheckedChangeListener((g, checkedId) -> {
+            applySortMode(idToSortMode(checkedId));
+            sheet.dismiss();
+        });
+
+        bindSheetAction(sheet, R.id.sort_filter_tags, () -> tagsDrawerLayout.openDrawer(GravityCompat.START));
+    }
+
+    @IdRes
+    private static int sortModeToId(SortMode mode) {
+        switch (mode) {
+            case ISSUER: return R.id.sort_issuer;
+            case LABEL: return R.id.sort_label;
+            case LAST_USED: return R.id.sort_last_used;
+            case MOST_USED: return R.id.sort_most_used;
+            case UNSORTED:
+            default: return R.id.sort_none;
+        }
+    }
+
+    private static SortMode idToSortMode(@IdRes int id) {
+        if (id == R.id.sort_issuer) return SortMode.ISSUER;
+        if (id == R.id.sort_label) return SortMode.LABEL;
+        if (id == R.id.sort_last_used) return SortMode.LAST_USED;
+        if (id == R.id.sort_most_used) return SortMode.MOST_USED;
+        return SortMode.UNSORTED;
+    }
+
+    private void applySortMode(SortMode mode) {
+        settings.setSortMode(mode);
+
+        if (adapter != null) {
+            adapter.setSortMode(mode);
+            touchHelperCallback.setDragEnabled(mode == SortMode.UNSORTED && !searchMode);
+        }
+
+        if ((mode == SortMode.LAST_USED || mode == SortMode.MOST_USED) && !settings.getUsedTokensDialogShown())
+            showUsedTokensDialog();
+    }
+
+    private void openBackup() {
+        Intent backupIntent = new Intent(this, BackupActivity.class);
+        if (adapter.getEncryptionKey() != null)
+            backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
+        backupLauncher.launch(backupIntent);
+    }
+
+    private void openSettings() {
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        if (adapter.getEncryptionKey() != null)
+            settingsIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
+        settingsLauncher.launch(settingsIntent);
+    }
+
+    private void openAbout() {
+        startActivity(new Intent(this, AboutActivity.class));
     }
 
     private void checkIntent() {
@@ -565,18 +683,6 @@ public class MainActivity extends BaseActivity
                     break;
             }
         }
-
-        // ATTENTION: This was auto-generated to handle app links.
-        Intent appLinkIntent = getIntent();
-        assert appLinkIntent != null;
-        String appLinkAction = appLinkIntent.getAction();
-        Uri appLinkData = appLinkIntent.getData();
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        tagsToggle.syncState();
     }
 
     // Controls for the updater background task
@@ -627,6 +733,7 @@ public class MainActivity extends BaseActivity
             runOnUiThread(() -> findViewById(R.id.cardList).setVisibility(View.INVISIBLE));
         super.onPause();
         stopUpdater();
+        appBarCountdown.stop();
         if (countDownTimer != null)
             countDownTimer.cancel();
     }
@@ -667,12 +774,6 @@ public class MainActivity extends BaseActivity
         }
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        tagsToggle.onConfigurationChanged(newConfig);
-    }
-
     private void updateEncryption(byte[] newKey) {
         SecretKey encryptionKey = null;
 
@@ -694,85 +795,9 @@ public class MainActivity extends BaseActivity
         populateAdapter();
     }
 
-    // Options menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        sortMenu = menu.findItem(R.id.menu_sort);
-
-        if (adapter != null) {
-            SortMode mode = adapter.getSortMode();
-
-            if (mode == SortMode.UNSORTED) {
-                sortMenu.setIcon(R.drawable.ic_sort_inverted_white);
-                menu.findItem(R.id.menu_sort_none).setChecked(true);
-            } else if (mode == SortMode.ISSUER) {
-                sortMenu.setIcon(R.drawable.ic_sort_inverted_label_white);
-                menu.findItem(R.id.menu_sort_issuer).setChecked(true);
-            } else if (mode == SortMode.LABEL) {
-                sortMenu.setIcon(R.drawable.ic_sort_inverted_label_white);
-                menu.findItem(R.id.menu_sort_label).setChecked(true);
-            } else if (mode == SortMode.LAST_USED) {
-                sortMenu.setIcon(R.drawable.ic_sort_inverted_time_white);
-                menu.findItem(R.id.menu_sort_last_used).setChecked(true);
-            } else if (mode == SortMode.MOST_USED) {
-                sortMenu.setIcon(R.drawable.ic_sort_inverted_time_white);
-                menu.findItem(R.id.menu_sort_most_used).setChecked(true);
-            }
-        }
-
-        searchMenu = menu.findItem(R.id.menu_search);
-        SearchView searchView = (SearchView) searchMenu.getActionView();
-        assert searchView != null;
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                setFilterString(newText);
-                return false;
-            }
-        });
-
-        searchMenu.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(@NonNull MenuItem menuItem) {
-                speedDial.setVisibility(View.GONE);
-                touchHelperCallback.setDragEnabled(false);
-                if (sortMenu != null)
-                    sortMenu.setVisible(false);
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(@NonNull MenuItem menuItem) {
-                speedDial.setVisibility(View.VISIBLE);
-
-                if (adapter == null || adapter.getSortMode() == SortMode.UNSORTED)
-                    touchHelperCallback.setDragEnabled(true);
-
-                if (sortMenu != null)
-                    sortMenu.setVisible(true);
-
-                return true;
-            }
-        });
-
-        if (focusSearchOnCreate) {
-            searchMenu.expandActionView();
-            focusSearchOnCreate = false;
-        }
-
-        return true;
-    }
-
     private void focusSearchMenu() {
-        if (searchMenu != null)
-            searchMenu.expandActionView();
+        if (searchField != null && touchHelperCallback != null)
+            enterSearchMode(true);
         else
             focusSearchOnCreate = true;
     }
@@ -786,76 +811,6 @@ public class MainActivity extends BaseActivity
         this.filterString = newText;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_backup) {
-            Intent backupIntent = new Intent(this, BackupActivity.class);
-            if (adapter.getEncryptionKey() != null) {
-                backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            }
-            backupLauncher.launch(backupIntent);
-        } else if (id == R.id.action_settings) {
-            Intent settingsIntent = new Intent(this, SettingsActivity.class);
-            if (adapter.getEncryptionKey() != null)
-                settingsIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            settingsLauncher.launch(settingsIntent);
-        } else if (id == R.id.action_about){
-            Intent aboutIntent = new Intent(this, AboutActivity.class);
-            startActivity(aboutIntent);
-            return true;
-        } else if (id == R.id.menu_sort_none) {
-            item.setChecked(true);
-            sortMenu.setIcon(R.drawable.ic_sort_inverted_white);
-            saveSortMode(SortMode.UNSORTED);
-            if (adapter != null) {
-                adapter.setSortMode(SortMode.UNSORTED);
-                touchHelperCallback.setDragEnabled(true);
-            }
-        } else if (id == R.id.menu_sort_issuer) {
-            item.setChecked(true);
-            sortMenu.setIcon(R.drawable.ic_sort_inverted_label_white);
-            saveSortMode(SortMode.ISSUER);
-            if(adapter != null) {
-                adapter.setSortMode(SortMode.ISSUER);
-                touchHelperCallback.setDragEnabled(false);
-            }
-        } else if (id == R.id.menu_sort_label) {
-            item.setChecked(true);
-            sortMenu.setIcon(R.drawable.ic_sort_inverted_label_white);
-            saveSortMode(SortMode.LABEL);
-            if (adapter != null) {
-                adapter.setSortMode(SortMode.LABEL);
-                touchHelperCallback.setDragEnabled(false);
-            }
-        } else if (id == R.id.menu_sort_last_used) {
-            item.setChecked(true);
-            sortMenu.setIcon(R.drawable.ic_sort_inverted_time_white);
-            saveSortMode(SortMode.LAST_USED);
-            if (adapter != null) {
-                adapter.setSortMode(SortMode.LAST_USED);
-                touchHelperCallback.setDragEnabled(false);
-            }
-            if (! settings.getUsedTokensDialogShown())
-                showUsedTokensDialog();
-            } else if (id == R.id.menu_sort_most_used) {
-            item.setChecked(true);
-            sortMenu.setIcon(R.drawable.ic_sort_inverted_time_white);
-            saveSortMode(SortMode.MOST_USED);
-            if (adapter != null) {
-                adapter.setSortMode(SortMode.MOST_USED);
-                touchHelperCallback.setDragEnabled(false);
-            }
-            if (! settings.getUsedTokensDialogShown())
-                showUsedTokensDialog();
-        } else if (tagsToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     private void showUsedTokensDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.dialog_title_used_tokens)
@@ -865,97 +820,25 @@ public class MainActivity extends BaseActivity
                 .show();
     }
 
-    @SuppressLint("InflateParams")
+    /* ------------------------------------------------------------------------------------------
+     * Tag filter drawer
+     * ------------------------------------------------------------------------------------------ */
+
     private void setupDrawer() {
         tagsDrawerListView = findViewById(R.id.tags_list_in_drawer);
-
         tagsDrawerLayout = findViewById(R.id.drawer_layout);
-        final RelativeLayout tagsLayout = findViewById(R.id.tags_expand);
-        final LinearLayout divider = findViewById(R.id.divider);
-        final LinearLayout dividerBottom = findViewById(R.id.dividerBottom);
-        final LinearLayout menu_backup = findViewById(R.id.action_backup);
-        final LinearLayout menu_settings = findViewById(R.id.action_settings);
-        final LinearLayout menu_about = findViewById(R.id.action_about);
-        final LinearLayout exit = findViewById(R.id.exit_button);
-        final ExpandableLinearLayout tags = findViewById(R.id.tags);
-        final TextView tagsHead = findViewById(R.id.tags_head);
 
-        dividerBottom.setVisibility(View.INVISIBLE);
-
-        tagsLayout.setOnClickListener(view -> tags.toggle());
-
-        tags.setListener(new ExpandableLayoutListenerAdapter() {
+        tagsDrawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
-            public void onOpened() {
-                super.onOpened();
-                tagsHead.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_up, 0);
-                divider.setVisibility(View.INVISIBLE);
-                dividerBottom.setVisibility(View.VISIBLE);
-            }
-            @Override
-            public void onClosed() {
-                super.onClosed();
-                tagsHead.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_down, 0);
-                divider.setVisibility(View.VISIBLE);
-                dividerBottom.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        tagsToggle = new ActionBarDrawerToggle(this, tagsDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.label_tags);
-                invalidateOptionsMenu();
+            public void onDrawerOpened(@NonNull View drawerView) {
                 closeOverlaysOnBack.setEnabled(true);
             }
 
             @Override
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.app_name);
-                invalidateOptionsMenu();
+            public void onDrawerClosed(@NonNull View drawerView) {
                 updateBackCallbackState();
             }
-        };
-
-        menu_backup.setOnClickListener(v -> {
-            Intent backupIntent = new Intent(MainActivity.this, BackupActivity.class);
-            if (adapter.getEncryptionKey() != null)
-                backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            backupLauncher.launch(backupIntent);
-            tagsDrawerLayout.closeDrawers();
         });
-        menu_settings.setOnClickListener(v -> {
-            Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
-            if (adapter.getEncryptionKey() != null)
-                settingsIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
-            settingsLauncher.launch(settingsIntent);
-            tagsDrawerLayout.closeDrawers();
-        });
-        menu_about.setOnClickListener(v -> {
-            Intent aboutIntent = new Intent(MainActivity.this, AboutActivity.class);
-            startActivity(aboutIntent);
-            tagsDrawerLayout.closeDrawers();
-        });
-        exit.setOnClickListener(v -> {
-            final View bottomSheetLayout = getLayoutInflater().inflate(R.layout.bottom_sheet_dialog, null);
-            (bottomSheetLayout.findViewById(R.id.button_no)).setOnClickListener(v1 -> {
-                tagsDrawerLayout.closeDrawers();
-                mBottomSheetDialog.dismiss();
-            });
-            (bottomSheetLayout.findViewById(R.id.button_yes)).setOnClickListener(v2 -> {
-                finish();
-                System.exit(0);
-            });
-            mBottomSheetDialog = new BottomSheetDialog(MainActivity.this);
-            mBottomSheetDialog.setContentView(bottomSheetLayout);
-            mBottomSheetDialog.setCancelable(false);
-            mBottomSheetDialog.show();
-        });
-
-        tagsToggle.setDrawerIndicatorEnabled(true);
-        tagsDrawerLayout.addDrawerListener(tagsToggle);
 
         final CheckedTextView noTagsButton = findViewById(R.id.no_tags_entries);
         final CheckedTextView allTagsButton = findViewById(R.id.all_tags_in_drawer);
@@ -1091,7 +974,6 @@ public class MainActivity extends BaseActivity
         return true;
     }
 
-    @SuppressWarnings("SameParameterValue")
     private void showOpenFileSelector(){
         Intent fileSelectorIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         fileSelectorIntent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -1123,14 +1005,14 @@ public class MainActivity extends BaseActivity
 
     /* Predictive back: with the OnBackInvokedCallback enabled (the default when targeting
      * Android 16+), KEYCODE_BACK is no longer dispatched. The callback is only enabled while the
-     * speed dial or the tags drawer is open, so the system back animation still runs otherwise. */
+     * search mode or the tags drawer is open, so the system back animation still runs otherwise. */
     private final OnBackPressedCallback closeOverlaysOnBack = new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
-            if (speedDial != null && speedDial.isOpen()) {
-                speedDial.close();
-            } else if (isTagsDrawerOpen()) {
+            if (isTagsDrawerOpen()) {
                 tagsDrawerLayout.closeDrawer(GravityCompat.START);
+            } else if (searchMode) {
+                exitSearchMode();
             }
             updateBackCallbackState();
         }
@@ -1141,25 +1023,37 @@ public class MainActivity extends BaseActivity
     }
 
     private void updateBackCallbackState() {
-        boolean speedDialOpen = speedDial != null && speedDial.isOpen();
-        closeOverlaysOnBack.setEnabled(speedDialOpen || isTagsDrawerOpen());
+        closeOverlaysOnBack.setEnabled(searchMode || isTagsDrawerOpen());
     }
 
     @Override
     protected void onDestroy() {
+        dismissSheet();
         settings.unregisterPreferenceChangeListener(this);
         super.onDestroy();
     }
 
     /**
-     * This function will hide the progress bar if the token list is empty along with
-     * showing a view which has instruction on how to add the tokens
-     * */
-    private void hideProgressBar(){
+     * Shows the empty state when the list has no items and hides the global countdown while there
+     * is nothing to count down for. In search mode the "no results" copy is used instead.
+     */
+    private void updateEmptyState(){
         int itemCount = adapter.getItemCount();
-        progressBar.setVisibility((settings.isHideGlobalTimeoutEnabled() || itemCount <= 0) ? View.GONE : View.VISIBLE);
-        emptyListView.setVisibility(itemCount > 0 ? View.GONE : View.VISIBLE);
+        boolean empty = itemCount <= 0;
 
+        if (!searchMode)
+            appBarCountdown.setVisibility((settings.isHideGlobalTimeoutEnabled() || empty) ? View.GONE : View.VISIBLE);
+
+        if (searchMode) {
+            emptyIllustration.setImageResource(R.drawable.ill_no_results);
+            emptyTitle.setText(R.string.empty_search_title);
+            emptySubtitle.setText(R.string.empty_search_subtitle);
+        } else {
+            emptyIllustration.setImageResource(R.drawable.ill_empty_services);
+            emptyTitle.setText(R.string.empty_services_title);
+            emptySubtitle.setText(R.string.empty_services_subtitle);
+        }
+        emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
     @Override

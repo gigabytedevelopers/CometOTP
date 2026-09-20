@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_md"
+    android:paddingEnd="@dimen/space_md"
+    android:paddingBottom="@dimen/space_lg">
+
+    <View style="@style/Widget.Comet.SheetHandle" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        android:gravity="center"
+        android:text="@string/sheet_title_sort"
+        android:textAppearance="@style/TextAppearance.Comet.SheetTitle" />
+
+    <RadioGroup
+        android:id="@+id/sortGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_sm"
+        android:orientation="vertical">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/sort_none"
+            style="@style/Widget.Comet.SortOption"
+            android:text="@string/menu_sort_none" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/sort_issuer"
+            style="@style/Widget.Comet.SortOption"
+            android:text="@string/menu_sort_issuer" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/sort_label"
+            style="@style/Widget.Comet.SortOption"
+            android:text="@string/menu_sort_label" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/sort_last_used"
+            style="@style/Widget.Comet.SortOption"
+            android:text="@string/menu_sort_last_used" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/sort_most_used"
+            style="@style/Widget.Comet.SortOption"
+            android:text="@string/menu_sort_most_used" />
+
+    </RadioGroup>
+
+    <View
+        style="@style/Widget.Comet.Divider"
+        android:layout_marginTop="@dimen/space_sm"
+        android:layout_marginBottom="@dimen/space_sm" />
+
+    <TextView
+        android:id="@+id/sort_filter_tags"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/label_filter_by_tags"
+        app:drawableStartCompat="@drawable/ic_tag" />
+
+</LinearLayout>
