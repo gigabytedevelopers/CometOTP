@@ -69,6 +69,9 @@
         <item name="android:textColorSecondary">@color/text_secondary_light</item>
         <item name="android:textColorHint">@color/text_hint_light</item>
 
+        <!-- Flat surfaces: no primary-tinted elevation overlay -->
+        <item name="elevationOverlayEnabled">false</item>
+
         <!-- System bars -->
         <item name="android:statusBarColor">@color/background_light</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -189,6 +192,8 @@
         <item name="android:textColorPrimary">@color/text_primary_dark</item>
         <item name="android:textColorSecondary">@color/text_secondary_dark</item>
         <item name="android:textColorHint">@color/text_hint_dark</item>
+
+        <item name="elevationOverlayEnabled">false</item>
 
         <item name="android:statusBarColor">@color/background_dark</item>
         <item name="android:windowLightStatusBar">false</item>

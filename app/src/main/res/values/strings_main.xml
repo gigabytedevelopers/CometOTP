@@ -4,8 +4,8 @@
     <!-- Buttons -->
     <string name="button_cancel">Cancel</string>
     <string name="button_enter_details">Enter details</string>
-    <string name="button_scan_qr">Scan QR code</string>
-    <string name="button_qr_from_image">QR code from image</string>
+    <string name="button_scan_qr">Scan QR Code</string>
+    <string name="button_qr_from_image">QR Code from Image</string>
     <string name="button_save">Save</string>
     <string name="button_new_tag">New Tag</string>
     <string name="button_settings">Settings</string>
