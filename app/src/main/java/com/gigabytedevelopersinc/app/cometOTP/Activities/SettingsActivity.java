@@ -175,7 +175,20 @@ public class SettingsActivity extends BaseActivity
         return true;
     }
 
+    @Override
+    protected void onDestroy() {
+        // Without this the activity stays registered for the life of the process. Every later
+        // preference write from any other screen would then re-enter the callback below on a
+        // destroyed activity whose fragment is detached, which crashed the app.
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
+    }
+
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+        if (isFinishing() || isDestroyed() || fragment == null || !fragment.isAdded())
+            return;
+
         BackupManager backupManager = new BackupManager(this);
         backupManager.dataChanged();
 
@@ -325,7 +338,7 @@ public class SettingsActivity extends BaseActivity
         }
 
         public void updateAutoBackup() {
-            if (useAutoBackup != null) {
+            if (useAutoBackup != null && getActivity() != null) {
                 useAutoBackup.setEnabled(BackupHelper.autoBackupType(getActivity()) == Constants.BackupType.ENCRYPTED);
                 if (!useAutoBackup.isEnabled())
                     useAutoBackup.setValue(Constants.AutoBackup.OFF.toString().toLowerCase(Locale.ENGLISH));
