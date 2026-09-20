@@ -65,6 +65,7 @@
         <!-- Legacy AppCompat roles still read by older widgets -->
         <item name="colorPrimaryDark">@color/primary_900</item>
         <item name="colorAccent">@color/primary_800</item>
+        <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog</item>
         <item name="android:textColorPrimary">@color/text_primary_light</item>
         <item name="android:textColorSecondary">@color/text_secondary_light</item>
         <item name="android:textColorHint">@color/text_hint_light</item>
@@ -149,6 +150,7 @@
     <style name="DialogTheme" parent="Theme.Material3.Light.Dialog.MinWidth">
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorAccent">@color/primary_500</item>
+        <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
         <item name="android:fontFamily">@font/oxygen</item>
         <item name="fontFamily">@font/oxygen</item>
         <item name="android:windowBackground">@drawable/bg_dialog</item>
@@ -189,6 +191,7 @@
 
         <item name="colorPrimaryDark">@color/background_dark</item>
         <item name="colorAccent">@color/primary_500</item>
+        <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
         <item name="android:textColorPrimary">@color/text_primary_dark</item>
         <item name="android:textColorSecondary">@color/text_secondary_dark</item>
         <item name="android:textColorHint">@color/text_hint_dark</item>
@@ -261,6 +264,7 @@
     <style name="DialogTheme.Dark" parent="Theme.Material3.Dark.Dialog.MinWidth">
         <item name="colorPrimary">@color/primary_300</item>
         <item name="colorAccent">@color/primary_500</item>
+        <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
         <item name="android:fontFamily">@font/oxygen</item>
         <item name="fontFamily">@font/oxygen</item>
         <item name="android:windowBackground">@drawable/bg_dialog</item>
@@ -324,5 +328,19 @@
         <item name="windowSplashScreenAnimationDuration">800</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
         <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <!--
+        The preference screen still uses framework dialogs, which build their own theme and so
+        would otherwise draw their radio buttons and actions in the platform accent.
+    -->
+    <style name="ThemeOverlay.Comet.Dialog" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/primary_800</item>
+        <item name="android:textColorPrimary">@color/text_primary_light</item>
+    </style>
+
+    <style name="ThemeOverlay.Comet.Dialog.Dark" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:colorAccent">@color/primary_500</item>
+        <item name="android:textColorPrimary">@color/text_primary_dark</item>
     </style>
 </resources>
