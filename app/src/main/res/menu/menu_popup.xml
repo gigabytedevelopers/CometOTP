@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/menu_popup_copy"
+        android:title="@string/button_card_copy" />
+
+    <item
         android:id="@+id/menu_popup_edit"
         android:title="@string/menu_popup_edit" />
 

@@ -76,8 +76,6 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
     private final TagsAdapter tagsFilterAdapter;
     private final Settings settings;
 
-    private static final int ESTABLISH_PIN_MENU_INDEX = 4;
-
     public EntriesCardAdapter(Context context, TagsAdapter tagsFilterAdapter) {
         this.context = context;
         this.tagsFilterAdapter = tagsFilterAdapter;
@@ -728,7 +726,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         inflate.inflate(R.menu.menu_popup, popup.getMenu());
 
         if (displayedEntries.get(pos).getType() == Entry.OTPType.MOTP){
-            MenuItem item = popup.getMenu().getItem(ESTABLISH_PIN_MENU_INDEX);
+            MenuItem item = popup.getMenu().findItem(R.id.menu_popup_establishPin);
             item.setVisible(true);
         }
 
@@ -736,7 +734,10 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
 
-            if (id == R.id.menu_popup_edit) {
+            if (id == R.id.menu_popup_copy) {
+                copyHandler(pos, displayedEntries.get(pos).getCurrentOTP(), settings.isMinimizeAppOnCopyEnabled());
+                return true;
+            } else if (id == R.id.menu_popup_edit) {
                 ManualEntryDialog.show((MainActivity) context, settings, EntriesCardAdapter.this, entries.getEntry(getRealIndex(pos)), () -> saveAndRefresh(settings.getAutoBackupEncryptedFullEnabled(), pos));
                 return true;
             } else if(id == R.id.menu_popup_changeImage) {

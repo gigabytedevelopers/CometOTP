@@ -1,23 +1,15 @@
 package com.gigabytedevelopersinc.app.cometOTP.View;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.ColorFilter;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.graphics.Typeface;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.style.StyleSpan;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.R;
@@ -26,84 +18,73 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.ItemTouchHelperViewHolder;
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
 import java.util.Locale;
 
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
-import static com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity.animatorDuration;
-
+/**
+ * Binds one {@link Entry} to the redesigned service card: issuer icon, issuer, token, account
+ * label, optional tag chip, HOTP counter, per-card countdown ring and the overflow menu.
+ */
 public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
     private final Context context;
     private Callback callback;
     private boolean tapToReveal;
 
-    private final CardView card;
+    private final MaterialCardView card;
+    private final View tagBar;
     private final LinearLayout valueLayout;
     private final LinearLayout coverLayout;
     private final LinearLayout counterLayout;
     private final FrameLayout thumbnailFrame;
-    private final ImageView visibleImg;
     private final ImageView thumbnailImg;
     private final ImageButton menuButton;
-    private final ImageButton copyButton;
     private final TextView value;
     private final TextView valuePrev;
+    private final TextView issuer;
     private final TextView label;
     private final TextView counter;
     private final TextView tags;
-    private final MaterialProgressBar progressBar;
+    private final CountdownRingView countdown;
+
+    private final int defaultValueColor;
 
     public EntryViewHolder(Context context, final View v, boolean tapToReveal) {
         super(v);
         this.context = context;
 
         card = v.findViewById(R.id.card_view);
+        tagBar = v.findViewById(R.id.tagBar);
         value = v.findViewById(R.id.valueText);
         valuePrev = v.findViewById(R.id.valueTextPrev);
         valueLayout = v.findViewById(R.id.valueLayout);
-        visibleImg = v.findViewById(R.id.valueImg);
         thumbnailFrame = v.findViewById(R.id.thumbnailFrame);
         thumbnailImg = v.findViewById(R.id.thumbnailImg);
         coverLayout = v.findViewById(R.id.coverLayout);
+        issuer = v.findViewById(R.id.textViewIssuer);
         label = v.findViewById(R.id.textViewLabel);
         tags = v.findViewById(R.id.textViewTags);
         counterLayout = v.findViewById(R.id.counterLayout);
         counter = v.findViewById(R.id.counter);
-        progressBar = v.findViewById(R.id.cardProgressBar);
-
+        countdown = v.findViewById(R.id.cardCountdown);
         menuButton = v.findViewById(R.id.menuButton);
-        copyButton = v.findViewById(R.id.copyButton);
-        ImageView invisibleImg = v.findViewById(R.id.coverImg);
 
-        // Style the buttons in the current theme colors
-        ColorFilter colorFilter = Tools.getThemeColorFilter(context, android.R.attr.textColorSecondary);
+        defaultValueColor = value.getCurrentTextColor();
 
-        menuButton.getDrawable().setColorFilter(colorFilter);
-        copyButton.getDrawable().setColorFilter(colorFilter);
-        visibleImg.getDrawable().setColorFilter(colorFilter);
-        invisibleImg.getDrawable().setColorFilter(colorFilter);
-
-        // Setup onClickListeners
         menuButton.setOnClickListener(view -> {
             if (callback != null)
-                callback.onMenuButtonClicked(view, getAdapterPosition());
-        });
-
-        copyButton.setOnClickListener(view -> {
-            if (callback != null)
-                callback.onCopyButtonClicked(value.getTag().toString(), getAdapterPosition());
+                callback.onMenuButtonClicked(itemView, getBindingAdapterPosition());
         });
 
         counterLayout.setOnClickListener(view -> {
             if (callback != null)
-                callback.onCounterClicked(getAdapterPosition());
+                callback.onCounterClicked(getBindingAdapterPosition());
         });
 
         counterLayout.setOnLongClickListener(view -> {
             if (callback != null)
-                callback.onCounterLongPressed(getAdapterPosition());
+                callback.onCounterLongPressed(getBindingAdapterPosition());
 
             return false;
         });
@@ -112,13 +93,13 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
             @Override
             public void onSingleClick(View v) {
                 if (callback != null)
-                    callback.onCardSingleClicked(getAdapterPosition(), value.getTag().toString());
+                    callback.onCardSingleClicked(getBindingAdapterPosition(), value.getTag().toString());
             }
 
             @Override
             public void onDoubleClick(View v) {
                 if (callback != null)
-                    callback.onCardDoubleClicked(getAdapterPosition(), value.getTag().toString());
+                    callback.onCardDoubleClicked(getBindingAdapterPosition(), value.getTag().toString());
             }
         });
 
@@ -139,33 +120,26 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
 
         String issuerText = entry.getIssuer();
         String labelText = entry.getLabel();
+        boolean showIssuer = !TextUtils.isEmpty(issuerText) && !settings.isHideIssuerEnabled();
 
         String contentHint = "";
-        SpannableStringBuilder labelBuilder = new SpannableStringBuilder();
-
-        if (!TextUtils.isEmpty(issuerText) && !settings.isHideIssuerEnabled()) {
-            labelBuilder.append(issuerText);
-
-            labelBuilder.setSpan(new StyleSpan(Typeface.BOLD), 0, issuerText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
+        if (showIssuer) {
+            issuer.setText(issuerText);
+            issuer.setVisibility(View.VISIBLE);
             contentHint = issuerText;
-        }
-
-        if (!TextUtils.isEmpty(issuerText) && !TextUtils.isEmpty(labelText) && !settings.isHideIssuerEnabled()) {
-            String separatorText = "\u00a0-\u00a0"; // \u00a0 = non-breaking space
-            labelBuilder.append(separatorText);
+        } else {
+            issuer.setVisibility(View.GONE);
         }
 
         if (!TextUtils.isEmpty(labelText)) {
-            labelBuilder.append(labelText);
-
-            if (TextUtils.isEmpty(issuerText) || settings.isHideIssuerEnabled())
+            label.setText(labelText);
+            label.setVisibility(View.VISIBLE);
+            if (!showIssuer)
                 contentHint = labelText;
+        } else {
+            label.setVisibility(View.GONE);
         }
 
-        label.setText(labelBuilder);
-
-        copyButton.setContentDescription(context.getString(R.string.button_card_copy_format, contentHint));
         menuButton.setContentDescription(context.getString(R.string.button_card_options_format, contentHint));
 
         value.setText(tokenFormatted);
@@ -176,10 +150,8 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
             String tokenPrev = entry.getPrevOTP();
 
             if (tokenPrev != null && !tokenPrev.isEmpty()) {
-                String tokenFormattedPrev = Tools.formatToken(tokenPrev, settings.getTokenSplitGroupSize());
-
                 valuePrev.setVisibility(View.VISIBLE);
-                valuePrev.setText(tokenFormattedPrev);
+                valuePrev.setText(Tools.formatToken(tokenPrev, settings.getTokenSplitGroupSize()));
             } else {
                 valuePrev.setVisibility(View.GONE);
             }
@@ -188,69 +160,53 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         }
 
         List<String> entryTags = entry.getTags();
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < entryTags.size(); i++) {
-            stringBuilder.append(entryTags.get(i));
-            if (i < entryTags.size() - 1) {
-                stringBuilder.append(", ");
-            }
+        if (entryTags.isEmpty()) {
+            tags.setVisibility(View.GONE);
+            tagBar.setVisibility(View.GONE);
+        } else {
+            tags.setText(TextUtils.join(", ", entryTags));
+            tags.setVisibility(View.VISIBLE);
+            tagBar.setVisibility(View.VISIBLE);
         }
-        tags.setText(stringBuilder.toString());
 
-        tags.setVisibility(entryTags.isEmpty() ? View.GONE : View.VISIBLE);
         thumbnailFrame.setVisibility(settings.getThumbnailVisible() ? View.VISIBLE : View.GONE);
-
-        int thumbnailSize = settings.getThumbnailSize();
         if (settings.getThumbnailVisible()) {
+            int thumbnailSize = settings.getThumbnailSize();
             thumbnailImg.setImageBitmap(EntryThumbnail.getThumbnailGraphic(context, issuerText, labelText, thumbnailSize, entry.getThumbnail()));
         }
 
-        if (entry.isTimeBased() && (entry.hasNonDefaultPeriod() || settings.isShowIndividualTimeoutsEnabled())) {
-            if (!this.tapToReveal || entry.isVisible()) {
-                progressBar.setVisibility(View.VISIBLE);
-                updateProgress(entry);
-            } else {
-                progressBar.setVisibility(View.INVISIBLE);
-            }
+        boolean showCountdown = entry.isTimeBased()
+                && (entry.hasNonDefaultPeriod() || settings.isShowIndividualTimeoutsEnabled());
+        if (showCountdown && (!this.tapToReveal || entry.isVisible())) {
+            countdown.setVisibility(View.VISIBLE);
+            countdown.setHighlightExpiring(settings.isHighlightTokenOptionEnabled());
+            countdown.update(entry.getPeriod());
         } else {
-            progressBar.setVisibility(View.GONE);
+            countdown.stop();
+            countdown.setVisibility(showCountdown ? View.INVISIBLE : View.GONE);
         }
 
         if (this.tapToReveal) {
             if (entry.isVisible()) {
                 valueLayout.setVisibility(View.VISIBLE);
                 coverLayout.setVisibility(View.GONE);
-                visibleImg.setVisibility(View.GONE);
             } else {
                 valueLayout.setVisibility(View.GONE);
                 coverLayout.setVisibility(View.VISIBLE);
-                visibleImg.setVisibility(View.VISIBLE);
             }
         }
     }
 
-    private void updateProgress(Entry entry) {
-        int progress =  (int) (entry.getPeriod() - (System.currentTimeMillis() / 1000) % entry.getPeriod()) ;
-
-        progressBar.setMax(entry.getPeriod() * 100);
-        progressBar.setProgress(progress*100);
-
-        ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", (progress - 1) * 100);
-        animation.setDuration(animatorDuration);
-        animation.setInterpolator(new LinearInterpolator());
-        animation.start();
-    }
-
     public void setLabelSize(int size) {
-        label.setTextSize(size);
-        tags.setTextSize(0.75f * size);
+        // The design uses a fixed type scale; the label size setting scales the token instead so
+        // the user preference still has a visible effect.
+        value.setTextSize(Math.max(16, size + 4));
     }
 
     public void setThumbnailSize(int size) {
-        thumbnailImg.getLayoutParams().height = size;
-        thumbnailImg.getLayoutParams().width = size;
-        thumbnailImg.requestLayout();
+        thumbnailFrame.getLayoutParams().height = size + thumbnailImg.getPaddingTop() + thumbnailImg.getPaddingBottom();
+        thumbnailFrame.getLayoutParams().width = size + thumbnailImg.getPaddingLeft() + thumbnailImg.getPaddingRight();
+        thumbnailFrame.requestLayout();
     }
 
     public void setLabelScroll(Constants.LabelDisplay labelDisplay) {
@@ -282,11 +238,9 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         if (enabled) {
             valueLayout.setVisibility(View.GONE);
             coverLayout.setVisibility(View.VISIBLE);
-            visibleImg.setVisibility(View.VISIBLE);
         } else {
             valueLayout.setVisibility(View.VISIBLE);
             coverLayout.setVisibility(View.GONE);
-            visibleImg.setVisibility(View.GONE);
         }
     }
 
@@ -334,7 +288,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         if (color == Entry.COLOR_RED) {
             textColor = Tools.getThemeColor(context, R.attr.colorExpiring);
         } else {
-            textColor = Tools.getThemeColor(context, android.R.attr.textColorSecondary);
+            textColor = defaultValueColor;
         }
 
         value.setTextColor(textColor);
