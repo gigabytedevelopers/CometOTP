@@ -183,4 +183,19 @@
     <string name="help_key">The secret key provided by the service, usually shown next to the QR code.</string>
     <string name="help_period">How many seconds a code stays valid. Most services use 30.</string>
     <string name="help_digits">Number of digits in the generated code. Most services use 6.</string>
+
+    <!-- Redesign: onboarding coach marks -->
+    <string name="coach_next">Next</string>
+    <string name="coach_finish">Finish</string>
+
+    <string name="coach_add_title">Create Services</string>
+    <string name="coach_add_body">Tap here to add a service by scanning its QR code, picking a screenshot or typing the setup key.</string>
+    <string name="coach_sort_title">Sorting thing out</string>
+    <string name="coach_sort_body">Sort your services by issuer, label or how often you use them, and filter them by tag.</string>
+    <string name="coach_search_title">Finding hidden services</string>
+    <string name="coach_search_body">Search your services by issuer, label or tag when the list grows long.</string>
+    <string name="coach_menu_title">Checking your options</string>
+    <string name="coach_menu_body">Open the menu to reach your tags, security, backups and settings.</string>
+    <string name="coach_timer_title">Time’s running out</string>
+    <string name="coach_timer_body">This ring counts down to the next code. It turns red just before your codes change.</string>
 </resources>

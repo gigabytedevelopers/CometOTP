@@ -20,6 +20,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckedTextView;
@@ -60,6 +61,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.NotificationHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScanQRCodeFromFile;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
+import com.gigabytedevelopersinc.app.cometOTP.View.CoachMarkOverlay;
 import com.gigabytedevelopersinc.app.cometOTP.View.CountdownRingView;
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter;
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.SimpleItemTouchHelperCallback;
@@ -71,6 +73,7 @@ import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
@@ -99,6 +102,7 @@ public class MainActivity extends BaseActivity
     private boolean recreateActivity = false;
     private boolean cacheEncKey = false;
     private boolean focusSearchOnCreate = false;
+    private boolean coachMarksRequested = false;
 
     private Handler handler;
     private Runnable handlerTask;
@@ -765,6 +769,39 @@ public class MainActivity extends BaseActivity
         if(cardList.getVisibility() == View.INVISIBLE)
             cardList.setVisibility(View.VISIBLE);
         startUpdater();
+
+        maybeShowCoachMarks();
+    }
+
+    /**
+     * Shows the onboarding tour once, the first time the home screen is reached after the setup
+     * wizard. Each step spotlights one control of the new shell.
+     */
+    private void maybeShowCoachMarks() {
+        if (coachMarksRequested || requireAuthentication
+                || settings.getCoachMarksShown() || !settings.getFirstTimeWarningShown())
+            return;
+
+        coachMarksRequested = true;
+
+        final ViewGroup root = findViewById(android.R.id.content);
+        root.post(() -> {
+            List<CoachMarkOverlay.Step> steps = new ArrayList<>();
+            steps.add(new CoachMarkOverlay.Step(fab,
+                    getString(R.string.coach_add_title), getString(R.string.coach_add_body)));
+            steps.add(new CoachMarkOverlay.Step(findViewById(R.id.sortButton),
+                    getString(R.string.coach_sort_title), getString(R.string.coach_sort_body)));
+            steps.add(new CoachMarkOverlay.Step(findViewById(R.id.searchButton),
+                    getString(R.string.coach_search_title), getString(R.string.coach_search_body)));
+            steps.add(new CoachMarkOverlay.Step(findViewById(R.id.menuButton),
+                    getString(R.string.coach_menu_title), getString(R.string.coach_menu_body)));
+
+            if (appBarCountdown.getVisibility() == View.VISIBLE)
+                steps.add(new CoachMarkOverlay.Step(appBarCountdown,
+                        getString(R.string.coach_timer_title), getString(R.string.coach_timer_body)));
+
+            CoachMarkOverlay.show(root, steps, () -> settings.setCoachMarksShown(true));
+        });
     }
 
     @Override

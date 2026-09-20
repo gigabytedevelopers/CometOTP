@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One onboarding tooltip: caret, title, body, progress dots and the Next/Finish action. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coach_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/coach_caret_top"
+        android:layout_width="18dp"
+        android:layout_height="9dp"
+        android:layout_marginStart="@dimen/space_lg"
+        android:contentDescription="@null"
+        android:rotation="180"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_caret"
+        app:tint="?attr/colorSurface"
+        tools:visibility="visible" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/coach_card"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="?attr/colorSurface"
+        app:cardCornerRadius="@dimen/radius_md"
+        app:cardElevation="6dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/space_md">
+
+            <TextView
+                android:id="@+id/coach_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="Create Services" />
+
+            <TextView
+                android:id="@+id/coach_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:lineSpacingMultiplier="1.25"
+                android:textAppearance="@style/TextAppearance.Comet.Caption"
+                tools:text="Tap here to add a new service by scanning a QR code." />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/coach_dots"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical|start"
+                    android:orientation="horizontal" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/coach_next"
+                    style="@style/Widget.Comet.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:minWidth="76dp"
+                    android:paddingStart="@dimen/space_md"
+                    android:paddingEnd="@dimen/space_md"
+                    android:text="@string/coach_next"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <ImageView
+        android:id="@+id/coach_caret_bottom"
+        android:layout_width="18dp"
+        android:layout_height="9dp"
+        android:layout_marginStart="@dimen/space_lg"
+        android:contentDescription="@null"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_caret"
+        app:tint="?attr/colorSurface"
+        tools:visibility="visible" />
+
+</LinearLayout>
