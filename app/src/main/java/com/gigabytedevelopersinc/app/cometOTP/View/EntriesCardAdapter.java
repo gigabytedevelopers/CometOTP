@@ -37,6 +37,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity;
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.Database.EntryList;
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ManualEntryDialog;
+import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ThumbnailPickerSheet;
 import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
@@ -528,83 +529,16 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
     }
 
     public void changeThumbnail(final int pos) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-        int marginSmall = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_small);
-        int marginMedium = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_medium);
-
         int realIndex = getRealIndex(pos);
-        final ThumbnailSelectionAdapter thumbnailAdapter = new ThumbnailSelectionAdapter(context, entries.getEntry(realIndex).getIssuer(), entries.getEntry(realIndex).getLabel());
+        Entry entry = entries.getEntry(realIndex);
 
-        final EditText input = new EditText(context);
-        input.setLayoutParams(new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        input.setSingleLine();
-
-        input.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                thumbnailAdapter.filter(editable.toString());
-            }
-        });
-
-        int gridPadding = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_small);
-        int gridBackground = Tools.getThemeColor(context, R.attr.thumbnailBackground);
-
-        GridView grid = new GridView(context);
-        grid.setAdapter(thumbnailAdapter);
-        grid.setBackgroundColor(gridBackground);
-        grid.setPadding(gridPadding, gridPadding, gridPadding, gridPadding);
-        grid.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        int thumbnailSize = settings.getThumbnailSize();
-        grid.setColumnWidth(thumbnailSize);
-        grid.setNumColumns(GridView.AUTO_FIT);
-        grid.setVerticalSpacing(context.getResources().getDimensionPixelSize(R.dimen.activity_margin_medium));
-        grid.setHorizontalSpacing(context.getResources().getDimensionPixelSize(R.dimen.activity_margin_medium));
-        grid.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
-
-        LinearLayout layout = new LinearLayout(context);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        layout.addView(input);
-        layout.addView(grid);
-
-        FrameLayout container = new FrameLayout(context);
-        container.setPaddingRelative(marginMedium, marginSmall, marginMedium, 0);
-        container.addView(layout);
-
-        final AlertDialog alert = builder.setTitle(R.string.menu_popup_change_image)
-                .setView(container)
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-
-                })
-                .create();
-
-        grid.setOnItemClickListener((parent, view, position, id) -> {
-            int realIndex1 = getRealIndex(pos);
-            EntryThumbnail.EntryThumbnails thumbnail = EntryThumbnail.EntryThumbnails.Default;
-            try {
-                int realPos = thumbnailAdapter.getRealIndex(position);
-                thumbnail = EntryThumbnail.EntryThumbnails.values()[realPos];
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            Entry e = entries.getEntry(realIndex1);
+        ThumbnailPickerSheet.show(context, entry.getIssuer(), entry.getLabel(), thumbnail -> {
+            Entry e = entries.getEntry(getRealIndex(pos));
             e.setThumbnail(thumbnail);
 
             saveEntries(settings.getAutoBackupEncryptedFullEnabled());
             notifyItemChanged(pos);
-            alert.cancel();
         });
-
-        alert.show();
     }
 
     public void establishPIN(final int pos) {

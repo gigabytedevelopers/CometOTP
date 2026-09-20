@@ -22,15 +22,16 @@ public class ThumbnailSelectionAdapter extends BaseAdapter {
     private String label = "Example";
     private Settings settings;
 
-    ThumbnailSelectionAdapter(Context context, String issuer, String label) {
+    public ThumbnailSelectionAdapter(Context context, String issuer, String label) {
         items = new ArrayList<>(EntryThumbnail.EntryThumbnails.values().length);
         Collections.addAll(items, EntryThumbnail.EntryThumbnails.values());
+        this.issuer = issuer;
         this.label = label;
         this.context = context;
         settings = new Settings(context);
     }
 
-    void filter(String filter) {
+    public void filter(String filter) {
         items.clear();
         for (EntryThumbnail.EntryThumbnails thumb : EntryThumbnail.EntryThumbnails.values()) {
             if(thumb.name().toLowerCase().contains(filter.toLowerCase())) {

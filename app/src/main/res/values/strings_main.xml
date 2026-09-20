@@ -169,4 +169,18 @@
     <string name="nav_support">Support &amp; FAQs</string>
     <string name="nav_backup">Backup</string>
     <string name="nav_settings">Settings</string>
+
+    <!-- Redesign: create service sheet -->
+    <string name="sheet_title_create_service">Create Service</string>
+    <string name="sheet_title_edit_service">Edit Service</string>
+    <string name="button_create">Create</string>
+    <string name="label_key">Key</string>
+    <string name="label_tag_optional">Tag (Optional)</string>
+    <string name="type_totp">TOTP (Time Based OTP)</string>
+    <string name="type_hotp">HOTP (Counter Based OTP)</string>
+    <string name="type_motp">mOTP (Mobile OTP)</string>
+    <string name="type_steam">Steam</string>
+    <string name="help_key">The secret key provided by the service, usually shown next to the QR code.</string>
+    <string name="help_period">How many seconds a code stays valid. Most services use 30.</string>
+    <string name="help_digits">Number of digits in the generated code. Most services use 6.</string>
 </resources>
