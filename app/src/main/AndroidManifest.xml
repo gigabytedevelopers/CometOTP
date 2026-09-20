@@ -24,7 +24,7 @@
 
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/Theme.CometOTP.Splash"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard">
             <intent-filter>

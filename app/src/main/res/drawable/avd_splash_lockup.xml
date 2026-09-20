@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Splash animation: the mark rises in, then the wordmark joins it underneath. -->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_splash_lockup">
+    <target
+        android:name="mark"
+        android:animation="@animator/splash_mark_settle" />
+    <target
+        android:name="markShape"
+        android:animation="@animator/splash_mark_fade" />
+    <target
+        android:name="word"
+        android:animation="@animator/splash_word_settle" />
+    <target
+        android:name="wordShape"
+        android:animation="@animator/splash_word_fade" />
+</animated-vector>

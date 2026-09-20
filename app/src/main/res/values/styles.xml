@@ -314,4 +314,15 @@
     <style name="CustomErrorDialogTheme" parent="CustomDialogTheme">
         <item name="android:windowTitleStyle">@color/colorWarningTextYellow</item>
     </style>
+
+    <!-- ============================================================
+         Launch screen (Figma: splash frames)
+         ============================================================ -->
+    <style name="Theme.CometOTP.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_splash_lockup</item>
+        <item name="windowSplashScreenAnimationDuration">800</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>

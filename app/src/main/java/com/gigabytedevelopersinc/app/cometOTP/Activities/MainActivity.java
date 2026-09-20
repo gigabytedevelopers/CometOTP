@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.Editable;
@@ -43,6 +44,7 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -118,6 +120,11 @@ public class MainActivity extends BaseActivity
     private View appBarSearch;
     private EditText searchField;
     private CountdownRingView appBarCountdown;
+    /** How long the branded launch screen stays up, covering its animation. */
+    private static final long SPLASH_DURATION_MS = 820L;
+    /** How long the launch screen takes to fade into the app. */
+    private static final long SPLASH_FADE_MS = 260L;
+
     /** How long a tapped sheet row stays highlighted before the sheet closes. */
     private static final long SHEET_ACTION_FEEDBACK_MS = 180L;
 
@@ -327,6 +334,7 @@ public class MainActivity extends BaseActivity
     @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        installSplashScreen();
         super.onCreate(savedInstanceState);
 
         setTitle(R.string.app_name);
@@ -533,6 +541,24 @@ public class MainActivity extends BaseActivity
             }
             return false;
         });
+    }
+
+    /**
+     * Shows the branded launch screen: the mark rises in, the wordmark joins it, then the whole
+     * lockup fades into the app. The splash is held for the length of that animation, since the
+     * first frame is otherwise ready long before it finishes.
+     */
+    private void installSplashScreen() {
+        SplashScreen splash = SplashScreen.installSplashScreen(this);
+        final long shownAt = SystemClock.uptimeMillis();
+        splash.setKeepOnScreenCondition(
+                () -> SystemClock.uptimeMillis() - shownAt < SPLASH_DURATION_MS);
+        splash.setOnExitAnimationListener(provider -> provider.getView()
+                .animate()
+                .alpha(0f)
+                .setDuration(SPLASH_FADE_MS)
+                .withEndAction(provider::remove)
+                .start());
     }
 
     /**
