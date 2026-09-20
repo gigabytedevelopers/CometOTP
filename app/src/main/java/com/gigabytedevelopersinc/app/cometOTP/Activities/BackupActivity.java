@@ -26,15 +26,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ResultDialog;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import org.openintents.openpgp.OpenPgpError;
 import org.openintents.openpgp.OpenPgpSignatureResult;
@@ -80,14 +82,15 @@ public class BackupActivity extends BaseActivity {
     private Uri encryptTargetFile;
     private Uri decryptSourceFile;
 
-    private Button btnBackup;
-    private Button btnRestore;
-    private TextView txtBackupLabel;
-    private TextView txtBackupWarning;
-    private SwitchMaterial swReplace;
-    private CheckBox chkOldFormat;
-    private ProgressBar progressBackup;
-    private ProgressBar progressRestore;
+    // The backup and restore forms live in bottom sheets; only one is open at a time.
+    private BottomSheetDialog activeSheet;
+    private MaterialButton sheetButton;
+    private ProgressBar sheetProgress;
+    private View sheetClose;
+    private boolean sheetIsRestore = false;
+
+    private boolean replaceExisting = false;
+    private boolean restoreOldFormat = false;
 
     private boolean reload = false;
     private boolean allowExit = true;
@@ -164,31 +167,85 @@ public class BackupActivity extends BaseActivity {
             }
         });
 
-        Spinner spBackupType = v.findViewById(R.id.backupType);
-        btnBackup = v.findViewById(R.id.buttonBackup);
-        btnRestore = v.findViewById(R.id.buttonRestore);
-        txtBackupLabel = v.findViewById(R.id.backupLabel);
-        txtBackupWarning = v.findViewById(R.id.backupErrorLabel);
-        swReplace = v.findViewById(R.id.backup_replace);
-        chkOldFormat = v.findViewById(R.id.restoreOldCrypt);
-        progressBackup = v.findViewById(R.id.progressBarBackup);
-        progressRestore = v.findViewById(R.id.progressBarRestore);
+        bindRow(v.findViewById(R.id.row_backup), R.drawable.ic_backup_cloud, R.string.backup_row_backup, this::showBackupSheet);
+        bindRow(v.findViewById(R.id.row_restore), R.drawable.ic_restore_cloud, R.string.backup_row_restore, this::showRestoreSheet);
 
-        setupBackupType(settings.getDefaultBackupType());
-        spBackupType.setSelection(backupType.ordinal());
+        backupType = settings.getDefaultBackupType();
+    }
 
-        spBackupType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Constants.BackupType type = Constants.BackupType.values()[i];
-                setupBackupType(type);
+    private void bindRow(View row, int icon, int title, Runnable action) {
+        ((ImageView) row.findViewById(R.id.row_icon)).setImageResource(icon);
+        ((TextView) row.findViewById(R.id.row_title)).setText(title);
+        row.setOnClickListener(view -> action.run());
+    }
+
+    /* ------------------------------------------------------------------------------------------
+     * Sheets
+     * ------------------------------------------------------------------------------------------ */
+
+    private BottomSheetDialog openSheet(int layoutRes, boolean restore) {
+        if (activeSheet != null)
+            activeSheet.dismiss();
+
+        BottomSheetDialog sheet = new BottomSheetDialog(this);
+        sheet.setContentView(layoutRes);
+        sheet.setOnDismissListener(d -> {
+            if (activeSheet == d) {
+                activeSheet = null;
+                sheetButton = null;
+                sheetProgress = null;
+                sheetClose = null;
             }
+        });
+        activeSheet = sheet;
+        sheetIsRestore = restore;
+        sheetClose = sheet.findViewById(R.id.sheetClose);
+        if (sheetClose != null)
+            sheetClose.setOnClickListener(view -> {
+                if (allowExit)
+                    sheet.dismiss();
+            });
+        sheet.setCancelable(allowExit);
+        return sheet;
+    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) { }
+    private void bindTypeDropdown(MaterialAutoCompleteTextView dropdown) {
+        String[] names = getResources().getStringArray(R.array.backup_encryption_names);
+        dropdown.setAdapter(new ArrayAdapter<>(this, R.layout.item_dropdown, names));
+        dropdown.setText(names[Math.min(backupType.ordinal(), names.length - 1)], false);
+        dropdown.setOnItemClickListener((parent, view, position, id) -> setupBackupType(Constants.BackupType.values()[position]));
+    }
+
+    private void showBackupSheet() {
+        BottomSheetDialog sheet = openSheet(R.layout.sheet_backup, false);
+
+        MaterialAutoCompleteTextView type = sheet.findViewById(R.id.backupType);
+        MaterialSwitch autoSync = sheet.findViewById(R.id.backup_auto_sync);
+        sheetButton = sheet.findViewById(R.id.buttonBackup);
+        sheetProgress = sheet.findViewById(R.id.progressBarBackup);
+
+        if (type == null || autoSync == null || sheetButton == null)
+            return;
+
+        bindTypeDropdown(type);
+
+        autoSync.setChecked(settings.getAutoBackupEncryptedFullEnabled());
+        autoSync.setOnCheckedChangeListener((button, checked) -> {
+            if (!button.isPressed())
+                return;
+            if (checked) {
+                if (BackupHelper.autoBackupType(this) == Constants.BackupType.ENCRYPTED) {
+                    settings.setAutoBackupEncrypted(Constants.AutoBackup.ALL_EDITS);
+                } else {
+                    button.setChecked(false);
+                    Toast.makeText(this, R.string.backup_toast_auto_sync_requirements, Toast.LENGTH_LONG).show();
+                }
+            } else {
+                settings.setAutoBackupEncrypted(Constants.AutoBackup.OFF);
+            }
         });
 
-        btnBackup.setOnClickListener(view -> {
+        sheetButton.setOnClickListener(view -> {
             switch (backupType) {
                 case PLAIN_TEXT:
                     backupPlainWithWarning();
@@ -202,13 +259,40 @@ public class BackupActivity extends BaseActivity {
             }
         });
 
-        btnRestore.setOnClickListener(view -> {
+        setupBackupType(backupType);
+        sheet.show();
+    }
+
+    private void showRestoreSheet() {
+        BottomSheetDialog sheet = openSheet(R.layout.sheet_restore, true);
+
+        MaterialAutoCompleteTextView type = sheet.findViewById(R.id.restoreType);
+        MaterialSwitch replace = sheet.findViewById(R.id.backup_replace);
+        com.google.android.material.checkbox.MaterialCheckBox oldFormat = sheet.findViewById(R.id.restoreOldCrypt);
+        TextView description = sheet.findViewById(R.id.restoreDescription);
+        sheetButton = sheet.findViewById(R.id.buttonRestore);
+        sheetProgress = sheet.findViewById(R.id.progressBarRestore);
+
+        if (type == null || replace == null || oldFormat == null || sheetButton == null)
+            return;
+
+        bindTypeDropdown(type);
+        if (description != null)
+            description.setText(R.string.backup_desc_restore_format);
+
+        replace.setChecked(replaceExisting);
+        replace.setOnCheckedChangeListener((button, checked) -> replaceExisting = checked);
+
+        oldFormat.setChecked(restoreOldFormat);
+        oldFormat.setOnCheckedChangeListener((button, checked) -> restoreOldFormat = checked);
+
+        sheetButton.setOnClickListener(view -> {
             switch (backupType) {
                 case PLAIN_TEXT:
                     showOpenFileSelector(openPlainLauncher);
                     break;
                 case ENCRYPTED:
-                    if (chkOldFormat.isChecked())
+                    if (restoreOldFormat)
                         showOpenFileSelector(openCryptOldLauncher);
                     else
                         showOpenFileSelector(openCryptLauncher);
@@ -218,62 +302,77 @@ public class BackupActivity extends BaseActivity {
                     break;
             }
         });
+
+        setupBackupType(backupType);
+        sheet.show();
+    }
+
+    private void setSheetLoading(boolean loading) {
+        if (sheetButton != null) {
+            sheetButton.setEnabled(!loading);
+            sheetButton.setText(loading ? "" : getString(sheetIsRestore ? R.string.backup_button_restore_short : R.string.backup_button_backup));
+        }
+        if (sheetProgress != null)
+            sheetProgress.setVisibility(loading ? View.VISIBLE : View.GONE);
+        if (sheetClose != null)
+            sheetClose.setEnabled(!loading);
+        if (activeSheet != null)
+            activeSheet.setCancelable(!loading);
     }
 
     private void setupBackupType(Constants.BackupType type) {
+        TextView description = activeSheet != null ? activeSheet.findViewById(R.id.backupDescription) : null;
+        TextView warning = activeSheet != null
+                ? activeSheet.findViewById(sheetIsRestore ? R.id.restoreErrorLabel : R.id.backupErrorLabel) : null;
+        View oldFormat = activeSheet != null ? activeSheet.findViewById(R.id.restoreOldCrypt) : null;
+
+        boolean enabled = true;
+        int warningRes = 0;
+
         switch (type) {
             case PLAIN_TEXT:
-                txtBackupLabel.setText(R.string.backup_label_warning_plain);
-
-                chkOldFormat.setVisibility(View.GONE);
-                txtBackupWarning.setVisibility(View.GONE);
-
-                btnBackup.setEnabled(true);
-                btnRestore.setEnabled(true);
-
+                if (description != null)
+                    description.setText(R.string.backup_desc_plain_short);
                 break;
             case ENCRYPTED:
-                txtBackupLabel.setText(R.string.backup_label_crypt);
-
-                chkOldFormat.setVisibility(View.VISIBLE);
-                txtBackupWarning.setVisibility(View.GONE);
-
-                btnBackup.setEnabled(true);
-                btnRestore.setEnabled(true);
-
+                if (description != null)
+                    description.setText(R.string.backup_desc_crypt_short);
                 break;
             case OPEN_PGP:
-                txtBackupLabel.setText(R.string.backup_label_pgp);
-
-                chkOldFormat.setVisibility(View.GONE);
+                if (description != null)
+                    description.setText(R.string.backup_desc_pgp_short);
 
                 String PGPProvider = settings.getOpenPGPProvider();
                 pgpEncryptionUserIDs = settings.getOpenPGPEncryptionUserIDs();
 
                 if (TextUtils.isEmpty(PGPProvider)) {
-                    txtBackupWarning.setText(R.string.backup_desc_openpgp_provider);
-                    txtBackupWarning.setVisibility(View.VISIBLE);
-
-                    btnBackup.setEnabled(false);
-                    btnRestore.setEnabled(false);
+                    warningRes = R.string.backup_desc_openpgp_provider;
+                    enabled = false;
                 } else if (TextUtils.isEmpty(pgpEncryptionUserIDs)){
-                    txtBackupWarning.setText(R.string.backup_desc_openpgp_keyid);
-                    txtBackupWarning.setVisibility(View.VISIBLE);
-
-                    btnBackup.setEnabled(false);
-                    btnRestore.setEnabled(false);
+                    warningRes = R.string.backup_desc_openpgp_keyid;
+                    enabled = false;
                 } else {
-                    txtBackupWarning.setVisibility(View.GONE);
-
-                    btnBackup.setEnabled(true);
-                    btnRestore.setEnabled(true);
-
                     pgpServiceConnection = new OpenPgpServiceConnection(BackupActivity.this.getApplicationContext(), PGPProvider);
                     pgpServiceConnection.bindToService();
                 }
 
                 break;
         }
+
+        if (warning != null) {
+            if (warningRes != 0) {
+                warning.setText(warningRes);
+                warning.setVisibility(View.VISIBLE);
+            } else {
+                warning.setVisibility(View.GONE);
+            }
+        }
+
+        if (oldFormat != null)
+            oldFormat.setVisibility(type == Constants.BackupType.ENCRYPTED ? View.VISIBLE : View.GONE);
+
+        if (sheetButton != null && allowExit)
+            sheetButton.setEnabled(enabled);
 
         backupType = type;
         settings.setDefaultBackupType(type);
@@ -333,8 +432,12 @@ public class BackupActivity extends BaseActivity {
                     .commit();
         }
 
-        if (result.success)
-            finishWithResult();
+        if (result.success) {
+            dismissSheet();
+            ResultDialog.showSuccess(this, R.drawable.ic_backup_cloud,
+                    R.string.backup_result_created_title, R.string.backup_result_created_msg,
+                    R.string.continue_on, this::finishWithResult);
+        }
     }
 
     private void handleRestoreTaskResult(GenericRestoreTask.RestoreTaskResult result) {
@@ -368,26 +471,34 @@ public class BackupActivity extends BaseActivity {
         }
 
         if (result.success && !result.isPGP)
-            finishWithResult();
+            showRestoreSuccess();
+    }
+
+    private void showRestoreSuccess() {
+        dismissSheet();
+        ResultDialog.showSuccess(this, R.drawable.ic_restore_cloud,
+                R.string.backup_result_restored_title, R.string.backup_result_restored_msg,
+                R.string.continue_on, this::finishWithResult);
     }
 
     private void toggleInProgressMode(boolean running) {
         allowExit = !running;
-
-        btnBackup.setEnabled(!running);
-        btnRestore.setEnabled(!running);
-        chkOldFormat.setEnabled(!running);
-        swReplace.setEnabled(!running);
+        setSheetLoading(running);
     }
 
     private void showBackupProgress(boolean running) {
         toggleInProgressMode(running);
-        progressBackup.setVisibility(running ? View.VISIBLE : View.GONE);
     }
 
     private void showRestoreProgress(boolean running) {
         toggleInProgressMode(running);
-        progressRestore.setVisibility(running ? View.VISIBLE : View.GONE);
+    }
+
+    private void dismissSheet() {
+        if (activeSheet != null) {
+            activeSheet.dismiss();
+            activeSheet = null;
+        }
     }
 
     /* Generic functions for all backup/restore options */
@@ -440,7 +551,7 @@ public class BackupActivity extends BaseActivity {
         ArrayList<Entry> entries = DatabaseHelper.stringToEntries(text);
 
         if (entries.size() > 0) {
-            if (! swReplace.isChecked()) {
+            if (! replaceExisting) {
                 ArrayList<Entry> currentEntries = DatabaseHelper.loadDatabase(this, encryptionKey);
 
                 entries.removeAll(currentEntries);
@@ -449,10 +560,11 @@ public class BackupActivity extends BaseActivity {
 
             if (DatabaseHelper.saveDatabase(this, entries, encryptionKey)) {
                 reload = true;
-                Toast.makeText(this, R.string.backup_toast_import_success, Toast.LENGTH_LONG).show();
 
                 if (finish)
-                    finishWithResult();
+                    showRestoreSuccess();
+                else
+                    Toast.makeText(this, R.string.backup_toast_import_success, Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, R.string.backup_toast_import_save_failed, Toast.LENGTH_LONG).show();
             }

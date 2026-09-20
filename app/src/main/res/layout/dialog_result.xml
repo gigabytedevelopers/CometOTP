@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Outcome dialog: big icon with status badge, title, message, primary and optional text action -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_lg"
+    android:paddingTop="@dimen/space_xl"
+    android:paddingEnd="@dimen/space_lg"
+    android:paddingBottom="@dimen/space_md">
+
+    <FrameLayout
+        android:layout_width="72dp"
+        android:layout_height="72dp">
+
+        <ImageView
+            android:id="@+id/resultIcon"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="start|bottom"
+            android:contentDescription="@null"
+            app:tint="?attr/colorPrimary"
+            tools:srcCompat="@drawable/ic_backup_cloud" />
+
+        <ImageView
+            android:id="@+id/resultBadge"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end|top"
+            android:background="@drawable/bg_badge_success"
+            android:contentDescription="@null"
+            android:padding="4dp"
+            app:srcCompat="@drawable/ic_check_mark"
+            app:tint="@color/neutral_0" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/resultTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Comet.SheetTitle"
+        tools:text="Backup Created" />
+
+    <TextView
+        android:id="@+id/resultMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Comet.Caption"
+        tools:text="Backup has been saved successfully." />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/resultPrimary"
+        style="@style/Widget.Comet.Button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginTop="@dimen/space_lg"
+        android:text="@string/continue_on" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/resultSecondary"
+        style="@style/Widget.Comet.Button.Text"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="@dimen/space_xs"
+        android:visibility="gone"
+        tools:text="Close"
+        tools:visibility="visible" />
+
+</LinearLayout>

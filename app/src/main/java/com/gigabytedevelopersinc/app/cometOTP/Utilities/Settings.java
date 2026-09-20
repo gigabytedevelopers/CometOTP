@@ -544,6 +544,10 @@ public class Settings {
         return Constants.AutoBackup.valueOf(stringValue.toUpperCase(Locale.ENGLISH));
     }
 
+    public void setAutoBackupEncrypted(Constants.AutoBackup value) {
+        setString(R.string.settings_key_auto_backup_password_enc, value.name().toLowerCase(Locale.ENGLISH));
+    }
+
     public boolean getAutoBackupEncryptedPasswordsEnabled() {
         return getAutoBackupEncryptedSetting() != Constants.AutoBackup.OFF;
     }

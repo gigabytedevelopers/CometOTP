@@ -8,129 +8,23 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/activity_margin"
-        android:layout_marginTop="@dimen/activity_margin_large"
-        android:gravity="center_horizontal">
+        android:orientation="vertical"
+        android:paddingStart="@dimen/space_md"
+        android:paddingEnd="@dimen/space_md">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <include
+            android:id="@+id/row_backup"
+            layout="@layout/item_setting_row" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorAccent"
-                android:textStyle="bold"
-                android:textAppearance="@style/TextAppearance.AppCompat.Widget.TextView.SpinnerItem"
-                android:text="@string/backup_label_type"/>
+        <View style="@style/Widget.Comet.Divider" />
 
-            <Spinner
-                android:id="@+id/backupType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/backup_list_type_names" />
+        <include
+            android:id="@+id/row_restore"
+            layout="@layout/item_setting_row" />
 
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/backupLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_margin"
-            android:padding="@dimen/activity_margin"
-            android:text="@string/backup_label_warning_plain"/>
-
-        <TextView
-            android:id="@+id/backupErrorLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/activity_margin"
-            android:textColor="?attr/colorExpiring"
-            android:text="@string/backup_desc_openpgp_provider"
-            android:visibility="gone"/>
-
-        <Button
-            android:id="@+id/buttonBackup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/backup_button_backup"/>
-
-        <ProgressBar
-            android:id="@+id/progressBarBackup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_margin"
-            android:indeterminate="true"
-            style="?android:attr/progressBarStyle"
-            android:visibility="gone"/>
-
-        <RelativeLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_margin_large"
-            android:layout_marginBottom="@dimen/activity_margin"
-            android:padding="@dimen/activity_margin"
-            android:background="?android:attr/selectableItemBackground" >
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/backup_replace" >
-
-                <TextView
-                    android:id="@+id/backup_replace_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/backup_title_replace"
-                    android:textAppearance="?android:attr/textAppearanceListItem" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="@string/backup_desc_replace"/>
-
-            </LinearLayout>
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/backup_replace"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerInParent="true"
-                android:checked="false" />
-
-        </RelativeLayout>
-
-        <CheckBox
-            android:id="@+id/restoreOldCrypt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_margin"
-            android:layout_marginBottom="@dimen/activity_margin"
-            android:text="@string/backup_check_restore_old"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/buttonRestore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/backup_button_restore" />
-
-        <ProgressBar
-            android:id="@+id/progressBarRestore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_margin"
-            android:indeterminate="true"
-            style="?android:attr/progressBarStyle"
-            android:visibility="gone"/>
+        <View style="@style/Widget.Comet.Divider" />
 
     </LinearLayout>
 
