@@ -703,10 +703,6 @@ public class MainActivity extends BaseActivity
 
     private void showNavigationSheet() {
         BottomSheetDialog sheet = openSheet(R.layout.sheet_navigation);
-        View home = sheet.findViewById(R.id.nav_home);
-        if (home != null)
-            home.setSelected(true);
-
         bindSheetAction(sheet, R.id.nav_home, () -> {});
         bindSheetAction(sheet, R.id.nav_tags, this::openTags);
         bindSheetAction(sheet, R.id.nav_security, this::openSecurity);
