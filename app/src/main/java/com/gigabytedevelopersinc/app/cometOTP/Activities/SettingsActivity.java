@@ -33,6 +33,7 @@ import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionChangeHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
@@ -243,51 +244,30 @@ public class SettingsActivity extends BaseActivity
 
     private boolean tryEncryptionChange(EncryptionType newEnc, byte[] newKey) {
         Snackbar upgrading = Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_changing, Snackbar.LENGTH_LONG);
-        //Toast upgrading = Toast.makeText(this, R.string.settings_toast_encryption_changing, Toast.LENGTH_LONG);
         upgrading.show();
 
-        if (DatabaseHelper.backupDatabase(this)) {
-            ArrayList<Entry> entries;
+        EncryptionChangeHelper.Result result = EncryptionChangeHelper.changeEncryption(this, encryptionKey, newEnc, newKey);
+        upgrading.dismiss();
 
-            if (encryptionKey != null)
-                entries = DatabaseHelper.loadDatabase(this, encryptionKey);
-            else
-                entries = new ArrayList<>();
-
-            SecretKey newEncryptionKey;
-
-            if (newEnc == EncryptionType.KEYSTORE) {
-                newEncryptionKey = KeyStoreHelper.loadEncryptionKeyFromKeyStore(this, true);
-            } else if (newKey != null && newKey.length > 0) {
-                newEncryptionKey = EncryptionHelper.generateSymmetricKey(newKey);
-            } else {
-                upgrading.dismiss();
-                DatabaseHelper.restoreDatabaseBackup(this);
-                return false;
-            }
-
-            if (DatabaseHelper.saveDatabase(this, entries, newEncryptionKey)) {
-                encryptionKey = newEncryptionKey;
+        switch (result.status) {
+            case SUCCESS:
+                encryptionKey = result.newKey;
                 encryptionChanged = true;
 
                 fragment.encryption.setValue(newEnc.name().toLowerCase());
 
-                upgrading.dismiss();
                 Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_change_success, Snackbar.LENGTH_LONG).show();
-
                 return true;
-            }
-
-            DatabaseHelper.restoreDatabaseBackup(this);
-
-            upgrading.dismiss();
-            Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_change_failed, Snackbar.LENGTH_LONG).show();
-        } else {
-            upgrading.dismiss();
-            Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_backup_failed, Snackbar.LENGTH_LONG).show();
+            case BACKUP_FAILED:
+                Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_backup_failed, Snackbar.LENGTH_LONG).show();
+                return false;
+            case NO_KEY:
+                return false;
+            case SAVE_FAILED:
+            default:
+                Snackbar.make(findViewById(R.id.container_content), R.string.settings_toast_encryption_change_failed, Snackbar.LENGTH_LONG).show();
+                return false;
         }
-
-        return false;
     }
 
     private void requestBackupAccess() {

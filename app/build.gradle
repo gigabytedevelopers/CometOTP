@@ -185,6 +185,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.19.0'
     implementation 'androidx.documentfile:documentfile:1.1.0'   // used directly by BackupHelper (no longer transitive)
     implementation "androidx.cardview:cardview:1.0.0"
+    implementation "androidx.biometric:biometric:1.1.0"
 
     // UI & Layout
     implementation 'androidx.constraintlayout:constraintlayout:2.2.2'

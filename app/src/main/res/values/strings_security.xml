@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="security_activity_title">Security</string>
+    <string name="progress_please_wait">Please wait…</string>
+
+    <string name="security_row_pin">PIN</string>
+    <string name="security_row_password">Password</string>
+    <string name="security_row_device">Fingerprint</string>
+    <string name="security_row_device_hint">Fingerprint, face or device lock</string>
+    <string name="security_status_pin">PIN Protection Active</string>
+    <string name="security_status_password">Password Protection Active</string>
+    <string name="security_status_device">Fingerprint Protection Active</string>
+    <string name="security_remove_protection">Remove protection</string>
+
+    <string name="security_dialog_title_warning">Warning</string>
+    <string name="security_dialog_msg_switch">Activating new security will automatically deactivate your %1$s security.</string>
+    <string name="security_dialog_msg_remove">CometOTP will no longer ask you to authenticate when it starts.</string>
+    <string name="security_dialog_msg_device_not_secure">Set up a screen lock (PIN, pattern, password or fingerprint) in your device settings first.</string>
+
+    <string name="security_setup_title_password">Set up Password</string>
+    <string name="security_setup_title_pin">Set up PIN</string>
+    <string name="security_setup_enter_password">Enter your Password</string>
+    <string name="security_setup_enter_pin">Enter your PIN</string>
+    <string name="security_setup_confirm_password">Confirm your Password</string>
+    <string name="security_setup_confirm_pin">Confirm your PIN</string>
+    <string name="security_setup_hint_password">At least %1$d characters</string>
+    <string name="security_setup_hint_pin">At least %1$d digits</string>
+    <string name="security_setup_mismatch">The entries do not match, please try again</string>
+
+    <string name="security_result_password_title">You\'ve got a new Password</string>
+    <string name="security_result_password_msg">Password has been added successfully.</string>
+    <string name="security_result_pin_title">You\'ve got a new PIN</string>
+    <string name="security_result_pin_msg">PIN has been added successfully.</string>
+    <string name="security_result_device_title">You\'ve got your Fingerprint set</string>
+    <string name="security_result_device_msg">Device lock has been enabled successfully.</string>
+    <string name="security_result_reset_password">Reset Password</string>
+    <string name="security_result_reset_pin">Reset PIN</string>
+
+    <string name="security_biometric_title">Unlock CometOTP</string>
+    <string name="security_biometric_subtitle">Use your fingerprint, face or device lock</string>
+</resources>

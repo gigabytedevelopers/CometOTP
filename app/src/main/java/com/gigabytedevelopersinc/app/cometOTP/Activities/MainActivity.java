@@ -36,6 +36,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -244,6 +247,29 @@ public class MainActivity extends BaseActivity
         AuthMethod authMethod = settings.getAuthMethod();
 
         if (authMethod == AuthMethod.DEVICE) {
+            int authenticators = BiometricManager.Authenticators.BIOMETRIC_WEAK | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+            if (BiometricManager.from(this).canAuthenticate(authenticators) == BiometricManager.BIOMETRIC_SUCCESS) {
+                BiometricPrompt prompt = new BiometricPrompt(this, ContextCompat.getMainExecutor(this), new BiometricPrompt.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                        requireAuthentication = false;
+                        updateEncryption(null);
+                    }
+
+                    @Override
+                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                        Toast.makeText(getBaseContext(), R.string.toast_auth_failed_fatal, Toast.LENGTH_LONG).show();
+                        finishAndRemoveTask();
+                    }
+                });
+                prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
+                        .setTitle(getString(R.string.security_biometric_title))
+                        .setSubtitle(getString(R.string.security_biometric_subtitle))
+                        .setAllowedAuthenticators(authenticators)
+                        .build());
+                return;
+            }
+
             KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
             assert km != null;
             if (km.isKeyguardSecure()) {
@@ -581,7 +607,7 @@ public class MainActivity extends BaseActivity
 
         bindSheetAction(sheet, R.id.nav_home, () -> {});
         bindSheetAction(sheet, R.id.nav_tags, () -> tagsDrawerLayout.openDrawer(GravityCompat.START));
-        bindSheetAction(sheet, R.id.nav_security, this::openSettings);
+        bindSheetAction(sheet, R.id.nav_security, this::openSecurity);
         bindSheetAction(sheet, R.id.nav_support, this::openAbout);
         bindSheetAction(sheet, R.id.nav_backup, this::openBackup);
         bindSheetAction(sheet, R.id.nav_settings, this::openSettings);
@@ -640,6 +666,13 @@ public class MainActivity extends BaseActivity
         if (adapter.getEncryptionKey() != null)
             backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
         backupLauncher.launch(backupIntent);
+    }
+
+    private void openSecurity() {
+        Intent securityIntent = new Intent(this, SecurityActivity.class);
+        if (adapter.getEncryptionKey() != null)
+            securityIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
+        settingsLauncher.launch(securityIntent);
     }
 
     private void openSettings() {
