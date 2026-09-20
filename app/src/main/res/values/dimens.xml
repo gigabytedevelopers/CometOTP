@@ -43,6 +43,9 @@
     <dimen name="issuer_icon_radius">10dp</dimen>
     <dimen name="tag_chip_height">18dp</dimen>
     <dimen name="tag_bar_width">4dp</dimen>
+    <dimen name="nav_row_radius">5dp</dimen>
+    <dimen name="nav_row_height">54dp</dimen>
+    <dimen name="sheet_row_inset">20dp</dimen>
     <dimen name="sheet_handle_width">40dp</dimen>
     <dimen name="sheet_handle_height">4dp</dimen>
 

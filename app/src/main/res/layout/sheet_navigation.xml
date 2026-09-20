@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingStart="@dimen/space_md"
-    android:paddingEnd="@dimen/space_md"
+    android:paddingStart="@dimen/sheet_row_inset"
+    android:paddingEnd="@dimen/sheet_row_inset"
     android:paddingBottom="@dimen/space_lg">
 
     <View style="@style/Widget.Comet.SheetHandle" />

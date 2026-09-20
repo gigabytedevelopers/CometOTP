@@ -118,6 +118,9 @@ public class MainActivity extends BaseActivity
     private View appBarSearch;
     private EditText searchField;
     private CountdownRingView appBarCountdown;
+    /** How long a tapped sheet row stays highlighted before the sheet closes. */
+    private static final long SHEET_ACTION_FEEDBACK_MS = 180L;
+
     private NotchedBottomBar bottomBar;
     private FloatingActionButton fab;
     private View emptyState;
@@ -637,13 +640,32 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    /**
+     * Binds a sheet row. The tapped row takes the design's filled state and holds it briefly, so
+     * the selection is visible before the sheet closes and the destination opens.
+     */
     private void bindSheetAction(BottomSheetDialog sheet, @IdRes int id, Runnable action) {
         View v = sheet.findViewById(id);
-        if (v != null)
-            v.setOnClickListener(view -> {
+        if (v == null)
+            return;
+
+        v.setOnClickListener(view -> {
+            if (!view.isEnabled())
+                return;
+
+            if (view.getParent() instanceof ViewGroup) {
+                ViewGroup rows = (ViewGroup) view.getParent();
+                for (int i = 0; i < rows.getChildCount(); i++)
+                    rows.getChildAt(i).setSelected(false);
+            }
+            view.setSelected(true);
+            view.setEnabled(false);
+
+            view.postDelayed(() -> {
                 sheet.dismiss();
                 action.run();
-            });
+            }, SHEET_ACTION_FEEDBACK_MS);
+        });
     }
 
     private void showAddSheet() {

@@ -373,9 +373,9 @@
     <!-- Navigation / action rows inside bottom sheets -->
     <style name="Widget.Comet.NavRow" parent="">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">52dp</item>
-        <item name="android:layout_marginTop">2dp</item>
-        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:layout_height">@dimen/nav_row_height</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
         <item name="android:background">@drawable/bg_nav_row</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
