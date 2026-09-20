@@ -110,6 +110,15 @@
             android:defaultValue="@string/settings_default_theme" />
 
         <ListPreference
+            android:key="@string/settings_key_launcher_icon"
+            android:title="@string/settings_title_launcher_icon"
+            android:dialogTitle="@string/settings_title_launcher_icon"
+            android:summary="%s"
+            android:entries="@array/settings_entries_launcher_icon"
+            android:entryValues="@array/settings_values_launcher_icon"
+            android:defaultValue="@string/settings_default_launcher_icon" />
+
+        <ListPreference
             android:key="@string/settings_key_tap_single"
             android:title="@string/settings_title_tap_single"
             android:summary="%s"

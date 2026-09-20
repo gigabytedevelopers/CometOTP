@@ -64,6 +64,7 @@ import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.LauncherIcon;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.NotificationHelper;
 import com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScanQRCodeFromFile;
@@ -358,6 +359,9 @@ public class MainActivity extends BaseActivity
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         settings.registerPreferenceChangeListener(this);
+
+        // Keeps the launcher in step with the stored choice, e.g. after restoring a backup.
+        LauncherIcon.apply(getApplicationContext(), settings.getLauncherIcon());
 
         encryptionType = settings.getEncryption();
 

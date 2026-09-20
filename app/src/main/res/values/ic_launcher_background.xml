@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#29339B</color>
+    <!-- The default launcher icon is the brand mark in blue on white. -->
+    <color name="ic_launcher_background">#FFFFFF</color>
 </resources>

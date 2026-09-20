@@ -302,6 +302,11 @@ public class Settings {
         return getBoolean(R.string.settings_key_block_accessibility, false);
     }
 
+    /** Which of the selectable launcher icons the user picked. */
+    public String getLauncherIcon() {
+        return getString(R.string.settings_key_launcher_icon, R.string.settings_default_launcher_icon);
+    }
+
     public int getTheme() {
         int theme = R.style.AppTheme_NoActionBar;
         String themeMode = getString(R.string.settings_key_theme_mode, R.string.settings_default_theme_mode);

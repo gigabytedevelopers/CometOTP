@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Slate rather than the brand indigo, so the debug build is easy to spot on the launcher. -->
-    <color name="ic_launcher_background">#4A5568</color>
-</resources>

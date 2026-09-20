@@ -37,6 +37,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionChangeHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.LauncherIcon;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
 import com.google.android.material.snackbar.Snackbar;
@@ -226,6 +227,10 @@ public class SettingsActivity extends BaseActivity
 
             int message = settings.getAndroidBackupServiceEnabled() ? R.string.settings_toast_android_sync_enabled : R.string.settings_toast_android_sync_disabled;
             Snackbar.make(findViewById(R.id.container_content), message, Snackbar.LENGTH_SHORT).show();
+        } else if (key.equals(getString(R.string.settings_key_launcher_icon))) {
+            LauncherIcon.apply(getApplicationContext(), settings.getLauncherIcon());
+            Snackbar.make(findViewById(R.id.container_content),
+                    R.string.settings_toast_launcher_icon, Snackbar.LENGTH_LONG).show();
         } else if (key.equals(getString(R.string.settings_key_backup_broadcasts))) {
             if (!settings.getBackupBroadcasts().isEmpty())
                 ensureNotificationPermission();

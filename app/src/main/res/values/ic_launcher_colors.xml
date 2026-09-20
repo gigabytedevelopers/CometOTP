@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backgrounds for the selectable launcher icons -->
+    <color name="ic_launcher_bg_blue">#FFFFFF</color>
+    <color name="ic_launcher_bg_mono">#FFFFFF</color>
+    <color name="ic_launcher_bg_white">#29339B</color>
+    <color name="ic_launcher_bg_classic">#607D8B</color>
+</resources>
