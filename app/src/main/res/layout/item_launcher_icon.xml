@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One app-icon choice: the icon as it will appear, its name, and a check when selected. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_icon_option"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="72dp"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_md"
+    android:paddingEnd="@dimen/space_md">
+
+    <ImageView
+        android:id="@+id/icon_preview"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@null"
+        tools:src="@mipmap/ic_launcher_blue" />
+
+    <TextView
+        android:id="@+id/icon_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_md"
+        android:layout_weight="1"
+        android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
+        android:textColor="@color/icon_option_text"
+        tools:text="Blue on white" />
+
+    <ImageView
+        android:id="@+id/icon_check"
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        android:contentDescription="@null"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_check"
+        app:tint="@color/icon_option_text"
+        tools:visibility="visible" />
+
+</LinearLayout>
