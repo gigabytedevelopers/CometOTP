@@ -132,7 +132,7 @@
     <!-- ============================================================
          Buttons
          ============================================================ -->
-    <style name="Widget.Comet.Button" parent="Widget.Material3.Button">
+    <style name="Widget.Comet.Button" parent="Widget.Material3Expressive.Button">
         <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
         <item name="android:minHeight">@dimen/button_height</item>
         <item name="android:insetTop">0dp</item>
@@ -147,7 +147,7 @@
         <item name="iconTint">@color/btn_filled_text</item>
     </style>
 
-    <style name="Widget.Comet.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+    <style name="Widget.Comet.Button.Tonal" parent="Widget.Material3Expressive.Button.TonalButton">
         <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
         <item name="android:minHeight">@dimen/button_height</item>
         <item name="android:insetTop">0dp</item>
@@ -160,7 +160,7 @@
         <item name="iconTint">?attr/colorPrimary</item>
     </style>
 
-    <style name="Widget.Comet.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+    <style name="Widget.Comet.Button.Outlined" parent="Widget.Material3Expressive.Button.OutlinedButton">
         <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
         <item name="android:minHeight">@dimen/button_height</item>
         <item name="android:insetTop">0dp</item>
@@ -172,7 +172,7 @@
         <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
-    <style name="Widget.Comet.Button.Text" parent="Widget.Material3.Button.TextButton">
+    <style name="Widget.Comet.Button.Text" parent="Widget.Material3Expressive.Button.TextButton">
         <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
         <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
         <item name="android:textSize">14sp</item>
@@ -186,7 +186,7 @@
         <item name="iconTint">?attr/colorError</item>
     </style>
 
-    <style name="Widget.Comet.Button.Icon" parent="Widget.Material3.Button.IconButton">
+    <style name="Widget.Comet.Button.Icon" parent="Widget.Material3Expressive.Button.IconButton">
         <item name="android:minWidth">0dp</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
@@ -206,7 +206,7 @@
         label-less button the default padding and icon padding push the glyph off centre. Zeroing
         them puts the glyph in the middle of its 48dp target, where the design has it.
     -->
-    <style name="Widget.Comet.BarIcon" parent="Widget.Material3.Button.IconButton">
+    <style name="Widget.Comet.BarIcon" parent="Widget.Material3Expressive.Button.IconButton">
         <item name="android:layout_width">48dp</item>
         <item name="android:layout_height">48dp</item>
         <item name="android:minWidth">0dp</item>
@@ -226,14 +226,14 @@
         <item name="iconTint">@color/bar_icon_tint</item>
     </style>
 
-    <style name="Widget.Comet.Fab" parent="Widget.Material3.FloatingActionButton.Primary">
+    <style name="Widget.Comet.Fab" parent="Widget.Material3Expressive.FloatingActionButton">
         <item name="backgroundTint">?attr/colorPrimary</item>
         <item name="tint">?attr/colorOnPrimary</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Comet.Pill</item>
         <item name="elevation">4dp</item>
     </style>
 
-    <style name="Widget.Comet.ExtendedFab" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+    <style name="Widget.Comet.ExtendedFab" parent="Widget.Material3Expressive.ExtendedFloatingActionButton.Medium">
         <item name="backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="iconTint">?attr/colorOnPrimary</item>
@@ -354,7 +354,7 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="Widget.Comet.Toolbar" parent="Widget.Material3.Toolbar">
+    <style name="Widget.Comet.Toolbar" parent="Widget.Material3Expressive.Toolbar">
         <item name="titleTextAppearance">@style/TextAppearance.Comet.TitleLarge</item>
         <item name="titleTextColor">?attr/colorOnSurface</item>
         <item name="navigationIconTint">?attr/colorOnSurface</item>
@@ -498,5 +498,32 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <!-- ============================================================
+         Progress (Material 3 Expressive indicators)
+         ============================================================ -->
+    <style name="Widget.Comet.Progress" parent="Widget.Material3Expressive.CircularProgressIndicator">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="indicatorColor">?attr/colorPrimary</item>
+        <item name="trackColor">@android:color/transparent</item>
+        <item name="indicatorSize">28dp</item>
+        <item name="trackThickness">3dp</item>
+        <item name="android:indeterminate">true</item>
+    </style>
+
+    <!-- Sits inside a filled button, so it takes the on-primary colour. -->
+    <style name="Widget.Comet.Progress.OnPrimary">
+        <item name="indicatorColor">?attr/colorOnPrimary</item>
+    </style>
+
+    <!-- The wavy indicator, for the one place the wait is long enough to notice. -->
+    <style name="Widget.Comet.Progress.Wavy" parent="Widget.Material3Expressive.CircularProgressIndicator.Wavy">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="indicatorColor">?attr/colorPrimary</item>
+        <item name="indicatorSize">48dp</item>
+        <item name="android:indeterminate">true</item>
     </style>
 </resources>

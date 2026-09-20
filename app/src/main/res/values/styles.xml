@@ -22,7 +22,7 @@
     <attr name="colorBottomBar" format="reference|color" />
 
     <!-- General styles -->
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3.Light" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3Expressive.Light" />
 
     <style name="Theme.Intro.Solid" parent="Theme.Intro">
         <item name="android:windowIsTranslucent">false</item>
@@ -31,7 +31,7 @@
     <!-- ============================================================
          Light application theme
          ============================================================ -->
-    <style name="AppBaseTheme" parent="Theme.Material3.Light.NoActionBar">
+    <style name="AppBaseTheme" parent="Theme.Material3Expressive.Light.NoActionBar">
         <!-- Material colour roles -->
         <item name="colorPrimary">@color/primary_800</item>
         <item name="colorOnPrimary">@color/neutral_0</item>
@@ -147,7 +147,7 @@
         <item name="contentPadding">@dimen/activity_margin</item>
     </style>
 
-    <style name="DialogTheme" parent="Theme.Material3.Light.Dialog.MinWidth">
+    <style name="DialogTheme" parent="Theme.Material3Expressive.Light.Dialog.MinWidth">
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorAccent">@color/primary_500</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
@@ -159,7 +159,7 @@
     <!-- ============================================================
          Dark application theme
          ============================================================ -->
-    <style name="AppBaseTheme.Dark" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="AppBaseTheme.Dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorOnPrimary">@color/neutral_0</item>
         <item name="colorPrimaryContainer">@color/primary_800</item>
@@ -261,7 +261,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="DialogTheme.Dark" parent="Theme.Material3.Dark.Dialog.MinWidth">
+    <style name="DialogTheme.Dark" parent="Theme.Material3Expressive.Dark.Dialog.MinWidth">
         <item name="colorPrimary">@color/primary_300</item>
         <item name="colorAccent">@color/primary_500</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
@@ -307,7 +307,7 @@
     <!-- ============================================================
          Legacy custom dialog themes (still referenced by drawables)
          ============================================================ -->
-    <style name="CustomDialogTheme" parent="Theme.Material3.Light.Dialog.Alert">
+    <style name="CustomDialogTheme" parent="Theme.Material3Expressive.Light.Dialog.Alert">
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@android:color/primary_text_dark_nodisable</item>
         <item name="android:windowBackground">@drawable/background_error_dialog</item>

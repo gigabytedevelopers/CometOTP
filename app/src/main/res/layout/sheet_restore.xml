@@ -159,13 +159,10 @@
             android:layout_height="@dimen/button_height"
             android:text="@string/backup_button_restore_short" />
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/progressBarRestore"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            style="@style/Widget.Comet.Progress.OnPrimary"
             android:layout_gravity="center"
-            android:indeterminateTint="?attr/colorOnPrimary"
             android:visibility="gone" />
 
     </FrameLayout>
