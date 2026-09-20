@@ -162,7 +162,7 @@
                 android:id="@+id/menuButton"
                 style="@style/Widget.Comet.BarIcon"
                 android:layout_gravity="start|center_vertical"
-                android:layout_marginStart="@dimen/space_sm"
+                android:layout_marginStart="@dimen/bar_icon_margin"
                 android:contentDescription="@string/button_main_menu"
                 app:icon="@drawable/ic_menu" />
 
@@ -170,13 +170,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="end|center_vertical"
-                android:layout_marginEnd="@dimen/space_sm"
+                android:layout_marginEnd="@dimen/bar_icon_margin"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/searchButton"
                     style="@style/Widget.Comet.BarIcon"
+                    android:layout_marginEnd="@dimen/bar_icon_gap"
                     android:contentDescription="@string/menu_main_search"
                     app:icon="@drawable/ic_search" />
 
