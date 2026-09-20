@@ -104,6 +104,18 @@
             android:name=".Activities.AuthSetupActivity"
             android:parentActivityName=".Activities.SecurityActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activities.SupportActivity"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activities.FaqDetailActivity"
+            android:parentActivityName=".Activities.SupportActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activities.ContactActivity"
+            android:parentActivityName=".Activities.SupportActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.SecureCaptureActivity" />
         <activity
             android:name=".Activities.PanicResponderActivity"

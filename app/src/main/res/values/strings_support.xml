@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="support_activity_title">Support &amp; FAQs</string>
+    <string name="support_contact_us">Contact Us</string>
+    <string name="support_faq_subtitle">Tap to read more</string>
+    <string name="support_last_updated">Last updated: %1$s</string>
+
+    <string-array name="faq_titles">
+        <item>What is CometOTP</item>
+        <item>What is OTP</item>
+        <item>How do I add a service</item>
+        <item>Can\'t backup my services</item>
+        <item>My codes are not accepted</item>
+        <item>I got a new phone</item>
+        <item>Is my data safe</item>
+    </string-array>
+
+    <string-array name="faq_bodies">
+        <item>CometOTP is a simple and free two-factor authenticator. It generates time-based one-time passwords (TOTP), counter-based passwords (HOTP), Steam codes and mOTP codes for the services you protect with two-factor authentication.\n\nEverything is stored encrypted on your device and never leaves it unless you create a backup yourself.</item>
+        <item>A one-time password (OTP) is a short code that is only valid once and, for time-based codes, only for a short period of time (usually 30 seconds).\n\nWhen a service asks you for a code, open CometOTP, find the service and type in the code shown on its card before the countdown runs out.</item>
+        <item>Tap the + button on the home screen and choose one of the options:\n\n• Scan QR Code: point the camera at the QR code shown by the service.\n• QR Code from Image: pick a screenshot or photo of the QR code.\n• Setup Key: type the secret key and the account details by hand.</item>
+        <item>Backups are created from the Backup &amp; Restore screen in the main menu. If the backup fails, make sure you have granted access to the folder you picked and that there is enough free space.\n\nAutomatic backups additionally need a default backup location and a backup password, both of which are set in Settings.</item>
+        <item>Time-based codes depend on the clock of your phone. Make sure that automatic date &amp; time is enabled in your device settings.\n\nIf the codes are still rejected, remove the service from the website and add it to CometOTP again.</item>
+        <item>Create an encrypted backup on your old phone from the Backup &amp; Restore screen, copy the file to your new phone and restore it there.\n\nCometOTP does not sync your accounts to the cloud, so a backup is the only way to move them.</item>
+        <item>Your accounts are stored in an encrypted file. The key is either kept in the Android KeyStore (hardware backed on most devices) or derived from your password or PIN, depending on the encryption method you chose during setup.\n\nYou can additionally lock the app with a PIN, a password or your fingerprint from the Security screen.</item>
+    </string-array>
+
+    <!-- Contact form -->
+    <string name="contact_activity_title">Contact Us</string>
+    <string name="contact_hint_email">Email</string>
+    <string name="contact_hint_problem">Problem</string>
+    <string name="contact_device_info_note">Your device information will be sent to us to help fix your problem</string>
+    <string name="contact_send">Send</string>
+    <string name="contact_result_sent_title">Message has been sent</string>
+    <string name="contact_result_sent_msg">Thank you for your feedback, we will get back to you</string>
+    <string name="contact_result_failed_title">Message has failed to send</string>
+    <string name="contact_result_failed_msg">No email app was found on this device</string>
+    <string name="contact_try_again">Try again</string>
+    <string name="contact_close">Close</string>
+    <string name="contact_email_subject">CometOTP %1$s: %2$s</string>
+    <string name="contact_email_body">%1$s\n\nReply to: %2$s\n\n---\nApp version: %3$s\nDevice: %4$s\nAndroid: %5$s</string>
+
+    <string-array name="contact_types">
+        <item>Bug</item>
+        <item>Complaint</item>
+        <item>Suggestion</item>
+        <item>Question</item>
+    </string-array>
+</resources>

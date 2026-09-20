@@ -608,7 +608,7 @@ public class MainActivity extends BaseActivity
         bindSheetAction(sheet, R.id.nav_home, () -> {});
         bindSheetAction(sheet, R.id.nav_tags, () -> tagsDrawerLayout.openDrawer(GravityCompat.START));
         bindSheetAction(sheet, R.id.nav_security, this::openSecurity);
-        bindSheetAction(sheet, R.id.nav_support, this::openAbout);
+        bindSheetAction(sheet, R.id.nav_support, () -> startActivity(new Intent(this, SupportActivity.class)));
         bindSheetAction(sheet, R.id.nav_backup, this::openBackup);
         bindSheetAction(sheet, R.id.nav_settings, this::openSettings);
         bindSheetAction(sheet, R.id.nav_about, this::openAbout);
