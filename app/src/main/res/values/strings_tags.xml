@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tags_activity_title">Tags</string>
+    <string name="tags_empty_title">No Tags Created.</string>
+    <string name="tags_empty_subtitle">Use the + button to add a new tag</string>
+    <string name="tags_create">Create</string>
+    <string name="tags_caption">Tag</string>
+    <plurals name="tags_caption_count">
+        <item quantity="one">Tag · %d item</item>
+        <item quantity="other">Tag · %d items</item>
+    </plurals>
+
+    <string name="tags_sheet_create">Create Tag</string>
+    <string name="tags_sheet_edit">Edit Tag</string>
+    <string name="tags_hint_name">Name</string>
+    <string name="tags_help_name">Tags help you group services. You can filter the home screen by tag.</string>
+    <string name="tags_label_color">Colour</string>
+    <string name="tags_show_count">Show Item Count</string>
+    <string name="tags_show_count_desc">Show how many services use this tag on the tag list.</string>
+    <string name="tags_error_exists">A tag with this name already exists</string>
+
+    <string name="tags_delete_title">Delete Tag</string>
+    <string name="tags_delete_msg">Are you sure you want to delete this tag?</string>
+    <plurals name="tags_delete_msg_in_use">
+        <item quantity="one">Are you sure you want to delete this tag? You are currently using this tag in %d service.</item>
+        <item quantity="other">Are you sure you want to delete this tag? You are currently using this tag in %d services.</item>
+    </plurals>
+
+    <string name="tags_menu_edit">Edit</string>
+    <string name="tags_menu_delete">Delete</string>
+
+    <integer-array name="tag_palette">
+        <item>@color/tag_blue</item>
+        <item>@color/tag_green</item>
+        <item>@color/tag_red</item>
+        <item>@color/tag_yellow</item>
+        <item>@color/tag_purple</item>
+        <item>@color/tag_orange</item>
+        <item>@color/tag_teal</item>
+        <item>@color/tag_pink</item>
+    </integer-array>
+
+    <string-array name="tag_palette_names">
+        <item>Blue</item>
+        <item>Green</item>
+        <item>Red</item>
+        <item>Yellow</item>
+        <item>Purple</item>
+        <item>Orange</item>
+        <item>Teal</item>
+        <item>Pink</item>
+    </string-array>
+</resources>

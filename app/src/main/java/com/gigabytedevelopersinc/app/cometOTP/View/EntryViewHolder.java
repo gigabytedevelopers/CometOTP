@@ -1,6 +1,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.View;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
@@ -16,6 +18,7 @@ import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.ItemTouchHelperViewHolder;
 import com.google.android.material.card.MaterialCardView;
@@ -164,9 +167,20 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
             tags.setVisibility(View.GONE);
             tagBar.setVisibility(View.GONE);
         } else {
+            // The leading bar and the chip take the colour of the entry's first tag
+            int tagColor = TagStore.colorOf(context, entryTags.get(0));
+            tagBar.setBackgroundColor(tagColor);
+
             tags.setText(TextUtils.join(", ", entryTags));
             tags.setVisibility(View.VISIBLE);
             tagBar.setVisibility(View.VISIBLE);
+
+            Drawable chipBackground = ContextCompat.getDrawable(context, R.drawable.bg_tag_chip);
+            if (chipBackground != null) {
+                chipBackground = chipBackground.mutate();
+                chipBackground.setTint(tagColor);
+                tags.setBackground(chipBackground);
+            }
         }
 
         thumbnailFrame.setVisibility(settings.getThumbnailVisible() ? View.VISIBLE : View.GONE);

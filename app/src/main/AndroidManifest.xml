@@ -116,6 +116,10 @@
             android:name=".Activities.ContactActivity"
             android:parentActivityName=".Activities.SupportActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activities.TagsActivity"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.SecureCaptureActivity" />
         <activity
             android:name=".Activities.PanicResponderActivity"

@@ -249,7 +249,7 @@
     <style name="Widget.Comet.TextInput" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
         <item name="boxStrokeWidth">0dp</item>
-        <item name="boxStrokeWidthFocused">1.5dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
         <item name="boxStrokeColor">@color/input_stroke</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Comet.Medium</item>
         <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
@@ -279,7 +279,7 @@
     <style name="Widget.Comet.TextInput.Dropdown" parent="Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu">
         <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
         <item name="boxStrokeWidth">0dp</item>
-        <item name="boxStrokeWidthFocused">1.5dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
         <item name="boxStrokeColor">@color/input_stroke</item>
         <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
         <item name="boxCornerRadiusTopEnd">@dimen/radius_md</item>

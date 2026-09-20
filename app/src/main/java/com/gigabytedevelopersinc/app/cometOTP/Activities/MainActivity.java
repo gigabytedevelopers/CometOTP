@@ -606,7 +606,7 @@ public class MainActivity extends BaseActivity
             home.setSelected(true);
 
         bindSheetAction(sheet, R.id.nav_home, () -> {});
-        bindSheetAction(sheet, R.id.nav_tags, () -> tagsDrawerLayout.openDrawer(GravityCompat.START));
+        bindSheetAction(sheet, R.id.nav_tags, this::openTags);
         bindSheetAction(sheet, R.id.nav_security, this::openSecurity);
         bindSheetAction(sheet, R.id.nav_support, () -> startActivity(new Intent(this, SupportActivity.class)));
         bindSheetAction(sheet, R.id.nav_backup, this::openBackup);
@@ -666,6 +666,13 @@ public class MainActivity extends BaseActivity
         if (adapter.getEncryptionKey() != null)
             backupIntent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
         backupLauncher.launch(backupIntent);
+    }
+
+    private void openTags() {
+        Intent tagsIntent = new Intent(this, TagsActivity.class);
+        if (adapter.getEncryptionKey() != null)
+            tagsIntent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, adapter.getEncryptionKey().getEncoded());
+        backupLauncher.launch(tagsIntent);
     }
 
     private void openSecurity() {

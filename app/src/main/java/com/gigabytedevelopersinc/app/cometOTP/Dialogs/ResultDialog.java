@@ -55,6 +55,14 @@ public class ResultDialog {
                 primaryLabel, onPrimary, secondaryLabel, onSecondary);
     }
 
+    public static AlertDialog showWarningIcon(@NonNull Context context, @DrawableRes int icon,
+                                              @StringRes int title, @NonNull String message,
+                                              @StringRes int primaryLabel, @Nullable Runnable onPrimary,
+                                              @StringRes int secondaryLabel, @Nullable Runnable onSecondary) {
+        return show(context, icon, Kind.WARNING, context.getString(title), message,
+                primaryLabel, onPrimary, secondaryLabel, onSecondary);
+    }
+
     private static AlertDialog show(@NonNull Context context, @DrawableRes int icon, Kind kind,
                                     @NonNull String title, @NonNull String message,
                                     @StringRes int primaryLabel, @Nullable Runnable onPrimary,
@@ -80,8 +88,10 @@ public class ResultDialog {
                 break;
             case WARNING:
                 badge.setVisibility(View.GONE);
-                iconView.setImageTintList(android.content.res.ColorStateList.valueOf(
-                        Tools.getThemeColor(context, R.attr.colorWarning)));
+                int tint = icon == R.drawable.ic_warning_triangle
+                        ? Tools.getThemeColor(context, R.attr.colorWarning)
+                        : Tools.getThemeColor(context, androidx.appcompat.R.attr.colorError);
+                iconView.setImageTintList(android.content.res.ColorStateList.valueOf(tint));
                 break;
         }
         titleView.setText(title);
