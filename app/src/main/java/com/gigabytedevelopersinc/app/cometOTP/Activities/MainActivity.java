@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -41,7 +42,11 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.PackageInfoCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -58,6 +63,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.NotificationHelper;
+import com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScanQRCodeFromFile;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
@@ -112,7 +118,7 @@ public class MainActivity extends BaseActivity
     private View appBarSearch;
     private EditText searchField;
     private CountdownRingView appBarCountdown;
-    private View bottomBar;
+    private NotchedBottomBar bottomBar;
     private FloatingActionButton fab;
     private View emptyState;
     private ImageView emptyIllustration;
@@ -485,6 +491,7 @@ public class MainActivity extends BaseActivity
         appBarCountdown = findViewById(R.id.appBarCountdown);
         bottomBar = findViewById(R.id.bottomBar);
         fab = findViewById(R.id.fab);
+        applyWindowInsets();
         emptyState = findViewById(R.id.emptyState);
         emptyIllustration = emptyState.findViewById(R.id.emptyIllustration);
         emptyTitle = emptyState.findViewById(R.id.emptyTitle);
@@ -523,6 +530,49 @@ public class MainActivity extends BaseActivity
             }
             return false;
         });
+    }
+
+    /**
+     * The bar is docked to the very bottom of the window and the list scrolls underneath it, so
+     * the navigation-bar inset becomes bar padding rather than a gap below the bar. The add button
+     * is then centred on the bar's top edge and the list is padded clear of both.
+     */
+    private void applyWindowInsets() {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        // The docked bar paints behind the navigation bar, so the system must not paint over it.
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
+            getWindow().setNavigationBarContrastEnforced(false);
+
+        final View root = findViewById(R.id.main_content);
+        final View appBar = findViewById(R.id.appBar);
+        final RecyclerView list = findViewById(R.id.cardList);
+        final View empty = findViewById(R.id.emptyState);
+        final int barHeight = getResources().getDimensionPixelSize(R.dimen.bottom_bar_height);
+        final int listGap = getResources().getDimensionPixelSize(R.dimen.list_bottom_gap);
+
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, windowInsets) -> {
+            Insets bars = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+
+            appBar.setPadding(bars.left, bars.top, bars.right, 0);
+            bottomBar.setPadding(bars.left, 0, bars.right, bars.bottom);
+
+            int docked = barHeight + bars.bottom;
+            list.setPadding(list.getPaddingLeft(), list.getPaddingTop(), list.getPaddingRight(),
+                    docked + listGap);
+            empty.setPadding(0, 0, 0, docked);
+
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) fab.getLayoutParams();
+            int margin = docked - getResources().getDimensionPixelSize(R.dimen.fab_size) / 2;
+            if (lp.bottomMargin != margin) {
+                lp.bottomMargin = margin;
+                fab.setLayoutParams(lp);
+            }
+            return WindowInsetsCompat.CONSUMED;
+        });
+        ViewCompat.requestApplyInsets(root);
     }
 
     private void enterSearchMode(boolean focus) {

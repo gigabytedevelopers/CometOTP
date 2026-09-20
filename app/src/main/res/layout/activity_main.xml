@@ -7,7 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
-    android:fitsSystemWindows="true"
     tools:context="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -15,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"
+        android:fitsSystemWindows="true"
         app:elevation="0dp"
         app:liftOnScroll="false">
 
@@ -126,7 +126,6 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingTop="@dimen/space_xs"
-                android:paddingBottom="@dimen/fab_recyclerview_padding"
                 android:scrollbars="none" />
 
             <include
@@ -143,56 +142,67 @@
 
     </androidx.drawerlayout.widget.DrawerLayout>
 
-    <!-- Bottom bar -->
-    <FrameLayout
+    <!-- Docked bottom bar: flush with the window bottom, notched for the add button -->
+    <com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/bottom_bar_height"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@drawable/bg_bottom_bar"
-        android:elevation="6dp">
+        android:elevation="4dp"
+        app:barColor="?attr/colorBottomBar"
+        app:barLineColor="?attr/colorOutlineVariant"
+        app:barLineWidth="1dp"
+        app:barNotchRadius="@dimen/fab_notch_radius">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/menuButton"
-            style="@style/Widget.Comet.BarIcon"
-            android:layout_gravity="start|center_vertical"
-            android:layout_marginStart="@dimen/space_sm"
-            android:contentDescription="@string/button_main_menu"
-            app:icon="@drawable/ic_menu" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="@dimen/space_sm"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/bottom_bar_height">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/searchButton"
+                android:id="@+id/menuButton"
                 style="@style/Widget.Comet.BarIcon"
-                android:contentDescription="@string/menu_main_search"
-                app:icon="@drawable/ic_search" />
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="@dimen/space_sm"
+                android:contentDescription="@string/button_main_menu"
+                app:icon="@drawable/ic_menu" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/sortButton"
-                style="@style/Widget.Comet.BarIcon"
-                android:contentDescription="@string/menu_main_sort"
-                app:icon="@drawable/ic_sort" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="@dimen/space_sm"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/searchButton"
+                    style="@style/Widget.Comet.BarIcon"
+                    android:contentDescription="@string/menu_main_search"
+                    app:icon="@drawable/ic_search" />
 
-    </FrameLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sortButton"
+                    style="@style/Widget.Comet.BarIcon"
+                    android:contentDescription="@string/menu_main_sort"
+                    app:icon="@drawable/ic_sort" />
 
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar>
+
+    <!-- Centred on the bar's top edge; the bottom margin is set from the window insets -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         style="@style/Widget.Comet.Fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/fab_size"
+        android:layout_height="@dimen/fab_size"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="36dp"
         android:contentDescription="@string/button_add"
-        app:elevation="8dp"
+        app:elevation="6dp"
+        app:fabCustomSize="@dimen/fab_size"
+        app:maxImageSize="@dimen/icon_size"
         app:srcCompat="@drawable/ic_add"
         app:tint="?attr/colorOnPrimary" />
 

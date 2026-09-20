@@ -53,4 +53,10 @@
         <attr name="ringHighlightExpiring" format="boolean" />
         <attr name="ringExpiringThreshold" format="integer" />
     </declare-styleable>
+    <declare-styleable name="NotchedBottomBar">
+        <attr name="barColor" format="color|reference" />
+        <attr name="barLineColor" format="color|reference" />
+        <attr name="barLineWidth" format="dimension" />
+        <attr name="barNotchRadius" format="dimension" />
+    </declare-styleable>
 </resources>

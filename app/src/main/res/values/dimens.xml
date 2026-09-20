@@ -32,7 +32,9 @@
     <dimen name="input_height">52dp</dimen>
     <dimen name="app_bar_height">64dp</dimen>
     <dimen name="bottom_bar_height">64dp</dimen>
-    <dimen name="fab_size">56dp</dimen>
+    <dimen name="fab_size">64dp</dimen>
+    <dimen name="fab_notch_gap">6dp</dimen>
+    <dimen name="fab_notch_radius">38dp</dimen>
     <dimen name="countdown_size">28dp</dimen>
     <dimen name="countdown_stroke">2.5dp</dimen>
     <dimen name="card_elevation">2dp</dimen>
@@ -67,6 +69,7 @@
     <dimen name="fab_base_vertical_offset">16dp</dimen>
 
     <dimen name="fab_recyclerview_padding">96dp</dimen><!-- bottom bar + FAB overlap -->
+    <dimen name="list_bottom_gap">16dp</dimen><!-- breathing room above the docked bar -->
 
     <!-- Intro Screen -->
     <dimen name="mi_baseline">16dp</dimen>
