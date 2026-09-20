@@ -113,8 +113,11 @@ public class AuthenticateActivity extends BaseActivity
 
     private void initToolbar() {
         Toolbar toolbar = findViewById(R.id.container_toolbar);
-        toolbar.setNavigationIcon(null);
-        setSupportActionBar(toolbar);
+        toolbar.setTitle(null);
+        toolbar.setNavigationIcon(R.drawable.ic_close);
+        toolbar.setNavigationContentDescription(android.R.string.cancel);
+        toolbar.setNavigationOnClickListener(v -> finishWithResult(false, null));
+        findViewById(R.id.container_brand).setVisibility(View.VISIBLE);
     }
 
     private void initPasswordViews() {
@@ -132,12 +135,17 @@ public class AuthenticateActivity extends BaseActivity
         int labelMsg = getIntent().getIntExtra(Constants.EXTRA_AUTH_MESSAGE, R.string.auth_msg_authenticate);
         TextView passwordLabel = v.findViewById(R.id.passwordLabel);
         passwordLabel.setText(labelMsg);
+
+        TextView passwordTitle = v.findViewById(R.id.passwordTitle);
+        passwordTitle.setText(authMethod == AuthMethod.PASSWORD ? R.string.auth_title_password : R.string.auth_title_pin);
     }
 
     private void initPasswordLayoutView(View v) {
         passwordLayout = v.findViewById(R.id.passwordLayout);
         int hintResId = (authMethod == AuthMethod.PASSWORD) ? R.string.auth_hint_password : R.string.auth_hint_pin;
         passwordLayout.setHint(getString(hintResId));
+        if (passwordLayout.getEditText() != null)
+            passwordLayout.getEditText().setHint(hintResId);
         if (settings.getBlockAccessibility()) {
             passwordLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
         }
@@ -165,6 +173,9 @@ public class AuthenticateActivity extends BaseActivity
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (unlockButton != null)
+                    unlockButton.setEnabled(s.length() > 0 && findTaskFragment() == null);
+
                 if (
                         passwordInput.getTransformationMethod() == PasswordTransformationMethod.getInstance() &&
                                 passwordLayout.getEndIconMode() == TextInputLayout.END_ICON_PASSWORD_TOGGLE &&
@@ -184,7 +195,7 @@ public class AuthenticateActivity extends BaseActivity
     private void initUnlockViews(View v) {
         unlockButton = v.findViewById(R.id.buttonUnlock);
         unlockButton.setOnClickListener(this);
-        unlockButton.setVisibility(View.VISIBLE);
+        unlockButton.setEnabled(false);
         unlockProgress = v.findViewById(R.id.unlockProgress);
         unlockProgress.setVisibility(View.GONE);
     }
@@ -243,8 +254,9 @@ public class AuthenticateActivity extends BaseActivity
     private void setupUiForTaskState(boolean isTaskRunning) {
         passwordLayout.setEnabled(!isTaskRunning);
         passwordInput.setEnabled(!isTaskRunning);
-        unlockButton.setEnabled(!isTaskRunning);
-        unlockButton.setVisibility(isTaskRunning? View.INVISIBLE : View.VISIBLE);
+        Editable text = passwordInput.getText();
+        unlockButton.setEnabled(!isTaskRunning && text != null && text.length() > 0);
+        unlockButton.setText(isTaskRunning ? "" : getString(R.string.auth_button_confirm));
         unlockProgress.setVisibility(isTaskRunning ? View.VISIBLE : View.GONE);
     }
 
