@@ -35,43 +35,35 @@
 
     </FrameLayout>
 
-    <!-- Backup encryption -->
+    <!-- Backup encryption. The dropdown sits under the description rather than beside it, so
+         the longest format name fits instead of being clipped. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_sm"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="0dp"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:text="@string/backup_label_encryption"
+            android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
+            android:textColor="?attr/colorOnSurface" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/backup_label_encryption"
-                android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
-                android:textColor="?attr/colorOnSurface" />
-
-            <TextView
-                android:id="@+id/backupDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textAppearance="@style/TextAppearance.Comet.Caption"
-                tools:text="Backup will be stored in an unencrypted plain-text." />
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/backupDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textAppearance="@style/TextAppearance.Comet.Caption"
+            tools:text="Backup will be encrypted with a password using AES 256-bit encryption." />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/backupTypeLayout"
             style="@style/Widget.Comet.TextInput.Dropdown"
-            android:layout_width="150dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_md"
+            android:layout_marginTop="@dimen/space_sm"
             app:hintEnabled="false">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -80,11 +72,9 @@
                 android:layout_height="wrap_content"
                 android:inputType="none"
                 android:maxLines="1"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
-                android:textSize="13sp"
-                tools:text="Text" />
+                android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
+                android:textSize="15sp"
+                tools:text="Password Encryption" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
