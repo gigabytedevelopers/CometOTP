@@ -66,6 +66,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.LauncherIcon;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.NotificationHelper;
 import com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScanQRCodeFromFile;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
 import com.gigabytedevelopersinc.app.cometOTP.View.CoachMarkOverlay;
@@ -315,7 +316,7 @@ public class MainActivity extends BaseActivity
 
     private void populateAdapter() {
         adapter.loadEntries();
-        tagsDrawerAdapter.setTags(TagsAdapter.createTagsMap(adapter.getEntries(), settings));
+        tagsDrawerAdapter.setTags(TagsAdapter.createTagsMap(this, adapter.getEntries(), settings));
         adapter.filterByTags(tagsDrawerAdapter.getActiveTags());
     }
 
@@ -1166,6 +1167,11 @@ public class MainActivity extends BaseActivity
         for(String tag: adapter.getTags()) {
             if(!tagsHashMap.containsKey(tag))
                 tagsHashMap.put(tag, true);
+        }
+        // Picks up a tag created on the Tags screen while this screen was still alive.
+        for(String tag: TagStore.knownTags(this)) {
+            if(!tagsHashMap.containsKey(tag))
+                tagsHashMap.put(tag, settings.getTagToggle(tag));
         }
         tagsDrawerAdapter.setTags(tagsHashMap);
         adapter.filterByTags(tagsDrawerAdapter.getActiveTags());

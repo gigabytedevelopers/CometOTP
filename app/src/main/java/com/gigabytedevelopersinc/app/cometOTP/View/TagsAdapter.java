@@ -10,6 +10,7 @@ import android.widget.CheckedTextView;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,13 +96,18 @@ public class TagsAdapter extends ArrayAdapter<String> {
         notifyDataSetChanged();
     }
 
-    public static HashMap<String, Boolean> createTagsMap(ArrayList<Entry> entries, Settings settings) {
+    public static HashMap<String, Boolean> createTagsMap(Context context, ArrayList<Entry> entries,
+                                                        Settings settings) {
         HashMap<String, Boolean> tagsHashMap = new HashMap<>();
 
         for(Entry entry : entries) {
             for(String tag : entry.getTags())
                 tagsHashMap.put(tag, settings.getTagToggle(tag));
         }
+
+        // Tags created on the Tags screen that nothing carries yet still belong in the filter.
+        for(String tag : TagStore.knownTags(context))
+            tagsHashMap.put(tag, settings.getTagToggle(tag));
 
         return tagsHashMap;
     }
