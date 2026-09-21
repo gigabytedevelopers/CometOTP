@@ -175,7 +175,7 @@
             app:layout_constraintTop_toBottomOf="@id/valueLayout"
             tools:text="mynameisthis@email.com" />
 
-        <!-- Trailing: HOTP counter, countdown ring, copy, overflow -->
+        <!-- Trailing: HOTP counter, countdown ring, then options over copy -->
         <LinearLayout
             android:id="@+id/trailingGroup"
             android:layout_width="wrap_content"
@@ -228,24 +228,33 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
 
-            <ImageButton
-                android:id="@+id/copyButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/button_card_copy"
-                android:padding="8dp"
-                app:srcCompat="@drawable/ic_copy"
-                app:tint="?attr/colorOnSurfaceVariant" />
+            <!-- Options above, copy below, as in the previous app -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/menuButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/button_card_options"
-                app:srcCompat="@drawable/ic_more_vert"
-                app:tint="?attr/colorOnSurface" />
+                <ImageButton
+                    android:id="@+id/menuButton"
+                    android:layout_width="40dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/button_card_options"
+                    app:srcCompat="@drawable/ic_more_horiz"
+                    app:tint="?attr/colorOnSurface" />
+
+                <ImageButton
+                    android:id="@+id/copyButton"
+                    android:layout_width="40dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/button_card_copy"
+                    android:padding="7dp"
+                    app:srcCompat="@drawable/ic_copy"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

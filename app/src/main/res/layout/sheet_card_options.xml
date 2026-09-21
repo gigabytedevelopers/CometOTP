@@ -27,12 +27,6 @@
         tools:text="1&amp;1" />
 
     <TextView
-        android:id="@+id/card_options_copy"
-        style="@style/Widget.Comet.NavRow"
-        android:text="@string/button_card_copy"
-        app:drawableStartCompat="@drawable/ic_copy" />
-
-    <TextView
         android:id="@+id/card_options_edit"
         style="@style/Widget.Comet.NavRow"
         android:text="@string/menu_popup_edit"

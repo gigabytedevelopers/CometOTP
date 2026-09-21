@@ -676,9 +676,6 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
         if (pin != null && entry.getType() == Entry.OTPType.MOTP)
             pin.setVisibility(View.VISIBLE);
 
-        bindOption(sheet, R.id.card_options_copy,
-                () -> copyHandler(pos, displayedEntries.get(pos).getCurrentOTP(),
-                        settings.isMinimizeAppOnCopyEnabled()));
         bindOption(sheet, R.id.card_options_edit,
                 () -> ManualEntryDialog.show((MainActivity) context, settings, EntriesCardAdapter.this,
                         entries.getEntry(getRealIndex(pos)),
