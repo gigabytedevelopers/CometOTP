@@ -6,11 +6,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.gigabytedevelopersinc.app.cometOTP.R;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore;
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter;
 
 import java.util.HashMap;
@@ -20,35 +20,6 @@ public class TagsDialog {
     public static void show(Context context, final TagsAdapter tagsAdapter, final Callable<?> newTagCallable, final Callable<?> selectedTagsCallable) {
         int margin = context.getResources().getDimensionPixelSize(R.dimen.activity_margin);
         int marginSmall = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_small);
-        int marginMedium = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_medium);
-
-        final EditText input = new EditText(context);
-        input.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        final FrameLayout inputLayout = new FrameLayout(context);
-        inputLayout.setPaddingRelative(marginMedium, marginSmall, marginMedium, 0);
-        inputLayout.addView(input);
-
-        final AlertDialog.Builder newTagBuilder = new MaterialAlertDialogBuilder(context);
-        newTagBuilder.setTitle(R.string.button_new_tag)
-                .setView(inputLayout)
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
-                    String newTag = input.getText().toString();
-                    HashMap<String, Boolean> allTags = tagsAdapter.getTagsWithState();
-                    allTags.put(newTag, true);
-                    tagsAdapter.setTags(allTags);
-                    if(newTagCallable != null) {
-                        try {
-                            newTagCallable.call();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-
-                });
 
         final ListView tagsSelectionView = new ListView(context);
         tagsSelectionView.setDivider(null);
@@ -78,7 +49,26 @@ public class TagsDialog {
                         }
                     }
                 })
-                .setNeutralButton(R.string.button_new_tag, (dialogInterface, i) -> newTagBuilder.create().show())
+                .setNeutralButton(R.string.button_new_tag, (dialogInterface, i) ->
+                        // The same Create Tag sheet the Tags screen uses, so a tag made here gets
+                        // a colour and a count setting and is stored the same way.
+                        TagEditSheet.show(context, null, tagsAdapter.getTags(),
+                                (oldName, name, color, showCount) -> {
+                                    TagStore.put(context, name, color, showCount);
+
+                                    HashMap<String, Boolean> allTags = tagsAdapter.getTagsWithState();
+                                    allTags.put(name, true);
+                                    tagsAdapter.setTags(allTags);
+                                    tagsAdapter.setTagState(name, true);
+
+                                    if (newTagCallable != null) {
+                                        try {
+                                            newTagCallable.call();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }))
                 .setCancelable(false)
                 .create()
                 .show();
