@@ -24,11 +24,11 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/tags_create"
-        style="@style/Widget.Comet.ExtendedFab"
+        style="@style/Widget.Comet.Button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/button_height"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/space_md"
         android:text="@string/tags_create"
