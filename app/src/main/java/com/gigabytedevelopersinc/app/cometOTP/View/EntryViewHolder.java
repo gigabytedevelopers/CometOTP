@@ -3,6 +3,7 @@ package com.gigabytedevelopersinc.app.cometOTP.View;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -11,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
@@ -42,6 +44,9 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
     private final LinearLayout counterLayout;
     private final FrameLayout thumbnailFrame;
     private final ImageView thumbnailImg;
+    /** The token never shrinks below this, however narrow the card gets. */
+    private static final int MIN_TOKEN_TEXT_SIZE_SP = 14;
+
     private final ImageButton copyButton;
     private final ImageButton menuButton;
     private final TextView value;
@@ -154,6 +159,10 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         copyButton.setContentDescription(context.getString(R.string.button_card_copy_format, contentHint));
 
         value.setText(tokenFormatted);
+        // A token is briefly empty while it is being recalculated. The line has a fixed height so
+        // it does not jump as the text resizes, so it has to be taken out of the layout entirely
+        // rather than left standing as a blank band.
+        value.setVisibility(tokenFormatted.isEmpty() ? View.GONE : View.VISIBLE);
         // save the unformatted token to the tag of this TextView for copy/paste
         value.setTag(entry.getCurrentOTP());
 
@@ -221,8 +230,12 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
 
     public void setLabelSize(int size) {
         // The design uses a fixed type scale; the label size setting scales the token instead so
-        // the user preference still has a visible effect.
-        value.setTextSize(Math.max(16, size + 4));
+        // the user preference still has a visible effect. The token auto-sizes to fit its line,
+        // so the preference sets the ceiling rather than the size, which setTextSize cannot do
+        // on an auto-sizing view.
+        int max = Math.max(MIN_TOKEN_TEXT_SIZE_SP, size + 4);
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                value, MIN_TOKEN_TEXT_SIZE_SP, max, 1, TypedValue.COMPLEX_UNIT_SP);
     }
 
     public void setThumbnailSize(int size) {
