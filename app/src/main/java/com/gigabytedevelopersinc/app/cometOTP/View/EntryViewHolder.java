@@ -158,11 +158,12 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         menuButton.setContentDescription(context.getString(R.string.button_card_options_format, contentHint));
         copyButton.setContentDescription(context.getString(R.string.button_card_copy_format, contentHint));
 
-        value.setText(tokenFormatted);
-        // A token is null or empty while it is being recalculated. The line has a fixed height so
-        // it does not jump as the text resizes, so it has to be taken out of the layout entirely
-        // rather than left standing as a blank band.
-        value.setVisibility(TextUtils.isEmpty(tokenFormatted) ? View.GONE : View.VISIBLE);
+        // A token should be ready by the time the card is bound. If one is not, the line shows a
+        // mask rather than emptying out, so the card keeps its shape instead of collapsing and
+        // springing back a moment later.
+        boolean hasToken = !TextUtils.isEmpty(tokenFormatted);
+        value.setText(hasToken ? tokenFormatted : context.getString(R.string.bullet_placeholder));
+        value.setAlpha(hasToken ? 1f : 0.4f);
         // save the unformatted token to the tag of this TextView for copy/paste
         value.setTag(entry.getCurrentOTP());
 

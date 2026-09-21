@@ -245,8 +245,11 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
     public void onBindViewHolder(@NonNull EntryViewHolder entryViewHolder, int i) {
         Entry entry = displayedEntries.get(i);
 
-        if (!entry.isTimeBased())
-            entry.updateOTP(false);
+        // Every entry gets its token worked out as the card is bound, rather than only the
+        // counter-based ones. A time-based entry whose token is still current returns straight
+        // away, so this costs nothing in the common case, and a freshly loaded entry no longer
+        // waits for the next tick of the updater to show anything.
+        entry.updateOTP(false);
 
         if(settings.isHighlightTokenOptionEnabled())
             entryViewHolder.updateColor(entry.getColor());
