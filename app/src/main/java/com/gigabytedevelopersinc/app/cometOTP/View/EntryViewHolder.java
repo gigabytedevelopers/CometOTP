@@ -42,6 +42,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
     private final LinearLayout counterLayout;
     private final FrameLayout thumbnailFrame;
     private final ImageView thumbnailImg;
+    private final ImageButton copyButton;
     private final ImageButton menuButton;
     private final TextView value;
     private final TextView valuePrev;
@@ -71,6 +72,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         counterLayout = v.findViewById(R.id.counterLayout);
         counter = v.findViewById(R.id.counter);
         countdown = v.findViewById(R.id.cardCountdown);
+        copyButton = v.findViewById(R.id.copyButton);
         menuButton = v.findViewById(R.id.menuButton);
 
         defaultValueColor = value.getCurrentTextColor();
@@ -78,6 +80,11 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         menuButton.setOnClickListener(view -> {
             if (callback != null)
                 callback.onMenuButtonClicked(itemView, getBindingAdapterPosition());
+        });
+
+        copyButton.setOnClickListener(view -> {
+            if (callback != null && value.getTag() != null)
+                callback.onCopyButtonClicked(value.getTag().toString(), getBindingAdapterPosition());
         });
 
         counterLayout.setOnClickListener(view -> {
@@ -144,6 +151,7 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         }
 
         menuButton.setContentDescription(context.getString(R.string.button_card_options_format, contentHint));
+        copyButton.setContentDescription(context.getString(R.string.button_card_copy_format, contentHint));
 
         value.setText(tokenFormatted);
         // save the unformatted token to the tag of this TextView for copy/paste

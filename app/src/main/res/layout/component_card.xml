@@ -174,7 +174,7 @@
             app:layout_constraintTop_toBottomOf="@id/valueLayout"
             tools:text="mynameisthis@email.com" />
 
-        <!-- Trailing: HOTP counter, countdown ring, overflow -->
+        <!-- Trailing: HOTP counter, countdown ring, copy, overflow -->
         <LinearLayout
             android:id="@+id/trailingGroup"
             android:layout_width="wrap_content"
@@ -226,6 +226,16 @@
                 android:layout_marginStart="@dimen/space_sm"
                 android:visibility="gone"
                 tools:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/copyButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/button_card_copy"
+                android:padding="8dp"
+                app:srcCompat="@drawable/ic_copy"
+                app:tint="?attr/colorOnSurfaceVariant" />
 
             <ImageButton
                 android:id="@+id/menuButton"
