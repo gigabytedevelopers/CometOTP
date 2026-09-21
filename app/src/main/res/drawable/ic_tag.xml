@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Navigation: tags. Tinted from the theme; a row or button that sets its own tint overrides it. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -6,5 +8,6 @@
     android:tint="?attr/colorOnSurface">
     <path
         android:fillColor="@android:color/white"
-        android:pathData="M17.63,5.84C17.27,5.33 16.67,5 16,5L5,5.01C3.9,5.01 3,5.9 3,7v10c0,1.1 0.9,1.99 2,1.99L16,19c0.67,0 1.27,-0.33 1.63,-0.84L22,12l-4.37,-6.16zM16,17H5V7h11l3.55,5L16,17z" />
+        android:fillType="evenOdd"
+        android:pathData="M7.69,4L20.62,3.94L20.69,4.12L21.94,5.25L21.94,18.62L21.75,18.69L20.62,19.94L7.88,19.94L7.5,19.44L7.12,19.31L6.56,18.75L6.44,18.38L5.06,16.62L4.44,15.5L4.06,15.25L3.94,14.88L2.56,13.12L2.44,12.75L1.94,12.38L1.94,11.5L2.56,11L2.69,10.62L3.44,9.75L4.06,8.62L4.56,8.12L5.31,7.12L5.44,6.75L5.94,6.25L6.56,5.12L7.25,4.56L7.62,4.06ZM8.38,5.94L8.06,6.25L7.94,6.62L7.44,7.12L6.81,8.25L6.31,8.75L5.56,9.75L5.44,10.12L4.44,11.38L4.31,11.62L4.31,12.38L5.81,14.25L6.44,15.38L6.81,15.62L7.44,16.75L8.5,17.94L19.88,17.94L20.06,17.62L19.94,17.25L19.94,6.62L20.06,6.25L19.94,6L8.5,5.94Z" />
 </vector>
