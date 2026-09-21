@@ -21,6 +21,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter;
@@ -34,6 +35,8 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
@@ -189,7 +192,11 @@ public class ManualEntryDialog {
         algorithmInput.setOnItemClickListener((parent, view, position, id) -> state.algorithm = ALGORITHMS[position]);
 
         /* --- tags --------------------------------------------------------------------------- */
-        List<String> allTags = adapter.getTags();
+        // Tags in use by an entry, plus tags created on the Tags screen that nothing carries yet.
+        Set<String> allTags = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        allTags.addAll(adapter.getTags());
+        allTags.addAll(TagStore.knownTags(callingActivity));
+
         HashMap<String, Boolean> tagsHashMap = new HashMap<>();
         for(String tag: allTags) {
             tagsHashMap.put(tag, false);
@@ -202,6 +209,7 @@ public class ManualEntryDialog {
         };
 
         View.OnClickListener openTags = view -> TagsDialog.show(callingActivity, tagsAdapter, tagsCallable, tagsCallable);
+
         tagsInput.setOnClickListener(openTags);
         ((TextInputLayout) tagsInput.getParent().getParent()).setEndIconOnClickListener(openTags);
 
