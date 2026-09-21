@@ -353,16 +353,32 @@
         <item name="android:textColorPrimary">@color/text_primary_light</item>
         <item name="android:windowBackground">@drawable/bg_dialog</item>
         <item name="android:buttonBarButtonStyle">@style/Widget.Comet.PlatformDialogButton</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/Widget.Comet.PlatformDialogButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Widget.Comet.PlatformDialogButton</item>
+        <item name="android:buttonBarNeutralButtonStyle">@style/Widget.Comet.PlatformDialogButton</item>
     </style>
 
     <style name="ThemeOverlay.Comet.Dialog.Dark" parent="android:Theme.Material.Dialog.Alert">
         <item name="android:colorAccent">@color/primary_500</item>
         <item name="android:textColorPrimary">@color/text_primary_dark</item>
         <item name="android:windowBackground">@drawable/bg_dialog</item>
-        <item name="android:buttonBarButtonStyle">@style/Widget.Comet.PlatformDialogButton</item>
+        <item name="android:buttonBarButtonStyle">@style/Widget.Comet.PlatformDialogButton.Dark</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/Widget.Comet.PlatformDialogButton.Dark</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Widget.Comet.PlatformDialogButton.Dark</item>
+        <item name="android:buttonBarNeutralButtonStyle">@style/Widget.Comet.PlatformDialogButton.Dark</item>
     </style>
 
-    <!-- Borderless.Colored takes its text from colorAccent, so the framework dialogs' actions
-         land in the brand colour like the Material ones. -->
-    <style name="Widget.Comet.PlatformDialogButton" parent="android:Widget.Material.Button.Borderless.Colored" />
+    <!--
+        The framework dialogs the preference screen builds take their action colour from this
+        style. It is stated literally per theme rather than through an attribute, because
+        resolving one against a platform dialog theme left the actions white on a light surface.
+    -->
+    <style name="Widget.Comet.PlatformDialogButton" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:textColor">@color/primary_800</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.Comet.PlatformDialogButton.Dark">
+        <item name="android:textColor">@color/primary_300</item>
+    </style>
 </resources>
