@@ -2,6 +2,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Dialogs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -20,6 +21,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Database.Entry;
 import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter;
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter;
@@ -69,6 +71,7 @@ public class ManualEntryDialog {
         final View close = sheet.findViewById(R.id.sheetClose);
         final View iconFrame = sheet.findViewById(R.id.manual_icon_frame);
         final ImageView icon = sheet.findViewById(R.id.manual_icon);
+        final View iconAdd = sheet.findViewById(R.id.manual_icon_add);
         final TextInputLayout secretLayout = sheet.findViewById(R.id.manual_secret_layout);
         final EditText secretInput = sheet.findViewById(R.id.manual_secret);
         final TextView secretView = sheet.findViewById(R.id.manual_secret_view);
@@ -204,6 +207,25 @@ public class ManualEntryDialog {
 
         /* --- icon --------------------------------------------------------------------------- */
         final Runnable refreshIcon = () -> {
+            // Until there is something to show, the design puts the brand mark on a muted tile
+            // with an add badge over it, rather than a placeholder thumbnail.
+            boolean empty = state.thumbnail == EntryThumbnail.EntryThumbnails.Default
+                    && issuerInput.getText().toString().trim().isEmpty()
+                    && labelInput.getText().toString().trim().isEmpty();
+
+            if (iconAdd != null)
+                iconAdd.setVisibility(empty ? View.VISIBLE : View.GONE);
+            iconFrame.setBackgroundResource(
+                    empty ? R.drawable.bg_thumbnail_placeholder : R.drawable.bg_issuer_icon);
+
+            if (empty) {
+                icon.setImageResource(R.drawable.ic_logo_mark);
+                icon.setImageTintList(ColorStateList.valueOf(
+                        Tools.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)));
+                return;
+            }
+
+            icon.setImageTintList(null);
             int size = context.getResources().getDimensionPixelSize(R.dimen.issuer_icon_size);
             icon.setImageBitmap(EntryThumbnail.getThumbnailGraphic(context,
                     issuerInput.getText().toString(), labelInput.getText().toString(), size, state.thumbnail));

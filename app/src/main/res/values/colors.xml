@@ -42,6 +42,15 @@
     <color name="background_light">#F5F6FA</color>
     <color name="surface_dark">#1E1F24</color>
     <color name="bottom_bar_dark">#1C1C1C</color>
+
+    <!-- Form fields and sheet furniture, measured from the design -->
+    <color name="input_fill_light">#F9F9FA</color>
+    <color name="input_fill_alt_light">#F2F3F4</color>
+    <color name="input_fill_dark">#2A2B31</color>
+    <color name="input_fill_alt_dark">#33343B</color>
+    <color name="sheet_handle_light">#DADBDB</color>
+    <color name="sheet_handle_dark">#4A4B52</color>
+    <color name="thumbnail_placeholder">#898BA1</color>
     <color name="splash_background">@color/primary_800</color>
     <color name="surface_dark_variant">#2A2B31</color>
     <color name="background_dark">#121316</color>

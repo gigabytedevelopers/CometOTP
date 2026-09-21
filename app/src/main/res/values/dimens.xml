@@ -29,7 +29,7 @@
 
     <!-- Design system: components -->
     <dimen name="button_height">52dp</dimen>
-    <dimen name="input_height">52dp</dimen>
+    <dimen name="input_height">54dp</dimen>
     <dimen name="app_bar_height">64dp</dimen>
     <dimen name="bottom_bar_height">64dp</dimen>
     <dimen name="bar_icon_size">38dp</dimen><!-- 24dp glyph in a transparent 38dp box -->
@@ -49,8 +49,14 @@
     <dimen name="nav_row_radius">5dp</dimen>
     <dimen name="nav_row_height">54dp</dimen>
     <dimen name="sheet_row_inset">20dp</dimen>
-    <dimen name="sheet_handle_width">40dp</dimen>
-    <dimen name="sheet_handle_height">4dp</dimen>
+    <dimen name="sheet_handle_width">46dp</dimen>
+    <dimen name="sheet_handle_height">5dp</dimen>
+    <dimen name="sheet_side_padding">30dp</dimen>
+    <dimen name="sheet_field_gap">24dp</dimen>
+    <dimen name="input_vertical_padding">17dp</dimen>
+    <dimen name="input_horizontal_padding">20dp</dimen>
+    <dimen name="thumbnail_tile_size">68dp</dimen>
+    <dimen name="thumbnail_tile_radius">16dp</dimen>
 
     <dimen name="card_corner_radius">12dp</dimen>
     <dimen name="card_padding_without_corners">14dp</dimen>

@@ -275,18 +275,18 @@
          Inputs
          ============================================================ -->
     <style name="Widget.Comet.TextInput" parent="Widget.Material3.TextInputLayout.FilledBox">
-        <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="boxBackgroundColor">?attr/colorInputFill</item>
         <item name="boxStrokeWidth">0dp</item>
         <item name="boxStrokeWidthFocused">0dp</item>
         <item name="boxStrokeColor">@color/input_stroke</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Medium</item>
-        <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
-        <item name="boxCornerRadiusTopEnd">@dimen/radius_md</item>
-        <item name="boxCornerRadiusBottomStart">@dimen/radius_md</item>
-        <item name="boxCornerRadiusBottomEnd">@dimen/radius_md</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_pill</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_pill</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_pill</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_pill</item>
         <item name="hintTextColor">?attr/colorPrimary</item>
         <item name="android:textColorHint">?attr/colorTextHint</item>
-        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="endIconTint">?attr/colorOnSurface</item>
         <item name="startIconTint">?attr/colorOnSurfaceVariant</item>
         <item name="errorTextColor">?attr/colorError</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.Comet.TextInput</item>
@@ -296,26 +296,43 @@
         <item name="editTextStyle">@style/Widget.Comet.TextInputEditText</item>
     </style>
 
+    <style name="ThemeOverlay.Comet.TextInput.Dropdown" parent="ThemeOverlay.Material3.AutoCompleteTextView.FilledBox">
+        <item name="autoCompleteTextViewStyle">@style/Widget.Comet.AutoCompleteTextView</item>
+    </style>
+
+    <style name="Widget.Comet.AutoCompleteTextView" parent="Widget.Material3.AutoCompleteTextView.FilledBox">
+        <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingTop">@dimen/input_vertical_padding</item>
+        <item name="android:paddingBottom">@dimen/input_vertical_padding</item>
+        <item name="android:paddingStart">@dimen/input_horizontal_padding</item>
+    </style>
+
     <style name="Widget.Comet.TextInputEditText" parent="Widget.Material3.TextInputEditText.FilledBox">
         <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingBottom">14dp</item>
+        <item name="android:paddingTop">@dimen/input_vertical_padding</item>
+        <item name="android:paddingBottom">@dimen/input_vertical_padding</item>
+        <item name="android:paddingStart">@dimen/input_horizontal_padding</item>
     </style>
 
     <!-- Exposed dropdown flavour of the same field -->
+    <!-- The design gives the dropdown a slightly stronger fill than the text fields. -->
     <style name="Widget.Comet.TextInput.Dropdown" parent="Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu">
-        <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="boxBackgroundColor">?attr/colorInputFillAlt</item>
         <item name="boxStrokeWidth">0dp</item>
         <item name="boxStrokeWidthFocused">0dp</item>
         <item name="boxStrokeColor">@color/input_stroke</item>
-        <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
-        <item name="boxCornerRadiusTopEnd">@dimen/radius_md</item>
-        <item name="boxCornerRadiusBottomStart">@dimen/radius_md</item>
-        <item name="boxCornerRadiusBottomEnd">@dimen/radius_md</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_pill</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_pill</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_pill</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_pill</item>
         <item name="hintTextColor">?attr/colorPrimary</item>
         <item name="android:textColorHint">?attr/colorTextHint</item>
-        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="endIconDrawable">@drawable/ic_chevron_down</item>
+        <item name="endIconTint">?attr/colorOnSurface</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Comet.TextInput.Dropdown</item>
     </style>
 
     <!-- Plain pill input (search bar, PIN entry) -->
@@ -394,7 +411,7 @@
         <item name="android:layout_width">@dimen/sheet_handle_width</item>
         <item name="android:layout_height">@dimen/sheet_handle_height</item>
         <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:layout_marginTop">@dimen/space_sm</item>
+        <item name="android:layout_marginTop">@dimen/space_md</item>
         <item name="android:background">@drawable/bg_sheet_handle</item>
     </style>
 

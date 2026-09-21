@@ -11,6 +11,9 @@
     <attr name="colorExpiring" format="reference"/>
 
     <attr name="navigationBarColor" format="reference" />
+    <attr name="colorInputFill" format="color|reference" />
+    <attr name="colorInputFillAlt" format="color|reference" />
+    <attr name="colorSheetHandle" format="color|reference" />
 
     <!-- Icons -->
     <attr name="black_white" format="reference"/>
@@ -33,6 +36,9 @@
          ============================================================ -->
     <style name="AppBaseTheme" parent="Theme.Material3Expressive.Light.NoActionBar">
         <!-- Material colour roles -->
+        <item name="colorInputFill">@color/input_fill_light</item>
+        <item name="colorInputFillAlt">@color/input_fill_alt_light</item>
+        <item name="colorSheetHandle">@color/sheet_handle_light</item>
         <item name="colorPrimary">@color/primary_800</item>
         <item name="colorOnPrimary">@color/neutral_0</item>
         <item name="colorPrimaryContainer">@color/primary_50</item>
@@ -148,6 +154,9 @@
     </style>
 
     <style name="DialogTheme" parent="Theme.Material3Expressive.Light.Dialog.MinWidth">
+        <item name="colorInputFill">@color/input_fill_dark</item>
+        <item name="colorInputFillAlt">@color/input_fill_alt_dark</item>
+        <item name="colorSheetHandle">@color/sheet_handle_dark</item>
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorAccent">@color/primary_500</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
@@ -160,6 +169,9 @@
          Dark application theme
          ============================================================ -->
     <style name="AppBaseTheme.Dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+        <item name="colorInputFill">@color/input_fill_dark</item>
+        <item name="colorInputFillAlt">@color/input_fill_alt_dark</item>
+        <item name="colorSheetHandle">@color/sheet_handle_dark</item>
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorOnPrimary">@color/neutral_0</item>
         <item name="colorPrimaryContainer">@color/primary_800</item>
