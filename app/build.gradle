@@ -183,7 +183,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.8.0'
     implementation 'androidx.appcompat:appcompat-resources:1.8.0'
     implementation 'androidx.core:core-ktx:1.19.0'
-    implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation 'androidx.core:core-splashscreen:1.2.0'
     implementation 'androidx.documentfile:documentfile:1.1.0'   // used directly by BackupHelper (no longer transitive)
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.biometric:biometric:1.1.0"
