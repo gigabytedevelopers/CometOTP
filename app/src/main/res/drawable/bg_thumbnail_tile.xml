@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A plate behind issuer logos. Transparent in the light theme, light in the dark and black
+     themes, where an otherwise black logo would disappear into the background. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="?attr/thumbnailBackground" />
+    <corners android:radius="@dimen/issuer_icon_radius" />
+</shape>

@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 
@@ -71,6 +72,8 @@ public class ThumbnailSelectionAdapter extends BaseAdapter {
         if (view == null) {
             imageView = new ImageView(context);
             imageView.setLayoutParams(new GridView.LayoutParams(thumbnailSize, thumbnailSize));
+            // Many issuer logos are black, which vanishes against a dark background.
+            imageView.setBackgroundResource(R.drawable.bg_thumbnail_tile);
         } else {
             imageView = (ImageView) view;
         }
