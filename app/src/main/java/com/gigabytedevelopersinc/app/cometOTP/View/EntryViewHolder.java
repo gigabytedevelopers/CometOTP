@@ -159,10 +159,10 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         copyButton.setContentDescription(context.getString(R.string.button_card_copy_format, contentHint));
 
         value.setText(tokenFormatted);
-        // A token is briefly empty while it is being recalculated. The line has a fixed height so
+        // A token is null or empty while it is being recalculated. The line has a fixed height so
         // it does not jump as the text resizes, so it has to be taken out of the layout entirely
         // rather than left standing as a blank band.
-        value.setVisibility(tokenFormatted.isEmpty() ? View.GONE : View.VISIBLE);
+        value.setVisibility(TextUtils.isEmpty(tokenFormatted) ? View.GONE : View.VISIBLE);
         // save the unformatted token to the tag of this TextView for copy/paste
         value.setTag(entry.getCurrentOTP());
 
@@ -233,7 +233,8 @@ public class EntryViewHolder extends RecyclerView.ViewHolder implements ItemTouc
         // the user preference still has a visible effect. The token auto-sizes to fit its line,
         // so the preference sets the ceiling rather than the size, which setTextSize cannot do
         // on an auto-sizing view.
-        int max = Math.max(MIN_TOKEN_TEXT_SIZE_SP, size + 4);
+        // The auto-size ceiling has to stay above the floor, or the configuration is rejected.
+        int max = Math.max(MIN_TOKEN_TEXT_SIZE_SP + 2, size + 4);
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
                 value, MIN_TOKEN_TEXT_SIZE_SP, max, 1, TypedValue.COMPLEX_UNIT_SP);
     }
