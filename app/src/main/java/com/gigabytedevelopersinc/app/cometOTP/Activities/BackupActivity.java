@@ -1,6 +1,6 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ResultDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -600,7 +601,7 @@ public class BackupActivity extends BaseActivity {
     }
 
     private void backupPlainWithWarning() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
 
         builder.setTitle(R.string.backup_dialog_title_security_warning)
                 .setMessage(R.string.backup_dialog_msg_export_warning)

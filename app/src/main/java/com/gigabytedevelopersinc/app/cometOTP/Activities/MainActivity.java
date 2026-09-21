@@ -1,7 +1,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -75,6 +75,7 @@ import com.gigabytedevelopersinc.app.cometOTP.View.CountdownRingView;
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter;
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.SimpleItemTouchHelperCallback;
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.journeyapps.barcodescanner.ScanContract;
@@ -1003,7 +1004,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void showUsedTokensDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle(R.string.dialog_title_used_tokens)
                 .setMessage(R.string.dialog_msg_used_tokens)
                 .setPositiveButton(android.R.string.ok, (DialogInterface dialogInterface, int i) -> settings.setUsedTokensDialogShown(true))

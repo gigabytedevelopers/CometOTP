@@ -1,7 +1,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities;
 
 import android.Manifest;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.backup.BackupManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -40,6 +40,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.LauncherIcon;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.openintents.openpgp.util.OpenPgpAppPreference;
@@ -326,7 +327,7 @@ public class SettingsActivity extends BaseActivity
         ListPreference theme;
 
         public void encryptionChangeWithDialog(final EncryptionType encryptionType) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
             builder.setTitle(R.string.settings_dialog_title_warning)
                     .setMessage(R.string.settings_dialog_msg_encryption_change)
                     .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
@@ -461,7 +462,7 @@ public class SettingsActivity extends BaseActivity
 
                 Preference clearKeyStore = findPreference(getString(R.string.settings_key_clear_keystore));
                 clearKeyStore.setOnPreferenceClickListener(preference -> {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
 
                     builder.setTitle(R.string.settings_dialog_title_clear_keystore);
                     if (settings.getEncryption() == EncryptionType.PASSWORD)

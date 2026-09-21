@@ -1,7 +1,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.View;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -47,6 +47,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.ItemTouchHelperAdapter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -422,7 +423,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
     }
 
     private void setCounter(final int pos) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
 
         int marginSmall = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_small);
         int marginMedium = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_medium);
@@ -544,7 +545,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
     }
 
     public void establishPIN(final int pos) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
 
         int marginSmall = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_small);
         int marginMedium = context.getResources().getDimensionPixelSize(R.dimen.activity_margin_medium);
@@ -583,7 +584,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
 
     @SuppressLint("StringFormatInvalid")
     public void removeItem(final int pos) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
 
         String label = displayedEntries.get(pos).getLabel();
         String message = context.getString(R.string.dialog_msg_confirm_delete, label);
@@ -641,7 +642,7 @@ public class EntriesCardAdapter extends RecyclerView.Adapter<EntryViewHolder>
             image.setScaleType(ImageView.ScaleType.FIT_CENTER);
             image.setImageDrawable(drawable);
 
-            new AlertDialog.Builder(context)
+            new MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.dialog_title_qr_code)
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {})
                     .setView(image)

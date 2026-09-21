@@ -1,6 +1,8 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
@@ -12,7 +14,7 @@ public class UIHelper {
     }
 
     public static void showGenericDialog(Context context, int titleId, int messageId, final Runnable onOk) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         builder.setTitle(titleId)
                 .setMessage(messageId)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

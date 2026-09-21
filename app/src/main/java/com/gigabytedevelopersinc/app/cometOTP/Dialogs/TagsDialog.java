@@ -1,6 +1,8 @@
 package com.gigabytedevelopersinc.app.cometOTP.Dialogs;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
@@ -27,7 +29,7 @@ public class TagsDialog {
         inputLayout.setPaddingRelative(marginMedium, marginSmall, marginMedium, 0);
         inputLayout.addView(input);
 
-        final AlertDialog.Builder newTagBuilder = new AlertDialog.Builder(context);
+        final AlertDialog.Builder newTagBuilder = new MaterialAlertDialogBuilder(context);
         newTagBuilder.setTitle(R.string.button_new_tag)
                 .setView(inputLayout)
                 .setCancelable(false)
@@ -63,7 +65,7 @@ public class TagsDialog {
         tagsSelectionLayout.setPaddingRelative(margin, marginSmall, margin, 0);
         tagsSelectionLayout.addView(tagsSelectionView);
 
-        final AlertDialog.Builder tagsSelectorBuilder = new AlertDialog.Builder(context);
+        final AlertDialog.Builder tagsSelectorBuilder = new MaterialAlertDialogBuilder(context);
         tagsSelectorBuilder.setTitle(R.string.label_tags)
                 .setView(tagsSelectionLayout)
                 .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())

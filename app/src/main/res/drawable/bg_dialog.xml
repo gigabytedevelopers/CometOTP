@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Surface for the framework dialogs the preference screen still builds, so they match the
+     Material ones the rest of the app uses. -->
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="16dp"
-    android:insetRight="16dp">
+    android:inset="16dp">
     <shape android:shape="rectangle">
-        <solid android:color="?attr/colorSurface" />
+        <solid android:color="?attr/colorSurfaceContainerHigh" />
         <corners android:radius="@dimen/radius_sheet" />
     </shape>
 </inset>
