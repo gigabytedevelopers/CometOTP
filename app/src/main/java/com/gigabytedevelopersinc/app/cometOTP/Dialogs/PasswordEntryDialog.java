@@ -39,6 +39,7 @@ public class PasswordEntryDialog extends AppCompatDialog
 
     private final TextInputEditText passwordInput;
     private final EditText passwordConfirm;
+    private final View passwordConfirmLayout;
     private final Button okButton;
     private final TextView tooShortWarning;
 
@@ -51,6 +52,8 @@ public class PasswordEntryDialog extends AppCompatDialog
         TextInputLayout passwordLayout = findViewById(R.id.passwordInputLayout);
         passwordInput = findViewById(R.id.passwordInput);
         passwordConfirm = findViewById(R.id.passwordConfirm);
+        // The confirm field is wrapped, so the wrapper is what has to be shown or hidden.
+        passwordConfirmLayout = findViewById(R.id.passwordConfirmLayout);
         tooShortWarning = findViewById(R.id.tooShortWarning);
         tooShortWarning.setText(getContext().getString(R.string.settings_label_short_password, Constants.AUTH_MIN_PASSWORD_LENGTH));
         ConfirmedPasswordTransformationHelper.setup(passwordLayout, passwordInput, passwordConfirm);
@@ -77,14 +80,14 @@ public class PasswordEntryDialog extends AppCompatDialog
         this.dialogMode = newMode;
 
         if (this.dialogMode == Mode.UPDATE) {
-            passwordConfirm.setVisibility(View.VISIBLE);
+            passwordConfirmLayout.setVisibility(View.VISIBLE);
 
             passwordInput.addTextChangedListener(this);
             passwordConfirm.addTextChangedListener(this);
 
             passwordConfirm.setOnEditorActionListener(this);
         } else if (this.dialogMode == Mode.ENTER) {
-            passwordConfirm.setVisibility(View.GONE);
+            passwordConfirmLayout.setVisibility(View.GONE);
 
             passwordInput.addTextChangedListener(this);
 
