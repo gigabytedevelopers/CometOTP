@@ -62,15 +62,15 @@ So make sure you have a **current backup** before switching!
 
 ## Screenshots:
 
-[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_1.png">](./assets/screenshots/screen_1.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_2.png">](./assets/screenshots/screen_2.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_3.png">](./assets/screenshots/screen_3.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_4.png">](./assets/screenshots/screen_4.png)
+[<img width=200 alt="Home in the light theme" src="./assets/screenshots/screen_1.png">](./assets/screenshots/screen_1.png)
+[<img width=200 alt="Home in the dark theme" src="./assets/screenshots/screen_2.png">](./assets/screenshots/screen_2.png)
+[<img width=200 alt="Navigation menu" src="./assets/screenshots/screen_3.png">](./assets/screenshots/screen_3.png)
+[<img width=200 alt="Adding a service" src="./assets/screenshots/screen_4.png">](./assets/screenshots/screen_4.png)
 
-[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_5.png">](./assets/screenshots/screen_5.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_6.png">](./assets/screenshots/screen_6.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_7.png">](./assets/screenshots/screen_7.png)
-[<img width=200 alt="Main Activity" src="./assets/screenshots/screen_8.png">](./assets/screenshots/screen_8.png)
+[<img width=200 alt="Security options" src="./assets/screenshots/screen_5.png">](./assets/screenshots/screen_5.png)
+[<img width=200 alt="Backup and restore" src="./assets/screenshots/screen_6.png">](./assets/screenshots/screen_6.png)
+[<img width=200 alt="Support and FAQs" src="./assets/screenshots/screen_7.png">](./assets/screenshots/screen_7.png)
+[<img width=200 alt="Onboarding" src="./assets/screenshots/screen_8.png">](./assets/screenshots/screen_8.png)
 
 ## Acknowledgments:
 #### Open-source components used:
