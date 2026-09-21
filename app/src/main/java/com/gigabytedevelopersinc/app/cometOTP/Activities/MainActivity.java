@@ -593,8 +593,7 @@ public class MainActivity extends BaseActivity
             bottomBar.setPadding(bars.left, 0, bars.right, bars.bottom);
 
             int docked = barHeight + bars.bottom;
-            list.setPadding(list.getPaddingLeft(), list.getPaddingTop(), list.getPaddingRight(),
-                    docked + listGap);
+            padListBelowBar(list, docked + listGap);
             empty.setPadding(0, 0, 0, docked);
 
             ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) fab.getLayoutParams();
@@ -606,6 +605,23 @@ public class MainActivity extends BaseActivity
             return WindowInsetsCompat.CONSUMED;
         });
         ViewCompat.requestApplyInsets(root);
+
+        // The bar's real height is the authority: pad from it once it has been laid out, so the
+        // last entry in a long list always comes to rest clear of the bar rather than under it.
+        bottomBar.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or_, ob) -> {
+            int height = b - t;
+            if (height > 0)
+                padListBelowBar(list, height + listGap);
+        });
+    }
+
+    private void padListBelowBar(RecyclerView list, int bottom) {
+        if (list.getPaddingBottom() == bottom)
+            return;
+
+        list.setPadding(list.getPaddingLeft(), list.getPaddingTop(), list.getPaddingRight(), bottom);
+        // Without this the list keeps its old scroll extent and the last item stays hidden.
+        list.invalidateItemDecorations();
     }
 
     private void enterSearchMode(boolean focus) {
