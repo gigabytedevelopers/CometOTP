@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bottom bar: sorted by issuer or label -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="38dp"
+    android:height="38dp"
+    android:viewportWidth="38"
+    android:viewportHeight="38"
+    android:tint="?attr/colorOnSurface">
+    <group
+        android:scaleX="0.72"
+        android:scaleY="0.72"
+        android:translateX="8.94"
+        android:translateY="1.6">
+        <path
+            android:fillColor="@android:color/white"
+            android:fillType="evenOdd"
+            android:pathData="M15.06,9L16.75,8.94L16.94,9.12L16.94,28.5L16.62,28.69L11.19,23.25L11.38,22.94L14.75,22.94L14.94,22.75ZM21.06,9.25L21.25,9.19L26.69,14.62L26.5,14.94L23.12,14.94L22.94,15.12L22.94,28.75L22.75,28.94L21.12,28.94L20.94,28.75Z" />
+    </group>
+    <!-- An "A" marks sorting by name -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M8.4,30.2L12.5,20.6L16.6,30.2"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.9" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M10,26.6L15,26.6"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.9" />
+</vector>

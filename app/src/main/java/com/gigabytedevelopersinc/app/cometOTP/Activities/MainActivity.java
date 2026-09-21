@@ -77,6 +77,7 @@ import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.SimpleItemTou
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
@@ -131,6 +132,7 @@ public class MainActivity extends BaseActivity
     private static final long SHEET_ACTION_FEEDBACK_MS = 180L;
 
     private NotchedBottomBar bottomBar;
+    private MaterialButton sortButton;
     private FloatingActionButton fab;
     private View emptyState;
     private ImageView emptyIllustration;
@@ -519,7 +521,9 @@ public class MainActivity extends BaseActivity
         fab.setOnClickListener(v -> showAddSheet());
         findViewById(R.id.menuButton).setOnClickListener(v -> showNavigationSheet());
         findViewById(R.id.searchButton).setOnClickListener(v -> enterSearchMode(true));
-        findViewById(R.id.sortButton).setOnClickListener(v -> showSortSheet());
+        sortButton = findViewById(R.id.sortButton);
+        sortButton.setOnClickListener(v -> showSortSheet());
+        updateSortIcon(settings.getSortMode());
 
         findViewById(R.id.searchBack).setOnClickListener(v -> exitSearchMode());
         findViewById(R.id.searchClear).setOnClickListener(v -> searchField.setText(""));
@@ -768,8 +772,32 @@ public class MainActivity extends BaseActivity
         return SortMode.UNSORTED;
     }
 
+    /** The bar's sort icon carries the current sort, as it did before the redesign. */
+    private void updateSortIcon(SortMode mode) {
+        if (sortButton == null)
+            return;
+
+        int icon;
+        switch (mode) {
+            case ISSUER:
+            case LABEL:
+                icon = R.drawable.ic_bar_sort_name;
+                break;
+            case LAST_USED:
+            case MOST_USED:
+                icon = R.drawable.ic_bar_sort_time;
+                break;
+            case UNSORTED:
+            default:
+                icon = R.drawable.ic_bar_sort;
+                break;
+        }
+        sortButton.setIconResource(icon);
+    }
+
     private void applySortMode(SortMode mode) {
         settings.setSortMode(mode);
+        updateSortIcon(mode);
 
         if (adapter != null) {
             adapter.setSortMode(mode);
