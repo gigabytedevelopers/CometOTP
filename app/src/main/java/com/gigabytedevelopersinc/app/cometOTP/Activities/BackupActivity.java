@@ -10,9 +10,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -59,11 +62,13 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools;
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.ArrayList;
 
 import javax.crypto.SecretKey;
@@ -290,13 +295,10 @@ public class BackupActivity extends BaseActivity {
         sheetButton.setOnClickListener(view -> {
             switch (backupType) {
                 case PLAIN_TEXT:
-                    showOpenFileSelector(openPlainLauncher);
+                    showOpenFileSelector(openPlainLauncher, MIME_PLAIN);
                     break;
                 case ENCRYPTED:
-                    if (restoreOldFormat)
-                        showOpenFileSelector(openCryptOldLauncher);
-                    else
-                        showOpenFileSelector(openCryptLauncher);
+                    showOpenFileSelector(restoreOldFormat ? openCryptOldLauncher : openCryptLauncher);
                     break;
                 case OPEN_PGP:
                     showOpenFileSelector(openPgpLauncher);
@@ -407,6 +409,8 @@ public class BackupActivity extends BaseActivity {
     public void onDestroy() {
         super.onDestroy();
 
+        watchdogHandler.removeCallbacks(watchdog);
+
         if (pgpServiceConnection != null)
             pgpServiceConnection.unbindFromService();
     }
@@ -487,12 +491,34 @@ public class BackupActivity extends BaseActivity {
         setSheetLoading(running);
     }
 
+    /**
+     * A backup or restore that never reports back used to leave the sheet on its spinner for good,
+     * with no way out but killing the app. The watchdog gives up after a bounded wait and hands
+     * the sheet back to the user with an error.
+     */
+    private static final long TASK_WATCHDOG_MS = 45_000L;
+
+    private final Handler watchdogHandler = new Handler(Looper.getMainLooper());
+    private final Runnable watchdog = () -> {
+        toggleInProgressMode(false);
+        UIHelper.showGenericDialog(this, R.string.backup_error_stalled_title,
+                R.string.backup_error_stalled_msg);
+    };
+
     private void showBackupProgress(boolean running) {
+        armWatchdog(running);
         toggleInProgressMode(running);
     }
 
     private void showRestoreProgress(boolean running) {
+        armWatchdog(running);
         toggleInProgressMode(running);
+    }
+
+    private void armWatchdog(boolean running) {
+        watchdogHandler.removeCallbacks(watchdog);
+        if (running)
+            watchdogHandler.postDelayed(watchdog, TASK_WATCHDOG_MS);
     }
 
     private void dismissSheet() {
@@ -502,12 +528,64 @@ public class BackupActivity extends BaseActivity {
         }
     }
 
+    /*
+     * The system picker filters by media type, which the storage provider assigns, not by file
+     * extension. JSON has a registered type so the plain-text restore can be narrowed safely.
+     * The .aes and .gpg backups do not, and providers type them inconsistently, so narrowing
+     * them risks hiding the very file the user came for. Those stay unfiltered and the extension
+     * check below is what keeps a mismatched file from being restored.
+     */
+    private static final String[] MIME_PLAIN = {"application/json", "text/json", "text/plain"};
+
+    private static final String[] EXT_PLAIN = {".json"};
+    private static final String[] EXT_CRYPT = {".aes"};
+    private static final String[] EXT_PGP = {".gpg", ".pgp", ".asc"};
+
+    /**
+     * Refuses a file whose name does not match the chosen backup format. Handing, say, a plain
+     * JSON file to the encrypted restore left the task grinding with nothing to report, so the
+     * sheet sat on its spinner until the app was killed.
+     *
+     * @return true when the file can be handed to the restore task
+     */
+    private boolean matchesFormat(Uri uri, String[] extensions) {
+        String name = documentName(uri);
+        if (name == null)
+            return true;
+
+        String lower = name.toLowerCase(Locale.ENGLISH);
+        for (String extension : extensions) {
+            if (lower.endsWith(extension))
+                return true;
+        }
+
+        showRestoreProgress(false);
+        UIHelper.showGenericDialog(this, R.string.backup_error_format_title,
+                R.string.backup_error_format_msg);
+        return false;
+    }
+
+    private String documentName(Uri uri) {
+        DocumentFile file = DocumentFile.fromSingleUri(this, uri);
+        return file != null ? file.getName() : null;
+    }
+
     /* Generic functions for all backup/restore options */
 
     private void showOpenFileSelector(ActivityResultLauncher<Intent> launcher) {
+        showOpenFileSelector(launcher, null);
+    }
+
+    /**
+     * @param mimeTypes narrows the picker to the formats the chosen backup type can actually read,
+     *                  so a file the restore cannot parse is harder to pick in the first place
+     */
+    private void showOpenFileSelector(ActivityResultLauncher<Intent> launcher, String[] mimeTypes) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
+        if (mimeTypes != null)
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
         try {
             launcher.launch(intent);
@@ -577,6 +655,9 @@ public class BackupActivity extends BaseActivity {
     /* Plain-text backup functions */
 
     private void doRestorePlain(Uri uri) {
+        if (!matchesFormat(uri, EXT_PLAIN))
+            return;
+
         if (Tools.isExternalStorageReadable()) {
             PlainTextRestoreTask task = new PlainTextRestoreTask(this, uri);
             task.setCallback(this::handleRestoreTaskResult);
@@ -623,6 +704,9 @@ public class BackupActivity extends BaseActivity {
     /* Encrypted backup functions */
 
     private void doRestoreCrypt(final Uri uri, final boolean old_format) {
+        if (!matchesFormat(uri, EXT_CRYPT))
+            return;
+
         String password = settings.getBackupPasswordEnc();
 
         if (password.isEmpty()) {
@@ -681,6 +765,9 @@ public class BackupActivity extends BaseActivity {
     /* OpenPGP backup functions */
 
     private void restoreEncryptedWithPGP(Uri uri, Intent decryptIntent) {
+        if (decryptIntent == null && !matchesFormat(uri, EXT_PGP))
+            return;
+
         if (decryptIntent == null)
             decryptIntent = new Intent(OpenPgpApi.ACTION_DECRYPT_VERIFY);
 

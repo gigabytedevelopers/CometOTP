@@ -198,4 +198,10 @@
     <string name="coach_menu_body">Open the menu to reach your tags, security, backups and settings.</string>
     <string name="coach_timer_title">Time’s running out</string>
     <string name="coach_timer_body">This ring counts down to the next code. It turns red just before your codes change.</string>
+
+    <string name="backup_error_format_title">Wrong file for this format</string>
+    <string name="backup_error_format_msg">That file does not match the backup format you selected. Pick a file that matches, or change the format above.</string>
+
+    <string name="backup_error_stalled_title">This is taking too long</string>
+    <string name="backup_error_stalled_msg">The operation did not finish. Check that the file matches the selected format and the password is correct, then try again.</string>
 </resources>
