@@ -85,8 +85,8 @@
         <item name="android:navigationBarColor">@color/surface_light</item>
 
         <!-- Typography, shapes, widgets -->
-        <item name="android:fontFamily">@font/oxygen</item>
-        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="fontFamily">@font/inter</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Comet.DisplayLarge</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Comet.DisplayMedium</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Comet.DisplaySmall</item>
@@ -160,8 +160,8 @@
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorAccent">@color/primary_500</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
-        <item name="android:fontFamily">@font/oxygen</item>
-        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="fontFamily">@font/inter</item>
         <item name="android:windowBackground">@drawable/bg_dialog</item>
         <item name="android:buttonBarButtonStyle">@style/Widget.Comet.PlatformDialogButton</item>
     </style>
@@ -215,8 +215,8 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@color/surface_dark</item>
 
-        <item name="android:fontFamily">@font/oxygen</item>
-        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="fontFamily">@font/inter</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Comet.DisplayLarge</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Comet.DisplayMedium</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Comet.DisplaySmall</item>
@@ -278,8 +278,8 @@
         <item name="colorPrimary">@color/primary_300</item>
         <item name="colorAccent">@color/primary_500</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
-        <item name="android:fontFamily">@font/oxygen</item>
-        <item name="fontFamily">@font/oxygen</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="fontFamily">@font/inter</item>
         <item name="android:windowBackground">@drawable/bg_dialog</item>
         <item name="android:buttonBarButtonStyle">@style/Widget.Comet.PlatformDialogButton</item>
     </style>

@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ============================================================
-         Typography (Oxygen)
+         Typography (Inter)
          ============================================================ -->
     <style name="TextAppearance.Comet.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
     <style name="TextAppearance.Comet.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
     <style name="TextAppearance.Comet.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
     <style name="TextAppearance.Comet.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.Comet.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.Comet.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.Comet.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.Comet.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.Comet.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.Comet.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
     <style name="TextAppearance.Comet.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
     <style name="TextAppearance.Comet.BodySmall" parent="TextAppearance.Material3.BodySmall">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
     <style name="TextAppearance.Comet.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.Comet.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
     <style name="TextAppearance.Comet.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
-        <item name="fontFamily">@font/oxygen</item>
-        <item name="android:fontFamily">@font/oxygen</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
 
     <!-- App specific text roles -->

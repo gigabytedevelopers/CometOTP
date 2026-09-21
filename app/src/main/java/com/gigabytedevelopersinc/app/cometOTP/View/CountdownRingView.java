@@ -96,7 +96,7 @@ public class CountdownRingView extends View {
         textPaint.setColor(textColor);
         textPaint.setTextSize(textSize);
         textPaint.setTextAlign(Paint.Align.CENTER);
-        Typeface typeface = isInEditMode() ? Typeface.DEFAULT_BOLD : ResourcesCompat.getFont(context, R.font.oxygen_bold);
+        Typeface typeface = isInEditMode() ? Typeface.DEFAULT_BOLD : ResourcesCompat.getFont(context, R.font.inter_bold);
         textPaint.setTypeface(typeface != null ? typeface : Typeface.DEFAULT_BOLD);
     }
 
