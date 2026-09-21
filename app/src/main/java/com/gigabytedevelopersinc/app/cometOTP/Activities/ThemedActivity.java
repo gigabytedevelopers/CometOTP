@@ -4,6 +4,9 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.ColorUtils;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.gigabytedevelopersinc.app.cometOTP.R;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings;
@@ -26,6 +29,28 @@ public abstract class ThemedActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        applySystemBarAppearance();
+    }
+
+    /**
+     * Keeps the status and navigation bar icons readable. The window takes its icon appearance
+     * from whichever theme was set when it was created, which is not necessarily the theme the
+     * user chose, so a dark screen could end up with dark icons on it. Deciding from the theme's
+     * own background colour gets it right for the light, dark and black themes alike.
+     */
+    private void applySystemBarAppearance() {
+        int background = Tools.getThemeColor(this, android.R.attr.colorBackground);
+        boolean lightBars = ColorUtils.calculateLuminance(background) > 0.5;
+
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        controller.setAppearanceLightStatusBars(lightBars);
+        controller.setAppearanceLightNavigationBars(lightBars);
     }
 
     @Override
