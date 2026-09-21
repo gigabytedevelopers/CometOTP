@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="intro_slide1_main_title">Welcome to <b>CometOTP</b></string>
-    <string name="intro_slide1_main_desc">A powerful advanced two-factor authentication App for Android.</string>
+    <string name="intro_slide1_main_desc">A powerful advanced two-factor authentication App.</string>
     <string name="intro_slide1_title">Let\'s Get Started</string>
     <string name="intro_slide1_desc">This wizard will guide you through
         the initial setup. Please pay attention and read carefully otherwise you could lose data!
