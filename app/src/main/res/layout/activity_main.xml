@@ -164,7 +164,7 @@
                 android:layout_gravity="start|center_vertical"
                 android:layout_marginStart="@dimen/bar_icon_margin"
                 android:contentDescription="@string/button_main_menu"
-                app:icon="@drawable/ic_menu" />
+                app:icon="@drawable/ic_bar_menu" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -179,13 +179,13 @@
                     style="@style/Widget.Comet.BarIcon"
                     android:layout_marginEnd="@dimen/bar_icon_gap"
                     android:contentDescription="@string/menu_main_search"
-                    app:icon="@drawable/ic_search" />
+                    app:icon="@drawable/ic_bar_search" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/sortButton"
                     style="@style/Widget.Comet.BarIcon"
                     android:contentDescription="@string/menu_main_sort"
-                    app:icon="@drawable/ic_sort" />
+                    app:icon="@drawable/ic_bar_sort" />
 
             </LinearLayout>
 

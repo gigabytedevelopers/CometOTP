@@ -186,7 +186,7 @@
         <item name="iconTint">?attr/colorError</item>
     </style>
 
-    <style name="Widget.Comet.Button.Icon" parent="Widget.Material3Expressive.Button.IconButton">
+    <style name="Widget.Comet.Button.Icon" parent="Widget.Material3Expressive.Button.IconButton.Standard">
         <item name="android:minWidth">0dp</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
@@ -206,7 +206,7 @@
         label-less button the default padding and icon padding push the glyph off centre. Zeroing
         them puts the glyph in the middle of its 48dp target, where the design has it.
     -->
-    <style name="Widget.Comet.BarIcon" parent="Widget.Material3Expressive.Button.IconButton">
+    <style name="Widget.Comet.BarIcon" parent="Widget.Material3Expressive.Button.IconButton.Standard">
         <item name="android:layout_width">48dp</item>
         <item name="android:layout_height">48dp</item>
         <item name="android:minWidth">0dp</item>
@@ -222,7 +222,8 @@
         <item name="android:gravity">center</item>
         <item name="iconPadding">0dp</item>
         <item name="iconGravity">textStart</item>
-        <item name="iconSize">@dimen/icon_size</item>
+        <!-- The bar icons carry their own 38dp box with a 24dp glyph inside. -->
+        <item name="iconSize">@dimen/bar_icon_size</item>
         <item name="iconTint">@color/bar_icon_tint</item>
     </style>
 

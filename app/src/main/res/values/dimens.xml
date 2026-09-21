@@ -32,6 +32,7 @@
     <dimen name="input_height">52dp</dimen>
     <dimen name="app_bar_height">64dp</dimen>
     <dimen name="bottom_bar_height">64dp</dimen>
+    <dimen name="bar_icon_size">38dp</dimen><!-- 24dp glyph in a transparent 38dp box -->
     <dimen name="bar_icon_margin">12dp</dimen><!-- puts each glyph 36dp from the screen edge -->
     <dimen name="bar_icon_gap">5dp</dimen>
     <dimen name="fab_size">64dp</dimen>
