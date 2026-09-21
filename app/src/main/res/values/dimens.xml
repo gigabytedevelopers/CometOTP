@@ -59,6 +59,7 @@
     <dimen name="thumbnail_tile_radius">16dp</dimen>
 
     <dimen name="card_side_margin">6dp</dimen><!-- the width the previous app used -->
+    <dimen name="card_vertical_margin">3dp</dimen><!-- the spacing the previous app used -->
     <dimen name="token_line_height">30dp</dimen>
     <dimen name="card_corner_radius">12dp</dimen>
     <dimen name="card_padding_without_corners">14dp</dimen>
