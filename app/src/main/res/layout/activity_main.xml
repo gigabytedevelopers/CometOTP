@@ -110,37 +110,28 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <FrameLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/cardList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="@dimen/space_xs"
+            android:scrollbars="none" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/cardList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingTop="@dimen/space_xs"
-                android:scrollbars="none" />
+        <include
+            android:id="@+id/emptyState"
+            layout="@layout/layout_empty_state"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
-            <include
-                android:id="@+id/emptyState"
-                layout="@layout/layout_empty_state"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-        </FrameLayout>
-
-        <include layout="@layout/component_tags" />
-
-    </androidx.drawerlayout.widget.DrawerLayout>
+    </FrameLayout>
 
     <!-- Docked bottom bar: flush with the window bottom, notched for the add button -->
     <com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar

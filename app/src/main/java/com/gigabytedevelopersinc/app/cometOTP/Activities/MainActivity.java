@@ -45,11 +45,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
-import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
@@ -139,7 +137,6 @@ public class MainActivity extends BaseActivity
     private TextView emptyTitle;
     private TextView emptySubtitle;
 
-    private DrawerLayout tagsDrawerLayout;
     private ListView tagsDrawerListView;
     private TagsAdapter tagsDrawerAdapter;
     private String filterString;
@@ -749,7 +746,7 @@ public class MainActivity extends BaseActivity
             sheet.dismiss();
         });
 
-        bindSheetAction(sheet, R.id.sort_filter_tags, () -> tagsDrawerLayout.openDrawer(GravityCompat.START));
+        bindSheetAction(sheet, R.id.sort_filter_tags, this::showTagFilterSheet);
     }
 
     @IdRes
@@ -1041,27 +1038,23 @@ public class MainActivity extends BaseActivity
     }
 
     /* ------------------------------------------------------------------------------------------
-     * Tag filter drawer
+     * Tag filter sheet
      * ------------------------------------------------------------------------------------------ */
 
     private void setupDrawer() {
-        tagsDrawerListView = findViewById(R.id.tags_list_in_drawer);
-        tagsDrawerLayout = findViewById(R.id.drawer_layout);
+        // The filter is a sheet now, so there is nothing to wire up until it is opened; the
+        // stored selection still has to reach the list on start.
+        adapter.filterByTags(tagsDrawerAdapter.getActiveTags());
+    }
 
-        tagsDrawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
-            @Override
-            public void onDrawerOpened(@NonNull View drawerView) {
-                closeOverlaysOnBack.setEnabled(true);
-            }
+    private void showTagFilterSheet() {
+        BottomSheetDialog sheet = openSheet(R.layout.sheet_tag_filter);
 
-            @Override
-            public void onDrawerClosed(@NonNull View drawerView) {
-                updateBackCallbackState();
-            }
-        });
-
-        final CheckedTextView noTagsButton = findViewById(R.id.no_tags_entries);
-        final CheckedTextView allTagsButton = findViewById(R.id.all_tags_in_drawer);
+        tagsDrawerListView = sheet.findViewById(R.id.tags_list_in_drawer);
+        final CheckedTextView noTagsButton = sheet.findViewById(R.id.no_tags_entries);
+        final CheckedTextView allTagsButton = sheet.findViewById(R.id.all_tags_in_drawer);
+        if (tagsDrawerListView == null || noTagsButton == null || allTagsButton == null)
+            return;
 
         allTagsButton.setOnClickListener(view -> {
             CheckedTextView checkedTextView = ((CheckedTextView)view);
@@ -1142,7 +1135,24 @@ public class MainActivity extends BaseActivity
             adapter.filterByTags(tagsDrawerAdapter.getActiveTags());
         });
 
-        adapter.filterByTags(tagsDrawerAdapter.getActiveTags());
+        capTagListHeight(tagsDrawerListView);
+    }
+
+    /**
+     * A ListView measured with wrap_content only measures its first row, and a sheet must not grow
+     * past the screen either, so the list is given an explicit height between those bounds.
+     */
+    private void capTagListHeight(ListView list) {
+        int rows = tagsDrawerAdapter.getCount();
+        if (rows <= 0)
+            return;
+
+        int row = getResources().getDimensionPixelSize(R.dimen.nav_row_height);
+        int max = getResources().getDimensionPixelSize(R.dimen.tag_filter_max_height);
+
+        ViewGroup.LayoutParams lp = list.getLayoutParams();
+        lp.height = Math.min(rows * row, max);
+        list.setLayoutParams(lp);
     }
 
     public void refreshTags() {
@@ -1225,25 +1235,18 @@ public class MainActivity extends BaseActivity
 
     /* Predictive back: with the OnBackInvokedCallback enabled (the default when targeting
      * Android 16+), KEYCODE_BACK is no longer dispatched. The callback is only enabled while the
-     * search mode or the tags drawer is open, so the system back animation still runs otherwise. */
+     * search mode is open, so the system back animation still runs otherwise. */
     private final OnBackPressedCallback closeOverlaysOnBack = new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
-            if (isTagsDrawerOpen()) {
-                tagsDrawerLayout.closeDrawer(GravityCompat.START);
-            } else if (searchMode) {
+            if (searchMode)
                 exitSearchMode();
-            }
             updateBackCallbackState();
         }
     };
 
-    private boolean isTagsDrawerOpen() {
-        return tagsDrawerLayout != null && tagsDrawerLayout.isDrawerOpen(GravityCompat.START);
-    }
-
     private void updateBackCallbackState() {
-        closeOverlaysOnBack.setEnabled(searchMode || isTagsDrawerOpen());
+        closeOverlaysOnBack.setEnabled(searchMode);
     }
 
     @Override
