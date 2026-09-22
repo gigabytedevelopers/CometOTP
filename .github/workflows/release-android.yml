@@ -151,9 +151,15 @@ jobs:
           files: app/build/outputs/bundle/release/*.aab
           draft: false
 
+      # Everything from here on is bookkeeping: the app is already on Play, so the deployment has
+      # happened. These steps carry continue-on-error so that a failure among them is reported as a
+      # warning rather than marking the production deployment failed, which is what made a release
+      # that shipped successfully show up red.
+
       # Generated into its own file, then inserted under the heading, so every earlier entry,
       # including the hand-written ones, is left exactly as it is.
       - name: Generate the new changelog section
+        continue-on-error: true
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
@@ -165,15 +171,19 @@ jobs:
       # master before touching CHANGELOG.md: the pull request has to be built from the branch it
       # will merge into, or it would propose undoing whatever landed since the tag.
       - name: Move onto master for the changelog
+        continue-on-error: true
         run: |
           git fetch origin master
           git checkout -B master origin/master
 
       - name: Add the new section to CHANGELOG.md
+        continue-on-error: true
         run: python3 .github/scripts/insert_changelog.py CHANGELOG.md NEW_SECTION.md
 
       # master is protected, so the changelog arrives as a pull request rather than a direct push.
       - name: Open the changelog pull request
+        id: changelog_pr
+        continue-on-error: true
         uses: peter-evans/create-pull-request@v7
         with:
           branch: chore/changelog-${{ steps.version.outputs.name }}
@@ -186,6 +196,17 @@ jobs:
           add-paths: |
             CHANGELOG.md
             app/version.properties
+
+      # Not silent: a swallowed failure that nobody sees is worse than a red tick.
+      - name: Say so if the changelog was not opened
+        if: steps.changelog_pr.outcome != 'success'
+        run: |
+          v="${{ steps.version.outputs.name }}"
+          code="${{ steps.version.outputs.code }}"
+          echo "::warning::$v published to Play, but the changelog pull request was not opened."
+          echo "::warning::Add the $v entry to CHANGELOG.md by hand."
+          echo "::warning::Bump VERSION_BUILD in app/version.properties on master, or the next"
+          echo "::warning::release rebuilds versionCode $code and Play rejects it as a duplicate."
 
       - name: Remove the keystore
         if: always()
