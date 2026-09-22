@@ -27,6 +27,32 @@ Squash is the only merge method allowed, and that is deliberate. A merge commit 
 linear history rule, and GitHub's rebase merge rewrites each commit and drops its signature, which
 the signed-commits rule would then reject. A squash merge is signed by GitHub and stays linear.
 
+## Merging so the commits keep your signature
+
+**Do not use the green merge button on your own pull requests.** None of GitHub's merge methods
+puts your signature on master:
+
+| Method | What lands | Signed by |
+| --- | --- | --- |
+| Merge commit | Your commits, plus a merge commit | You, plus GitHub for the merge commit |
+| Squash | One new commit | GitHub's web-flow key |
+| Rebase | Rewritten copies of your commits | **Nobody** — the rewrite drops your signature |
+
+Merge locally instead. Your commits land on master exactly as you signed them:
+
+```bash
+git checkout <branch> && git rebase master   # replays and re-signs, keeping history linear
+git checkout master && git merge --ff-only <branch>
+git push origin master
+```
+
+GitHub sees the commits arrive and closes the pull request as merged. The push is a direct one, so
+it only works because admins are on the ruleset's bypass list; the pull request, its review and its
+four passing checks are still how the change got to that point.
+
+For a contributor's pull request, where the commits are signed by them rather than by you, the
+green button is fine — squash, and GitHub signs the result.
+
 Repository admins are on the bypass list. Everyone else is fully bound: a fork's pull request
 needs your review and four passing checks before it can be merged. You still work through pull
 requests, but you do not need a second person to approve your own, which as the only code owner
