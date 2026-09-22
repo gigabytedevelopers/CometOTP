@@ -22,7 +22,16 @@ gh api -X POST repos/gigabytedevelopers/CometOTP/rulesets --input .github/rulese
 It requires a pull request with one approving review from a code owner, dismisses stale approvals
 when new commits land, requires review threads to be resolved, forbids force pushes and deletions,
 keeps history linear, requires signed commits, and blocks the merge until all four CI jobs pass.
-The bypass list is empty on purpose, so the rule applies to admins too.
+
+Squash is the only merge method allowed, and that is deliberate. A merge commit would break the
+linear history rule, and GitHub's rebase merge rewrites each commit and drops its signature, which
+the signed-commits rule would then reject. A squash merge is signed by GitHub and stays linear.
+
+Repository admins are on the bypass list. Everyone else is fully bound: a fork's pull request
+needs your review and four passing checks before it can be merged. You still work through pull
+requests, but you do not need a second person to approve your own, which as the only code owner
+you would otherwise be unable to do — GitHub does not let anyone approve their own pull request.
+Remove the `bypass_actors` entry once there is a second maintainer who can review your work.
 
 `.github/CODEOWNERS` is what routes every pull request to you for that review.
 
