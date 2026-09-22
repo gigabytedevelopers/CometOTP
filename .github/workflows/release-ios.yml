@@ -1,0 +1,148 @@
+name: Release iOS
+
+# Disabled until there is an Apple Developer account and the project has an iOS target.
+#
+# Every job is gated on the repository variable IOS_DEPLOY_ENABLED. While that is anything other
+# than "true" the workflow still appears in the Actions tab, reports a skipped run and touches
+# nothing, so it can sit here without interfering with the Android release.
+#
+# To turn it on later:
+#   1. Settings -> Secrets and variables -> Actions -> Variables: set IOS_DEPLOY_ENABLED to true
+#   2. Add the secrets listed in .github/RELEASING.md to the `production-ios` environment
+#   3. Set IOS_SCHEME / IOS_PROJECT below to match the Kotlin Multiplatform iOS target
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: What to do with the build
+        type: choice
+        default: testflight
+        options: [testflight, appstore]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-ios
+  cancel-in-progress: false
+
+env:
+  IOS_SCHEME: CometOTP
+  IOS_PROJECT: iosApp/iosApp.xcodeproj
+
+jobs:
+  # A tiny always-running job so the workflow reports honestly instead of looking broken.
+  gate:
+    name: Check whether iOS deployment is enabled
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - id: check
+        run: |
+          if [ "${{ vars.IOS_DEPLOY_ENABLED }}" = "true" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "iOS deployment is enabled."
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::iOS deployment is switched off. Set the IOS_DEPLOY_ENABLED variable to 'true' to enable it."
+          fi
+
+  release:
+    name: Build and publish
+    needs: gate
+    if: needs.gate.outputs.enabled == 'true'
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    environment:
+      name: production-ios
+      url: https://appstoreconnect.apple.com
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      # The signing material lives in a keychain created for this job and deleted with the runner,
+      # and the App Store Connect key is written to the runner temp directory, never the workspace.
+      - name: Install the signing certificate and profile
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          certificate="$RUNNER_TEMP/certificate.p12"
+          profile="$RUNNER_TEMP/profile.mobileprovision"
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+
+          printf '%s' "$CERTIFICATE_BASE64" | base64 --decode > "$certificate"
+          printf '%s' "$PROVISIONING_PROFILE_BASE64" | base64 --decode > "$profile"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$keychain"
+          security import "$certificate" -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$keychain"
+          security list-keychain -d user -s "$keychain"
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp "$profile" ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Write the App Store Connect key
+        env:
+          APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/private_keys"
+          printf '%s' "$APPSTORE_PRIVATE_KEY" > "$RUNNER_TEMP/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8"
+
+      - name: Build the shared Kotlin framework
+        run: ./gradlew --no-daemon :shared:assembleXCFramework
+
+      - name: Archive
+        run: |
+          xcodebuild -project "$IOS_PROJECT" \
+            -scheme "$IOS_SCHEME" \
+            -configuration Release \
+            -archivePath "$RUNNER_TEMP/CometOTP.xcarchive" \
+            -destination 'generic/platform=iOS' \
+            archive
+
+      - name: Export the IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/CometOTP.xcarchive" \
+            -exportOptionsPlist iosApp/ExportOptions.plist \
+            -exportPath "$RUNNER_TEMP/export"
+
+      - name: Upload to App Store Connect
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+        run: |
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$RUNNER_TEMP/export/CometOTP.ipa" \
+            --apiKey "$APPSTORE_KEY_ID" \
+            --apiIssuer "$APPSTORE_ISSUER_ID"
+
+      - name: Clean up the signing material
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" || true
+          rm -rf "$RUNNER_TEMP/private_keys" "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/profile.mobileprovision"

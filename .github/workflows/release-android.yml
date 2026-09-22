@@ -1,0 +1,178 @@
+name: Release Android
+
+# Builds a signed App Bundle, publishes it to Google Play, writes the release notes, and opens a
+# pull request that adds the new section to CHANGELOG.md.
+#
+# Nothing here reads a secret until the `production` environment has released the job, so you can
+# require your own approval on every deployment from Settings -> Environments.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      track:
+        description: Play track to publish to
+        type: choice
+        default: internal
+        options: [internal, alpha, beta, production]
+      status:
+        description: Release status on that track
+        type: choice
+        default: completed
+        options: [completed, draft, inProgress]
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never let two deployments of the same app race each other.
+  group: release-android
+  cancel-in-progress: false
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx4g
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    # Put the deployment secrets on this environment, not on the repository, so they are only
+    # readable by this job and only after any reviewer you configure has approved the run.
+    environment:
+      name: production
+      url: https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP
+
+    permissions:
+      contents: write        # create the GitHub release
+      pull-requests: write   # open the changelog pull request
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # git-cliff needs the history and tags to work out what changed.
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The keystore lives in the runner's temp directory, which is wiped when the job ends, and
+      # never inside the workspace, so it cannot be picked up by an artifact upload.
+      - name: Restore signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 is not set on the production environment."
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+          echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+
+      - name: Build App Bundle
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew --no-daemon bundleRelease
+
+      - name: Read the version that was built
+        id: version
+        run: |
+          # The release build bumps VERSION_BUILD and writes the code it packaged.
+          code=$(cat app/build/version/release-version-code.txt)
+          name=$(grep '^VERSION_MAJOR' app/version.properties | cut -d= -f2).$(grep '^VERSION_MINOR' app/version.properties | cut -d= -f2).$(grep '^VERSION_PATCH' app/version.properties | cut -d= -f2)
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "Built $name (versionCode $code)"
+
+      # --unreleased covers exactly the commits since the last tag, so a release never repeats
+      # what an earlier one already listed.
+      - name: Generate release notes
+        uses: orhun/git-cliff-action@v4
+        id: notes
+        with:
+          config: cliff.toml
+          args: --unreleased --strip all
+        env:
+          OUTPUT: RELEASE_NOTES.md
+
+      - name: Fall back when there is nothing new to list
+        run: |
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "CometOTP ${{ steps.version.outputs.name }}" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "See CHANGELOG.md for the full history." >> RELEASE_NOTES.md
+          fi
+
+      - name: Prepare the Play release notes
+        run: |
+          dir="fastlane/metadata/android/en-US/changelogs"
+          mkdir -p "$dir"
+          # Play rejects anything over 500 characters, so a hand-written default wins when one
+          # exists for this build and the generated notes are trimmed otherwise.
+          if [ -f "$dir/default.txt" ]; then
+            cp "$dir/default.txt" "$dir/${{ steps.version.outputs.code }}.txt"
+          else
+            head -c 480 RELEASE_NOTES.md > "$dir/${{ steps.version.outputs.code }}.txt"
+          fi
+          wc -c "$dir/${{ steps.version.outputs.code }}.txt"
+
+      - name: Publish to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.gigabytedevelopersinc.app.CometOTP
+          releaseFiles: app/build/outputs/bundle/release/*.aab
+          track: ${{ inputs.track || 'internal' }}
+          status: ${{ inputs.status || 'completed' }}
+          whatsNewDirectory: fastlane/metadata/android/en-US/changelogs
+          mappingFile: app/build/outputs/mapping/release/mapping.txt
+
+      - name: Create the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.name }}
+          name: CometOTP ${{ steps.version.outputs.name }}
+          body_path: RELEASE_NOTES.md
+          files: app/build/outputs/bundle/release/*.aab
+          draft: false
+
+      # Generated into its own file, then inserted under the heading, so every earlier entry,
+      # including the hand-written ones, is left exactly as it is.
+      - name: Generate the new changelog section
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --tag v${{ steps.version.outputs.name }}
+        env:
+          OUTPUT: NEW_SECTION.md
+
+      - name: Add the new section to CHANGELOG.md
+        run: python3 .github/scripts/insert_changelog.py CHANGELOG.md NEW_SECTION.md
+
+      # master is protected, so the changelog arrives as a pull request rather than a direct push.
+      - name: Open the changelog pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/changelog-${{ steps.version.outputs.name }}
+          title: "Add the ${{ steps.version.outputs.name }} changelog entry"
+          body: |
+            Generated by the Android release workflow after publishing
+            ${{ steps.version.outputs.name }} (versionCode ${{ steps.version.outputs.code }}).
+          commit-message: "Add the ${{ steps.version.outputs.name }} changelog entry"
+          add-paths: |
+            CHANGELOG.md
+            app/version.properties
+            fastlane/metadata/android/en-US/changelogs
+
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.keystore"

@@ -1,0 +1,74 @@
+# git-cliff configuration for CometOTP.
+#
+# Produces the Breaking / New / Improvement / Fix sections this project's changelog already uses.
+# A commit is sorted by its prefix where it has one, and anything unprefixed falls into
+# Improvement rather than being dropped, so the changelog is never silently incomplete.
+#
+# Prefixes, all optional:
+#   feat:      -> New
+#   fix:       -> Fix
+#   perf:      -> Improvement
+#   refactor:  -> Improvement
+#   build:     -> Improvement
+#   deps:      -> Improvement
+#   docs:      -> skipped
+#   chore:     -> skipped
+#   test:      -> skipped
+#   anything with a "!" before the colon, or a BREAKING CHANGE footer -> Breaking
+
+[changelog]
+# Empty on purpose. The release workflow prepends to CHANGELOG.md, so the file keeps the heading
+# it already has; a header here would be inserted again on every release.
+header = ""
+
+body = """
+{% if version %}
+## {{ version | trim_start_matches(pat="v") }} ({{ timestamp | date(format="%Y-%m-%d") }})
+{% else %}
+## Unreleased
+{% endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits %}
+- {{ commit.message | split(pat="\n") | first | upper_first | trim }}\
+{% endfor %}
+{% endfor %}
+"""
+
+trim = true
+
+[git]
+conventional_commits = true
+# Keep commits that are not conventional; the catch-all below files them.
+filter_unconventional = false
+split_commits = false
+protect_breaking_commits = true
+filter_commits = false
+tag_pattern = "v[0-9]*"
+topo_order = false
+sort_commits = "oldest"
+
+commit_parsers = [
+  { message = "^[Mm]erge (branch|pull request)", skip = true },
+  { message = "^[Rr]evert ", skip = true },
+  { body = ".*BREAKING CHANGE", group = "Breaking" },
+  { message = "^[a-z]+!:", group = "Breaking" },
+  { message = "^feat", group = "New" },
+  { message = "^fix", group = "Fix" },
+  { message = "^perf", group = "Improvement" },
+  { message = "^refactor", group = "Improvement" },
+  { message = "^build", group = "Improvement" },
+  { message = "^deps", group = "Improvement" },
+  { message = "^docs", skip = true },
+  { message = "^chore", skip = true },
+  { message = "^test", skip = true },
+  { message = "^ci", skip = true },
+  { message = "^style", skip = true },
+  # Anything else. This project's history is written as plain sentences, so without this the
+  # generated changelog would come out empty.
+  { message = ".*", group = "Improvement" },
+]
+
+[bump]
+features_always_bump_minor = true
+breaking_always_bump_major = true
