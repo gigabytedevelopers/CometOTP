@@ -4,10 +4,27 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 // here any more. "kotlin-kapt" was unused (no annotation processors) and has been dropped.
 apply plugin: 'com.android.application'
 
-// Load keystore
+/*
+ * Signing
+ *
+ * Locally the four values come from keystore.properties, which is not in the repository. On CI
+ * they arrive as environment variables written from repository secrets. A checkout with neither
+ * still configures and builds; only the release signing config is left off, which is all the
+ * pull-request checks need and stops a fork from failing on a file it cannot have.
+ */
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+} else if (System.getenv("ANDROID_KEYSTORE_FILE")) {
+    keystoreProperties["storeFile"] = System.getenv("ANDROID_KEYSTORE_FILE")
+    keystoreProperties["storePassword"] = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+    keystoreProperties["keyAlias"] = System.getenv("ANDROID_KEY_ALIAS")
+    keystoreProperties["keyPassword"] = System.getenv("ANDROID_KEY_PASSWORD")
+}
+
+def canSignRelease = keystoreProperties["storeFile"] != null
 
 /*
  * Versioning
@@ -92,10 +109,12 @@ android {
 
     signingConfigs {
         release {
-            storeFile = file(keystoreProperties['storeFile'])
-            storePassword = keystoreProperties['storePassword']
-            keyAlias = keystoreProperties['keyAlias']
-            keyPassword = keystoreProperties['keyPassword']
+            if (canSignRelease) {
+                storeFile = file(keystoreProperties['storeFile'])
+                storePassword = keystoreProperties['storePassword']
+                keyAlias = keystoreProperties['keyAlias']
+                keyPassword = keystoreProperties['keyPassword']
+            }
         }
     }
 
@@ -106,7 +125,9 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.release
+            // Left unsigned when no keystore is available, so the build still configures.
+            if (canSignRelease)
+                signingConfig = signingConfigs.release
             // Google Play's "App optimization" check requires code shrinking, obfuscation and
             // resource shrinking. The mapping file is bundled automatically for crash de-obfuscation.
             minifyEnabled = true
