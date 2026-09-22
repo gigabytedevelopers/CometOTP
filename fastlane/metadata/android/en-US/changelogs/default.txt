@@ -1,10 +1,7 @@
 CometOTP 8.0.0 is a complete redesign.
 
-New: a Security screen for PIN, password and fingerprint unlock; a Tags screen with colours and
-counts; Support & FAQs; a copy button on every card; and a choice of app icon.
+New: a Security screen for PIN, password and fingerprint unlock; a Tags screen with colours and counts; Support & FAQs; a copy button on every card; and a choice of app icon.
 
-Improved: Material 3 Expressive throughout, a new typeface and launcher icon, a docked bottom bar,
-and clearer cards in dark mode.
+Improved: Material 3 Expressive throughout, a new typeface and launcher icon, a docked bottom bar, and clearer cards in dark mode.
 
-Fixed: crashes after visiting Settings, a restore that could hang, unreadable status bar icons and
-invisible dialog buttons.
+Fixed: crashes after visiting Settings, a restore that could hang, unreadable status bar icons and invisible dialog buttons.

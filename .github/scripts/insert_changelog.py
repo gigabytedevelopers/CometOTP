@@ -22,8 +22,12 @@ def main(changelog_path, section_path):
     # The first release heading, which the new one goes above.
     insert_at = next((i for i, line in enumerate(lines) if line.startswith('## ')), len(lines))
 
-    if section in '\n'.join(lines):
-        print('That section is already present; leaving %s alone.' % changelog_path)
+    # Match on the release heading, not the whole section. An entry written by hand, as 8.0.0
+    # was, never matches the generated text word for word, so comparing the whole thing would
+    # add a second section for a release the changelog already covers.
+    heading = next((l for l in section.splitlines() if l.startswith('## ')), None)
+    if heading and heading in lines:
+        print('%s is already in %s; leaving it alone.' % (heading.lstrip('# '), changelog_path))
         return 0
 
     updated = lines[:insert_at] + section.splitlines() + [''] + lines[insert_at:]

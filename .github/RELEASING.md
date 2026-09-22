@@ -122,8 +122,16 @@ protected, and the rules apply to the workflow too.
 ### Play release notes
 
 `fastlane/metadata/android/en-US/changelogs/default.txt` is the "What's new" text, capped at the
-500 characters Play allows. The workflow copies it to a file named after the versionCode it just
-built. Delete it and the workflow falls back to the first 480 characters of the generated notes.
+500 characters Play allows. Delete it and the workflow falls back to the first 480 characters of
+the generated notes.
+
+The workflow copies it to `whatsnew-en-US` in a temporary directory and points the upload there,
+because that is the name `upload-google-play` looks for. Fastlane's `supply` wants
+`<versionCode>.txt` instead; using that name here uploads the bundle with no notes at all and says
+nothing about it. Keep `default.txt` where it is and let the workflow do the renaming.
+
+Write the text as one line per paragraph. Play preserves newlines, so a hard-wrapped file shows
+its wrapping as line breaks in the middle of sentences.
 
 ## Enabling iOS later
 
