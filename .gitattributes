@@ -1,0 +1,33 @@
+# Normalise line endings in the repository, whatever the contributor's platform.
+#
+# gradlew is a shell script run by the Linux CI runners. Committed with CRLF its shebang reads
+# "bash\r", which Linux cannot resolve, and every Gradle step fails with "No such file or
+# directory". Pinning it to LF here stops that happening again.
+
+* text=auto
+
+# Always LF, because something on a Unix machine executes or parses them.
+gradlew          text eol=lf
+*.sh             text eol=lf
+*.py             text eol=lf
+*.yml            text eol=lf
+*.yaml           text eol=lf
+*.toml           text eol=lf
+*.properties     text eol=lf
+
+# Always CRLF, because Windows runs them.
+gradlew.bat      text eol=crlf
+*.bat            text eol=crlf
+*.cmd            text eol=crlf
+
+# Never touched.
+*.png            binary
+*.jpg            binary
+*.webp           binary
+*.ttf            binary
+*.otf            binary
+*.jar            binary
+*.keystore       binary
+*.jks            binary
+*.aab            binary
+*.apk            binary
