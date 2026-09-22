@@ -56,3 +56,5 @@ the wording follows the commit subjects. See `.github/RELEASING.md` for how that
 - Fixed the bottom bar icons sitting off-centre in their touch targets
 - Fixed a blank band across the cards while tokens were recalculated
 - Fixed the label size setting no longer reaching the token
+- Fixed a crash when searching or sorting by issuer, if an account had been added from a link
+  that carried no issuer
