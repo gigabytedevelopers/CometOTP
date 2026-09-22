@@ -44,7 +44,11 @@ public class Entry {
     private TokenCalculator.HashAlgorithm algorithm = TokenCalculator.DEFAULT_ALGORITHM;
     private byte[] secret;
     private long counter;
-    private String issuer;
+    // Empty rather than null, because that is what loading an entry back produces: toJSON writes
+    // the issuer through JSONObject.put, which drops the key when the value is null, and the
+    // reader turns the missing key into "". Starting at null made saving and loading an entry
+    // change it, and left getIssuer().toLowerCase() free to throw while searching or sorting.
+    private String issuer = "";
     private String label;
     private String currentOTP;
     private String prevOTP;
@@ -69,7 +73,7 @@ public class Entry {
         this.secret = new Base32().decode(secret.toUpperCase());
         this.period = period;
         this.digits = digits;
-        this.issuer = issuer;
+        this.issuer = issuer == null ? "" : issuer;
         this.label = label;
         this.algorithm = algorithm;
         this.tags = tags;
@@ -81,7 +85,7 @@ public class Entry {
         this.secret = new Base32().decode(secret.toUpperCase());
         this.counter = counter;
         this.digits = digits;
-        this.issuer = issuer;
+        this.issuer = issuer == null ? "" : issuer;
         this.label = label;
         this.algorithm = algorithm;
         this.tags = tags;
@@ -91,7 +95,7 @@ public class Entry {
     public Entry(OTPType type, String secret, String issuer, String label, List<String> tags) {
         this.type = type;
         this.secret = secret.getBytes();
-        this.issuer = issuer;
+        this.issuer = issuer == null ? "" : issuer;
         this.label = label;
         this.tags = tags;
         this.period = TokenCalculator.TOTP_DEFAULT_PERIOD;
@@ -148,7 +152,7 @@ public class Entry {
             }
         }
 
-        this.issuer = issuer;
+        this.issuer = issuer == null ? "" : issuer;
         this.label = label;
 
         if (secret == null)
@@ -310,7 +314,9 @@ public class Entry {
         else
             builder.appendQueryParameter("secret", new Base32().encodeAsString(this.secret));
 
-        if (this.issuer != null) {
+        // Empty as well as null: an entry with no issuer now holds "", and an exported
+        // otpauth:// URL should leave the parameter out rather than carry "issuer=".
+        if (!this.issuer.isEmpty()) {
             builder.appendQueryParameter("issuer", this.issuer);
         }
 
@@ -373,10 +379,10 @@ public class Entry {
     }
 
     public void setIssuer(String issuer, boolean updateThumbnail) {
-        this.issuer = issuer;
+        this.issuer = issuer == null ? "" : issuer;
 
-        if (updateThumbnail && issuer != null)
-            setThumbnailFromIssuer(issuer);
+        if (updateThumbnail)
+            setThumbnailFromIssuer(this.issuer);
     }
 
     public String getLabel() {
