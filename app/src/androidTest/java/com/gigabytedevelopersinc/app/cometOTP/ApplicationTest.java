@@ -9,7 +9,6 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper;
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper;
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base32;
@@ -20,7 +19,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -40,57 +38,18 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+/**
+ * Tests that need a real device or emulator: Entry parses otpauth:// URLs through android.net.Uri,
+ * and the database work goes through the Android keystore.
+ *
+ * EncryptionHelper is here for a subtler reason: it passes an IvParameterSpec to AES/GCM, which
+ * Android's security provider accepts and the JDK's does not, so it can only be checked against a
+ * real provider.
+ *
+ * The parts that need neither — TokenCalculator and Tools — live in app/src/test instead, so they
+ * run on every pull request without waiting for an emulator.
+ */
 public class ApplicationTest {
-
-    @Test
-    public void testTOTPCalculation(){
-        // Test Vectors from https://tools.ietf.org/html/rfc6238
-        byte[] keySHA1 =  "12345678901234567890".getBytes(StandardCharsets.US_ASCII);
-        byte[] keySHA256 =  "12345678901234567890123456789012".getBytes(StandardCharsets.US_ASCII);
-        byte[] keySHA512 =  "1234567890123456789012345678901234567890123456789012345678901234".getBytes(StandardCharsets.US_ASCII);
-
-        assertEquals(94287082, TokenCalculator.TOTP_RFC6238(keySHA1,   TokenCalculator.TOTP_DEFAULT_PERIOD, 59L, 8, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals(46119246, TokenCalculator.TOTP_RFC6238(keySHA256, TokenCalculator.TOTP_DEFAULT_PERIOD, 59L, 8, TokenCalculator.HashAlgorithm.SHA256));
-        assertEquals(90693936, TokenCalculator.TOTP_RFC6238(keySHA512, TokenCalculator.TOTP_DEFAULT_PERIOD, 59L, 8, TokenCalculator.HashAlgorithm.SHA512));
-        assertEquals(84755224, TokenCalculator.TOTP_RFC6238(keySHA1, TokenCalculator.TOTP_DEFAULT_PERIOD, 59L, 8, TokenCalculator.HashAlgorithm.SHA1, -1));
-
-        assertEquals(7081804,  TokenCalculator.TOTP_RFC6238(keySHA1,   TokenCalculator.TOTP_DEFAULT_PERIOD, 1111111109L, 8, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals(68084774, TokenCalculator.TOTP_RFC6238(keySHA256, TokenCalculator.TOTP_DEFAULT_PERIOD, 1111111109L, 8, TokenCalculator.HashAlgorithm.SHA256));
-        assertEquals(25091201, TokenCalculator.TOTP_RFC6238(keySHA512, TokenCalculator.TOTP_DEFAULT_PERIOD, 1111111109L, 8, TokenCalculator.HashAlgorithm.SHA512));
-
-        assertEquals(14050471, TokenCalculator.TOTP_RFC6238(keySHA1,   TokenCalculator.TOTP_DEFAULT_PERIOD, 1111111111L, 8, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals(67062674, TokenCalculator.TOTP_RFC6238(keySHA256, TokenCalculator.TOTP_DEFAULT_PERIOD, 1111111111L, 8, TokenCalculator.HashAlgorithm.SHA256));
-        assertEquals(99943326, TokenCalculator.TOTP_RFC6238(keySHA512, TokenCalculator.TOTP_DEFAULT_PERIOD, 1111111111L, 8, TokenCalculator.HashAlgorithm.SHA512));
-
-        assertEquals(89005924, TokenCalculator.TOTP_RFC6238(keySHA1,   TokenCalculator.TOTP_DEFAULT_PERIOD, 1234567890L, 8, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals(91819424, TokenCalculator.TOTP_RFC6238(keySHA256, TokenCalculator.TOTP_DEFAULT_PERIOD, 1234567890L, 8, TokenCalculator.HashAlgorithm.SHA256));
-        assertEquals(93441116, TokenCalculator.TOTP_RFC6238(keySHA512, TokenCalculator.TOTP_DEFAULT_PERIOD, 1234567890L, 8, TokenCalculator.HashAlgorithm.SHA512));
-
-        assertEquals(69279037, TokenCalculator.TOTP_RFC6238(keySHA1,   TokenCalculator.TOTP_DEFAULT_PERIOD, 2000000000L, 8, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals(90698825, TokenCalculator.TOTP_RFC6238(keySHA256, TokenCalculator.TOTP_DEFAULT_PERIOD, 2000000000L, 8, TokenCalculator.HashAlgorithm.SHA256));
-        assertEquals(38618901, TokenCalculator.TOTP_RFC6238(keySHA512, TokenCalculator.TOTP_DEFAULT_PERIOD, 2000000000L, 8, TokenCalculator.HashAlgorithm.SHA512));
-
-        assertEquals(65353130, TokenCalculator.TOTP_RFC6238(keySHA1,   TokenCalculator.TOTP_DEFAULT_PERIOD, 20000000000L, 8, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals(77737706, TokenCalculator.TOTP_RFC6238(keySHA256, TokenCalculator.TOTP_DEFAULT_PERIOD, 20000000000L, 8, TokenCalculator.HashAlgorithm.SHA256));
-        assertEquals(47863826, TokenCalculator.TOTP_RFC6238(keySHA512, TokenCalculator.TOTP_DEFAULT_PERIOD, 20000000000L, 8, TokenCalculator.HashAlgorithm.SHA512));
-    }
-
-    @Test
-    public void testHOTPCalculation() {
-        // Test cases from https://tools.ietf.org/html/rfc4226
-        byte[] keySHA1 = "12345678901234567890".getBytes(StandardCharsets.US_ASCII);
-
-        assertEquals("755224", TokenCalculator.HOTP(keySHA1, 0, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("287082", TokenCalculator.HOTP(keySHA1, 1, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("359152", TokenCalculator.HOTP(keySHA1, 2, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("969429", TokenCalculator.HOTP(keySHA1, 3, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("338314", TokenCalculator.HOTP(keySHA1, 4, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("254676", TokenCalculator.HOTP(keySHA1, 5, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("287922", TokenCalculator.HOTP(keySHA1, 6, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("162583", TokenCalculator.HOTP(keySHA1, 7, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("399871", TokenCalculator.HOTP(keySHA1, 8, 6, TokenCalculator.HashAlgorithm.SHA1));
-        assertEquals("520489", TokenCalculator.HOTP(keySHA1, 9, 6, TokenCalculator.HashAlgorithm.SHA1));
-    }
 
     @Test
     public void testEntry() throws Exception {
