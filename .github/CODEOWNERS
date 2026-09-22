@@ -1,0 +1,9 @@
+# Every change needs a review from the repository owner before it can be merged.
+# The branch ruleset requires a review from a code owner, so this file is what routes
+# a pull request to you.
+*       @gigabytedevelopers
+
+# The release machinery and anything that touches signing deserves a second look.
+/.github/                   @gigabytedevelopers
+/app/build.gradle           @gigabytedevelopers
+/cliff.toml                 @gigabytedevelopers
