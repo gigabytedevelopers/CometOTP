@@ -233,6 +233,8 @@ dependencies {
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
+    // android.jar only has throwing stubs for org.json; the JVM unit tests need the real thing
+    testImplementation 'org.json:json:20260814'
     androidTestImplementation 'androidx.test:runner:1.7.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 
