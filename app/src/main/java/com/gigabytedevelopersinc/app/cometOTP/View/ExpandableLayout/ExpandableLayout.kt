@@ -1,45 +1,41 @@
-package com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout;
+@file:Suppress("PackageName")
+package com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout
 
-import android.animation.TimeInterpolator;
+import android.animation.TimeInterpolator
+import androidx.annotation.IntDef
 
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+interface ExpandableLayout {
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-public interface ExpandableLayout {
-
-    /**
-     * Duration of expand animation
-     */
-    int DEFAULT_DURATION = 300;
-    /**
-     * Visibility of the layout when the layout attaches
-     */
-    boolean DEFAULT_EXPANDED = false;
-    /**
-     * Orientation of child views
-     */
-    int HORIZONTAL = 0;
-    /**
-     * Orientation of child views
-     */
-    int VERTICAL = 1;
+    companion object {
+        /**
+         * Duration of expand animation
+         */
+        const val DEFAULT_DURATION = 300
+        /**
+         * Visibility of the layout when the layout attaches
+         */
+        const val DEFAULT_EXPANDED = false
+        /**
+         * Orientation of child views
+         */
+        const val HORIZONTAL = 0
+        /**
+         * Orientation of child views
+         */
+        const val VERTICAL = 1
+    }
 
     /**
      * Orientation of layout
      */
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({HORIZONTAL, VERTICAL})
-    @interface Orientation {
-    }
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(HORIZONTAL, VERTICAL)
+    annotation class Orientation
 
     /**
      * Starts animation the state of the view to the inverse of its current state.
      */
-    void toggle();
+    fun toggle()
 
     /**
      * Starts animation the state of the view to the inverse of its current state.
@@ -47,12 +43,12 @@ public interface ExpandableLayout {
      * @param duration
      * @param interpolator use the default interpolator if the argument is null.
      */
-    void toggle(final long duration, @Nullable final TimeInterpolator interpolator);
+    fun toggle(duration: Long, interpolator: TimeInterpolator?)
 
     /**
      * Starts expand animation.
      */
-    void expand();
+    fun expand()
 
     /**
      * Starts expand animation.
@@ -60,12 +56,12 @@ public interface ExpandableLayout {
      * @param duration
      * @param interpolator use the default interpolator if the argument is null.
      */
-    void expand(final long duration, @Nullable final TimeInterpolator interpolator);
+    fun expand(duration: Long, interpolator: TimeInterpolator?)
 
     /**
      * Starts collapse animation.
      */
-    void collapse();
+    fun collapse()
 
     /**
      * Starts collapse animation.
@@ -73,14 +69,14 @@ public interface ExpandableLayout {
      * @param duration
      * @param interpolator use the default interpolator if the argument is null.
      */
-    void collapse(final long duration, @Nullable final TimeInterpolator interpolator);
+    fun collapse(duration: Long, interpolator: TimeInterpolator?)
 
     /**
      * Sets the expandable layout listener.
      *
      * @param listener ExpandableLayoutListener
      */
-    void setListener(@NonNull final ExpandableLayoutListener listener);
+    fun setListener(listener: ExpandableLayoutListener)
 
     /**
      * Sets the length of the animation.
@@ -88,29 +84,29 @@ public interface ExpandableLayout {
      *
      * @param duration
      */
-    void setDuration(final int duration);
+    fun setDuration(duration: Int)
 
     /**
      * Sets state of expanse.
      *
      * @param expanded The layout is visible if expanded is true
      */
-    void setExpanded(final boolean expanded);
+    fun setExpanded(expanded: Boolean)
 
     /**
      * Gets state of expanse.
      *
      * @return true if the layout is visible
      */
-    boolean isExpanded();
+    fun isExpanded(): Boolean
 
     /**
      * The time interpolator used in calculating the elapsed fraction of this animation. The
      * interpolator determines whether the animation runs with linear or non-linear motion,
      * such as acceleration and deceleration.
-     * The default value is  {@link android.view.animation.AccelerateDecelerateInterpolator}
+     * The default value is  [android.view.animation.AccelerateDecelerateInterpolator]
      *
      * @param interpolator
      */
-    void setInterpolator(@NonNull final TimeInterpolator interpolator);
+    fun setInterpolator(interpolator: TimeInterpolator)
 }

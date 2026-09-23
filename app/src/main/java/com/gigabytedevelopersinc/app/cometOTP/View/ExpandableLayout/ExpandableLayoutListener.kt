@@ -1,35 +1,36 @@
-package com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout;
+@file:Suppress("PackageName")
+package com.gigabytedevelopersinc.app.cometOTP.View.ExpandableLayout
 
-public interface ExpandableLayoutListener {
+interface ExpandableLayoutListener {
     /**
      * Notifies the start of the animation.
      * Sync from android.animation.Animator.AnimatorListener.onAnimationStart(Animator animation)
      */
-    void onAnimationStart();
+    fun onAnimationStart()
 
     /**
      * Notifies the end of the animation.
      * Sync from android.animation.Animator.AnimatorListener.onAnimationEnd(Animator animation)
      */
-    void onAnimationEnd();
+    fun onAnimationEnd()
 
     /**
      * Notifies the layout is going to open.
      */
-    void onPreOpen();
+    fun onPreOpen()
 
     /**
      * Notifies the layout is going to equal close size.
      */
-    void onPreClose();
+    fun onPreClose()
 
     /**
      * Notifies the layout opened.
      */
-    void onOpened();
+    fun onOpened()
 
     /**
      * Notifies the layout size equal closed size.
      */
-    void onClosed();
+    fun onClosed()
 }
