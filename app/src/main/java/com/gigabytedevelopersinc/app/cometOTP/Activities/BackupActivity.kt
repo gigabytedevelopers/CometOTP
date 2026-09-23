@@ -122,6 +122,17 @@ class BackupActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Without the database key there is nothing to back up (the database cannot be read) and
+        // nowhere to restore to (it cannot be written), e.g. when this is opened before the
+        // database was unlocked. Leave with the usual message instead of crashing.
+        val keyMaterial = intent.getByteArrayExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY)
+        if (keyMaterial == null) {
+            Toast.makeText(this, R.string.toast_encryption_key_empty, Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+        encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial)
+
         setTitle(R.string.backup_activity_title)
         setContentView(R.layout.activity_container)
 
@@ -131,11 +142,6 @@ class BackupActivity : BaseActivity() {
         val stub = findViewById<ViewStub>(R.id.container_stub)
         stub.layoutResource = R.layout.content_backup
         val v = stub.inflate()
-
-        val callingIntent = intent
-        val keyMaterial = callingIntent.getByteArrayExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY)
-        // The Java original handed a missing key straight to generateSymmetricKey(), which throws.
-        encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial!!)
 
         if (savedInstanceState != null) {
             encryptTargetFile = BundleCompat.getParcelable(savedInstanceState, STATE_ENCRYPT_TARGET, Uri::class.java)
