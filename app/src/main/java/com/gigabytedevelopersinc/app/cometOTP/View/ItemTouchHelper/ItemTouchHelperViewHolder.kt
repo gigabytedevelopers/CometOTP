@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper;
-
-import androidx.recyclerview.widget.ItemTouchHelper;
+@file:Suppress("PackageName")
+package com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper
 
 /**
- * Interface to notify an item ViewHolder of relevant callbacks from {@link
- * androidx.recyclerview.widget.ItemTouchHelper.Callback}.
+ * Interface to notify an item ViewHolder of relevant callbacks from
+ * [androidx.recyclerview.widget.ItemTouchHelper.Callback].
  *
  * @author Paul Burke (ipaulpro)
  */
-public interface ItemTouchHelperViewHolder {
+interface ItemTouchHelperViewHolder {
 
     /**
-     * Called when the {@link ItemTouchHelper} first registers an item as being moved or swiped.
+     * Called when the [androidx.recyclerview.widget.ItemTouchHelper] first registers an item as being moved or swiped.
      * Implementations should update the item view to indicate it's active state.
      */
-    void onItemSelected();
+    fun onItemSelected()
 
 
     /**
-     * Called when the {@link ItemTouchHelper} has completed the move or swipe, and the active item
+     * Called when the [androidx.recyclerview.widget.ItemTouchHelper] has completed the move or swipe, and the active item
      * state should be cleared.
      */
-    void onItemClear();
+    fun onItemClear()
 }
