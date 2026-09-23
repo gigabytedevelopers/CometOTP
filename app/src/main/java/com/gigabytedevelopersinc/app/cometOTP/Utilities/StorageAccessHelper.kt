@@ -1,0 +1,79 @@
+@file:Suppress("PackageName")
+package com.gigabytedevelopersinc.app.cometOTP.Utilities
+
+import android.content.Context
+import android.net.Uri
+import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
+import java.io.IOException
+
+/**
+ * Project - CometOTP
+ * Created with Android Studio
+ * Company: Gigabyte Developers
+ * User: Emmanuel Nwokoma
+ * Title: Founder and CEO
+ * Day: Tuesday, 24
+ * Month: December
+ * Year: 2019
+ * Date: 24 Dec, 2019
+ * Time: 4:28 AM
+ * Desc: StorageAccessHelper
+ **/
+object StorageAccessHelper {
+    @JvmStatic
+    fun saveFile(context: Context, file: Uri, data: ByteArray): Boolean {
+        var success = true
+
+        try {
+            val pfd = context.contentResolver.openFileDescriptor(file, "w")
+            val fileOutputStream = FileOutputStream(pfd!!.fileDescriptor)
+
+            fileOutputStream.write(data)
+
+            fileOutputStream.close()
+            pfd.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            success = false
+        }
+
+        return success
+    }
+
+    @JvmStatic
+    fun saveFile(context: Context, file: Uri, data: String): Boolean {
+        return saveFile(context, file, data.toByteArray(Charsets.UTF_8))
+    }
+
+    @JvmStatic
+    @Throws(IOException::class)
+    fun loadFile(context: Context, file: Uri): ByteArray {
+        context.contentResolver.openInputStream(file).use { inputStream ->
+            val bytes = ByteArrayOutputStream()
+
+            val buffer = ByteArray(1024)
+            var count: Int
+
+            while (inputStream!!.read(buffer).also { count = it } != -1) {
+                bytes.write(buffer, 0, count)
+            }
+
+            return bytes.toByteArray()
+        }
+    }
+
+    @JvmStatic
+    fun loadFileString(context: Context, file: Uri): String {
+        var result = ""
+
+        try {
+            val content = loadFile(context, file)
+            result = String(content, Charsets.UTF_8)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return result
+    }
+}

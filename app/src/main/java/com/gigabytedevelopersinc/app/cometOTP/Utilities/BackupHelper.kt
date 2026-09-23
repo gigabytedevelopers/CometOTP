@@ -140,7 +140,7 @@ object BackupHelper {
             System.arraycopy(salt, 0, data, Constants.INT_LENGTH, Constants.ENCRYPTION_IV_LENGTH)
             System.arraycopy(encrypted, 0, data, Constants.INT_LENGTH + Constants.ENCRYPTION_IV_LENGTH, encrypted.size)
 
-            success = StorageAccessHelper.saveFile(context, uri, data)
+            success = StorageAccessHelper.saveFile(context, uri!!, data)
         } catch (e: Exception) {
             e.printStackTrace()
             success = false
