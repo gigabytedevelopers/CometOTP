@@ -21,18 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@file:Suppress("PackageName")
 
-package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app;
+package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app
 
-public interface NavigationPolicy {
+import androidx.annotation.IntDef
 
-    /**
-     * Return true if going forwards is allowed.
-     */
-    boolean canGoForward(int position);
+interface OnNavigationBlockedListener {
+    @IntDef(DIRECTION_FORWARD, DIRECTION_BACKWARD)
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class Direction
 
-    /**
-     * Return true if going backwards is allowed.
-     */
-    boolean canGoBackward(int position);
+    fun onNavigationBlocked(position: Int, @Direction direction: Int)
+
+    companion object {
+        const val DIRECTION_FORWARD = 1
+
+        const val DIRECTION_BACKWARD = -1
+    }
 }

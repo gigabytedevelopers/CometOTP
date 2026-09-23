@@ -21,23 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@file:Suppress("PackageName")
 
-package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app;
+package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app
 
-import androidx.annotation.StringRes;
-import android.view.View;
+import android.view.View
+import androidx.annotation.StringRes
 
-public interface ButtonCtaFragment {
-    View.OnClickListener getButtonCtaClickListener();
-
-    /**
-     * Note: you must either define a {@link String} or a {@link StringRes} label
-     */
-    String getButtonCtaLabel();
+interface ButtonCtaFragment {
+    val buttonCtaClickListener: View.OnClickListener?
 
     /**
-     * Note: you must either define a {@link String} or a {@link StringRes} label
+     * Note: you must either define a [String] or a [StringRes] label
      */
-    @StringRes
-    int getButtonCtaLabelRes();
+    val buttonCtaLabel: String?
+
+    /**
+     * Note: you must either define a [String] or a [StringRes] label
+     */
+    @get:StringRes
+    val buttonCtaLabelRes: Int
 }

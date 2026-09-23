@@ -21,26 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@file:Suppress("PackageName")
 
-package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app;
+package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app
 
-public abstract class OnPositionNavigationBlockedListener implements OnNavigationBlockedListener {
-    private final int position;
+abstract class OnPositionNavigationBlockedListener(open val position: Int) : OnNavigationBlockedListener {
 
-    public OnPositionNavigationBlockedListener(int position) {
-        this.position = position;
-    }
+    protected abstract fun onNavigationBlocked(@OnNavigationBlockedListener.Direction direction: Int)
 
-    public int getPosition() {
-        return position;
-    }
-
-    protected abstract void onNavigationBlocked(@Direction int direction);
-
-    @Override
-    public void onNavigationBlocked(int position, @Direction int direction) {
+    override fun onNavigationBlocked(position: Int, @OnNavigationBlockedListener.Direction direction: Int) {
         if (this.position == position) {
-            onNavigationBlocked(direction);
+            onNavigationBlocked(direction)
         }
     }
 }

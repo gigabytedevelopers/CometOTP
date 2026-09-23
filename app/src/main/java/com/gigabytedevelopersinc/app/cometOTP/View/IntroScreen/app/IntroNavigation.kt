@@ -21,51 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@file:Suppress("PackageName")
 
-package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app;
+package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app
 
 interface IntroNavigation {
     /**
-     * Tries to go to the given position and will stop when {@code canGoForward()} or
-     * {@code canGoBackward()} returns {@code false}.
+     * Tries to go to the given position and will stop when `canGoForward()` or
+     * `canGoBackward()` returns `false`.
      *
      * @param position The position the pager should go to.
-     * @return {@code true} if the pager was able to go the complete way to the given position,
-     * {@code false} otherwise.
+     * @return `true` if the pager was able to go the complete way to the given position,
+     * `false` otherwise.
      */
-    boolean goToSlide(int position);
+    fun goToSlide(position: Int): Boolean
 
     /**
-     * Tries to go to the next slide if {@code canGoForward()} returns {@code true}.
+     * Tries to go to the next slide if `canGoForward()` returns `true`.
      *
-     * @return {@code true} if the pager was able to go to the next slide, {@code false} otherwise.
+     * @return `true` if the pager was able to go to the next slide, `false` otherwise.
      */
-    boolean nextSlide();
+    fun nextSlide(): Boolean
 
 
     /**
-     * Tries to go to the previous slide if {@code canGoForward()} returns {@code true}.
+     * Tries to go to the previous slide if `canGoForward()` returns `true`.
      *
-     * @return {@code true} if the pager was able to go to the previous slide, {@code false}
+     * @return `true` if the pager was able to go to the previous slide, `false`
      * otherwise.
      */
-    boolean previousSlide();
+    fun previousSlide(): Boolean
 
     /**
-     * Tries to go to the last slide and will stop when {@code canGoForward()} returns
-     * {@code false}.
+     * Tries to go to the last slide and will stop when `canGoForward()` returns
+     * `false`.
      *
-     * @return {@code true} if the pager was able to go the complete way to the last slide,
-     * {@code false} otherwise.
+     * @return `true` if the pager was able to go the complete way to the last slide,
+     * `false` otherwise.
      */
-    boolean goToLastSlide();
+    fun goToLastSlide(): Boolean
 
     /**
-     * Tries to go to the first slide and will stop when {@code canGoBackward()} returns
-     * {@code false}.
+     * Tries to go to the first slide and will stop when `canGoBackward()` returns
+     * `false`.
      *
-     * @return {@code true} if the pager was able to go the complete way to the first slide,
-     * {@code false} otherwise.
+     * @return `true` if the pager was able to go the complete way to the first slide,
+     * `false` otherwise.
      */
-    boolean goToFirstSlide();
+    fun goToFirstSlide(): Boolean
 }
