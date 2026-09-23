@@ -1,30 +1,26 @@
-package com.gigabytedevelopersinc.app.cometOTP.Utilities;
+@file:Suppress("PackageName")
+package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
-import android.util.Log;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.text.TextUtils
+import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.content.res.AppCompatResources
+import com.gigabytedevelopersinc.app.cometOTP.R
+import java.util.Locale
+import java.util.regex.Pattern
 
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.content.res.AppCompatResources;
-
-import com.gigabytedevelopersinc.app.cometOTP.R;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-public class EntryThumbnail {
-    private enum AssetType {
+object EntryThumbnail {
+    // internal rather than private: Kotlin does not let the enum below expose a private type.
+    internal enum class AssetType {
         Bitmap,
         Vector
     }
 
-    public enum EntryThumbnails {
+    enum class EntryThumbnails(val resource: Int, internal val assetType: AssetType) {
         Default(R.mipmap.ic_launcher_round),
         OneAndOne(R.drawable.thumb_1and1),
         OneBlu(R.drawable.thumb_1blu),
@@ -447,97 +443,84 @@ public class EntryThumbnail {
         Zoho(R.drawable.thumb_zoho),
         Zoom(R.drawable.thumb_zoom);
 
-        private final int resource;
-        private final AssetType assetType;
+        constructor(resource: Int) : this(resource, AssetType.Vector) // Delegate to the other constructor
 
-        // --- Caches for optimized lookups ---
-        private static final Map<String, EntryThumbnails> NAME_TO_ENUM_IGNORE_CASE_MAP = new HashMap<>();
-        // For fuzzy matching, pre-compile patterns.
-        // Consider if a simpler "contains" check is sufficient for most cases.
-        private static final Map<Pattern, EntryThumbnails> FUZZY_PATTERN_TO_ENUM_MAP = new HashMap<>();
+        companion object {
+            // --- Caches for optimized lookups ---
+            private val NAME_TO_ENUM_IGNORE_CASE_MAP: MutableMap<String, EntryThumbnails> = HashMap()
+            // For fuzzy matching, pre-compile patterns.
+            // Consider if a simpler "contains" check is sufficient for most cases.
+            private val FUZZY_PATTERN_TO_ENUM_MAP: MutableMap<Pattern, EntryThumbnails> = HashMap()
 
-        static {
-            for (EntryThumbnails entry : values()) {
-                NAME_TO_ENUM_IGNORE_CASE_MAP.put(entry.name().toLowerCase(Locale.ROOT), entry);
+            init {
+                for (entry in values()) {
+                    NAME_TO_ENUM_IGNORE_CASE_MAP[entry.name.lowercase(Locale.ROOT)] = entry
 
-                // Pre-compile pattern for fuzzy search
-                // The \\b ensures word boundaries, which is good.
-                Pattern re = Pattern.compile("\\b" + Pattern.quote(entry.name()) + "\\b", Pattern.CASE_INSENSITIVE);
-                FUZZY_PATTERN_TO_ENUM_MAP.put(re, entry);
-            }
-        }
-
-        EntryThumbnails(int resource) {
-            this(resource, AssetType.Vector); // Delegate to the other constructor
-        }
-
-        EntryThumbnails(int resource, AssetType assetType) {
-            this.resource = resource;
-            this.assetType = assetType;
-        }
-
-        public static EntryThumbnails valueOfFuzzy(String thumbnail) {
-            if (thumbnail == null) { // Add null check
-                throw new IllegalArgumentException("Thumbnail string cannot be null");
-            }
-            for (Map.Entry<Pattern, EntryThumbnails> entry : FUZZY_PATTERN_TO_ENUM_MAP.entrySet()) {
-                if (entry.getKey().matcher(thumbnail).find()) {
-                    return entry.getValue();
+                    // Pre-compile pattern for fuzzy search
+                    // The \\b ensures word boundaries, which is good.
+                    val re = Pattern.compile("\\b" + Pattern.quote(entry.name) + "\\b", Pattern.CASE_INSENSITIVE)
+                    FUZZY_PATTERN_TO_ENUM_MAP[re] = entry
                 }
             }
-            // Consider returning Default or null instead of throwing an exception
-            // if a match is not strictly required.
-            throw new IllegalArgumentException("No matching thumbnail found for (fuzzy): " + thumbnail);
-        }
 
-        public int getResource() {
-            return resource;
-        }
-
-        AssetType getAssetType() {
-            return assetType;
-        }
-
-        public static EntryThumbnails valueOfIgnoreCase(String thumbnail) {
-            if (thumbnail == null) { // Add null check
-                throw new IllegalArgumentException("Thumbnail string cannot be null");
+            @JvmStatic
+            fun valueOfFuzzy(thumbnail: String?): EntryThumbnails {
+                if (thumbnail == null) { // Add null check
+                    throw IllegalArgumentException("Thumbnail string cannot be null")
+                }
+                for ((key, value) in FUZZY_PATTERN_TO_ENUM_MAP) {
+                    if (key.matcher(thumbnail).find()) {
+                        return value
+                    }
+                }
+                // Consider returning Default or null instead of throwing an exception
+                // if a match is not strictly required.
+                throw IllegalArgumentException("No matching thumbnail found for (fuzzy): $thumbnail")
             }
-            EntryThumbnails result = NAME_TO_ENUM_IGNORE_CASE_MAP.get(thumbnail.replace(".", "").toLowerCase(Locale.ROOT));
-            if (result != null) {
-                return result;
+
+            @JvmStatic
+            fun valueOfIgnoreCase(thumbnail: String?): EntryThumbnails {
+                if (thumbnail == null) { // Add null check
+                    throw IllegalArgumentException("Thumbnail string cannot be null")
+                }
+                val result = NAME_TO_ENUM_IGNORE_CASE_MAP[thumbnail.replace(".", "").lowercase(Locale.ROOT)]
+                if (result != null) {
+                    return result
+                }
+                // Consider returning Default or null
+                Log.e("Thumbnail", "No matching thumbnail found for (ignore case): $thumbnail")
+                throw IllegalArgumentException("No matching thumbnail found for (ignore case): $thumbnail")
             }
-            // Consider returning Default or null
-            Log.e("Thumbnail", "No matching thumbnail found for (ignore case): " + thumbnail);
-            throw new IllegalArgumentException("No matching thumbnail found for (ignore case): " + thumbnail);
         }
     }
 
-    public static Bitmap getThumbnailGraphic(Context context, String issuer, String label, int size, EntryThumbnails thumbnail) {
-		AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-		
+    @JvmStatic
+    fun getThumbnailGraphic(context: Context, issuer: String?, label: String?, size: Int, thumbnail: EntryThumbnails): Bitmap? {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+
         if (thumbnail == EntryThumbnails.Default && size > 0) {
-            LetterBitmap letterBitmap = new LetterBitmap(context);
-            String letterSrc = TextUtils.isEmpty(issuer) ? label : issuer;
-            return letterBitmap.getLetterTile(letterSrc, letterSrc, size, size);
+            val letterBitmap = LetterBitmap(context)
+            val letterSrc = if (TextUtils.isEmpty(issuer)) label else issuer
+            return letterBitmap.getLetterTile(letterSrc!!, letterSrc, size, size)
         } else if (thumbnail != EntryThumbnails.Default) {
 
             try {
-                if (thumbnail.getAssetType() == AssetType.Vector) {
-                    Drawable drawable = AppCompatResources.getDrawable(context, thumbnail.getResource());
-                    assert drawable != null; // The thumbnail should always have a drawable
-                    Bitmap bitmap = Bitmap.createBitmap(drawable.getMinimumWidth(), drawable.getMinimumHeight(), Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bitmap);
-                    drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-                    drawable.draw(canvas);
-                    return bitmap;
+                if (thumbnail.assetType == AssetType.Vector) {
+                    val drawable = AppCompatResources.getDrawable(context, thumbnail.resource)
+                    // The thumbnail should always have a drawable
+                    val bitmap = Bitmap.createBitmap(drawable!!.minimumWidth, drawable.minimumHeight, Bitmap.Config.ARGB_8888)
+                    val canvas = Canvas(bitmap)
+                    drawable.setBounds(0, 0, drawable.minimumWidth, drawable.minimumHeight)
+                    drawable.draw(canvas)
+                    return bitmap
                 } else {
-                    return BitmapFactory.decodeResource(context.getResources(), thumbnail.getResource());
+                    return BitmapFactory.decodeResource(context.resources, thumbnail.resource)
                 }
-            } catch (Exception e) {
-                e.fillInStackTrace();
+            } catch (e: Exception) {
+                e.fillInStackTrace()
             }
         }
 
-        return BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher_round);
+        return BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher_round)
     }
 }
