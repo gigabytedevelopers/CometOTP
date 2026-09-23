@@ -21,11 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@file:Suppress("PackageName")
 
-package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide;
+package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide
 
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.Fragment
 
-public interface RestorableSlide extends Slide {
-    void setFragment(Fragment fragment);
+interface RestorableSlide : Slide {
+    override var fragment: Fragment?
 }

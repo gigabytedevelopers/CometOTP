@@ -21,23 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@file:Suppress("PackageName")
 
-package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide;
+package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide
 
-import androidx.annotation.StringRes;
-import android.view.View;
+import android.view.View
+import androidx.annotation.StringRes
 
-public interface ButtonCtaSlide extends Slide {
-    View.OnClickListener getButtonCtaClickListener();
-
-    /**
-     * Note: you must either define a {@link CharSequence} or a {@link StringRes} label
-     */
-    CharSequence getButtonCtaLabel();
+interface ButtonCtaSlide : Slide {
+    val buttonCtaClickListener: View.OnClickListener?
 
     /**
-     * Note: you must either define a {@link CharSequence} or a {@link StringRes} label
+     * Note: you must either define a [CharSequence] or a [StringRes] label
      */
-    @StringRes
-    int getButtonCtaLabelRes();
+    val buttonCtaLabel: CharSequence?
+
+    /**
+     * Note: you must either define a [CharSequence] or a [StringRes] label
+     */
+    @get:StringRes
+    val buttonCtaLabelRes: Int
 }

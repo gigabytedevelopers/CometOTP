@@ -21,22 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@file:Suppress("PackageName")
 
-package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide;
+package com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide
 
-import androidx.annotation.ColorRes;
-import androidx.fragment.app.Fragment;
+import android.view.View
 
-public interface Slide {
-    Fragment getFragment();
+interface SimpleSlideActivity {
+    fun onSlideViewCreated(fragment: SimpleSlide.SimpleSlideFragment, view: View, id: Long)
 
-    @ColorRes
-    int getBackground();
-
-    @ColorRes
-    int getBackgroundDark();
-
-    boolean canGoForward();
-
-    boolean canGoBackward();
+    fun onSlideDestroyView(fragment: SimpleSlide.SimpleSlideFragment, view: View?, id: Long)
 }
