@@ -31,6 +31,7 @@ import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.VisibleForTesting
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 
@@ -39,8 +40,17 @@ open class FadeableViewPager @JvmOverloads constructor(
         attrs: AttributeSet? = null
 ) : SwipeBlockableViewPager(context, attrs) {
 
+    /** The wrapper currently set on the pager, released when it is replaced. */
+    private var adapterWrapper: PagerAdapterWrapper? = null
+
     override fun setAdapter(adapter: PagerAdapter?) {
-        super.setAdapter(PagerAdapterWrapper(adapter!!))
+        val oldWrapper = adapterWrapper
+        val newWrapper = PagerAdapterWrapper(adapter!!)
+        adapterWrapper = newWrapper
+        super.setAdapter(newWrapper)
+        // IntroActivity sets the same adapter again on every data change; without this each old
+        // wrapper would stay registered on it for good.
+        oldWrapper?.release()
     }
 
     override fun getAdapter(): PagerAdapter? {
@@ -115,18 +125,26 @@ open class FadeableViewPager @JvmOverloads constructor(
      * `null`.
      */
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
-    private class PagerAdapterWrapper(val adapter: PagerAdapter) : PagerAdapter() {
+    @VisibleForTesting
+    internal class PagerAdapterWrapper(val adapter: PagerAdapter) : PagerAdapter() {
+
+        private val observer = object : DataSetObserver() {
+            override fun onChanged() {
+                notifyDataSetChanged()
+            }
+
+            override fun onInvalidated() {
+                notifyDataSetChanged()
+            }
+        }
 
         init {
-            adapter.registerDataSetObserver(object : DataSetObserver() {
-                override fun onChanged() {
-                    notifyDataSetChanged()
-                }
+            adapter.registerDataSetObserver(observer)
+        }
 
-                override fun onInvalidated() {
-                    notifyDataSetChanged()
-                }
-            })
+        /** Stops following the wrapped adapter; call once this wrapper is no longer in use. */
+        fun release() {
+            adapter.unregisterDataSetObserver(observer)
         }
 
         override fun getCount(): Int {
