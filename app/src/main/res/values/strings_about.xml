@@ -20,13 +20,12 @@
     <string name="about_title_authors">Authors</string>
 
     <string name="about_label_main_author">Main author</string>
-    <string name="about_label_original_author_main_google">Google Authenticator app idea</string>
-    <string name="about_label_original_app">Original App</string>
+    <string name="about_label_product_engineer">Product Engineer</string>
     <string name="about_label_github" translatable="false">Github</string>
     <string name="about_label_donate">Donate</string>
 
     <string name="about_name_author1" translatable="false">Gigabyte Developers</string>
-    <string name="about_name_author2" translatable="false">Google</string>
+    <string name="about_name_author2" translatable="false">Emmanuel Nwokoma</string>
 
     <!-- Support -->
     <string name="about_title_support">Support Development</string>

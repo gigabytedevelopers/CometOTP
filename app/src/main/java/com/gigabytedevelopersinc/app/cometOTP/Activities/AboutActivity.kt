@@ -113,8 +113,22 @@ class AboutActivity : BaseActivity() {
                 copyToClipboard(AUTHOR1_PAYPAL)
             }
         }
-        val author2App = v.findViewById<TextView>(R.id.about_author2_app)
-        author2App.setOnClickListener { openURI(AUTHOR2_APP) }
+        val author2GitHub = v.findViewById<TextView>(R.id.about_author2_github)
+        val author2Paypal = v.findViewById<TextView>(R.id.about_author2_paypal)
+        author2GitHub.setOnClickListener {
+            try {
+                openURI(AUTHOR2_GITHUB)
+            } catch (ignored: Exception) {
+                copyToClipboard(AUTHOR2_GITHUB)
+            }
+        }
+        author2Paypal.setOnClickListener {
+            try {
+                openURI(AUTHOR2_PAYPAL)
+            } catch (ignored: Exception) {
+                copyToClipboard(AUTHOR2_PAYPAL)
+            }
+        }
         val bugReport = v.findViewById<LinearLayout>(R.id.about_layout_bugs)
         bugReport.setOnClickListener {
             val feedback = Intent(Intent.ACTION_SENDTO)
@@ -235,9 +249,8 @@ class AboutActivity : BaseActivity() {
         private const val AUTHOR1_GITHUB = "https://github.com/gigabytedevelopers"
         private const val AUTHOR1_PAYPAL = "https://paypal.me/gigabtedevelopers"
 
-        // private static final String AUTHOR2_GITHUB = "https://github.com";
-        private const val AUTHOR2_APP =
-            "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+        private const val AUTHOR2_GITHUB = "https://github.com/enwokoma"
+        private const val AUTHOR2_PAYPAL = "https://www.paypal.com/donate/?hosted_button_id=G35ZM2EKPVZ9Y"
         private const val changeLogUrl = "https://gigabytedevelopers.com/apps/cometotp/changelog"
 
         // private static final String BUGREPORT_URI = GITHUB_URI + "/issues";
