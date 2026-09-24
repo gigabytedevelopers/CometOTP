@@ -92,6 +92,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     private var recreateActivity = false
     private var cacheEncKey = false
+    /** Search mode was entered before the window had focus; see [onWindowFocusChanged]. */
+    private var showSearchKeyboardOnFocus = false
     private var coachMarksRequested = false
 
     private lateinit var handler: Handler
@@ -604,7 +606,25 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         if (focus) {
             searchField.requestFocus()
-            UIHelper.showKeyboard(this, searchField)
+            if (searchField.hasWindowFocus())
+                UIHelper.showKeyboard(this, searchField)
+            else
+                // Entered from onCreate() ("focus search on start"): the window is not focused
+                // yet and the keyboard would refuse to show, so wait for the focus.
+                showSearchKeyboardOnFocus = true
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        if (hasFocus && showSearchKeyboardOnFocus) {
+            showSearchKeyboardOnFocus = false
+            // Posted: the input method only takes the focused field on after this callback.
+            searchField.post {
+                if (searchMode && searchField.hasFocus())
+                    UIHelper.showKeyboard(this, searchField)
+            }
         }
     }
 
@@ -613,6 +633,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             return
 
         UIHelper.hideKeyboard(this, searchField)
+        showSearchKeyboardOnFocus = false
         searchMode = false
         searchField.setText("")
         setFilterString("")
