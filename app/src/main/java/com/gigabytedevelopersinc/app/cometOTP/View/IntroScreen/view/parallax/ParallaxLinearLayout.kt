@@ -59,9 +59,12 @@ open class ParallaxLinearLayout @JvmOverloads constructor(
             this.parallaxFactor = parallaxFactor
         }
 
-        constructor(width: Int, height: Int, gravity: Int) : super(width, height, gravity.toFloat())
+        constructor(width: Int, height: Int, gravity: Int) : super(width, height) {
+            this.gravity = gravity
+        }
 
-        constructor(width: Int, height: Int, gravity: Int, parallaxFactor: Float) : super(width, height, gravity.toFloat()) {
+        constructor(width: Int, height: Int, gravity: Int, parallaxFactor: Float) : super(width, height) {
+            this.gravity = gravity
             this.parallaxFactor = parallaxFactor
         }
 
