@@ -211,10 +211,10 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     private val qrImageLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) { result ->
-        // A picker result without a document would have been handed to scanQRImage() as null
-        // in the Java original, which throws there as well.
-        if (result.resultCode == RESULT_OK && result.data != null)
-            addQRCode(ScanQRCodeFromFile.scanQRImage(this, result.data!!.data!!))
+        // A picker result without a document has nothing to scan, so it is ignored.
+        val image = result.data?.data
+        if (result.resultCode == RESULT_OK && image != null)
+            addQRCode(ScanQRCodeFromFile.scanQRImage(this, image))
     }
 
     // Shared by the password/PIN screen and the device-credential prompt: any result other than
