@@ -576,10 +576,9 @@ class IntroScreenActivity : IntroActivity() {
                 return true
             } else {
                 // Ignore action up after keyboard enter. Otherwise the go-back button would be selected
-                // after pressing enter with an invalid password.
-                // (A null event throws here, exactly as it did when this was Java calling the
-                // Kotlin helper.)
-                return EditorActionHelper.isActionUpKeyboardEnter(event!!)
+                // after pressing enter with an invalid password. IME actions other than Done come
+                // without a KeyEvent; those are left to the default handling.
+                return event != null && EditorActionHelper.isActionUpKeyboardEnter(event)
             }
         }
 
