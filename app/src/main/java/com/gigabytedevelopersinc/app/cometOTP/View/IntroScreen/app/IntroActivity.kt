@@ -548,15 +548,16 @@ open class IntroActivity : AppCompatActivity(), IntroNavigation {
             }
         }
         if (buttonCtaVisible) {
+            // A listener set through setButtonCtaClickListener() replaces the default action
+            // (skipping to the end of the intro).
+            val listener = buttonCtaClickListener ?: ButtonCtaClickListener()
             if (buttonCtaLabelRes != 0) {
-                return Pair.create(getString(buttonCtaLabelRes) as CharSequence,
-                        ButtonCtaClickListener())
+                return Pair.create(getString(buttonCtaLabelRes) as CharSequence, listener)
             }
             if (!TextUtils.isEmpty(buttonCtaLabel)) {
-                return Pair.create(buttonCtaLabel, ButtonCtaClickListener())
+                return Pair.create(buttonCtaLabel, listener)
             } else {
-                return Pair.create(getString(R.string.mi_label_button_cta) as CharSequence,
-                        ButtonCtaClickListener())
+                return Pair.create(getString(R.string.mi_label_button_cta) as CharSequence, listener)
             }
         }
         return null
