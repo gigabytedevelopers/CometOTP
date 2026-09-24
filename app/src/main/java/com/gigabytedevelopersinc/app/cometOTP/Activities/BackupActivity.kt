@@ -50,6 +50,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import org.openintents.openpgp.IOpenPgpService2
 import org.openintents.openpgp.OpenPgpError
 import org.openintents.openpgp.OpenPgpSignatureResult
 import org.openintents.openpgp.util.OpenPgpApi
@@ -431,13 +432,15 @@ class BackupActivity : BaseActivity() {
     private fun handleRestoreTaskResult(result: GenericRestoreTask.RestoreTaskResult) {
         if (result.success) {
             if (result.isPGP) {
-                val inputStream: InputStream = ByteArrayInputStream(result.payload!!.toByteArray(StandardCharsets.UTF_8))
-                val os = ByteArrayOutputStream()
+                withPgpService { service ->
+                    val inputStream: InputStream = ByteArrayInputStream(result.payload!!.toByteArray(StandardCharsets.UTF_8))
+                    val os = ByteArrayOutputStream()
 
-                val api = OpenPgpApi(this, pgpServiceConnection!!.service)
-                val resultIntent = api.executeApi(result.decryptIntent, inputStream, os)
+                    val api = OpenPgpApi(this, service)
+                    val resultIntent = api.executeApi(result.decryptIntent, inputStream, os)
 
-                handleOpenPGPResult(resultIntent, os, result.uri, PgpOperation.DECRYPT)
+                    handleOpenPGPResult(resultIntent, os, result.uri, PgpOperation.DECRYPT)
+                }
             } else {
                 restoreEntries(result.payload, false)
             }
@@ -754,15 +757,67 @@ class BackupActivity : BaseActivity() {
             }
 
             // Pattern.split() keeps Java's String.split() semantics (trailing empty strings dropped).
-            intent.putExtra(OpenPgpApi.EXTRA_USER_IDS, Pattern.compile(",").split(pgpEncryptionUserIDs!!))
+            // The user IDs are read when a sheet selects OpenPGP; a screen recreated while the
+            // file picker was open has not done that yet, so fall back to the setting itself.
+            val userIDs = pgpEncryptionUserIDs ?: settings.openPGPEncryptionUserIDs
+            intent.putExtra(OpenPgpApi.EXTRA_USER_IDS, Pattern.compile(",").split(userIDs))
             intent.putExtra(OpenPgpApi.EXTRA_REQUEST_ASCII_ARMOR, true)
         }
 
-        val inputStream: InputStream = ByteArrayInputStream(plainJSON.toByteArray(StandardCharsets.UTF_8))
-        val os = ByteArrayOutputStream()
-        val api = OpenPgpApi(this, pgpServiceConnection!!.service)
-        val result = api.executeApi(intent, inputStream, os)
-        handleOpenPGPResult(result, os, uri, PgpOperation.ENCRYPT)
+        withPgpService { service ->
+            val inputStream: InputStream = ByteArrayInputStream(plainJSON.toByteArray(StandardCharsets.UTF_8))
+            val os = ByteArrayOutputStream()
+            val api = OpenPgpApi(this, service)
+            val result = api.executeApi(intent, inputStream, os)
+            handleOpenPGPResult(result, os, uri, PgpOperation.ENCRYPT)
+        }
+    }
+
+    /**
+     * Runs [action] against the OpenPGP service. The connection is only made when a sheet selects
+     * OpenPGP, so an activity recreated while OpenKeychain (or the file picker) was in front has
+     * none: it is bound again here and [action] continues once the service is up. If that fails the
+     * usual OpenPGP error is shown and nothing is written.
+     *
+     * A connection that exists but has not finished binding yet is handed on unchanged, as before:
+     * [OpenPgpApi] reports the missing service as an OpenPGP error.
+     */
+    private fun withPgpService(action: (IOpenPgpService2?) -> Unit) {
+        val connection = pgpServiceConnection
+        if (connection != null) {
+            action(connection.service)
+            return
+        }
+
+        val provider = settings.openPGPProvider
+        if (TextUtils.isEmpty(provider)) {
+            showOpenPgpError(null)
+            return
+        }
+
+        var pending = true
+        val newConnection = OpenPgpServiceConnection(applicationContext, provider, object : OpenPgpServiceConnection.OnBound {
+            override fun onBound(service: IOpenPgpService2) {
+                // Also called again if the provider restarts; the operation must only run once.
+                if (pending && !isFinishing && !isDestroyed) {
+                    pending = false
+                    action(service)
+                }
+            }
+
+            override fun onError(e: Exception) {
+                if (pending) {
+                    pending = false
+                    showOpenPgpError(e.message)
+                }
+            }
+        })
+        pgpServiceConnection = newConnection
+        newConnection.bindToService()
+    }
+
+    private fun showOpenPgpError(message: String?) {
+        Toast.makeText(this, String.format(getString(R.string.backup_toast_openpgp_error), message ?: ""), Toast.LENGTH_LONG).show()
     }
 
     fun outputStreamToString(os: ByteArrayOutputStream): String {
