@@ -121,30 +121,42 @@ object TagStore {
     private fun load(context: Context): MutableMap<String, Meta> {
         cache?.let { return it }
 
-        val result: MutableMap<String, Meta> = LinkedHashMap()
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val json = prefs.getString(KEY, "")
+        val result = parse(prefs.getString(KEY, "")) { color ->
+            try {
+                Color.parseColor(color)
+            } catch (e: IllegalArgumentException) {
+                defaultColor(context)
+            }
+        }
+
+        cache = result
+        return result
+    }
+
+    /**
+     * Reads the stored JSON. A tag whose value is not an object is skipped on its own and the
+     * others are still read: the whole map is written back on the next change, so stopping at the
+     * first bad value used to delete the metadata of every tag after it.
+     *
+     * @param color turns a stored colour string into a colour, falling back to the default
+     */
+    @JvmStatic
+    internal fun parse(json: String?, color: (String) -> Int): MutableMap<String, Meta> {
+        val result: MutableMap<String, Meta> = LinkedHashMap()
         if (json != null && json.isNotEmpty()) {
             try {
                 val root = JSONObject(json)
                 val keys = root.keys()
                 while (keys.hasNext()) {
                     val tag = keys.next()
-                    val obj = root.getJSONObject(tag)
-                    var color: Int
-                    try {
-                        color = Color.parseColor(obj.optString(JSON_COLOR, ""))
-                    } catch (e: IllegalArgumentException) {
-                        color = defaultColor(context)
-                    }
-                    result[tag] = Meta(color, obj.optBoolean(JSON_COUNT, false))
+                    val obj = root.optJSONObject(tag) ?: continue
+                    result[tag] = Meta(color(obj.optString(JSON_COLOR, "")), obj.optBoolean(JSON_COUNT, false))
                 }
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
         }
-
-        cache = result
         return result
     }
 
