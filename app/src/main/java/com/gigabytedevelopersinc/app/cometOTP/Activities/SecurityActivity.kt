@@ -209,31 +209,40 @@ class SecurityActivity : BaseActivity() {
         val currentKey = encryptionKey
 
         executor.execute {
-            val newKey = settings.setAuthCredentials(credential)
-            val result = if (reEncrypt)
-                EncryptionChangeHelper.changeEncryption(this, currentKey, EncryptionType.PASSWORD, newKey)
-            else
-                null
+            // Nothing is stored before the database has been re-encrypted: with password
+            // encryption the database key derives from the credentials, so storing them first
+            // would lock the user out whenever the re-encryption fails.
+            val newCredentials = settings.generateAuthCredentials(credential)
+            var result: EncryptionChangeHelper.Result? = null
+            if (newCredentials != null) {
+                if (reEncrypt)
+                    result = EncryptionChangeHelper.changeEncryption(this, currentKey, EncryptionType.PASSWORD, newCredentials.key)
+
+                // Store the credentials and the method together, right after the re-encryption
+                // and still on this thread, so they are stored even if the UI below never runs.
+                if (result == null || result.status == EncryptionChangeHelper.Status.SUCCESS)
+                    settings.saveAuthCredentials(newCredentials, method)
+            }
 
             runOnUiThread {
                 if (isFinishing || isDestroyed)
                     return@runOnUiThread
                 progress.dismiss()
 
+                if (newCredentials == null || (result != null && result.status != EncryptionChangeHelper.Status.SUCCESS)) {
+                    val message = if (result?.status == EncryptionChangeHelper.Status.BACKUP_FAILED)
+                        R.string.settings_toast_encryption_backup_failed
+                    else
+                        R.string.settings_toast_encryption_change_failed
+                    Snackbar.make(findViewById<View>(R.id.container_content), message, Snackbar.LENGTH_LONG).show()
+                    return@runOnUiThread
+                }
+
                 if (result != null) {
-                    if (result.status != EncryptionChangeHelper.Status.SUCCESS) {
-                        val message = if (result.status == EncryptionChangeHelper.Status.BACKUP_FAILED)
-                            R.string.settings_toast_encryption_backup_failed
-                        else
-                            R.string.settings_toast_encryption_change_failed
-                        Snackbar.make(findViewById<View>(R.id.container_content), message, Snackbar.LENGTH_LONG).show()
-                        return@runOnUiThread
-                    }
                     encryptionKey = result.newKey
                     encryptionChanged = true
                 }
 
-                settings.authMethod = method
                 refresh()
 
                 val isPin = method == AuthMethod.PIN

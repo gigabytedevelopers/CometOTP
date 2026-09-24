@@ -131,8 +131,6 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
     }
 
     private fun saveValues() {
-        var newKey: ByteArray? = null
-
         if (settings.encryption == EncryptionType.PASSWORD) {
             if (value == AuthMethod.NONE || value == AuthMethod.DEVICE) {
                 UIHelper.showGenericDialog(context, R.string.settings_dialog_title_error, R.string.settings_dialog_msg_auth_invalid_with_encryption)
@@ -151,20 +149,22 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
 
         if (value == AuthMethod.PASSWORD || value == AuthMethod.PIN) {
             val password = passwordInput.text!!.toString()
-            if (password.isNotEmpty()) {
-                newKey = settings.setAuthCredentials(password)
-            } else {
+            if (password.isEmpty())
                 return
+
+            // Nothing is stored yet. With password encryption the database key derives from the
+            // credentials, so they may only replace the old ones once the database has been
+            // re-encrypted with the new key; otherwise the old ones stay in effect.
+            val newCredentials = settings.generateAuthCredentials(password) ?: return
+
+            if (settings.encryption == EncryptionType.PASSWORD) {
+                val callback = encryptionChangeCallback ?: return
+
+                if (!callback.testEncryptionChange(newCredentials.key))
+                    return
             }
-        }
 
-        if (settings.encryption == EncryptionType.PASSWORD) {
-            val callback = encryptionChangeCallback
-            if (newKey == null || callback == null)
-                return
-
-            if (!callback.testEncryptionChange(newKey))
-                return
+            settings.saveAuthCredentials(newCredentials, value)
         }
 
         // Default-locale lowercase, as in the Java original (the key is read back with an

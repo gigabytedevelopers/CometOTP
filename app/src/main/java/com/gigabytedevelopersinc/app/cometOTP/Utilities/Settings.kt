@@ -1,6 +1,7 @@
 @file:Suppress("PackageName", "DEPRECATION")
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
@@ -215,24 +216,54 @@ class Settings(private val context: Context) {
         get() = getString(R.string.settings_key_auth_credentials, "")
 
     fun setAuthCredentials(plainPassword: String): ByteArray? {
-        var key: ByteArray? = null
+        val credentials = generateAuthCredentials(plainPassword) ?: return null
+        saveAuthCredentials(credentials, null)
+        return credentials.key
+    }
 
+    /**
+     * Credentials derived from a new password or PIN by [generateAuthCredentials]. [key] is the
+     * database key they derive (password encryption); nothing is stored until [saveAuthCredentials].
+     */
+    class NewAuthCredentials internal constructor(
+        @JvmField val key: ByteArray,
+        internal val password: String,
+        internal val iterations: Int
+    )
+
+    /** Derives credentials from [plainPassword] (PBKDF2, slow) without storing them; null on failure. */
+    fun generateAuthCredentials(plainPassword: String): NewAuthCredentials? {
         try {
             val iterations = EncryptionHelper.generateRandomIterations()
             val credentials = EncryptionHelper.generatePBKDF2Credentials(plainPassword, salt, iterations)
             val password = Base64.encodeToString(credentials.password, Base64.URL_SAFE)
 
-            this.iterations = iterations
-            setString(R.string.settings_key_auth_credentials, password)
-
-            key = credentials.key
+            return NewAuthCredentials(credentials.key!!, password, iterations)
         } catch (e: NoSuchAlgorithmException) {
             e.printStackTrace()
         } catch (e: InvalidKeySpecException) {
             e.printStackTrace()
         }
 
-        return key
+        return null
+    }
+
+    /**
+     * Stores [credentials] (hash and iteration count) and, if given, [method] in a single
+     * synchronous write, so they are never stored half-way. With password encryption the database
+     * key derives from the credentials: call this only after the database has been re-encrypted
+     * with [NewAuthCredentials.key]. Returns false if the write failed.
+     */
+    @SuppressLint("ApplySharedPref")
+    fun saveAuthCredentials(credentials: NewAuthCredentials, method: AuthMethod?): Boolean {
+        val editor = settings.edit()
+            .putInt(getResString(R.string.settings_key_auth_iterations), credentials.iterations)
+            .putString(getResString(R.string.settings_key_auth_credentials), credentials.password)
+
+        if (method != null)
+            editor.putString(getResString(R.string.settings_key_auth), method.name.lowercase(Locale.ROOT))
+
+        return editor.commit()
     }
 
     /** Reading this creates and stores a new random salt when none is stored yet. */
