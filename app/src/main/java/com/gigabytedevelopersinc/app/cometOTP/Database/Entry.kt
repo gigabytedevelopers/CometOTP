@@ -289,7 +289,8 @@ class Entry {
 
         when (this.type) {
             OTPType.HOTP -> builder.appendQueryParameter("counter", this.counter.toString())
-            OTPType.TOTP -> {
+            // Steam has a period too, and the otpauth:// constructor reads it back for Steam.
+            OTPType.TOTP, OTPType.STEAM -> {
                 if (this.period != TokenCalculator.TOTP_DEFAULT_PERIOD)
                     builder.appendQueryParameter("period", this.period.toString())
             }
