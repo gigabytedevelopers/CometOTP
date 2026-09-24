@@ -34,6 +34,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.EditorActionHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.IntroActivity
+import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.NavigationPolicy
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.OnNavigationBlockedListener
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.app.SlideFragment
 import com.gigabytedevelopersinc.app.cometOTP.View.IntroScreen.slide.FragmentSlide
@@ -59,6 +60,10 @@ class IntroScreenActivity : IntroActivity() {
     private var setupFinished = false
 
     private fun saveSettings() {
+        // Saving again while the last save is running would store the same choices twice.
+        if (settingsJob.isBusy)
+            return
+
         var password: String? = null
 
         if (authMethod == Constants.AuthMethod.PASSWORD || authMethod == Constants.AuthMethod.PIN) {
@@ -66,38 +71,79 @@ class IntroScreenActivity : IntroActivity() {
             password = authenticationFragment?.password
 
             if (password == null || password.isEmpty()) {
-                val finalSlide = getSlide(getCount() - 1) as SimpleSlide?
-
-                if (finalSlide != null) {
-                    val finalFragment = finalSlide.fragment
-
-                    if (finalFragment != null) {
-                        val finalView = finalFragment.view
-
-                        if (finalView != null) {
-                            val title = finalView.findViewById<TextView>(R.id.mi_title)
-                            val desc = finalView.findViewById<TextView>(R.id.mi_description)
-
-                            title.setText(R.string.intro_slide4_title_failed)
-                            desc.setText(R.string.intro_slide4_desc_failed)
-                        }
-                    }
-                }
-
+                showSetupFailed()
                 return
             }
         }
 
-        settings.encryption = encryptionType
-        settings.authMethod = authMethod
-        settings.androidBackupServiceEnabled = syncEnabled
+        // Deriving the credentials (PBKDF2) is too slow for the main thread. Until the job is
+        // done the intro can't be finished or left (see the navigation policy in onCreate()).
+        setNavigationButtonsVisible(false)
 
-        // password is non-empty here: the branch above returned otherwise.
-        if (authMethod == Constants.AuthMethod.PASSWORD || authMethod == Constants.AuthMethod.PIN)
-            settings.setAuthCredentials(password!!)
+        val appContext = applicationContext
+        val encryptionType = encryptionType
+        val authMethod = authMethod
+        val syncEnabled = syncEnabled
+        val newPassword = password
 
-        settings.firstTimeWarningShown = true
-        setupFinished = true
+        settingsJob.start {
+            val settings = Settings(appContext)
+
+            // The credentials go first, in one write together with the lock method: storing the
+            // method or a password encryption without them would leave a lock with nothing to
+            // check against. If they can't be derived or stored, nothing is stored at all.
+            var saved = true
+            if (newPassword != null) {
+                val credentials = settings.generateAuthCredentials(newPassword)
+                saved = credentials != null && settings.saveAuthCredentials(credentials, authMethod)
+            }
+
+            if (saved) {
+                settings.encryption = encryptionType
+                settings.authMethod = authMethod
+                settings.androidBackupServiceEnabled = syncEnabled
+                settings.firstTimeWarningShown = true
+            }
+
+            val outcome: (IntroScreenActivity) -> Unit = { it.onSettingsSaved(saved) }
+            outcome
+        }
+        lockSwipeIfNeeded()
+    }
+
+    /** Runs on whichever instance is resumed when [saveSettings]'s job has finished. */
+    private fun onSettingsSaved(saved: Boolean) {
+        setupFinished = saved
+        if (!saved)
+            showSetupFailed()
+
+        setNavigationButtonsVisible(true)
+        lockSwipeIfNeeded()
+    }
+
+    private fun showSetupFailed() {
+        val finalSlide = getSlide(getCount() - 1) as SimpleSlide?
+
+        if (finalSlide != null) {
+            val finalFragment = finalSlide.fragment
+
+            if (finalFragment != null) {
+                val finalView = finalFragment.view
+
+                if (finalView != null) {
+                    val title = finalView.findViewById<TextView>(R.id.mi_title)
+                    val desc = finalView.findViewById<TextView>(R.id.mi_description)
+
+                    title.setText(R.string.intro_slide4_title_failed)
+                    desc.setText(R.string.intro_slide4_desc_failed)
+                }
+            }
+        }
+    }
+
+    private fun setNavigationButtonsVisible(visible: Boolean) {
+        setButtonBackVisible(visible)
+        setButtonNextVisible(visible)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,6 +200,19 @@ class IntroScreenActivity : IntroActivity() {
             .build()
         )
 
+        // While the settings are being saved the intro stays on the final slide: finishing
+        // before they are stored would report an unfinished setup, and leaving and coming back
+        // would save them a second time.
+        setNavigationPolicy(object : NavigationPolicy {
+            override fun canGoForward(position: Int): Boolean {
+                return !settingsJob.isBusy
+            }
+
+            override fun canGoBackward(position: Int): Boolean {
+                return !settingsJob.isBusy
+            }
+        })
+
         addOnNavigationBlockedListener(object : OnNavigationBlockedListener {
             override fun onNavigationBlocked(position: Int, direction: Int) {
                 if (position == SLIDE_AUTHENTICATION) {
@@ -183,6 +242,17 @@ class IntroScreenActivity : IntroActivity() {
         outState.putString(STATE_AUTH_METHOD, authMethod.name)
         outState.putBoolean(STATE_SYNC_ENABLED, syncEnabled)
         outState.putBoolean(STATE_SETUP_FINISHED, setupFinished)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        settingsJob.onResume(this)
+        setNavigationButtonsVisible(!settingsJob.isBusy)
+    }
+
+    override fun onPause() {
+        settingsJob.onPause(this)
+        super.onPause()
     }
 
     override fun onSendActivityResult(result: Int): Intent? {
@@ -643,6 +713,9 @@ class IntroScreenActivity : IntroActivity() {
     }
 
     companion object {
+        /** Survives recreation of this screen; see [RetainedJob]. */
+        private val settingsJob = RetainedJob<IntroScreenActivity>()
+
         private const val STATE_ENCRYPTION_TYPE = "IntroScreenActivity.encryptionType"
         private const val STATE_AUTH_METHOD = "IntroScreenActivity.authMethod"
         private const val STATE_SYNC_ENABLED = "IntroScreenActivity.syncEnabled"
