@@ -237,6 +237,28 @@ class EntryBehaviourTest {
         assertEquals(0, slow.color)
     }
 
+    /**
+     * A stored period of 0 (or less) is read as if it were missing. It used to be kept, and
+     * updateOTP() and hasColorChanged() then divided by zero on every tick.
+     */
+    @Test
+    fun anUnusablePeriodIsReadAsTheDefault() {
+        for (period in listOf("0", "-1", "-30")) {
+            for (type in listOf("TOTP", "STEAM")) {
+                val e = Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"l","type":"$type","period":$period}"""))
+                assertEquals("$type period $period", 30, e.period)
+                assertFalse(e.hasNonDefaultPeriod())
+                assertTrue(e.updateOTP(true))
+                e.hasColorChanged()
+                assertEquals(30, e.toJSON().getInt("period"))
+            }
+        }
+
+        // Valid periods are unchanged.
+        assertEquals(1, Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"l","period":1}""")).period)
+        assertEquals(45, Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"l","type":"STEAM","period":45}""")).period)
+    }
+
     @Test
     fun validateSecret() {
         assertTrue(Entry.validateSecret("JBSWY3DPEHPK3PXP", Entry.OTPType.TOTP))

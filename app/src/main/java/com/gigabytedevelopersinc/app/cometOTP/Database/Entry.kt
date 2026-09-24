@@ -122,8 +122,11 @@ class Entry {
                 throw Exception("missing counter for HOTP")
             }
         } else if (type == OTPType.TOTP || type == OTPType.STEAM) {
-            if (period != null) {
-                this.period = period.toInt()
+            // A period of 0 or less cannot be used (the token code divides by it); it is read
+            // as if it were missing.
+            val parsedPeriod = period?.toInt()
+            if (parsedPeriod != null && parsedPeriod > 0) {
+                this.period = parsedPeriod
             } else {
                 this.period = TokenCalculator.TOTP_DEFAULT_PERIOD
             }
@@ -183,7 +186,12 @@ class Entry {
         }
 
         try {
-            this.period = jsonObj.getInt(JSON_PERIOD)
+            val period = jsonObj.getInt(JSON_PERIOD)
+            // A period of 0 or less cannot be used (the token code divides by it); it is read
+            // as if it were missing.
+            if (period <= 0)
+                throw JSONException("Invalid period $period")
+            this.period = period
         } catch (e: Exception) {
             if (type == OTPType.TOTP)
                 this.period = DEFAULT_PERIOD
