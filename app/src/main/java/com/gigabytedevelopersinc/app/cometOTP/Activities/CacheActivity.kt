@@ -60,28 +60,6 @@ class CacheActivity : BaseActivity() {
         super.onDestroy()
     }
 
-    @Suppress("unused")
-    private fun initializeCache(context: Context) {
-        var size: Long = 0
-        size += getDirSize(context.cacheDir)
-        size += getDirSize(context.externalCacheDir!!)
-        /*cache.append(readableFileSize(size));
-            Preference cacheSize = findPreference(getString(R.string.settings_key_clear_cache));
-        cacheSize.setSummary(R.string.settings_desc_clear_cache + readableFileSize(size));*/
-    }
-
-    fun getDirSize(dir: File): Long {
-        var size: Long = 0
-        for (file in dir.listFiles()!!) {
-            if (file != null && file.isDirectory) {
-                size += getDirSize(file)
-            } else if (file != null && file.isFile) {
-                size += file.length()
-            }
-        }
-        return size
-    }
-
     companion object {
         @JvmStatic
         fun deleteCache(context: Context) {
