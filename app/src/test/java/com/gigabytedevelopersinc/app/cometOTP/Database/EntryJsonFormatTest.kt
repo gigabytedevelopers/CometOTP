@@ -128,13 +128,20 @@ class EntryJsonFormatTest {
         assertEquals(30, e.toJSON().getInt("period"))
     }
 
+    /** A missing digits count defaults by type: Steam codes are 5 characters, like the URI reader. */
     @Test
-    fun steamWithoutDigitsFallsBackToTheTotpDefaultNotFive() {
+    fun steamWithoutDigitsFallsBackToFive() {
         val e = Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"noperiod steam","type":"STEAM"}"""))
         assertEquals(Entry.OTPType.STEAM, e.type)
-        assertEquals(6, e.digits)
+        assertEquals(5, e.digits)
         assertEquals(30, e.period)
         assertEquals(EntryThumbnails.Default, e.thumbnail)
+
+        // A stored digits value still wins, and the other types keep the default of six.
+        assertEquals(6, Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"s","type":"STEAM","digits":6}""")).digits)
+        for (type in listOf("TOTP", "MOTP"))
+            assertEquals(type, 6, Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"t","type":"$type"}""")).digits)
+        assertEquals(6, Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"h","type":"HOTP","counter":1}""")).digits)
     }
 
     @Test

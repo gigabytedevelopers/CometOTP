@@ -199,7 +199,7 @@ class Entry {
         try {
             this.digits = jsonObj.getInt(JSON_DIGITS)
         } catch (e: Exception) {
-            this.digits = TokenCalculator.TOTP_DEFAULT_DIGITS
+            this.digits = if (type == OTPType.STEAM) TokenCalculator.STEAM_DEFAULT_DIGITS else TokenCalculator.TOTP_DEFAULT_DIGITS
         }
 
         try {
