@@ -1189,8 +1189,11 @@ open class IntroActivity : AppCompatActivity(), IntroNavigation {
         return adapter.getSlide(location)
     }
 
+    /** The slide's index, or -1 when it is not part of the intro. */
     open fun getSlidePosition(slide: Slide): Int {
-        return adapter.getItemPosition(slide)
+        // PagerAdapter.getItemPosition() answers a different question (has a page object moved
+        // since the last notifyDataSetChanged()) and returns POSITION_UNCHANGED for a slide.
+        return adapter.indexOfSlide(slide)
     }
 
     open fun getCurrentSlidePosition(): Int {
