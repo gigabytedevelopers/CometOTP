@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProvider
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ResultDialog
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
@@ -33,8 +34,15 @@ import javax.crypto.SecretKey
  * the settings screen does.
  */
 class SecurityActivity : BaseActivity() {
-    private var encryptionKey: SecretKey? = null
+    private lateinit var retainedKey: RetainedDatabaseKey
+    private var encryptionKey: SecretKey?
+        get() = retainedKey.key
+        set(value) {
+            retainedKey.key = value
+        }
     private var encryptionChanged = false
+    /** Whether the key has been changed since the screen was started, see initialDatabaseKeyState(). */
+    private var launchKeyStale = false
     private var progress: AlertDialog? = null
 
     private lateinit var rowPin: View
@@ -70,15 +78,18 @@ class SecurityActivity : BaseActivity() {
         stub.layoutResource = R.layout.content_security
         val v = stub.inflate()
 
-        val keyMaterial = intent.getByteArrayExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY)
-        if (keyMaterial != null && keyMaterial.isNotEmpty())
-            encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial)
-
-        if (savedInstanceState != null) {
-            encryptionChanged = savedInstanceState.getBoolean(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, false)
-            val encKey = savedInstanceState.getByteArray(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY)
-            if (encKey != null)
-                encryptionKey = EncryptionHelper.generateSymmetricKey(encKey)
+        // The key is kept across configuration changes in memory only, see RetainedDatabaseKey.
+        retainedKey = ViewModelProvider(this)[RetainedDatabaseKey::class.java]
+        launchKeyStale = savedInstanceState?.getBoolean(RetainedDatabaseKey.STATE_LAUNCH_KEY_STALE, false) ?: false
+        val (keySource, changed) = initialDatabaseKeyState(retainedKey.initialized,
+            savedInstanceState?.getBoolean(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, false), launchKeyStale)
+        encryptionChanged = changed
+        if (keySource != DatabaseKeySource.RETAINED) {
+            val keyMaterial = if (keySource == DatabaseKeySource.LAUNCH_INTENT)
+                intent.getByteArrayExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY) else null
+            retainedKey.key = if (keyMaterial != null && keyMaterial.isNotEmpty())
+                EncryptionHelper.generateSymmetricKey(keyMaterial) else null
+            retainedKey.initialized = true
         }
 
         rowPin = v.findViewById(R.id.row_pin)
@@ -103,9 +114,7 @@ class SecurityActivity : BaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, encryptionChanged)
-        val encryptionKey = encryptionKey
-        if (encryptionKey != null)
-            outState.putByteArray(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, encryptionKey.encoded)
+        outState.putBoolean(RetainedDatabaseKey.STATE_LAUNCH_KEY_STALE, launchKeyStale || encryptionChanged)
     }
 
     override fun onSupportNavigateUp(): Boolean {
