@@ -391,14 +391,16 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         val pos = displayedEntries.indexOf(entry)
         val realIndex = entryList.indexOf(entry)
 
-        if (realIndex >= 0) {
-            entryList.getEntry(realIndex).isVisible = false
-            // Handler.removeCallbacks(null) removes nothing, so a missing task is simply skipped.
-            val hideTask = entryList.getEntry(realIndex).hideTask
-            if (hideTask != null)
-                taskHandler.removeCallbacks(hideTask)
-            entryList.getEntry(realIndex).hideTask = null
+        // The entry left the list (deleted, or dropped by a reload) before its reveal timed out.
+        // There is nothing left to hide or to count as used.
+        if (realIndex < 0) {
+            entry.isVisible = false
+            cancelHideTask(entry)
+            return
         }
+
+        entryList.getEntry(realIndex).isVisible = false
+        cancelHideTask(entryList.getEntry(realIndex))
 
         val updateNeeded = updateLastUsedAndFrequency(pos, realIndex)
 
@@ -408,6 +410,25 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             if (updateNeeded)
                 notifyItemChanged(pos)
         }
+    }
+
+    /** Drops the entry's pending re-hide, if it has one. */
+    private fun cancelHideTask(entry: Entry) {
+        // Handler.removeCallbacks(null) removes nothing, so a missing task is simply skipped.
+        val hideTask = entry.hideTask
+        if (hideTask != null)
+            taskHandler.removeCallbacks(hideTask)
+        entry.hideTask = null
+    }
+
+    /**
+     * Drops every pending re-hide. Called when the screen showing this adapter goes away, so no
+     * timer fires into an adapter that is no longer shown (and keeps it alive until it does).
+     */
+    fun cancelPendingTasks() {
+        taskHandler.removeCallbacksAndMessages(null)
+        for (e in entryList.entries)
+            e.hideTask = null
     }
 
     private fun setCounter(pos: Int) {
@@ -581,6 +602,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                     displayedEntries.removeAt(pos)
                     notifyItemRemoved(pos)
 
+                    cancelHideTask(entryList.getEntry(realIndex))
                     entryList.removeEntry(realIndex)
                     saveEntries(settings.autoBackupEncryptedFullEnabled)
                 }

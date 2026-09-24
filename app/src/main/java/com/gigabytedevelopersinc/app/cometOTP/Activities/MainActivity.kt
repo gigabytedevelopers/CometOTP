@@ -1195,6 +1195,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     override fun onDestroy() {
+        if (::adapter.isInitialized)
+            adapter.cancelPendingTasks()
         dismissSheet()
         settings.unregisterPreferenceChangeListener(this)
         ProcessLifecycleOwner.get().lifecycle.removeObserver(processLifecycleObserver)
