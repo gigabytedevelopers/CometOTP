@@ -75,7 +75,15 @@ open class SwipeBlockableViewPager @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 // Find the index of the active pointer and fetch its position
-                val pointerIndex = event.findPointerIndex(activePointerId)
+                var pointerIndex = event.findPointerIndex(activePointerId)
+                if (pointerIndex < 0) {
+                    // No DOWN was seen for this gesture (or its pointer is gone), so there is no
+                    // pointer to follow and getX(-1) would throw. Follow the first pointer from
+                    // here on; this move itself counts as no movement.
+                    pointerIndex = 0
+                    activePointerId = event.getPointerId(0)
+                    lastTouchX = event.getX(0)
+                }
                 val x = event.getX(pointerIndex)
 
                 val dx = x - lastTouchX
