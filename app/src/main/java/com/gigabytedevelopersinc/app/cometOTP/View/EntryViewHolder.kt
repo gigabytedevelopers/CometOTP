@@ -90,14 +90,16 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         }
 
         card.setOnClickListener(object : SimpleDoubleClickListener() {
-            // value.tag is null while no token has been worked out; the Java version threw an NPE
-            // here in that case (getTag().toString()), and !! keeps that.
+            // value.tag is null while no token has been worked out. There is nothing to copy,
+            // reveal or send yet, so the tap is ignored, as the copy button already does.
             override fun onSingleClick(v: View) {
-                callback?.onCardSingleClicked(bindingAdapterPosition, value.tag!!.toString())
+                val token = value.tag ?: return
+                callback?.onCardSingleClicked(bindingAdapterPosition, token.toString())
             }
 
             override fun onDoubleClick(v: View) {
-                callback?.onCardDoubleClicked(bindingAdapterPosition, value.tag!!.toString())
+                val token = value.tag ?: return
+                callback?.onCardDoubleClicked(bindingAdapterPosition, token.toString())
             }
         })
 
