@@ -50,13 +50,16 @@ object StorageAccessHelper {
     @JvmStatic
     @Throws(IOException::class)
     fun loadFile(context: Context, file: Uri): ByteArray {
-        context.contentResolver.openInputStream(file).use { inputStream ->
+        // openInputStream returns null when the provider has nothing to give; report that as the
+        // IOException callers already handle instead of a NullPointerException they do not.
+        val stream = context.contentResolver.openInputStream(file) ?: throw IOException("Cannot open $file")
+        stream.use { inputStream ->
             val bytes = ByteArrayOutputStream()
 
             val buffer = ByteArray(1024)
             var count: Int
 
-            while (inputStream!!.read(buffer).also { count = it } != -1) {
+            while (inputStream.read(buffer).also { count = it } != -1) {
                 bytes.write(buffer, 0, count)
             }
 

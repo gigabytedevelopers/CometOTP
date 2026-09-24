@@ -68,7 +68,12 @@ object ScanQRCodeFromFile {
             return null
         }
 
+        // null when the file is not an image the platform can decode
         val bMap = BitmapFactory.decodeByteArray(imageInBytes, 0, imageInBytes.size)
+        if (bMap == null) {
+            Toast.makeText(context, R.string.toast_file_load_error, Toast.LENGTH_LONG).show()
+            return null
+        }
         var contents: String? = null
         val intArray = IntArray(bMap.width * bMap.height)
 
