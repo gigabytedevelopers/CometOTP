@@ -280,7 +280,11 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
         if (result.authUpgradeFailed) {
             Toast.makeText(this, R.string.settings_toast_auth_upgrade_failed, Toast.LENGTH_LONG).show()
         }
-        finishWithResult(result.encryptionKey != null, result.encryptionKey)
+        // A failed upgrade still means the password matched the old hash, which is kept and
+        // upgraded on the next unlock; turning the user away would keep them out for as long as
+        // the upgrade keeps failing. Old-style credentials only exist with KeyStore encryption,
+        // so no key is needed from them.
+        finishWithResult(result.encryptionKey != null || result.authUpgradeFailed, result.encryptionKey)
     }
 
     private fun finishWithResult(success: Boolean, encryptionKey: ByteArray?) {

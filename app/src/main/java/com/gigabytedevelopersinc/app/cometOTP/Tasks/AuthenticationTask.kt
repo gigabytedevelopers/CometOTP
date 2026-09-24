@@ -59,18 +59,18 @@ constructor(
         if (hashedPassword != existingAuthCredentials)
             return Result.failure()
 
-        val key = settings.setAuthCredentials(plainPassword)
-
         val authMethod = settings.authMethod
-        if (authMethod == AuthMethod.PASSWORD)
-            settings.removeAuthPasswordHash()
-        else if (authMethod == AuthMethod.PIN)
-            settings.removeAuthPINHash()
-
-        return if (key == null)
-            Result.upgradeFailure()
-        else
-            Result.success(key)
+        return upgradeAuthCredentials(
+            plainPassword,
+            settings::generateAuthCredentials,
+            { settings.saveAuthCredentials(it, null) },
+            {
+                if (authMethod == AuthMethod.PASSWORD)
+                    settings.removeAuthPasswordHash()
+                else if (authMethod == AuthMethod.PIN)
+                    settings.removeAuthPINHash()
+            }
+        )
     }
 
     private fun confirmAuthentication(): Result {
@@ -94,6 +94,11 @@ constructor(
         }
     }
 
+    /**
+     * @property authUpgradeFailed The password matched the old-style hash, but it could not be
+     * replaced with new credentials; the old hash is still stored and the upgrade is retried on
+     * the next unlock.
+     */
     class Result(
         @JvmField val encryptionKey: ByteArray?,
         @JvmField val authUpgradeFailed: Boolean
@@ -115,4 +120,24 @@ constructor(
             }
         }
     }
+}
+
+/**
+ * Replaces the old-style (SHA-256) credential hash of a user who has just entered the matching
+ * password or PIN with PBKDF2 credentials. The old hash is removed only once the new credentials
+ * are stored: removing it first would leave no credential at all whenever deriving or storing the
+ * new one fails, and the unlock screen would then have nothing to check the next password against.
+ */
+internal fun upgradeAuthCredentials(
+    plainPassword: String,
+    generate: (String) -> Settings.NewAuthCredentials?,
+    save: (Settings.NewAuthCredentials) -> Boolean,
+    removeOldHash: () -> Unit
+): Result {
+    val credentials = generate(plainPassword)
+    if (credentials == null || !save(credentials))
+        return Result.upgradeFailure()
+
+    removeOldHash()
+    return Result.success(credentials.key)
 }
