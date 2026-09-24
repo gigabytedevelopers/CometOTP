@@ -318,8 +318,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
                 encryptionChanged = true
 
                 // Already stored; this updates the preferences shown on screen.
-                // Default-locale lowercase, as in the Java original.
-                fragment?.encryption?.value = newEnc.name.lowercase(Locale.getDefault())
+                fragment?.encryption?.value = newEnc.name.lowercase(Locale.ROOT)
                 if (credentialsChanged)
                     fragment?.credentials?.updateSummary()
 
@@ -476,8 +475,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
             encryption!!.setOnPreferenceChangeListener { _, o ->
                 val newEncryption = o as String
-                // Default-locale uppercase, as in the Java original.
-                val encryptionType = EncryptionType.valueOf(newEncryption.uppercase(Locale.getDefault()))
+                val encryptionType = EncryptionType.valueOf(newEncryption.uppercase(Locale.ROOT))
                 val oldEncryptionType = settings.encryption
                 val authMethod = settings.authMethod
 

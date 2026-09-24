@@ -169,9 +169,8 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
             settings.saveAuthCredentials(newCredentials, value)
         }
 
-        // Default-locale lowercase, as in the Java original (the key is read back with an
-        // English-locale uppercase in Settings).
-        persistString(value.toString().lowercase(Locale.getDefault()))
+        // Locale-independent: in e.g. Turkish "PIN" would lowercase to "pın" (dotless i).
+        persistString(value.name.lowercase(Locale.ROOT))
         summary = entries[entryValues.indexOf(value)]
     }
 
