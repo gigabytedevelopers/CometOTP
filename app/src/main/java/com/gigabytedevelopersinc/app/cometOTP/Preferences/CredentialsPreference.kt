@@ -97,6 +97,10 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
         passwordLayout = view.findViewById(R.id.passwordLayout)
         passwordInput = view.findViewById(R.id.passwordEdit)
         passwordConfirm = view.findViewById(R.id.passwordConfirm)
+        // The fields would otherwise keep the password typed so far in the dialog's saved state,
+        // which the system may write to disk.
+        passwordInput.isSaveEnabled = false
+        passwordConfirm.isSaveEnabled = false
 
         if (settings.blockAccessibility) {
             passwordLayout.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS

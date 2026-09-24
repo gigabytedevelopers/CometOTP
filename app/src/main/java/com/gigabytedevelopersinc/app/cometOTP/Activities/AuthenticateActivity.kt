@@ -269,6 +269,9 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
 
     private fun initPasswordInputView(v: View) {
         passwordInput = v.findViewById(R.id.passwordEdit)
+        // The field would otherwise keep the password typed so far in the saved instance state,
+        // which the system may write to disk.
+        passwordInput.isSaveEnabled = false
         val inputType = if (authMethod == AuthMethod.PASSWORD)
             (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
         else

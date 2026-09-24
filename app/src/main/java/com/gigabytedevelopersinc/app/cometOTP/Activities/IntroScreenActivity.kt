@@ -502,6 +502,10 @@ class IntroScreenActivity : IntroActivity() {
             passwordLayout = root.findViewById(R.id.introPasswordLayout)
             passwordInput = root.findViewById(R.id.introPasswordEdit)
             passwordConfirm = root.findViewById(R.id.introPasswordConfirm)
+            // The fields would otherwise keep the password typed so far in the saved instance
+            // state, which the system may write to disk.
+            passwordInput!!.isSaveEnabled = false
+            passwordConfirm!!.isSaveEnabled = false
 
             generateSelectionMapping()
 
