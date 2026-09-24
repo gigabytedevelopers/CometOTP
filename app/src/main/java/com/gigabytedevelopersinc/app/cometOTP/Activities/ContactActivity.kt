@@ -81,8 +81,10 @@ class ContactActivity : BaseActivity() {
     private fun sendMessage() {
         var versionName = ""
         try {
+            // versionName is nullable; leave the line blank as when the package cannot be found,
+            // rather than reporting a version called "null".
             val name: String? = packageManager.getPackageInfo(packageName, 0).versionName
-            versionName = name.toString()
+            versionName = name ?: ""
         } catch (ignored: PackageManager.NameNotFoundException) {
         }
 
