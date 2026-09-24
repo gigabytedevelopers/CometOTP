@@ -1,8 +1,10 @@
 @file:Suppress("PackageName")
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
+import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail.EntryThumbnails
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator.HashAlgorithm
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -46,6 +48,42 @@ class EntryThumbnailTest {
         assertEquals(EntryThumbnails.Dropbox, EntryThumbnails.valueOfFuzzy("DROPBOX (work)"))
         assertThrows(IllegalArgumentException::class.java) { EntryThumbnails.valueOfFuzzy(null) }
         assertThrows(IllegalArgumentException::class.java) { EntryThumbnails.valueOfFuzzy("zzzz qqqq") }
+    }
+
+    /**
+     * With several names in the issuer the one mentioned first wins, every time. (The patterns
+     * used to live in a HashMap keyed by Pattern, which hashes by identity, so the winner changed
+     * from one process to the next.)
+     */
+    @Test
+    fun valueOfFuzzyPrefersTheNameMentionedFirst() {
+        assertEquals(EntryThumbnails.Steam, EntryThumbnails.valueOfFuzzy("Steam Wallet"))
+        assertEquals(EntryThumbnails.Wallet, EntryThumbnails.valueOfFuzzy("Wallet for Steam"))
+        assertEquals(EntryThumbnails.Apple, EntryThumbnails.valueOfFuzzy("Apple School Manager"))
+        assertEquals(EntryThumbnails.Microsoft, EntryThumbnails.valueOfFuzzy("Microsoft Office"))
+        assertEquals(EntryThumbnails.Office, EntryThumbnails.valueOfFuzzy("Office by Microsoft"))
+        assertEquals(EntryThumbnails.Google, EntryThumbnails.valueOfFuzzy("Google Email Privacy"))
+        assertEquals(EntryThumbnails.Privacy, EntryThumbnails.valueOfFuzzy("my privacy, google and email"))
+    }
+
+    /** "Default" is not a service, so a real service in the same issuer takes precedence. */
+    @Test
+    fun valueOfFuzzyNeverPicksDefaultOverARealService() {
+        assertEquals(EntryThumbnails.Google, EntryThumbnails.valueOfFuzzy("Default Google"))
+        assertThrows(IllegalArgumentException::class.java) { EntryThumbnails.valueOfFuzzy("default account") }
+    }
+
+    /** The exact-name lookup runs before the fuzzy one, so an exact name still wins. */
+    @Test
+    fun anExactNameStillWinsOverFuzzyMatches() {
+        fun thumbnailFor(issuer: String) = Entry(Entry.OTPType.TOTP, "JBSWY3DPEHPK3PXP", 30, 6, issuer, "l",
+            HashAlgorithm.SHA1, mutableListOf()).thumbnail
+        assertEquals(EntryThumbnails.MicrosoftTeams, thumbnailFor("MicrosoftTeams"))
+        assertEquals(EntryThumbnails.AmazonWebServices, thumbnailFor("amazonwebservices"))
+        assertEquals(EntryThumbnails.WebDe, thumbnailFor("web.de"))
+        assertEquals(EntryThumbnails.Default, thumbnailFor("Default"))
+        assertEquals(EntryThumbnails.Steam, thumbnailFor("Steam Wallet"))
+        assertEquals(EntryThumbnails.Default, thumbnailFor("default account"))
     }
 
     private companion object {

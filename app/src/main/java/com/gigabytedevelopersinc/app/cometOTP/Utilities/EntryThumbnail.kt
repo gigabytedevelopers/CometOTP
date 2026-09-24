@@ -448,30 +448,52 @@ object EntryThumbnail {
         companion object {
             // --- Caches for optimized lookups ---
             private val NAME_TO_ENUM_IGNORE_CASE_MAP: MutableMap<String, EntryThumbnails> = HashMap()
-            // For fuzzy matching, pre-compile patterns.
-            // Consider if a simpler "contains" check is sufficient for most cases.
-            private val FUZZY_PATTERN_TO_ENUM_MAP: MutableMap<Pattern, EntryThumbnails> = HashMap()
+            // For fuzzy matching, pre-compiled patterns in declaration order. A list rather than a
+            // HashMap keyed by Pattern: Pattern hashes by identity, so iterating such a map visited
+            // the patterns in a different order in every process.
+            private val FUZZY_PATTERNS: MutableList<Pair<Pattern, EntryThumbnails>> = ArrayList()
 
             init {
                 for (entry in values()) {
                     NAME_TO_ENUM_IGNORE_CASE_MAP[entry.name.lowercase(Locale.ROOT)] = entry
 
+                    // Default is not a service: matching it is the same as matching nothing, so
+                    // it must not win over a real service named in the same issuer.
+                    if (entry == Default)
+                        continue
+
                     // Pre-compile pattern for fuzzy search
                     // The \\b ensures word boundaries, which is good.
                     val re = Pattern.compile("\\b" + Pattern.quote(entry.name) + "\\b", Pattern.CASE_INSENSITIVE)
-                    FUZZY_PATTERN_TO_ENUM_MAP[re] = entry
+                    FUZZY_PATTERNS.add(re to entry)
                 }
             }
 
+            /**
+             * Finds a thumbnail whose name appears as a whole word in [thumbnail]. When several
+             * do, the one mentioned first in the text wins (issuers usually lead with the service
+             * and follow with generic words: "Steam Wallet", "Apple School Manager"); a tie on
+             * position goes to the longer name, then to declaration order.
+             */
             @JvmStatic
             fun valueOfFuzzy(thumbnail: String?): EntryThumbnails {
                 if (thumbnail == null) { // Add null check
                     throw IllegalArgumentException("Thumbnail string cannot be null")
                 }
-                for ((key, value) in FUZZY_PATTERN_TO_ENUM_MAP) {
-                    if (key.matcher(thumbnail).find()) {
-                        return value
+                var best: EntryThumbnails? = null
+                var bestStart = Int.MAX_VALUE
+                for ((pattern, value) in FUZZY_PATTERNS) {
+                    val matcher = pattern.matcher(thumbnail)
+                    if (matcher.find()) {
+                        val start = matcher.start()
+                        if (start < bestStart || (start == bestStart && value.name.length > best!!.name.length)) {
+                            best = value
+                            bestStart = start
+                        }
                     }
+                }
+                if (best != null) {
+                    return best
                 }
                 // Consider returning Default or null instead of throwing an exception
                 // if a match is not strictly required.
