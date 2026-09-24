@@ -50,10 +50,14 @@ constructor(private val failedResult: Result) {
         this.awaitedResult = null
     }
 
-    /** Executed the task on a background thread. Safe to call from the main thread. */
+    /** Executed the task on a background thread. Safe to call from the main thread.
+     * A task runs once: its thread is released as soon as it has finished. */
     @AnyThread
     fun execute() {
         executor.execute { runTask() }
+        // Lets the task just submitted run to the end, then ends the executor's thread, which
+        // would otherwise stay parked for the life of the process.
+        executor.shutdown()
     }
 
     private fun runTask() {
