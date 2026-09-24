@@ -262,6 +262,8 @@
                         android:minWidth="0dp"
                         android:paddingStart="@dimen/space_sm"
                         android:paddingEnd="@dimen/space_sm"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="0dp"
                         android:text="@string/about_label_github" />
 
                     <com.google.android.material.button.MaterialButton
@@ -275,6 +277,8 @@
                         android:minWidth="0dp"
                         android:paddingStart="@dimen/space_sm"
                         android:paddingEnd="@dimen/space_sm"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="0dp"
                         android:text="@string/about_label_donate" />
 
                 </LinearLayout>
@@ -313,6 +317,8 @@
                     android:minWidth="0dp"
                     android:paddingStart="@dimen/space_sm"
                     android:paddingEnd="@dimen/space_sm"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
                     android:text="@string/about_label_original_app" />
 
             </LinearLayout>
