@@ -54,6 +54,21 @@ jobs:
           # git-cliff needs the history and tags to work out what changed.
           fetch-depth: 0
 
+      # The GitHub release is named after version.properties, not the tag, so a tag pushed before
+      # the version was bumped would publish the old version under a new tag. Checked first so a
+      # mismatch fails before anything is built or signed.
+      - name: Check the tag matches version.properties
+        if: github.ref_type == 'tag'
+        run: |
+          prop() { grep "^$1=" app/version.properties | cut -d= -f2 | tr -d '[:space:]'; }
+          expected="v$(prop VERSION_MAJOR).$(prop VERSION_MINOR).$(prop VERSION_PATCH)"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match app/version.properties ($expected)."
+            echo "::error::Bump the version on master and tag that commit, or delete the tag and push $expected."
+            exit 1
+          fi
+          echo "Tag $GITHUB_REF_NAME matches app/version.properties."
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -86,27 +101,41 @@ jobs:
       - name: Read the version that was built
         id: version
         run: |
-          # The release build bumps VERSION_BUILD and writes the code it packaged.
+          # The release build works out the versionCode from the clock and writes the code it
+          # packaged; nothing in the repository changes.
           code=$(cat app/build/version/release-version-code.txt)
           name=$(grep '^VERSION_MAJOR' app/version.properties | cut -d= -f2).$(grep '^VERSION_MINOR' app/version.properties | cut -d= -f2).$(grep '^VERSION_PATCH' app/version.properties | cut -d= -f2)
           echo "code=$code" >> "$GITHUB_OUTPUT"
           echo "name=$name" >> "$GITHUB_OUTPUT"
           echo "Built $name (versionCode $code)"
 
-      # --unreleased covers exactly the commits since the last tag, so a release never repeats
-      # what an earlier one already listed.
+      # The notes cover the commits since the previous release and nothing earlier. A run from a
+      # tag is sitting on that tag, where --unreleased finds nothing at all (which is how 8.0.0
+      # shipped with an empty "## Unreleased"), so it takes --current: everything up to this tag
+      # since the one before. A manual run from a branch has no tag yet, so --unreleased is right
+      # there, named after the version it is about to tag.
+      - name: Work out which commits this release covers
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            echo "CLIFF_RANGE=--current" >> "$GITHUB_ENV"
+          else
+            echo "CLIFF_RANGE=--unreleased --tag v${{ steps.version.outputs.name }}" >> "$GITHUB_ENV"
+          fi
+
       - name: Generate release notes
         uses: orhun/git-cliff-action@v4
         id: notes
         with:
           config: cliff.toml
-          args: --unreleased --strip all
+          args: ${{ env.CLIFF_RANGE }} --strip all
         env:
           OUTPUT: RELEASE_NOTES.md
 
+      # git-cliff still writes the version heading when there are no entries, so the file is never
+      # empty; what matters is whether it lists anything.
       - name: Fall back when there is nothing new to list
         run: |
-          if [ ! -s RELEASE_NOTES.md ]; then
+          if ! grep -q '^- ' RELEASE_NOTES.md; then
             echo "CometOTP ${{ steps.version.outputs.name }}" > RELEASE_NOTES.md
             echo "" >> RELEASE_NOTES.md
             echo "See CHANGELOG.md for the full history." >> RELEASE_NOTES.md
@@ -163,7 +192,7 @@ jobs:
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --unreleased --tag v${{ steps.version.outputs.name }}
+          args: ${{ env.CLIFF_RANGE }}
         env:
           OUTPUT: NEW_SECTION.md
 
@@ -193,20 +222,15 @@ jobs:
             ${{ steps.version.outputs.name }} (versionCode ${{ steps.version.outputs.code }}).
           commit-message: "Add the ${{ steps.version.outputs.name }} changelog entry"
           base: master
-          add-paths: |
-            CHANGELOG.md
-            app/version.properties
+          add-paths: CHANGELOG.md
 
       # Not silent: a swallowed failure that nobody sees is worse than a red tick.
       - name: Say so if the changelog was not opened
         if: steps.changelog_pr.outcome != 'success'
         run: |
           v="${{ steps.version.outputs.name }}"
-          code="${{ steps.version.outputs.code }}"
           echo "::warning::$v published to Play, but the changelog pull request was not opened."
           echo "::warning::Add the $v entry to CHANGELOG.md by hand."
-          echo "::warning::Bump VERSION_BUILD in app/version.properties on master, or the next"
-          echo "::warning::release rebuilds versionCode $code and Play rejects it as a duplicate."
 
       - name: Remove the keystore
         if: always()
