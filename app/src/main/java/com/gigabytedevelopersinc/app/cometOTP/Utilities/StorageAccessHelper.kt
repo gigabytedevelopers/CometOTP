@@ -28,13 +28,19 @@ object StorageAccessHelper {
         try {
             // Both are closed even when the write throws. A provider that returns no descriptor
             // is a failed save, not a crash.
-            val pfd = context.contentResolver.openFileDescriptor(file, "w") ?: return false
+            // "wt", not "w": some providers do not truncate for "w", so writing a shorter backup
+            // over a longer one left the old tail behind and the file could not be restored.
+            val pfd = context.contentResolver.openFileDescriptor(file, "wt") ?: return false
             pfd.use {
                 FileOutputStream(it.fileDescriptor).use { fileOutputStream ->
                     fileOutputStream.write(data)
                 }
             }
         } catch (e: IOException) {
+            e.printStackTrace()
+            success = false
+        } catch (e: IllegalArgumentException) {
+            // A provider that does not accept the "wt" mode.
             e.printStackTrace()
             success = false
         }
