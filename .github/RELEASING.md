@@ -1,12 +1,13 @@
 # Releasing CometOTP
 
-Three workflows live in `.github/workflows`:
+Four workflows live in `.github/workflows`:
 
 | Workflow | File | When it runs |
 | --- | --- | --- |
 | CI | `ci.yml` | Every pull request, and every push to `master` |
-| Release Android | `release-android.yml` | A `v*` tag, or run by hand |
-| Release iOS | `release-ios.yml` | A `v*` tag, but **switched off** until enabled |
+| Auto release | `auto-release.yml` | After CI passes on `master`; starts both releases when the version is new |
+| Release Android | `release-android.yml` | Started by Auto release, a `v*` tag, or run by hand |
+| Release iOS | `release-ios.yml` | Same as Android, but **switched off** until enabled |
 
 ## Protecting master
 
@@ -98,27 +99,46 @@ Two things keep this out of reach of the public once the repository is open:
 - The deployment secrets sit on an environment, so even a workflow on `master` has to name that
   environment, and any reviewer you add has to release the run first.
 
-## Deploying Android
+## Deploying
+
+A release is a version bump. There is nothing to tag by hand:
 
 1. Merge everything you want in the release.
-2. Bump `app/version.properties` (`VERSION_MAJOR`/`MINOR`/`PATCH`). That is the only version
-   anyone sets. The Play versionCode is worked out from the time of the build (minutes since
-   2026-01-01 on top of 10,000,000), so every later build gets a higher code and nothing has to be
-   written back to the repository. See "Versioning" in `app/build.gradle`.
-3. Tag and push:
+2. Open a pull request that bumps `app/version.properties` (`VERSION_MAJOR`/`MINOR`/`PATCH`), and
+   merge it.
+3. When CI passes on that commit on `master`, **Auto release** sees there is no tag for the new
+   version yet, tags the commit `v<version>`, and starts Release Android and Release iOS on it. The
+   Android job then waits for the `production` environment's approval, if you set one.
 
-   ```bash
-   git tag -s v8.0.0 -m "CometOTP 8.0.0"
-   git push origin v8.0.0
-   ```
+Merges that leave the version alone release nothing. If CI fails on the bump, nothing is tagged,
+and the first later commit on `master` that passes CI with that version is released instead. A
+version lower than the latest tag is refused.
+
+The version in `version.properties` is the only one anyone sets. The Play versionCode is worked
+out from the time of the build (minutes since 2026-01-01 on top of 10,000,000), so every later
+build gets a higher code and nothing has to be written back to the repository. See "Versioning" in
+`app/build.gradle`.
+
+Auto release publishes to `internal`; promote from the Play Console, or run **Actions → Release
+Android → Run workflow** on the tag and choose `production`.
+
+### Releasing by hand
+
+Pushing a tag still works, and Auto release then leaves that version alone because the tag
+already exists:
+
+```bash
+git tag -s v8.0.0 -m "CometOTP 8.0.0"
+git push origin v8.0.0
+```
 
 The tag has to match `version.properties` exactly (`v` + `MAJOR.MINOR.PATCH`), or the workflow
 fails before building anything. If it does, delete the tag, fix the version on master, and tag
 again.
 
-Or run **Actions → Release Android → Run workflow** and pick a track. The tag path publishes to
-`internal` by default; promote from the Play Console, or run the workflow again choosing
-`production`.
+If Auto release created the tag but a release workflow failed to start, re-running Auto release
+will not help, because the tag now exists. Start it by hand instead: **Actions → Release Android
+→ Run workflow → Use workflow from: Tags → v&lt;version&gt;**.
 
 The job builds a signed App Bundle, uploads it with the ProGuard mapping so crash reports
 deobfuscate, attaches the bundle to a GitHub release, and opens a pull request adding the new

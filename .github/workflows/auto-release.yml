@@ -1,0 +1,127 @@
+name: Auto release
+
+# Releases a version bump once it is on master and CI has passed on it.
+#
+# Every CI run that passes on a push to master ends up here. The version in app/version.properties
+# is compared with the tags: if v<version> already exists, the commit is not a release and the run
+# stops. If it does not, the commit is tagged and Release Android and Release iOS are started on
+# that tag, exactly as if the tag had been pushed by hand. So a pull request that bumps the version
+# is a release, and every other merge is not.
+#
+# A tag created with GITHUB_TOKEN does not start other workflows (GitHub's guard against runaway
+# loops), so the release workflows are started with workflow_dispatch, the one event that token is
+# allowed to trigger. The production environment's reviewers still have to approve the Android job.
+#
+# workflow_run only fires for workflows on the default branch, so none of this happens for a pull
+# request; a fork cannot reach it at all.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  # One at a time, so two quick merges cannot both decide the same version is new.
+  group: auto-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag and start the releases
+    # Only a passing CI run for a push to master in this repository. The branch filter alone would
+    # also match a pull request from a fork whose own branch is called master.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write   # create the tag
+      actions: write    # start the release workflows
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+
+    steps:
+      # The commit CI tested, not whatever master has moved on to since.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0   # all the tags, to compare against
+
+      - name: Work out whether this version is new
+        id: version
+        run: |
+          prop() { grep "^$1=" app/version.properties | cut -d= -f2 | tr -d '[:space:]'; }
+          version="$(prop VERSION_MAJOR).$(prop VERSION_MINOR).$(prop VERSION_PATCH)"
+          tag="v$version"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "$tag is already released, so this commit is not a release. Nothing to do."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # A version below one already released is a revert or a typo, never a release.
+          latest=$(git tag -l 'v[0-9]*' | sort -V | tail -n1)
+          if [ -n "$latest" ] && [ "$(printf '%s\n%s\n' "$latest" "$tag" | sort -V | tail -n1)" != "$tag" ]; then
+            echo "::error::app/version.properties says $version, which is below the latest release $latest. Not releasing."
+            exit 1
+          fi
+
+          echo "$tag is new; releasing $SHA."
+          echo "new=true" >> "$GITHUB_OUTPUT"
+
+      # Through the API rather than git push: no git identity needed on the runner, and it fails
+      # outright rather than overwriting if the tag appeared in the meantime.
+      - name: Create the tag
+        if: steps.version.outputs.new == 'true'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$TAG" -f sha="$SHA" --silent
+
+      # Started on the tag, so each runs its own workflow file as it was at that commit, and the
+      # Android tag check sees the tag it expects.
+      - name: Start Release Android
+        if: steps.version.outputs.new == 'true'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: gh workflow run release-android.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
+
+      # Still gated on IOS_DEPLOY_ENABLED, so until that is set this run only reports "skipped".
+      - name: Start Release iOS
+        if: steps.version.outputs.new == 'true'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: gh workflow run release-ios.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
+
+      # Once the tag exists, re-running this job finds it and stops, so a release that failed to
+      # start has to be started by hand. Say exactly how.
+      - name: Say how to recover if a release did not start
+        if: failure() && steps.version.outputs.new == 'true'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            echo "::error::$TAG was tagged, but a release workflow did not start. Re-running this job will not help, because the tag now exists."
+            echo "::error::Start it by hand: Actions -> Release Android (or iOS) -> Run workflow -> Use workflow from: Tags -> $TAG."
+          fi
+
+      - name: Summary
+        if: always()
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          NEW: ${{ steps.version.outputs.new }}
+        run: |
+          if [ "$NEW" = true ]; then
+            echo "Tagged \`$SHA\` as **$TAG** and started Release Android and Release iOS." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$NEW" = false ]; then
+            echo "$TAG is already released; nothing to do." >> "$GITHUB_STEP_SUMMARY"
+          fi
