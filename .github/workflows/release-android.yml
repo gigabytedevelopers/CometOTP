@@ -54,6 +54,21 @@ jobs:
           # git-cliff needs the history and tags to work out what changed.
           fetch-depth: 0
 
+      # The GitHub release is named after version.properties, not the tag, so a tag pushed before
+      # the version was bumped would publish the old version under a new tag. Checked first so a
+      # mismatch fails before anything is built or signed.
+      - name: Check the tag matches version.properties
+        if: github.ref_type == 'tag'
+        run: |
+          prop() { grep "^$1=" app/version.properties | cut -d= -f2 | tr -d '[:space:]'; }
+          expected="v$(prop VERSION_MAJOR).$(prop VERSION_MINOR).$(prop VERSION_PATCH)"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match app/version.properties ($expected)."
+            echo "::error::Bump the version on master and tag that commit, or delete the tag and push $expected."
+            exit 1
+          fi
+          echo "Tag $GITHUB_REF_NAME matches app/version.properties."
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:

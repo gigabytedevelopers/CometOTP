@@ -110,6 +110,10 @@ Two things keep this out of reach of the public once the repository is open:
    git push origin v8.0.0
    ```
 
+The tag has to match `version.properties` exactly (`v` + `MAJOR.MINOR.PATCH`), or the workflow
+fails before building anything. If it does, delete the tag, fix the version on master, and tag
+again.
+
 Or run **Actions → Release Android → Run workflow** and pick a track. The tag path publishes to
 `internal` by default; promote from the Play Console, or run the workflow again choosing
 `production`.
