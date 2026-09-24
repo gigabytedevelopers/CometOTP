@@ -522,8 +522,9 @@ object EntryThumbnail {
 
         if (thumbnail == EntryThumbnails.Default && size > 0) {
             val letterBitmap = LetterBitmap(context)
-            val letterSrc = if (TextUtils.isEmpty(issuer)) label else issuer
-            return letterBitmap.getLetterTile(letterSrc!!, letterSrc, size, size)
+            // With neither an issuer nor a label the tile shows the "?" placeholder.
+            val letterSrc = (if (TextUtils.isEmpty(issuer)) label else issuer) ?: ""
+            return letterBitmap.getLetterTile(letterSrc, letterSrc, size, size)
         } else if (thumbnail != EntryThumbnails.Default) {
 
             try {

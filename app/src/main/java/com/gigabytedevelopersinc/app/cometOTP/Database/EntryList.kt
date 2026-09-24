@@ -108,7 +108,7 @@ class EntryList {
 
         if (constraint != null && constraint.length != 0) {
             for (i in entryList.indices) {
-                if (filterValues.contains(Constants.SearchIncludes.LABEL) && entryList[i].label!!.lowercase(Locale.getDefault()).contains(constraint.toString().lowercase(Locale.getDefault()))) {
+                if (filterValues.contains(Constants.SearchIncludes.LABEL) && (entryList[i].label ?: "").lowercase(Locale.getDefault()).contains(constraint.toString().lowercase(Locale.getDefault()))) {
                     filtered.add(entryList[i])
                 } else if (filterValues.contains(Constants.SearchIncludes.ISSUER) && entryList[i].issuer.lowercase(Locale.getDefault()).contains(constraint.toString().lowercase(Locale.getDefault()))) {
                     filtered.add(entryList[i])
@@ -177,7 +177,8 @@ class EntryList {
         }
 
         override fun compare(o1: Entry, o2: Entry): Int {
-            return collator.compare(o1.label, o2.label)
+            // An entry can have no label; it sorts as an empty one instead of crashing the sort.
+            return collator.compare(o1.label ?: "", o2.label ?: "")
         }
     }
 

@@ -130,6 +130,21 @@ class EntryListTest {
         assertEquals(3, list.entries.size)
     }
 
+    /** An entry without a label used to crash the label search and the label sort. */
+    @Test
+    fun anEntryWithoutALabelCanBeSearchedAndSorted() {
+        val list = EntryList()
+        list.addEntry(entry("beta", "Bank", secret = "AAAAAAAA"))
+        list.addEntry(Entry(Entry.OTPType.TOTP, "BBBBBBBB", 30, 6, "Nameless", null,
+            com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator.HashAlgorithm.SHA1, mutableListOf()))
+        list.addEntry(entry("alpha", "Card", secret = "CCCCCCCC"))
+
+        val all = listOf(SearchIncludes.LABEL, SearchIncludes.ISSUER, SearchIncludes.TAGS)
+        assertEquals(listOf("beta"), labels(list.getFilteredEntries("bet", all, SortMode.UNSORTED)))
+        assertEquals(listOf(null), labels(list.getFilteredEntries("nameless", all, SortMode.UNSORTED)))
+        assertEquals(listOf(null, "alpha", "beta"), labels(list.getEntriesSorted(SortMode.LABEL)))
+    }
+
     @Test
     fun filteringByTags() {
         val list = EntryList()
