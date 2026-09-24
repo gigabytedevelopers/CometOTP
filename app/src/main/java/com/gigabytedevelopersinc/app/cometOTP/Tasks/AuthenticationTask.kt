@@ -123,10 +123,12 @@ constructor(
 }
 
 /**
- * Replaces the old-style (SHA-256) credential hash of a user who has just entered the matching
- * password or PIN with PBKDF2 credentials. The old hash is removed only once the new credentials
- * are stored: removing it first would leave no credential at all whenever deriving or storing the
- * new one fails, and the unlock screen would then have nothing to check the next password against.
+ * Replaces an old form of the stored password or PIN with PBKDF2 credentials derived from
+ * [plainPassword]: the old-style (SHA-256) hash of a user who has just entered the matching
+ * password, or a password stored in plain text by much older versions ([Settings]). The old form
+ * is removed only once the new credentials are stored: removing it first would leave no
+ * credential at all whenever deriving or storing the new one fails, and the unlock screen would
+ * then have nothing to check the next password against.
  */
 internal fun upgradeAuthCredentials(
     plainPassword: String,

@@ -11,6 +11,7 @@ import android.preference.PreferenceManager
 import android.util.Base64
 import com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference
 import com.gigabytedevelopersinc.app.cometOTP.R
+import com.gigabytedevelopersinc.app.cometOTP.Tasks.upgradeAuthCredentials
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode
@@ -28,14 +29,20 @@ class Settings(private val context: Context) {
     }
 
     private fun migrateDeprecatedSettings() {
+        // The plain password or PIN is removed only once the credentials derived from it are
+        // stored; otherwise it stays and the migration is tried again next time.
         if (settings.contains(getResString(R.string.settings_key_auth_password))) {
-            setAuthCredentials(getString(R.string.settings_key_auth_password, ""))
-            remove(R.string.settings_key_auth_password)
+            upgradeAuthCredentials(getString(R.string.settings_key_auth_password, ""),
+                ::generateAuthCredentials, { saveAuthCredentials(it, null) }) {
+                remove(R.string.settings_key_auth_password)
+            }
         }
 
         if (settings.contains(getResString(R.string.settings_key_auth_pin))) {
-            setAuthCredentials(getString(R.string.settings_key_auth_pin, ""))
-            remove(R.string.settings_key_auth_pin)
+            upgradeAuthCredentials(getString(R.string.settings_key_auth_pin, ""),
+                ::generateAuthCredentials, { saveAuthCredentials(it, null) }) {
+                remove(R.string.settings_key_auth_pin)
+            }
         }
 
         if (settings.contains(getResString(R.string.settings_key_tap_to_reveal))) {
