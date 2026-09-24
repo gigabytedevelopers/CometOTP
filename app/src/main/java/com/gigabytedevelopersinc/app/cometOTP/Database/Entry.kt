@@ -437,9 +437,9 @@ class Entry {
                 Objects.equals(issuer, entry.issuer)
     }
 
-    // The secret array is hashed by identity, as it always has been (see the tests).
+    // The secret is hashed by content, matching Arrays.equals in equals().
     override fun hashCode(): Int {
-        return Objects.hash(type, period, counter, digits, algorithm, secret, label, issuer)
+        return Objects.hash(type, period, counter, digits, algorithm, secret.contentHashCode(), label, issuer)
     }
 
     /**

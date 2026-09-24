@@ -150,16 +150,22 @@ class EntryBehaviourTest {
         assertNotEquals(a, variant("""{"counter":1}"""))
     }
 
-    /**
-     * hashCode passes the secret array itself to Objects.hash, so it hashes by identity: two equal
-     * entries normally have different hash codes. That breaks the equals/hashCode contract, but it
-     * is the existing behaviour and is pinned rather than fixed.
-     */
+    /** Equal entries must have equal hash codes, so the secret is hashed by content. */
     @Test
-    fun hashCodeFormulaIsUnchanged() {
+    fun equalEntriesHaveEqualHashCodes() {
+        val base = """{"secret":"JBSWY3DPEHPK3PXP","issuer":"i","label":"l","type":"TOTP","period":30,"digits":6,"algorithm":"SHA1"}"""
+        val a = Entry(JSONObject(base))
+        val b = Entry(JSONObject(base))
+        assertEquals(a, b)
+        assertEquals(a.hashCode(), b.hashCode())
+        assertTrue(hashSetOf(a).contains(b))
+
         val e = Entry(Entry.OTPType.HOTP, "jbswy3dpehpk3pxp", 9L, 6, "i", "me", HashAlgorithm.SHA1, mutableListOf())
-        val expected = Objects.hash(e.type, e.period, e.counter, e.digits, e.algorithm, e.secret, e.label, e.issuer)
+        val expected = Objects.hash(e.type, e.period, e.counter, e.digits, e.algorithm, e.secret.contentHashCode(), e.label, e.issuer)
         assertEquals(expected, e.hashCode())
+
+        // An entry without a secret (the no-argument constructor) still hashes.
+        assertEquals(Entry().hashCode(), Entry().hashCode())
     }
 
     /*
