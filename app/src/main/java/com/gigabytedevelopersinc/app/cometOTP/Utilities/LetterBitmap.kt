@@ -2,7 +2,6 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -41,9 +40,10 @@ internal class LetterBitmap {
     private val mFirstChar = CharArray(1)
 
     /**
-     * The background colors of the tile
+     * The background colors of the tile, copied out of the resource array (which is recycled as
+     * soon as it has been read, so every tile can use the colors)
      */
-    private val mColors: TypedArray
+    private val mColors: IntArray
     /**
      * The font size used to display the letter
      */
@@ -62,7 +62,12 @@ internal class LetterBitmap {
         mPaint.textAlign = Paint.Align.CENTER
         mPaint.isAntiAlias = true
 
-        mColors = res.obtainTypedArray(R.array.letter_tile_colors)
+        val colors = res.obtainTypedArray(R.array.letter_tile_colors)
+        mColors = try {
+            IntArray(NUM_OF_TILE_COLORS) { colors.getColor(it, Color.BLACK) }
+        } finally {
+            colors.recycle()
+        }
         val typedValue = TypedValue()
         res.getValue(R.dimen.tile_letter_font_size_scale, typedValue, true)
         mTileLetterFontSizeScale = typedValue.float
@@ -110,11 +115,7 @@ internal class LetterBitmap {
         // String.hashCode() is not supposed to change across java versions, so
         // this should guarantee the same key always maps to the same color
         val color = Math.abs(key.hashCode()) % NUM_OF_TILE_COLORS
-        try {
-            return mColors.getColor(color, Color.BLACK)
-        } finally {
-            mColors.recycle()
-        }
+        return mColors[color]
     }
 
     companion object {
