@@ -13,6 +13,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
@@ -23,12 +25,22 @@ import com.google.android.material.textfield.TextInputLayout
 /**
  * "Set up Password" / "Set up PIN": the user enters the new credential, then confirms it. The
  * plain credential is handed back to the caller, which stores it and re-encrypts if needed.
+ *
+ * Neither entry is ever put into the saved instance state, which the system may write to disk:
+ * the first entry is kept in memory only ([FirstEntry]), so the confirmation step survives a
+ * configuration change (rotation, dark mode, window resize) but starts over at the first step
+ * after the process was killed, and the input field does not save its text.
  */
 class AuthSetupActivity : BaseActivity() {
     private var method = Constants.AuthMethod.PASSWORD
     private var minLength = Constants.AUTH_MIN_PASSWORD_LENGTH
 
-    private var firstEntry: String? = null
+    private lateinit var entry: FirstEntry
+    private var firstEntry: String?
+        get() = entry.value
+        set(value) {
+            entry.value = value
+        }
 
     private lateinit var title: TextView
     private lateinit var hint: TextView
@@ -70,16 +82,15 @@ class AuthSetupActivity : BaseActivity() {
             (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
         input.setHint(if (isPin) R.string.auth_hint_pin else R.string.auth_hint_password)
 
+        // The field would otherwise save the password typed so far in the instance state.
+        input.isSaveEnabled = false
+
         if (settings.blockAccessibility)
             layout.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         if (settings.blockAutofill)
             layout.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
 
-        if (savedInstanceState != null) {
-            firstEntry = savedInstanceState.getString(STATE_FIRST)
-            if (!savedInstanceState.getBoolean(STATE_CONFIRMING, false))
-                firstEntry = null
-        }
+        entry = ViewModelProvider(this)[FirstEntry::class.java]
         showStep()
 
         input.addTextChangedListener(object : TextWatcher {
@@ -122,12 +133,6 @@ class AuthSetupActivity : BaseActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(STATE_FIRST, firstEntry)
-        outState.putBoolean(STATE_CONFIRMING, firstEntry != null)
     }
 
     private fun showStep() {
@@ -179,11 +184,13 @@ class AuthSetupActivity : BaseActivity() {
         return false
     }
 
+    /** The first entry while it is being confirmed; kept across configuration changes only. */
+    class FirstEntry : ViewModel() {
+        var value: String? = null
+    }
+
     companion object {
         const val EXTRA_METHOD = "auth_setup_method"
         const val EXTRA_RESULT_CREDENTIAL = "auth_setup_credential"
-
-        private const val STATE_FIRST = "AuthSetupActivity.first"
-        private const val STATE_CONFIRMING = "AuthSetupActivity.confirming"
     }
 }
