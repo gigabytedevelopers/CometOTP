@@ -486,7 +486,10 @@ class Settings(private val context: Context) {
     val tokenSplitGroupSize: Int
         get() {
             // the setting is of type "String", because ListPreference does not support integer arrays for its entryValues
-            return getString(R.string.settings_key_split_group_size, R.string.settings_default_split_group_size).toInt()
+            // A stored value that is not a number falls back to the default instead of crashing
+            // every card that shows a token.
+            return getString(R.string.settings_key_split_group_size, R.string.settings_default_split_group_size).toIntOrNull()
+                ?: getResString(R.string.settings_default_split_group_size).toInt()
         }
 
     val tagFunctionality: Constants.TagFunctionality
