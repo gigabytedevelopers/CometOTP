@@ -109,20 +109,33 @@ jobs:
           echo "name=$name" >> "$GITHUB_OUTPUT"
           echo "Built $name (versionCode $code)"
 
-      # --unreleased covers exactly the commits since the last tag, so a release never repeats
-      # what an earlier one already listed.
+      # The notes cover the commits since the previous release and nothing earlier. A run from a
+      # tag is sitting on that tag, where --unreleased finds nothing at all (which is how 8.0.0
+      # shipped with an empty "## Unreleased"), so it takes --current: everything up to this tag
+      # since the one before. A manual run from a branch has no tag yet, so --unreleased is right
+      # there, named after the version it is about to tag.
+      - name: Work out which commits this release covers
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            echo "CLIFF_RANGE=--current" >> "$GITHUB_ENV"
+          else
+            echo "CLIFF_RANGE=--unreleased --tag v${{ steps.version.outputs.name }}" >> "$GITHUB_ENV"
+          fi
+
       - name: Generate release notes
         uses: orhun/git-cliff-action@v4
         id: notes
         with:
           config: cliff.toml
-          args: --unreleased --strip all
+          args: ${{ env.CLIFF_RANGE }} --strip all
         env:
           OUTPUT: RELEASE_NOTES.md
 
+      # git-cliff still writes the version heading when there are no entries, so the file is never
+      # empty; what matters is whether it lists anything.
       - name: Fall back when there is nothing new to list
         run: |
-          if [ ! -s RELEASE_NOTES.md ]; then
+          if ! grep -q '^- ' RELEASE_NOTES.md; then
             echo "CometOTP ${{ steps.version.outputs.name }}" > RELEASE_NOTES.md
             echo "" >> RELEASE_NOTES.md
             echo "See CHANGELOG.md for the full history." >> RELEASE_NOTES.md
@@ -179,7 +192,7 @@ jobs:
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --unreleased --tag v${{ steps.version.outputs.name }}
+          args: ${{ env.CLIFF_RANGE }}
         env:
           OUTPUT: NEW_SECTION.md
 
