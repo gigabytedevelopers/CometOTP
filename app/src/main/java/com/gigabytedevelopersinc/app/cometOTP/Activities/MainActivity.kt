@@ -46,6 +46,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -92,7 +94,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private var requireAuthentication = false
 
     private var recreateActivity = false
-    private var cacheEncKey = false
     /** Search mode was entered before the window had focus; see [onWindowFocusChanged]. */
     private var showSearchKeyboardOnFocus = false
     private var coachMarksRequested = false
@@ -206,7 +207,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             updateEncryption(newKey)
 
         if (recreateActivity) {
-            cacheEncKey = true
+            // Keeps the database key for the recreated screen, in memory only.
+            ViewModelProvider(this)[RetainedKey::class.java].key = adapter.encryptionKey
             recreate()
         }
     }
@@ -406,12 +408,13 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             }
         })
 
-        if (savedInstanceState != null) {
-            val encKey = savedInstanceState.getByteArray("encKey")
-            if (encKey != null) {
-                adapter.encryptionKey = EncryptionHelper.generateSymmetricKey(encKey)
-                requireAuthentication = false
-            }
+        // Recreated for changed settings: carry on with the key of the unlocked screen.
+        val retainedKey = ViewModelProvider(this)[RetainedKey::class.java]
+        val cachedKey = retainedKey.key
+        retainedKey.key = null
+        if (cachedKey != null) {
+            adapter.encryptionKey = cachedKey
+            requireAuthentication = false
         }
 
         recList.adapter = adapter
@@ -920,14 +923,15 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         super.onSaveInstanceState(outState)
         outState.putString("filterString", filterString)
         outState.putString(STATE_PROCESS_TOKEN, PROCESS_TOKEN)
+    }
 
-        if (cacheEncKey) {
-            val key = adapter.encryptionKey
-            if (key != null) {
-                outState.putByteArray("encKey", key.encoded)
-                cacheEncKey = false
-            }
-        }
+    /**
+     * The database key handed to the screen recreated after a settings change. Kept in memory
+     * across the recreation only; it used to go into the saved instance state, which the system
+     * may write to disk.
+     */
+    class RetainedKey : ViewModel() {
+        var key: SecretKey? = null
     }
 
     @SuppressLint("NotifyDataSetChanged")
