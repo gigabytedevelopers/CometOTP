@@ -92,7 +92,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     private var recreateActivity = false
     private var cacheEncKey = false
-    private var focusSearchOnCreate = false
     private var coachMarksRequested = false
 
     private lateinit var handler: Handler
@@ -956,11 +955,11 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         populateAdapter()
     }
 
+    // Only called at the end of onCreate(), when the search bar is already set up, so search mode
+    // can be entered straight away (the old toolbar search had to wait for the options menu).
     private fun focusSearchMenu() {
         if (::searchField.isInitialized && ::touchHelperCallback.isInitialized)
             enterSearchMode(true)
-        else
-            focusSearchOnCreate = true
     }
 
     private fun setFilterString(newText: String) {
