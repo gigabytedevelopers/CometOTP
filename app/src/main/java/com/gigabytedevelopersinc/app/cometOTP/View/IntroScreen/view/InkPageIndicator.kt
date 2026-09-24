@@ -222,8 +222,8 @@ open class InkPageIndicator @JvmOverloads constructor(
         val top = paddingTop
         val right = width - paddingRight
         val bottom = height - paddingBottom
-        val middle = top + bottom / 2f
-        val center = left + right / 2f
+        val middle = (top + bottom) / 2f
+        val center = (left + right) / 2f
 
         val requiredWidth = getRequiredWidth()
         val startLeft = center - requiredWidth / 2f + dotRadius
