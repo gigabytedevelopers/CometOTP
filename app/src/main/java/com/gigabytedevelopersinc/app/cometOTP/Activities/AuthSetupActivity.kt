@@ -2,6 +2,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -87,7 +88,7 @@ class AuthSetupActivity : BaseActivity() {
 
         if (settings.blockAccessibility)
             layout.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-        if (settings.blockAutofill)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && settings.blockAutofill)
             layout.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
 
         entry = ViewModelProvider(this)[FirstEntry::class.java]
