@@ -71,7 +71,9 @@ object Constants {
     internal const val PBKDF2_MIN_ITERATIONS      = 140000
     internal const val PBKDF2_MAX_ITERATIONS      = 160000
     internal const val PBKDF2_DEFAULT_ITERATIONS  = 150000
-    internal const val PBKDF2_LENGTH              = 256      // 128-bit encryption key (Password-mode)
+    // 256-bit PBKDF2 output. Password-mode splits it into a 128-bit encryption key and a 128-bit
+    // password hash (generatePBKDF2Credentials); encrypted backups use all of it as an AES-256 key.
+    internal const val PBKDF2_LENGTH              = 256
     internal const val PBKDF2_SALT_LENGTH         = 16
 
     // Authentication
