@@ -101,7 +101,8 @@ jobs:
       - name: Read the version that was built
         id: version
         run: |
-          # The release build bumps VERSION_BUILD and writes the code it packaged.
+          # The release build works out the versionCode from the clock and writes the code it
+          # packaged; nothing in the repository changes.
           code=$(cat app/build/version/release-version-code.txt)
           name=$(grep '^VERSION_MAJOR' app/version.properties | cut -d= -f2).$(grep '^VERSION_MINOR' app/version.properties | cut -d= -f2).$(grep '^VERSION_PATCH' app/version.properties | cut -d= -f2)
           echo "code=$code" >> "$GITHUB_OUTPUT"
@@ -208,20 +209,15 @@ jobs:
             ${{ steps.version.outputs.name }} (versionCode ${{ steps.version.outputs.code }}).
           commit-message: "Add the ${{ steps.version.outputs.name }} changelog entry"
           base: master
-          add-paths: |
-            CHANGELOG.md
-            app/version.properties
+          add-paths: CHANGELOG.md
 
       # Not silent: a swallowed failure that nobody sees is worse than a red tick.
       - name: Say so if the changelog was not opened
         if: steps.changelog_pr.outcome != 'success'
         run: |
           v="${{ steps.version.outputs.name }}"
-          code="${{ steps.version.outputs.code }}"
           echo "::warning::$v published to Play, but the changelog pull request was not opened."
           echo "::warning::Add the $v entry to CHANGELOG.md by hand."
-          echo "::warning::Bump VERSION_BUILD in app/version.properties on master, or the next"
-          echo "::warning::release rebuilds versionCode $code and Play rejects it as a duplicate."
 
       - name: Remove the keystore
         if: always()

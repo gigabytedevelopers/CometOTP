@@ -1,5 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+import java.time.Duration
+import java.time.Instant
+
 // AGP 9.x provides built-in Kotlin support, so the "kotlin-android" plugin must not be applied
 // here any more. "kotlin-kapt" was unused (no annotation processors) and has been dropped.
 apply plugin: 'com.android.application'
@@ -29,28 +32,41 @@ def canSignRelease = keystoreProperties["storeFile"] != null
 /*
  * Versioning
  *
- * version.properties holds VERSION_MAJOR/MINOR/PATCH (the user-visible versionName) and
- * VERSION_BUILD, which is bumped automatically for every release build. The build number is
- * incremented by IncrementVersionBuildTask, and the release variant's versionCode is wired to
- * that task's output (see androidComponents below), so:
- *   - debug builds never touch version.properties,
- *   - any build that produces a release artifact (assembleRelease, bundleRelease, installRelease)
- *     increments the build number and packages the incremented value in the same build,
- *   - the task runs on every release build (it is never skipped as up-to-date or restored
- *     from the build cache).
+ * version.properties holds VERSION_MAJOR/MINOR/PATCH, the user-visible versionName, and nothing
+ * else: builds never write to it.
+ *
+ * The release versionCode is the time of the build, counted in minutes, on top of a base:
+ *
+ *   versionCode = BASE + minutes since EPOCH (UTC)
+ *
+ * Nothing is stored, so there is no counter to fall out of step. The old scheme kept a build
+ * number in version.properties that the release workflow had to hand back to master through a
+ * pull request, and every time that pull request went unmerged the next release rebuilt the same
+ * code and Play rejected it. Here a later build always gets a higher code, whoever builds it and
+ * whatever state the repository is in, and the only way two builds share one is to start in the
+ * same minute (the release workflow's concurrency group already rules that out for CI).
+ *
+ * BASE sits above every code the old MAJOR*1000000 + MINOR*10000 + PATCH*100 + BUILD scheme could
+ * produce for any version below 10.0.0 (8000007 is the highest ever uploaded), so the first new
+ * code is higher than anything already on Play. At one code per minute, Play's 2100000000 ceiling
+ * is about 3,970 years away.
+ *
+ * Debug builds use BASE unchanged. They install as a separate ".dev" app and are never uploaded,
+ * so a fixed code keeps them reproducible while still being higher than the old debug codes, which
+ * lets `adb install -r` upgrade an existing .dev install.
  */
-abstract class IncrementVersionBuildTask extends DefaultTask {
-    /** version.properties; read and rewritten with VERSION_BUILD + 1 */
-    @OutputFile
-    abstract RegularFileProperty getVersionFile()
+abstract class VersionCodeTask extends DefaultTask {
+    static final int BASE = 10_000_000
+    static final Instant EPOCH = Instant.parse('2026-01-01T00:00:00Z')
+    static final int PLAY_MAX = 2_100_000_000
 
     /** Receives the computed versionCode, consumed by the release variant */
     @OutputFile
     abstract RegularFileProperty getVersionCodeFile()
 
-    IncrementVersionBuildTask() {
-        // Side-effecting by design: increments on every execution
-        doNotTrackState("Increments the build number on every release build")
+    VersionCodeTask() {
+        // The code depends on the clock, so it must be worked out afresh on every release build.
+        doNotTrackState("The versionCode is the time of the build")
     }
 
     static Properties loadVersion(File file) {
@@ -59,32 +75,29 @@ abstract class IncrementVersionBuildTask extends DefaultTask {
         return props
     }
 
-    static int versionCodeOf(Properties props) {
-        return props['VERSION_MAJOR'].toInteger() * 1000000 +
-                props['VERSION_MINOR'].toInteger() * 10000 +
-                props['VERSION_PATCH'].toInteger() * 100 +
-                props['VERSION_BUILD'].toInteger()
-    }
-
     static String versionNameOf(Properties props) {
         return "${props['VERSION_MAJOR']}.${props['VERSION_MINOR']}.${props['VERSION_PATCH']}"
     }
 
-    @TaskAction
-    void increment() {
-        def file = versionFile.get().asFile
-        def props = loadVersion(file)
-        props['VERSION_BUILD'] = (props['VERSION_BUILD'].toInteger() + 1).toString()
-        file.withWriter { props.store(it, null) }
+    static int versionCodeAt(Instant now) {
+        long minutes = Duration.between(EPOCH, now).toMinutes()
+        if (minutes < 0)
+            throw new GradleException("The clock reads $now, before the versionCode epoch $EPOCH. Fix the system time.")
+        long code = BASE + minutes
+        if (code > PLAY_MAX)
+            throw new GradleException("versionCode $code is above Play's limit of $PLAY_MAX.")
+        return (int) code
+    }
 
-        def code = versionCodeOf(props)
+    @TaskAction
+    void stamp() {
+        def code = versionCodeAt(Instant.now())
         versionCodeFile.get().asFile.text = code.toString()
-        logger.lifecycle("Release build number incremented: VERSION_BUILD=${props['VERSION_BUILD']} (versionCode ${code})")
+        logger.lifecycle("Release versionCode $code")
     }
 }
 
-def versionPropsFile = file('version.properties')
-def versionProps = IncrementVersionBuildTask.loadVersion(versionPropsFile)
+def versionProps = VersionCodeTask.loadVersion(file('version.properties'))
 
 android {
     namespace = 'com.gigabytedevelopersinc.app.cometOTP'
@@ -98,10 +111,10 @@ android {
         // Android 6.0: current AndroidX/Material releases no longer support API 22.
         minSdk = 23
         targetSdk = 37
-        // Values as currently stored; the release variant overrides versionCode with the
-        // incremented value (see androidComponents below).
-        versionCode = IncrementVersionBuildTask.versionCodeOf(versionProps)
-        versionName = IncrementVersionBuildTask.versionNameOf(versionProps)
+        // The fixed code debug builds use; the release variant overrides it with the time of the
+        // build (see androidComponents below).
+        versionCode = VersionCodeTask.BASE
+        versionName = VersionCodeTask.versionNameOf(versionProps)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled = true
@@ -167,22 +180,21 @@ android {
     }
 }
 
-def incrementVersionBuild = tasks.register('incrementVersionBuild', IncrementVersionBuildTask) {
+def stampVersionCode = tasks.register('stampVersionCode', VersionCodeTask) {
     group = 'versioning'
-    description = 'Increments VERSION_BUILD in version.properties (runs automatically for release builds).'
-    versionFile = versionPropsFile
+    description = 'Works out the release versionCode from the time of the build (runs automatically for release builds).'
     versionCodeFile = layout.buildDirectory.file('version/release-version-code.txt')
 }
 
 androidComponents {
-    // Release builds: versionCode comes from the increment task, which makes every release
-    // artifact depend on it (and only release artifacts).
+    // Release builds: versionCode comes from the stamp task, which makes every release artifact
+    // depend on it (and only release artifacts).
     onVariants(selector().withBuildType('release')) { variant ->
-        def incrementedVersionCode = incrementVersionBuild
+        def stampedVersionCode = stampVersionCode
                 .flatMap { it.versionCodeFile }
                 .map { it.asFile.text.trim().toInteger() }
         variant.outputs.each { output ->
-            output.versionCode.set(incrementedVersionCode)
+            output.versionCode.set(stampedVersionCode)
         }
     }
 

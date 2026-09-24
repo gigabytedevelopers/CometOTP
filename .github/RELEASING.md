@@ -101,8 +101,10 @@ Two things keep this out of reach of the public once the repository is open:
 ## Deploying Android
 
 1. Merge everything you want in the release.
-2. Bump `app/version.properties` (`VERSION_MAJOR`/`MINOR`/`PATCH`). `VERSION_BUILD` bumps itself
-   on every release build, so leave it alone.
+2. Bump `app/version.properties` (`VERSION_MAJOR`/`MINOR`/`PATCH`). That is the only version
+   anyone sets. The Play versionCode is worked out from the time of the build (minutes since
+   2026-01-01 on top of 10,000,000), so every later build gets a higher code and nothing has to be
+   written back to the repository. See "Versioning" in `app/build.gradle`.
 3. Tag and push:
 
    ```bash
