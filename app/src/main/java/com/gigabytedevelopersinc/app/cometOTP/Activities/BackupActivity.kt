@@ -326,6 +326,9 @@ class BackupActivity : BaseActivity() {
                     warningRes = R.string.backup_desc_openpgp_keyid
                     enabled = false
                 } else {
+                    // Every sheet opening and every pick of OpenPGP gets here; release the
+                    // previous binding so only one is ever held.
+                    unbindPgpService()
                     val connection = OpenPgpServiceConnection(this@BackupActivity.applicationContext, pgpProvider)
                     pgpServiceConnection = connection
                     connection.bindToService()
@@ -379,7 +382,19 @@ class BackupActivity : BaseActivity() {
 
         watchdogHandler.removeCallbacks(watchdog)
 
-        pgpServiceConnection?.unbindFromService()
+        unbindPgpService()
+    }
+
+    private fun unbindPgpService() {
+        val connection = pgpServiceConnection ?: return
+        pgpServiceConnection = null
+
+        try {
+            connection.unbindFromService()
+        } catch (e: IllegalArgumentException) {
+            // The binding never got registered (bindService() failed), so there is nothing to release.
+            Log.d(TAG, "OpenPGP service was not bound", e)
+        }
     }
 
     // TODO: Show more information about the finished backup (e.g. a notification with the file name)
