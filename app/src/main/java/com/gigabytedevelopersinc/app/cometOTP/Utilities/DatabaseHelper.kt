@@ -138,19 +138,29 @@ object DatabaseHelper {
         return json.toString()
     }
 
+    /**
+     * Parses a JSON array of entries. An entry that cannot be read is skipped on its own; the
+     * entries around it are still returned. (Callers save what they loaded, so anything left out
+     * here is gone from the database after the next save.)
+     */
     @JvmStatic
     fun stringToEntries(data: String?): ArrayList<Entry> {
         val entries = ArrayList<Entry>()
 
+        val json: JSONArray
         try {
-            val json = JSONArray(data!!)
-
-            for (i in 0 until json.length()) {
-                val entry = Entry(json.getJSONObject(i))
-                entries.add(entry)
-            }
+            json = JSONArray(data!!)
         } catch (error: Exception) {
             error.printStackTrace()
+            return entries
+        }
+
+        for (i in 0 until json.length()) {
+            try {
+                entries.add(Entry(json.getJSONObject(i)))
+            } catch (error: Exception) {
+                error.printStackTrace()
+            }
         }
 
         return entries

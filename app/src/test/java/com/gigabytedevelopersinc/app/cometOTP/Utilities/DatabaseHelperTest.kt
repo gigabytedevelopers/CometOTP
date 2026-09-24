@@ -49,14 +49,30 @@ class DatabaseHelperTest {
         assertEquals("[]", DatabaseHelper.entriesToString(ArrayList()))
     }
 
-    /** Loading stops at the first bad entry and keeps the ones read before it. */
+    /**
+     * A bad entry is skipped on its own. (Loading used to stop at the first bad entry, and since
+     * callers save what they load, every account after it was then deleted.)
+     */
     @Test
-    fun aBrokenEntryEndsTheLoadButKeepsWhatCameBefore() {
+    fun aBrokenEntryIsSkippedAndTheRestAreKept() {
         val data = """[{"secret":"JBSWY3DPEHPK3PXP","label":"first"},
             {"secret":"JBSWY3DPEHPK3PXP","label":"hotp without counter","type":"HOTP"},
             {"secret":"JBSWY3DPEHPK3PXP","label":"third"}]"""
         val loaded = DatabaseHelper.stringToEntries(data)
-        assertEquals(listOf("first"), loaded.map { it.label })
+        assertEquals(listOf("first", "third"), loaded.map { it.label })
+    }
+
+    @Test
+    fun brokenEntriesAnywhereInTheArrayAreSkipped() {
+        val data = """[{"label":"no secret"},
+            "not an object",
+            {"secret":"JBSWY3DPEHPK3PXP","label":"second"},
+            null,
+            {"secret":"JBSWY3DPEHPK3PXP"},
+            {"secret":"GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ","label":"last","type":"HOTP","counter":3}]"""
+        val loaded = DatabaseHelper.stringToEntries(data)
+        assertEquals(listOf("second", "last"), loaded.map { it.label })
+        assertEquals(3L, loaded[1].counter)
     }
 
     @Test
