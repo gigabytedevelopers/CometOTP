@@ -257,9 +257,42 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
         startEncryptionChange(newEnc, newKey, null, null)
     }
 
-    /** Password encryption: re-encrypts for a new password or PIN, see [CredentialsPreference]. */
+    /** Stores a new password or PIN, see [CredentialsPreference.EncryptionChangeCallback]. */
     internal fun changeCredentials(method: AuthMethod, password: String) {
-        startEncryptionChange(EncryptionType.PASSWORD, null, method, password)
+        if (settings.encryption == EncryptionType.PASSWORD)
+            startEncryptionChange(EncryptionType.PASSWORD, null, method, password)
+        else
+            startCredentialChange(method, password)
+    }
+
+    /**
+     * KeyStore encryption: derives the credentials for [password] (PBKDF2, too slow for the main
+     * thread) and stores them together with [method] on a background thread. The database key
+     * does not depend on them, so nothing is re-encrypted.
+     */
+    private fun startCredentialChange(method: AuthMethod, password: String) {
+        if (encryptionJob.isBusy)
+            return
+
+        showProgress()
+
+        val appContext = applicationContext
+        encryptionJob.start {
+            val settings = Settings(appContext)
+            val newCredentials = settings.generateAuthCredentials(password)
+            if (newCredentials != null)
+                settings.saveAuthCredentials(newCredentials, method)
+
+            val outcome: (SettingsActivity) -> Unit = { it.onCredentialChangeDone() }
+            outcome
+        }
+    }
+
+    /** Runs on whichever instance is resumed when [startCredentialChange]'s job has finished. */
+    private fun onCredentialChangeDone() {
+        hideProgress()
+        // Shows the stored method, which is still the old one if nothing could be stored.
+        fragment?.credentials?.updateSummary()
     }
 
     /**

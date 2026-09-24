@@ -36,9 +36,10 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
 
     fun interface EncryptionChangeCallback {
         /**
-         * Password encryption only: re-encrypts the database with the key of a new [password]
-         * for [method] (in the background) and stores the new credentials and method only once
-         * that succeeded, then calls [updateSummary].
+         * Derives the credentials for a new [password] for [method] and stores them together
+         * with the method, in the background (deriving them is too slow for the main thread),
+         * then calls [updateSummary]. With password encryption the database is re-encrypted with
+         * the new key first, and nothing is stored unless that succeeded.
          */
         fun changeCredentials(method: AuthMethod, password: String)
     }
@@ -157,16 +158,11 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
             if (password.isEmpty())
                 return
 
-            if (settings.encryption == EncryptionType.PASSWORD) {
-                // The database key derives from the credentials, so they may only replace the old
-                // ones once the database has been re-encrypted with the new key. The host does
-                // both off the main thread and stores the method along with the credentials.
-                encryptionChangeCallback?.changeCredentials(value, password)
-                return
-            }
-
-            val newCredentials = settings.generateAuthCredentials(password) ?: return
-            settings.saveAuthCredentials(newCredentials, value)
+            // The host derives the credentials off the main thread and stores the method along
+            // with them. With password encryption the database key derives from the credentials,
+            // so they only replace the old ones once the database has been re-encrypted.
+            encryptionChangeCallback?.changeCredentials(value, password)
+            return
         }
 
         // Locale-independent: in e.g. Turkish "PIN" would lowercase to "pın" (dotless i).
