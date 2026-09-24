@@ -222,12 +222,6 @@ class Settings(private val context: Context) {
     val authCredentials: String
         get() = getString(R.string.settings_key_auth_credentials, "")
 
-    fun setAuthCredentials(plainPassword: String): ByteArray? {
-        val credentials = generateAuthCredentials(plainPassword) ?: return null
-        saveAuthCredentials(credentials, null)
-        return credentials.key
-    }
-
     /**
      * Credentials derived from a new password or PIN by [generateAuthCredentials]. [key] is the
      * database key they derive (password encryption); nothing is stored until [saveAuthCredentials].
