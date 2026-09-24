@@ -214,7 +214,6 @@ open class SlideAdapter : FragmentPagerAdapter {
             if (!(collection as Collection<Any?>).contains(data[i])) {
                 data.removeAt(i)
                 modified = true
-                i--
             }
             i--
         }
