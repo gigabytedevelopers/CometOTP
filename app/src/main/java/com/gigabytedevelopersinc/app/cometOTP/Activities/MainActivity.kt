@@ -79,6 +79,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import java.util.UUID
 import javax.crypto.SecretKey
 
 class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -344,7 +345,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         encryptionType = settings.encryption
 
-        if (settings.authMethod != AuthMethod.NONE && savedInstanceState == null)
+        if (requiresAuthenticationOnCreate(settings.authMethod, savedInstanceState?.getString(STATE_PROCESS_TOKEN), PROCESS_TOKEN))
             requireAuthentication = true
 
         setBroadcastCallback {
@@ -918,6 +919,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("filterString", filterString)
+        outState.putString(STATE_PROCESS_TOKEN, PROCESS_TOKEN)
 
         if (cacheEncKey) {
             val key = adapter.encryptionKey
@@ -1278,6 +1280,13 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         private const val LAST_APP_VERSION = "1"
         private var appStart: AppStart? = null
 
+        /**
+         * Identifies this process in the saved instance state, which also outlives the process
+         * (the app killed in the background and restored from the recent apps).
+         */
+        private const val STATE_PROCESS_TOKEN = "processToken"
+        private val PROCESS_TOKEN = UUID.randomUUID().toString()
+
         @IdRes
         private fun sortModeToId(mode: SortMode): Int {
             return when (mode) {
@@ -1297,4 +1306,16 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             return SortMode.UNSORTED
         }
     }
+}
+
+/**
+ * Whether a newly created main screen must ask for authentication. [savedProcessToken] is the
+ * process token from its saved state (null on a fresh start). Recreated in the same process (a
+ * rotation or another configuration change) it was already unlocked and does not ask again.
+ * Saved state that comes back after the process was killed (restored from the recent apps) is a
+ * fresh start: treating it as unlocked showed the accounts without any authentication, since
+ * with KeyStore encryption the database key needs none.
+ */
+internal fun requiresAuthenticationOnCreate(authMethod: AuthMethod, savedProcessToken: String?, processToken: String): Boolean {
+    return authMethod != AuthMethod.NONE && savedProcessToken != processToken
 }
