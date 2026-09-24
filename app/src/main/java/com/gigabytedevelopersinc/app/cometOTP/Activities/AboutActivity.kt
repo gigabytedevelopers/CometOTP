@@ -247,7 +247,7 @@ class AboutActivity : BaseActivity() {
         // private static final String CHANGELOG_URI = GITHUB_URI + "/blob/master/CHANGELOG.md";
         private const val MIT_URI = "$GITHUB_URI/blob/master/LICENSE"
         private const val AUTHOR1_GITHUB = "https://github.com/gigabytedevelopers"
-        private const val AUTHOR1_PAYPAL = "https://paypal.me/gigabtedevelopers"
+        private const val AUTHOR1_PAYPAL = "https://www.paypal.com/donate/?hosted_button_id=G35ZM2EKPVZ9Y"
 
         private const val AUTHOR2_GITHUB = "https://github.com/enwokoma"
         private const val AUTHOR2_PAYPAL = "https://www.paypal.com/donate/?hosted_button_id=G35ZM2EKPVZ9Y"
