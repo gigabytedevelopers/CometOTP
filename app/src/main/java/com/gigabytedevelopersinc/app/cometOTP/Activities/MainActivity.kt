@@ -269,6 +269,14 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 @Suppress("DEPRECATION")
                 val authIntent = km.createConfirmDeviceCredentialIntent(getString(R.string.dialog_title_auth), getString(R.string.dialog_msg_auth))
                 authenticateActivityResultLauncher.launch(authIntent)
+            } else {
+                // The device lock was removed (and there are no usable biometrics), so nothing is
+                // left to authenticate with. Stay locked and close like any failed authentication,
+                // telling the user to set up a screen lock again; with it they can unlock and
+                // change the lock method.
+                requireAuthentication = true
+                Toast.makeText(baseContext, R.string.settings_toast_auth_device_not_secure, Toast.LENGTH_LONG).show()
+                finishAndRemoveTask()
             }
         } else if (authMethod == AuthMethod.PASSWORD || authMethod == AuthMethod.PIN) {
             val authIntent = Intent(this, AuthenticateActivity::class.java)
