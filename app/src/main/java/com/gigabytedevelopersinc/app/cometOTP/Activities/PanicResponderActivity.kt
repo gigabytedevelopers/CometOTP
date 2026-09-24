@@ -17,8 +17,9 @@ class PanicResponderActivity : Activity() {
         if (callingIntent != null && PANIC_TRIGGER_ACTION == callingIntent.action) {
             val settings = Settings(this)
 
-            // Settings.panicResponse is nullable; the Java original dereferenced it unchecked.
-            val response = settings.panicResponse!!
+            // Settings.panicResponse is nullable; no stored response means the preference's
+            // default, the empty set (no response selected), so nothing is wiped.
+            val response = settings.panicResponse ?: emptySet()
 
             if (response.contains("accounts")) {
                 DatabaseHelper.wipeDatabase(this)
