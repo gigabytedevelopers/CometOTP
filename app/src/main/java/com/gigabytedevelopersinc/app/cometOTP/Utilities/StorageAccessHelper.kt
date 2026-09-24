@@ -26,13 +26,14 @@ object StorageAccessHelper {
         var success = true
 
         try {
-            val pfd = context.contentResolver.openFileDescriptor(file, "w")
-            val fileOutputStream = FileOutputStream(pfd!!.fileDescriptor)
-
-            fileOutputStream.write(data)
-
-            fileOutputStream.close()
-            pfd.close()
+            // Both are closed even when the write throws. A provider that returns no descriptor
+            // is a failed save, not a crash.
+            val pfd = context.contentResolver.openFileDescriptor(file, "w") ?: return false
+            pfd.use {
+                FileOutputStream(it.fileDescriptor).use { fileOutputStream ->
+                    fileOutputStream.write(data)
+                }
+            }
         } catch (e: IOException) {
             e.printStackTrace()
             success = false
