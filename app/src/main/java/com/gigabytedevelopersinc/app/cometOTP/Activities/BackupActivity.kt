@@ -596,7 +596,13 @@ class BackupActivity : BaseActivity() {
 
         if (entries.size > 0) {
             if (!replaceExisting) {
+                // Merging into a database that cannot be read would save only the restored
+                // entries and drop every account already stored.
                 val currentEntries = DatabaseHelper.loadDatabase(this, encryptionKey)
+                if (currentEntries == null) {
+                    Toast.makeText(this, R.string.backup_toast_import_save_failed, Toast.LENGTH_LONG).show()
+                    return
+                }
 
                 entries.removeAll(currentEntries)
                 entries.addAll(currentEntries)
@@ -635,7 +641,12 @@ class BackupActivity : BaseActivity() {
 
     private fun doBackupPlain(uri: Uri?) {
         if (Tools.isExternalStorageWritable()) {
+            // An unreadable database must not be written out as an empty backup.
             val entries = DatabaseHelper.loadDatabase(this, encryptionKey)
+            if (entries == null) {
+                Toast.makeText(this, R.string.backup_toast_export_failed, Toast.LENGTH_LONG).show()
+                return
+            }
 
             val task = PlainTextBackupTask(this, entries, uri)
             task.setCallback(::handleBackupTaskResult)
@@ -703,7 +714,12 @@ class BackupActivity : BaseActivity() {
 
     private fun doBackupCryptWithPassword(uri: Uri?, password: String) {
         if (Tools.isExternalStorageWritable()) {
+            // An unreadable database must not be written out as an empty backup.
             val entries = DatabaseHelper.loadDatabase(this, encryptionKey)
+            if (entries == null) {
+                Toast.makeText(this, R.string.backup_toast_export_failed, Toast.LENGTH_LONG).show()
+                return
+            }
 
             val task = EncryptedBackupTask(this, entries, password, uri)
             task.setCallback(::handleBackupTaskResult)
@@ -742,7 +758,12 @@ class BackupActivity : BaseActivity() {
     }
 
     private fun backupEncryptedWithPGP(uri: Uri?, encryptIntent: Intent?) {
+        // An unreadable database must not be written out as an empty backup.
         val entries = DatabaseHelper.loadDatabase(this, encryptionKey)
+        if (entries == null) {
+            Toast.makeText(this, R.string.backup_toast_export_failed, Toast.LENGTH_LONG).show()
+            return
+        }
         val plainJSON = DatabaseHelper.entriesToString(entries)
 
         var intent = encryptIntent

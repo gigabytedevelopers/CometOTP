@@ -34,6 +34,14 @@ class PlainTextBackupBroadcastReceiver : BackupBroadcastReceiver() {
             }
 
             if (Tools.isExternalStorageWritable()) {
+                // Read before the backup file is looked up or created: an unreadable database
+                // must not overwrite the existing backup with nothing.
+                val entries = DatabaseHelper.loadDatabase(context, encryptionKey)
+                if (entries == null) {
+                    NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_FAILED, R.string.backup_receiver_title_backup_failed, R.string.backup_toast_export_failed)
+                    return
+                }
+
                 val backupFile = BackupHelper.backupFile(context, settings.backupLocation, Constants.BackupType.PLAIN_TEXT)
                 val file = backupFile.file
 
@@ -41,8 +49,6 @@ class PlainTextBackupBroadcastReceiver : BackupBroadcastReceiver() {
                     NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_FAILED, R.string.backup_receiver_title_backup_failed, backupFile.errorMessage)
                     return
                 }
-
-                val entries = DatabaseHelper.loadDatabase(context, encryptionKey)
 
                 if (StorageAccessHelper.saveFile(context, file.uri, DatabaseHelper.entriesToString(entries))) {
                     NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_SUCCESS, R.string.backup_receiver_title_backup_success, file.name)

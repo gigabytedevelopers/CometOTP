@@ -44,6 +44,14 @@ class EncryptedBackupBroadcastReceiver : BackupBroadcastReceiver() {
             }
 
             if (Tools.isExternalStorageWritable()) {
+                // Read before the backup file is looked up or created: an unreadable database
+                // must not overwrite the existing backup with nothing.
+                val entries = DatabaseHelper.loadDatabase(context, encryptionKey)
+                if (entries == null) {
+                    NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_FAILED, R.string.backup_receiver_title_backup_failed, R.string.backup_toast_export_failed)
+                    return
+                }
+
                 val cryptBackupFile = BackupHelper.backupFile(context, settings.backupLocation, Constants.BackupType.ENCRYPTED)
                 val file = cryptBackupFile.file
 
@@ -52,7 +60,6 @@ class EncryptedBackupBroadcastReceiver : BackupBroadcastReceiver() {
                     return
                 }
 
-                val entries = DatabaseHelper.loadDatabase(context, encryptionKey)
                 val plain = DatabaseHelper.entriesToString(entries)
 
                 try {

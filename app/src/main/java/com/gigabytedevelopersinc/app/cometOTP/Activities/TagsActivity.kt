@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.ViewStub
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +33,9 @@ import javax.crypto.SecretKey
 class TagsActivity : BaseActivity() {
     private var encryptionKey: SecretKey? = null
     private var entriesChanged = false
+    // False when the database could not be read (or there is no key): the entries list is then
+    // not the stored one, and saving it would replace every stored account.
+    private var entriesLoaded = false
 
     private val entries = ArrayList<Entry>()
     private val tags: MutableList<String> = ArrayList()
@@ -75,9 +79,17 @@ class TagsActivity : BaseActivity() {
 
     private fun loadTags() {
         entries.clear()
+        entriesLoaded = false
         val encryptionKey = encryptionKey
-        if (encryptionKey != null)
-            entries.addAll(DatabaseHelper.loadDatabase(this, encryptionKey))
+        if (encryptionKey != null) {
+            val loaded = DatabaseHelper.loadDatabase(this, encryptionKey)
+            if (loaded != null) {
+                entries.addAll(loaded)
+                entriesLoaded = true
+            } else {
+                showDatabaseLoadFailed()
+            }
+        }
 
         val all = TreeSet(String.CASE_INSENSITIVE_ORDER)
         for (entry in entries)
@@ -100,8 +112,18 @@ class TagsActivity : BaseActivity() {
         return count
     }
 
+    private fun showDatabaseLoadFailed() {
+        Toast.makeText(this, R.string.toast_database_load_failed, Toast.LENGTH_LONG).show()
+    }
+
     private fun saveTag(oldName: String?, name: String, color: Int, showCount: Boolean) {
         if (oldName != null && oldName != name) {
+            // A rename rewrites the entries, which cannot be done without them.
+            if (!entriesLoaded) {
+                showDatabaseLoadFailed()
+                return
+            }
+
             // Rename: rewrite the tag on every entry that uses it
             for (entry in entries) {
                 val entryTags = entry.tags
@@ -131,6 +153,12 @@ class TagsActivity : BaseActivity() {
     }
 
     private fun deleteTag(tag: String) {
+        // Deleting removes the tag from the entries, which cannot be done without them.
+        if (!entriesLoaded) {
+            showDatabaseLoadFailed()
+            return
+        }
+
         var touched = false
         for (entry in entries) {
             val entryTags = entry.tags
@@ -148,6 +176,8 @@ class TagsActivity : BaseActivity() {
     }
 
     private fun saveEntries() {
+        if (!entriesLoaded)
+            return
         val encryptionKey = encryptionKey ?: return
         DatabaseHelper.saveDatabase(this, entries, encryptionKey)
         entriesChanged = true

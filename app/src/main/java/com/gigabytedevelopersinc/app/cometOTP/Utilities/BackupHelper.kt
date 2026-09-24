@@ -114,9 +114,10 @@ object BackupHelper {
         return Constants.BackupType.UNAVAILABLE
     }
 
+    /** Returns false without touching [uri] when the database cannot be read. */
     @JvmStatic
     fun backupToFile(context: Context, uri: Uri?, password: String?, encryptionKey: SecretKey?): Boolean {
-        val entries: ArrayList<Entry> = DatabaseHelper.loadDatabase(context, encryptionKey)
+        val entries: ArrayList<Entry> = DatabaseHelper.loadDatabase(context, encryptionKey) ?: return false
         val plain = DatabaseHelper.entriesToString(entries)
 
         return backupToFile(context, uri, password, plain)

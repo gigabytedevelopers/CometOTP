@@ -11,6 +11,10 @@ import javax.crypto.SecretKey
  */
 object EncryptionChangeHelper {
 
+    /**
+     * SAVE_FAILED also covers a current database that cannot be read: nothing is saved under the
+     * new key then either. (The names are pinned by PersistedNamesTest.)
+     */
     enum class Status { SUCCESS, BACKUP_FAILED, NO_KEY, SAVE_FAILED }
 
     class Result internal constructor(
@@ -19,7 +23,8 @@ object EncryptionChangeHelper {
     )
 
     /**
-     * @param currentKey  key the database is currently encrypted with (may be null when empty)
+     * @param currentKey  key the database is currently encrypted with (may be null when there is no
+     *                    database yet)
      * @param newType     encryption type to switch to
      * @param newKeyBytes key material for [Constants.EncryptionType.PASSWORD]; ignored for the KeyStore
      */
@@ -29,11 +34,17 @@ object EncryptionChangeHelper {
         if (!DatabaseHelper.backupDatabase(context))
             return Result(Status.BACKUP_FAILED, null)
 
-        val entries: ArrayList<Entry>
-        if (currentKey != null)
-            entries = DatabaseHelper.loadDatabase(context, currentKey)
+        // A database that cannot be read with the current key (or without one) is left alone:
+        // saving what was not loaded under the new key would replace every account with nothing.
+        val entries: ArrayList<Entry>? = if (currentKey != null)
+            DatabaseHelper.loadDatabase(context, currentKey)
+        else if (!DatabaseHelper.databaseExists(context))
+            ArrayList()
         else
-            entries = ArrayList()
+            null
+
+        if (entries == null)
+            return Result(Status.SAVE_FAILED, null)
 
         val newEncryptionKey: SecretKey?
         if (newType == Constants.EncryptionType.KEYSTORE) {

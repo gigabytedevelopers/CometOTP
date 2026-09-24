@@ -79,6 +79,7 @@
     <string name="toast_entry_exists">This entry already exists</string>
     <string name="toast_invalid_qr_code">Invalid QR Code</string>
     <string name="toast_encryption_key_empty">Encryption key not loaded</string>
+    <string name="toast_database_load_failed">Your saved accounts could not be read. Nothing will be saved until they can be.</string>
     <string name="toast_intent_creation_failed">Invalid intent-provided code</string>
     <string name="toast_intent_creation_succeeded">Intent-provided code added</string>
     <string name="toast_file_load_error">Could not open the file</string>

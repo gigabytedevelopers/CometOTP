@@ -27,6 +27,12 @@ object DatabaseHelper {
         dbBackup.delete()
     }
 
+    /** Whether a database has been saved (it can exist and still be unreadable). */
+    @JvmStatic
+    fun databaseExists(context: Context): Boolean {
+        return File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE).exists()
+    }
+
     @Throws(IOException::class)
     private fun copyFile(src: File, dst: File) {
         FileInputStream(src).use { `in` ->
@@ -99,26 +105,37 @@ object DatabaseHelper {
         return true
     }
 
+    /**
+     * Loads the database. Returns null when it exists but cannot be read: no key, the wrong key,
+     * or a file that cannot be read, decrypted or parsed. A failed load must never be saved or
+     * backed up in place of the database, which is why it is not an empty list. A database that
+     * does not exist yet (nothing saved so far) loads as an empty list.
+     */
     @JvmStatic
-    fun loadDatabase(context: Context, encryptionKey: SecretKey?): ArrayList<Entry> {
-        var entries = ArrayList<Entry>()
-
-        if (encryptionKey != null) {
-            try {
-                synchronized(DatabaseFileLock) {
-                    var data = FileHelper.readFileToBytes(File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE))
-                    data = EncryptionHelper.decrypt(encryptionKey, data)
-
-                    entries = stringToEntries(String(data, Charset.defaultCharset()))
-                }
-            } catch (error: Exception) {
-                error.printStackTrace()
-            }
-        } else {
+    fun loadDatabase(context: Context, encryptionKey: SecretKey?): ArrayList<Entry>? {
+        if (encryptionKey == null) {
             Toast.makeText(context, R.string.toast_encryption_key_empty, Toast.LENGTH_LONG).show()
+            return null
         }
 
-        return entries
+        synchronized(DatabaseFileLock) {
+            return loadDatabaseFile(File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE), encryptionKey)
+        }
+    }
+
+    /** [loadDatabase] without the Context: null when [file] exists but cannot be read. */
+    @JvmStatic
+    internal fun loadDatabaseFile(file: File, encryptionKey: SecretKey): ArrayList<Entry>? {
+        if (!file.exists())
+            return ArrayList()
+
+        return try {
+            val data = EncryptionHelper.decrypt(encryptionKey, FileHelper.readFileToBytes(file))
+            stringToEntriesOrNull(String(data, Charset.defaultCharset()))
+        } catch (error: Exception) {
+            error.printStackTrace()
+            null
+        }
     }
 
     /* Conversion functions */
@@ -145,14 +162,22 @@ object DatabaseHelper {
      */
     @JvmStatic
     fun stringToEntries(data: String?): ArrayList<Entry> {
+        if (data == null)
+            return ArrayList()
+        return stringToEntriesOrNull(data) ?: ArrayList()
+    }
+
+    /** [stringToEntries], but null when [data] is not a JSON array at all. */
+    @JvmStatic
+    internal fun stringToEntriesOrNull(data: String): ArrayList<Entry>? {
         val entries = ArrayList<Entry>()
 
         val json: JSONArray
         try {
-            json = JSONArray(data!!)
+            json = JSONArray(data)
         } catch (error: Exception) {
             error.printStackTrace()
-            return entries
+            return null
         }
 
         for (i in 0 until json.length()) {

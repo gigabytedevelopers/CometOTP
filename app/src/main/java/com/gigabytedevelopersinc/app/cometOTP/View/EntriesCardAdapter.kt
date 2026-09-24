@@ -148,7 +148,26 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         tagsFilter = tagsFilterAdapter.activeTags
     }
 
+    /**
+     * True once the entries shown here came from the database, and false again when a load fails.
+     * Saving what is on screen after a failed load would replace every stored account with it, so
+     * saving (and the auto-backup) is refused until a load succeeds.
+     */
+    private var databaseLoaded = false
+
+    private fun showDatabaseLoadFailed() {
+        Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
+                R.string.toast_database_load_failed,
+                Snackbar.LENGTH_LONG)
+                .show()
+    }
+
     fun saveEntries(auto_backup: Boolean) {
+        if (!databaseLoaded) {
+            showDatabaseLoadFailed()
+            return
+        }
+
         DatabaseHelper.saveDatabase(context, entryList.entries, sharedEncryptionKey)
 
         if (auto_backup) {
@@ -195,8 +214,14 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         val key = sharedEncryptionKey
         if (key != null) {
             val newEntries = DatabaseHelper.loadDatabase(context, key)
-
-            entryList.updateEntries(newEntries, true)
+            if (newEntries != null) {
+                databaseLoaded = true
+                entryList.updateEntries(newEntries, true)
+            } else {
+                // Whatever is on screen stays, but nothing is saved until a load succeeds.
+                databaseLoaded = false
+                showDatabaseLoadFailed()
+            }
             entriesChanged(RecyclerView.NO_POSITION)
         }
     }

@@ -6,14 +6,23 @@ import com.gigabytedevelopersinc.app.cometOTP.Database.EntryJsonFormatTest.Compa
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator.HashAlgorithm
 import org.json.JSONArray
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.BeforeClass
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
+import java.io.File
 
 /**
- * The plain-text database / backup body is a JSON array of entries. The file I/O around it needs
- * a Context and is not covered here; the string conversion is.
+ * The plain-text database / backup body is a JSON array of entries. The string conversion and the
+ * reading of the database file are covered here; finding the file needs a Context and is not.
  */
 class DatabaseHelperTest {
+
+    @get:Rule
+    val tmp = TemporaryFolder()
 
     private fun entries(): ArrayList<Entry> = arrayListOf(
         Entry(Entry.OTPType.TOTP, "jbswy3dpehpk3pxp", 45, 7, "My Google account", "me", HashAlgorithm.SHA256, mutableListOf("a")),
@@ -88,7 +97,70 @@ class DatabaseHelperTest {
         assertTrue(text.startsWith("[{"))
     }
 
-    private companion object {
-        const val GOLDEN = """[{"thumbnail":"Google","period":45,"used_frequency":0,"last_used":0,"digits":7,"secret":"JBSWY3DPEHPK3PXP","label":"me","type":"TOTP","issuer":"My Google account","algorithm":"SHA256","tags":["a"]},{"thumbnail":"Default","used_frequency":0,"last_used":0,"digits":6,"secret":"JBSWY3DPEHPK3PXP","label":"me","counter":9,"type":"HOTP","issuer":"","algorithm":"SHA1","tags":[]},{"thumbnail":"Amazon","used_frequency":0,"last_used":0,"digits":6,"secret":"MFRGGZDFMYYDCMRTGQ2TMNZYHE======","label":"m","type":"MOTP","issuer":"Amazon","algorithm":"SHA1","tags":[]}]"""
+    private fun key(byte: Int) = EncryptionHelper.generateSymmetricKey(ByteArray(16) { byte.toByte() })
+
+    private fun writeEncrypted(file: File, plain: String, keyByte: Int = 1) {
+        file.writeBytes(EncryptionHelper.encrypt(key(keyByte), plain.toByteArray(Charsets.UTF_8)))
+    }
+
+    /** Nothing saved yet (first run) is an empty database, not a failure. */
+    @Test
+    fun aMissingDatabaseLoadsAsEmpty() {
+        val loaded = DatabaseHelper.loadDatabaseFile(File(tmp.root, "secrets.dat"), key(1))
+        assertNotNull(loaded)
+        assertEquals(0, loaded!!.size)
+    }
+
+    @Test
+    fun aReadableDatabaseLoads() {
+        val file = File(tmp.root, "secrets.dat")
+        writeEncrypted(file, GOLDEN)
+        assertEquals(entries(), DatabaseHelper.loadDatabaseFile(file, key(1)))
+
+        writeEncrypted(file, "[]")
+        assertEquals(0, DatabaseHelper.loadDatabaseFile(file, key(1))!!.size)
+    }
+
+    /**
+     * A database that exists but cannot be read is a failed load (null), never an empty list:
+     * callers used to save the empty list over the database or back it up over the backup file.
+     */
+    @Test
+    fun anUnreadableDatabaseIsAFailedLoad() {
+        val file = File(tmp.root, "secrets.dat")
+
+        writeEncrypted(file, GOLDEN, keyByte = 2)
+        assertNull("wrong key", DatabaseHelper.loadDatabaseFile(file, key(1)))
+
+        val good = EncryptionHelper.encrypt(key(1), GOLDEN.toByteArray(Charsets.UTF_8))
+        file.writeBytes(good.copyOf(good.size - 5))
+        assertNull("truncated", DatabaseHelper.loadDatabaseFile(file, key(1)))
+
+        file.writeBytes(ByteArray(0))
+        assertNull("empty file", DatabaseHelper.loadDatabaseFile(file, key(1)))
+
+        writeEncrypted(file, "not json")
+        assertNull("not a JSON array", DatabaseHelper.loadDatabaseFile(file, key(1)))
+
+        // Still readable afterwards with the right key and data.
+        writeEncrypted(file, GOLDEN)
+        assertEquals(3, DatabaseHelper.loadDatabaseFile(file, key(1))!!.size)
+    }
+
+    @Test
+    fun stringToEntriesOrNullTellsBrokenFromEmpty() {
+        assertNull(DatabaseHelper.stringToEntriesOrNull("not json"))
+        assertNull(DatabaseHelper.stringToEntriesOrNull(""))
+        assertNull(DatabaseHelper.stringToEntriesOrNull("{}"))
+        assertEquals(0, DatabaseHelper.stringToEntriesOrNull("[]")!!.size)
+        assertEquals(entries(), DatabaseHelper.stringToEntriesOrNull(GOLDEN))
+    }
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun installAndroidGcm() = AndroidGcmProvider.install()
+
+        private const val GOLDEN = """[{"thumbnail":"Google","period":45,"used_frequency":0,"last_used":0,"digits":7,"secret":"JBSWY3DPEHPK3PXP","label":"me","type":"TOTP","issuer":"My Google account","algorithm":"SHA256","tags":["a"]},{"thumbnail":"Default","used_frequency":0,"last_used":0,"digits":6,"secret":"JBSWY3DPEHPK3PXP","label":"me","counter":9,"type":"HOTP","issuer":"","algorithm":"SHA1","tags":[]},{"thumbnail":"Amazon","used_frequency":0,"last_used":0,"digits":6,"secret":"MFRGGZDFMYYDCMRTGQ2TMNZYHE======","label":"m","type":"MOTP","issuer":"Amazon","algorithm":"SHA1","tags":[]}]"""
     }
 }

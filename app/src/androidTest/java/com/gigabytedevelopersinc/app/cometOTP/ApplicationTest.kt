@@ -130,7 +130,8 @@ class ApplicationTest {
 
         val encryptionKey = KeyStoreHelper.loadEncryptionKeyFromKeyStore(context, false)
         var b = DatabaseHelper.loadDatabase(context, encryptionKey)
-        assertEquals(0L, b.size.toLong())
+        // A database that does not exist yet loads as empty; null would mean the load failed.
+        assertEquals(0L, b!!.size.toLong())
 
         val a = ArrayList<Entry>()
         var e = Entry()
