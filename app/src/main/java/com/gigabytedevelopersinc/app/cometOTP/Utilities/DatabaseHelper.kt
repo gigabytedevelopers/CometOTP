@@ -69,7 +69,8 @@ object DatabaseHelper {
 
         if (backup.exists()) {
             try {
-                copyFile(backup, original)
+                // Replaced in one step like saveDatabase() does, not copied over it in place.
+                FileHelper.writeBytesToFileAtomically(original, FileHelper.readFileToBytes(backup))
             } catch (e: IOException) {
                 return false
             }
@@ -92,7 +93,9 @@ object DatabaseHelper {
             synchronized(DatabaseFileLock) {
                 val data = EncryptionHelper.encrypt(encryptionKey, jsonString.toByteArray(Charset.defaultCharset()))
 
-                FileHelper.writeBytesToFile(File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE), data)
+                // Written to a temporary file and renamed over the database, so a crash mid-write
+                // cannot leave a truncated (and then unreadable) database behind.
+                FileHelper.writeBytesToFileAtomically(File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE), data)
             }
         } catch (error: Exception) {
             error.printStackTrace()
