@@ -63,7 +63,10 @@ open class FadeableViewPager @JvmOverloads constructor(
     }
 
     override fun setPageTransformer(reverseDrawingOrder: Boolean, transformer: ViewPager.PageTransformer?) {
-        super.setPageTransformer(reverseDrawingOrder, PageTransformerWrapper(transformer))
+        // A null transformer removes the current one, so it must reach ViewPager as null rather
+        // than as a wrapper around nothing.
+        super.setPageTransformer(reverseDrawingOrder,
+                if (transformer != null) PageTransformerWrapper(transformer) else null)
     }
 
     private inner class OnPageChangeListenerWrapper(
@@ -228,13 +231,13 @@ open class FadeableViewPager @JvmOverloads constructor(
     }
 
     private inner class PageTransformerWrapper(
-            private val pageTransformer: ViewPager.PageTransformer?
+            private val pageTransformer: ViewPager.PageTransformer
     ) : ViewPager.PageTransformer {
 
         override fun transformPage(page: View, position: Float) {
             // Read the adapter now rather than when the transformer was set: it may have been
             // set or replaced since.
-            pageTransformer!!.transformPage(page, Math.min(position, (adapter!!.count - 1).toFloat()))
+            pageTransformer.transformPage(page, Math.min(position, (adapter!!.count - 1).toFloat()))
         }
     }
 
