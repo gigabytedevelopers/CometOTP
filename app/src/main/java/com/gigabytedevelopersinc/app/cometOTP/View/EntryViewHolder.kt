@@ -70,21 +70,25 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         defaultValueColor = value.currentTextColor
 
         menuButton.setOnClickListener {
-            callback?.onMenuButtonClicked(itemView, bindingAdapterPosition)
+            val position = currentPosition() ?: return@setOnClickListener
+            callback?.onMenuButtonClicked(itemView, position)
         }
 
         copyButton.setOnClickListener {
+            val position = currentPosition() ?: return@setOnClickListener
             val cb = callback
             if (cb != null && value.tag != null)
-                cb.onCopyButtonClicked(value.tag.toString(), bindingAdapterPosition)
+                cb.onCopyButtonClicked(value.tag.toString(), position)
         }
 
         counterLayout.setOnClickListener {
-            callback?.onCounterClicked(bindingAdapterPosition)
+            val position = currentPosition() ?: return@setOnClickListener
+            callback?.onCounterClicked(position)
         }
 
         counterLayout.setOnLongClickListener {
-            callback?.onCounterLongPressed(bindingAdapterPosition)
+            val position = currentPosition() ?: return@setOnLongClickListener false
+            callback?.onCounterLongPressed(position)
 
             false
         }
@@ -94,16 +98,29 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             // reveal or send yet, so the tap is ignored, as the copy button already does.
             override fun onSingleClick(v: View) {
                 val token = value.tag ?: return
-                callback?.onCardSingleClicked(bindingAdapterPosition, token.toString())
+                val position = currentPosition() ?: return
+                callback?.onCardSingleClicked(position, token.toString())
             }
 
             override fun onDoubleClick(v: View) {
                 val token = value.tag ?: return
-                callback?.onCardDoubleClicked(bindingAdapterPosition, token.toString())
+                val position = currentPosition() ?: return
+                callback?.onCardDoubleClicked(position, token.toString())
             }
         })
 
         setTapToReveal(tapToReveal)
+    }
+
+    /**
+     * The card's position in the adapter, or null while it has none. Right after
+     * notifyDataSetChanged(), which the token updater calls every second, the position stays
+     * unknown (NO_POSITION) until the next layout pass; a tap in that window is ignored rather
+     * than looked up at index -1.
+     */
+    private fun currentPosition(): Int? {
+        val position = bindingAdapterPosition
+        return if (position == RecyclerView.NO_POSITION) null else position
     }
 
     fun updateValues(entry: Entry) {
