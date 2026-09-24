@@ -3,6 +3,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import android.content.Context
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
+import java.io.File
 import javax.crypto.SecretKey
 
 /**
@@ -27,10 +28,21 @@ object EncryptionChangeHelper {
      *                    database yet)
      * @param newType     encryption type to switch to
      * @param newKeyBytes key material for [Constants.EncryptionType.PASSWORD]; ignored for the KeyStore
+     * @param store       stores what the new key depends on (credentials, encryption type) with a
+     *                    synchronous commit() once the database is re-encrypted; false if that failed
+     * @param revert      puts the preferences [store] changed back to their old values
+     *
+     * commit() changes the preferences in memory even when writing them fails. The app would then
+     * run on the new key until it restarts, then derive or load the old one, which no longer opens
+     * the database. So when [store] fails the database is put back the way it was (old key) and
+     * [revert] is called, and the change fails as a whole. Only if the database cannot be put back
+     * either does the new key stay in effect, as before, since the preferences in memory match it.
      */
     @JvmStatic
     fun changeEncryption(context: Context, currentKey: SecretKey?,
-                         newType: Constants.EncryptionType, newKeyBytes: ByteArray?): Result {
+                         newType: Constants.EncryptionType, newKeyBytes: ByteArray?,
+                         store: () -> Boolean = { true }, revert: () -> Unit = {}): Result {
+        val hadDatabase = DatabaseHelper.databaseExists(context)
         if (!DatabaseHelper.backupDatabase(context))
             return Result(Status.BACKUP_FAILED, null)
 
@@ -38,7 +50,7 @@ object EncryptionChangeHelper {
         // saving what was not loaded under the new key would replace every account with nothing.
         val entries: ArrayList<Entry>? = if (currentKey != null)
             DatabaseHelper.loadDatabase(context, currentKey)
-        else if (!DatabaseHelper.databaseExists(context))
+        else if (!hadDatabase)
             ArrayList()
         else
             null
@@ -63,10 +75,30 @@ object EncryptionChangeHelper {
             return Result(Status.NO_KEY, null)
         }
 
-        if (DatabaseHelper.saveDatabase(context, entries, newEncryptionKey))
+        if (DatabaseHelper.saveDatabase(context, entries, newEncryptionKey)) {
+            if (store())
+                return Result(Status.SUCCESS, newEncryptionKey)
+
+            if (putDatabaseBack(context, hadDatabase)) {
+                revert()
+                return Result(Status.SAVE_FAILED, null)
+            }
             return Result(Status.SUCCESS, newEncryptionKey)
+        }
 
         DatabaseHelper.restoreDatabaseBackup(context)
         return Result(Status.SAVE_FAILED, null)
+    }
+
+    /**
+     * Undoes a successful re-encryption: the copy [DatabaseHelper.backupDatabase] made just before
+     * goes back, or, if there was no database then, the new one is removed.
+     */
+    private fun putDatabaseBack(context: Context, hadDatabase: Boolean): Boolean {
+        if (hadDatabase)
+            return DatabaseHelper.restoreDatabaseBackup(context)
+
+        val database = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE)
+        return database.delete() || !database.exists()
     }
 }

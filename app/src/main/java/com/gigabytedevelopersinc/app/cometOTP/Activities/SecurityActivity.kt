@@ -217,28 +217,39 @@ class SecurityActivity : BaseActivity() {
             // would lock the user out whenever the re-encryption fails.
             val newCredentials = settings.generateAuthCredentials(credential)
             var result: EncryptionChangeHelper.Result? = null
+            var stored = false
             if (newCredentials != null) {
-                if (reEncrypt)
-                    result = EncryptionChangeHelper.changeEncryption(appContext, currentKey, EncryptionType.PASSWORD, newCredentials.key)
-
                 // Store the credentials and the method together, right after the re-encryption
                 // and still on this thread, so they are stored even if no screen is left to
-                // show the result.
-                if (result == null || result.status == EncryptionChangeHelper.Status.SUCCESS)
-                    settings.saveAuthCredentials(newCredentials, method)
+                // show the result. If they cannot be written, the old ones are put back (and the
+                // database goes back to the old key) so that what is stored matches the database.
+                val before = settings.storedAuthCredentials()
+                val store = { settings.saveAuthCredentials(newCredentials, method) }
+                val revert = { settings.restoreValues(before); Unit }
+
+                if (reEncrypt) {
+                    result = EncryptionChangeHelper.changeEncryption(appContext, currentKey, EncryptionType.PASSWORD,
+                        newCredentials.key, store, revert)
+                    stored = result.status == EncryptionChangeHelper.Status.SUCCESS
+                } else {
+                    stored = store()
+                    if (!stored)
+                        revert()
+                }
             }
 
             val derived = newCredentials != null
-            val outcome: (SecurityActivity) -> Unit = { it.onCredentialApplied(method, derived, result) }
+            val outcome: (SecurityActivity) -> Unit = { it.onCredentialApplied(method, derived, stored, result) }
             outcome
         }
     }
 
     /** Runs on whichever instance is resumed when [applyCredential]'s job has finished. */
-    private fun onCredentialApplied(method: AuthMethod, derived: Boolean, result: EncryptionChangeHelper.Result?) {
+    private fun onCredentialApplied(method: AuthMethod, derived: Boolean, stored: Boolean,
+                                    result: EncryptionChangeHelper.Result?) {
         hideProgress()
 
-        if (!derived || (result != null && result.status != EncryptionChangeHelper.Status.SUCCESS)) {
+        if (!derived || !stored || (result != null && result.status != EncryptionChangeHelper.Status.SUCCESS)) {
             val message = if (result?.status == EncryptionChangeHelper.Status.BACKUP_FAILED)
                 R.string.settings_toast_encryption_backup_failed
             else

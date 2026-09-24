@@ -266,6 +266,42 @@ class Settings(private val context: Context) {
         return editor.commit()
     }
 
+    /** What [saveAuthCredentials] overwrites, to be put back with [restoreValues]. */
+    fun storedAuthCredentials(): Map<String, Any?> {
+        return storedValues(R.string.settings_key_auth_iterations, R.string.settings_key_auth_credentials,
+            R.string.settings_key_auth)
+    }
+
+    /**
+     * The stored values of [keyIds] (null for a key that is not set), to be put back with
+     * [restoreValues] when a write that depends on them has to be undone.
+     */
+    fun storedValues(vararg keyIds: Int): Map<String, Any?> {
+        val all = settings.all
+        return keyIds.map { getResString(it) }.associateWith { all[it] }
+    }
+
+    /**
+     * Puts back values taken by [storedValues]. After a commit() that failed this is what matters:
+     * commit() changes the preferences in memory even when writing them to disk fails, and the
+     * file on disk still holds the old values.
+     */
+    @SuppressLint("ApplySharedPref")
+    fun restoreValues(values: Map<String, Any?>): Boolean {
+        val editor = settings.edit()
+        for ((key, value) in values) {
+            when (value) {
+                null -> editor.remove(key)
+                is String -> editor.putString(key, value)
+                is Int -> editor.putInt(key, value)
+                is Long -> editor.putLong(key, value)
+                is Boolean -> editor.putBoolean(key, value)
+                is Float -> editor.putFloat(key, value)
+            }
+        }
+        return editor.commit()
+    }
+
     /** Reading this creates and stores a new random salt when none is stored yet. */
     var salt: ByteArray
         get() {

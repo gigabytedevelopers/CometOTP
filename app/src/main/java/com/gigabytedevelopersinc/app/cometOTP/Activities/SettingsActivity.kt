@@ -288,10 +288,13 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             val newCredentials = if (password != null) settings.generateAuthCredentials(password) else null
             val keyBytes = if (password != null) newCredentials?.key else newKey
 
-            // No key (e.g. the credential could not be derived) ends in Status.NO_KEY.
-            val result = EncryptionChangeHelper.changeEncryption(appContext, currentKey, newEnc, keyBytes)
-
-            if (result.status == EncryptionChangeHelper.Status.SUCCESS) {
+            // Stored by changeEncryption() right after the re-encryption; if that write fails the
+            // old values are put back and the database returns to the old key.
+            val before = if (newCredentials != null)
+                settings.storedAuthCredentials()
+            else
+                settings.storedValues(R.string.settings_key_encryption)
+            val store = {
                 if (newCredentials != null) {
                     settings.saveAuthCredentials(newCredentials, method)
                 } else {
@@ -301,6 +304,10 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
                         .commit()
                 }
             }
+            val revert = { settings.restoreValues(before); Unit }
+
+            // No key (e.g. the credential could not be derived) ends in Status.NO_KEY.
+            val result = EncryptionChangeHelper.changeEncryption(appContext, currentKey, newEnc, keyBytes, store, revert)
 
             val credentialsChanged = newCredentials != null
             val outcome: (SettingsActivity) -> Unit = { it.onEncryptionChangeDone(newEnc, credentialsChanged, result) }
