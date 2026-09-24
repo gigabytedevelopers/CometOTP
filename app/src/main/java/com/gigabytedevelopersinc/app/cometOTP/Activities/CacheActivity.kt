@@ -89,8 +89,9 @@ class CacheActivity : BaseActivity() {
         @JvmStatic
         fun deleteDir(dir: File?): Boolean {
             return if (dir != null && dir.isDirectory) {
-                val children = dir.list()
-                for (aChildren in children!!) {
+                // list() is null when the folder cannot be read; it cannot be emptied then either.
+                val children = dir.list() ?: return false
+                for (aChildren in children) {
                     val success = deleteDir(File(dir, aChildren))
                     if (!success) {
                         return false
