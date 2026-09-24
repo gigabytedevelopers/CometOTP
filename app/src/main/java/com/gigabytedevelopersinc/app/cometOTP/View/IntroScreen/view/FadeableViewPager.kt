@@ -87,6 +87,17 @@ open class FadeableViewPager @JvmOverloads constructor(
         override fun onPageScrollStateChanged(state: Int) {
             listener!!.onPageScrollStateChanged(state)
         }
+
+        // A wrapper equals any other wrapper of the same listener, so that
+        // removeOnPageChangeListener, which wraps the listener it is given, finds and removes
+        // the wrapper that addOnPageChangeListener registered.
+        override fun equals(other: Any?): Boolean {
+            return other is OnPageChangeListenerWrapper && other.listener == listener
+        }
+
+        override fun hashCode(): Int {
+            return listener?.hashCode() ?: 0
+        }
     }
 
     /**
