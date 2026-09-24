@@ -242,23 +242,32 @@ class EntryJsonFormatTest {
     }
 
     /**
-     * The secret is upper-cased with the device's default locale before Base32 decoding. Under a
-     * Turkish locale "i" becomes a dotted capital I, which Base32 skips, so the decoded secret is
-     * different. That is how the app has always read its data, so it is pinned here: a port that
-     * switched to a locale-independent uppercase() would read these entries differently.
+     * The secret is upper-cased locale-independently before Base32 decoding. It used to use the
+     * device's default locale, and under a Turkish locale "i" became a dotted capital I, which
+     * Base32 skips, so a lower-case secret decoded to different bytes (wrong codes). Secrets the
+     * app writes are already upper-case Base32, which reads the same in every locale.
      */
     @Test
-    fun secretIsUpperCasedWithTheDefaultLocale() {
+    fun secretIsUpperCasedIndependentlyOfTheLocale() {
         val json = """{"secret":"mfrgiz3i","label":"tr"}"""
         assertArrayEquals(unhex("6162646768"), Entry(JSONObject(json)).secret)
 
         val saved = Locale.getDefault()
         try {
             Locale.setDefault(Locale.forLanguageTag("tr-TR"))
-            assertArrayEquals(unhex("61626c"), Entry(JSONObject(json)).secret)
+            assertArrayEquals(unhex("6162646768"), Entry(JSONObject(json)).secret)
             val typed = Entry(Entry.OTPType.TOTP, "mfrgiz3i", 30, 6, "Github", "l",
                 HashAlgorithm.SHA1, mutableListOf())
-            assertArrayEquals(unhex("61626c"), typed.secret)
+            assertArrayEquals(unhex("6162646768"), typed.secret)
+            val counted = Entry(Entry.OTPType.HOTP, "mfrgiz3i", 1L, 6, "Github", "l",
+                HashAlgorithm.SHA1, mutableListOf())
+            assertArrayEquals(unhex("6162646768"), counted.secret)
+
+            // What the app itself stores (upper-case Base32) reads the same as before.
+            val stored = Entry(JSONObject("""{"secret":"MFRGIZ3I","label":"tr"}"""))
+            assertArrayEquals(unhex("6162646768"), stored.secret)
+            assertEquals("MFRGIZ3I", stored.secretEncoded)
+            assertEquals("MFRGIZ3I", stored.toJSON().getString("secret"))
         } finally {
             Locale.setDefault(saved)
         }

@@ -54,7 +54,7 @@ object DimensionConverter {
             // -- Extract value.
             val value = matcher.group(1)!!.toFloat()
             // -- Extract dimension units.
-            val unit = matcher.group(3)!!.lowercase(Locale.getDefault())
+            val unit = matcher.group(3)!!.lowercase(Locale.ROOT)
             // -- Get Android dimension constant.
             val dimensionUnit = dimensionConstantLookup[unit]
             if (dimensionUnit == null) {

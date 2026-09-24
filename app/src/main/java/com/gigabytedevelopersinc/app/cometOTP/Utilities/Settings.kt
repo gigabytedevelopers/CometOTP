@@ -154,7 +154,7 @@ class Settings(private val context: Context) {
         editor.putBoolean(getResString(R.string.settings_key_security_backup_warning), warningShown)
 
         if (keep_auth) {
-            editor.putString(getResString(R.string.settings_key_auth), authMethod.toString().lowercase(Locale.getDefault()))
+            editor.putString(getResString(R.string.settings_key_auth), authMethod.toString().lowercase(Locale.ENGLISH))
 
             if (authCredentials.isNotEmpty()) {
                 editor.putString(getResString(R.string.settings_key_auth_credentials), authCredentials)
@@ -263,10 +263,10 @@ class Settings(private val context: Context) {
     var encryption: EncryptionType
         get() {
             val encType = getString(R.string.settings_key_encryption, R.string.settings_default_encryption)
-            return EncryptionType.valueOf(encType.uppercase(Locale.getDefault()))
+            return EncryptionType.valueOf(encType.uppercase(Locale.ENGLISH))
         }
         set(encryptionType) {
-            setEncryption(encryptionType.name.lowercase(Locale.getDefault()))
+            setEncryption(encryptionType.name.lowercase(Locale.ENGLISH))
         }
 
     fun setEncryption(encryption: String) {
@@ -461,7 +461,7 @@ class Settings(private val context: Context) {
     val tagFunctionality: Constants.TagFunctionality
         get() {
             val tagFunctionality = getString(R.string.settings_key_tag_functionality, R.string.settings_default_tag_functionality)
-            return Constants.TagFunctionality.valueOf(tagFunctionality.uppercase(Locale.getDefault()))
+            return Constants.TagFunctionality.valueOf(tagFunctionality.uppercase(Locale.ENGLISH))
         }
 
 

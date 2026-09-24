@@ -19,7 +19,7 @@ object NotificationHelper {
     private val TAG = NotificationHelper::class.java.simpleName
 
     private fun channelId(channel: Constants.NotificationChannel): String {
-        return "CometOTP_" + channel.name.lowercase(Locale.getDefault())
+        return "CometOTP_" + channel.name.lowercase(Locale.ROOT)
     }
 
     private fun createNotificationChannel(context: Context, channel: Constants.NotificationChannel) {

@@ -10,6 +10,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.Locale
 
 /**
  * Names and values that are written to preferences, files, intents or the manifest, or read back
@@ -92,6 +93,23 @@ class PersistedNamesTest {
         // Parsing fails before any Android call is made.
         assertThrows(NumberFormatException::class.java) { DimensionConverter.stringToDimensionPixelSize("abc", DisplayMetrics()) }
         assertThrows(NumberFormatException::class.java) { DimensionConverter.stringToDimension("12 furlongs", DisplayMetrics()) }
+    }
+
+    /**
+     * Units are lower-cased locale-independently: in Turkish "DIP" used to become "dıp" (dotless
+     * i) and was rejected. A recognised unit gets past the lookup to the Android conversion call,
+     * which is a stub on the JVM, so anything but NumberFormatException means it was recognised.
+     */
+    @Test
+    fun dimensionUnitsAreRecognisedInATurkishLocale() {
+        val saved = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"))
+            val error = assertThrows(RuntimeException::class.java) { DimensionConverter.stringToDimension("12 DIP", DisplayMetrics()) }
+            assertFalse(error.toString(), error is NumberFormatException)
+        } finally {
+            Locale.setDefault(saved)
+        }
     }
 
     @Test

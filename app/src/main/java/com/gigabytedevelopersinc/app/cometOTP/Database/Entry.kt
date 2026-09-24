@@ -53,7 +53,7 @@ class Entry {
 
     constructor(type: OTPType, secret: String, period: Int, digits: Int, issuer: String?, label: String?, algorithm: TokenCalculator.HashAlgorithm, tags: MutableList<String>) {
         this.type = type
-        this.secret = Base32().decode(secret.uppercase(Locale.getDefault()))
+        this.secret = Base32().decode(secret.uppercase(Locale.ROOT))
         this.period = period
         this.digits = digits
         this.issuer = issuer ?: ""
@@ -65,7 +65,7 @@ class Entry {
 
     constructor(type: OTPType, secret: String, counter: Long, digits: Int, issuer: String?, label: String?, algorithm: TokenCalculator.HashAlgorithm, tags: MutableList<String>) {
         this.type = type
-        this.secret = Base32().decode(secret.uppercase(Locale.getDefault()))
+        this.secret = Base32().decode(secret.uppercase(Locale.ROOT))
         this.counter = counter
         this.digits = digits
         this.issuer = issuer ?: ""
@@ -138,7 +138,7 @@ class Entry {
         if (type == OTPType.MOTP) {
             this.secret = secret.toByteArray(Charset.defaultCharset())
         } else {
-            this.secret = Base32().decode(secret.uppercase(Locale.getDefault()))
+            this.secret = Base32().decode(secret.uppercase(Locale.ROOT))
         }
 
         if (digits != null) {
@@ -148,7 +148,7 @@ class Entry {
         }
 
         if (algorithm != null) {
-            this.algorithm = TokenCalculator.HashAlgorithm.valueOf(algorithm.uppercase(Locale.getDefault()))
+            this.algorithm = TokenCalculator.HashAlgorithm.valueOf(algorithm.uppercase(Locale.ROOT))
         } else {
             this.algorithm = TokenCalculator.DEFAULT_ALGORITHM
         }
@@ -166,7 +166,7 @@ class Entry {
 
     @Throws(Exception::class)
     constructor(jsonObj: JSONObject) {
-        this.secret = Base32().decode(jsonObj.getString(JSON_SECRET).uppercase(Locale.getDefault()))
+        this.secret = Base32().decode(jsonObj.getString(JSON_SECRET).uppercase(Locale.ROOT))
         this.label = jsonObj.getString(JSON_LABEL)
 
         try {
@@ -485,7 +485,7 @@ class Entry {
                 if (type == OTPType.MOTP)
                     Hex.decodeHex(secret)
                 else
-                    Base32().decode(secret!!.uppercase(Locale.getDefault()))
+                    Base32().decode(secret!!.uppercase(Locale.ROOT))
             } catch (e: Exception) {
                 return false
             }
