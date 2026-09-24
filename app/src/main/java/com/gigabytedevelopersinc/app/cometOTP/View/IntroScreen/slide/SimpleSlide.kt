@@ -72,6 +72,8 @@ open class SimpleSlide protected constructor(builder: Builder) : Slide, Restorab
     private val backgroundDarkRes: Int = builder.backgroundDarkRes
     private val canGoForward: Boolean = builder.canGoForward
     private val canGoBackward: Boolean = builder.canGoBackward
+    /** Every permission the slide asks for; [permissions] is the part of it not granted yet. */
+    private val requestedPermissions: Array<String>? = builder.permissions
     private var permissions: Array<String>? = builder.permissions
     private var permissionsRequestCode: Int = builder.permissionsRequestCode
     private var _buttonCtaLabel: CharSequence? = builder.buttonCtaLabel
@@ -142,7 +144,10 @@ open class SimpleSlide protected constructor(builder: Builder) : Slide, Restorab
 
     @Synchronized
     private fun updatePermissions() {
-        val permissions = permissions
+        // Checked against the full request every time, not only what was missing last time, so a
+        // permission revoked while the intro is open (see SimpleSlideFragment.onResume) is asked
+        // for again.
+        val permissions = requestedPermissions
         if (permissions != null) {
             val permissionsNotGranted: MutableList<String> = ArrayList()
             for (permission in permissions) {
