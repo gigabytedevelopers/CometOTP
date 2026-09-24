@@ -20,6 +20,9 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -30,8 +33,12 @@ import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask
 import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask.Result
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.View.AutoFillable.AutoFillableTextInputEditText
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import java.io.File
 
 class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, View.OnClickListener {
     private val autoFillTextListener = AutoFillableTextInputEditText.AutoFillTextListener { text -> startAuthTask(text.toString()) }
@@ -47,6 +54,27 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     private lateinit var unlockButton: Button
     private lateinit var unlockProgress: ProgressBar
 
+    /* Setting up a missing credential, see UnlockAction.SET_UP_CREDENTIAL. */
+    private var settingUpCredential = false
+    private var awaitingCredentialSetup = false
+    private var progress: AlertDialog? = null
+
+    private val credentialSetupLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        awaitingCredentialSetup = false
+        // A screen recreated after the credential had been stored asks for it instead.
+        if (!settingUpCredential)
+            return@registerForActivityResult
+
+        val credential = result.data?.getStringExtra(AuthSetupActivity.EXTRA_RESULT_CREDENTIAL)
+        if (result.resultCode != RESULT_OK || credential == null) {
+            finishWithResult(false, null)
+            return@registerForActivityResult
+        }
+        storeNewCredential(credential)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (!settings.screenshotsEnabled)
@@ -60,18 +88,25 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
             isAuthUpgrade = true
         }
 
-        // If our password is still empty at this point, we can't do anything.
-        if (existingAuthCredentials.isEmpty()) {
-            val missingPwResId = if (authMethod == AuthMethod.PASSWORD)
-                R.string.auth_toast_password_missing else R.string.auth_toast_pin_missing
-            Toast.makeText(this, missingPwResId, Toast.LENGTH_LONG).show()
-            finishWithResult(true, null)
-            return
-        }
-        // If we're not using password or pin for auth method, we have nothing to authenticate here.
-        if (authMethod != AuthMethod.PASSWORD && authMethod != AuthMethod.PIN) {
-            finishWithResult(true, null)
-            return
+        val databaseExists = File(filesDir, Constants.FILENAME_DATABASE).exists() ||
+            File(filesDir, Constants.FILENAME_DATABASE_BACKUP).exists()
+        when (unlockActionFor(authMethod, settings.encryption, existingAuthCredentials.isNotEmpty(), databaseExists)) {
+            UnlockAction.NOTHING_TO_UNLOCK -> {
+                finishWithResult(true, null)
+                return
+            }
+            UnlockAction.LOCKED_OUT -> {
+                Toast.makeText(this, missingCredentialMessage(), Toast.LENGTH_LONG).show()
+                finishWithResult(false, null)
+                return
+            }
+            UnlockAction.SET_UP_CREDENTIAL -> {
+                if (savedInstanceState == null)
+                    Toast.makeText(this, missingCredentialMessage(), Toast.LENGTH_LONG).show()
+                initCredentialSetup(savedInstanceState)
+                return
+            }
+            UnlockAction.ASK_CREDENTIAL -> {}
         }
 
         setTitle(R.string.auth_activity_title)
@@ -107,6 +142,96 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
         toolbar.setNavigationContentDescription(android.R.string.cancel)
         toolbar.setNavigationOnClickListener { finishWithResult(false, null) }
         findViewById<View>(R.id.container_brand).visibility = View.VISIBLE
+    }
+
+    private fun missingCredentialMessage(): Int {
+        return if (authMethod == AuthMethod.PASSWORD) R.string.auth_toast_password_missing else R.string.auth_toast_pin_missing
+    }
+
+    /** No credential is stored for the lock method: the user has to set one up before going on. */
+    private fun initCredentialSetup(savedInstanceState: Bundle?) {
+        settingUpCredential = true
+        awaitingCredentialSetup = savedInstanceState?.getBoolean(STATE_AWAITING_SETUP, false) ?: false
+
+        setTitle(R.string.auth_activity_title)
+        setContentView(R.layout.activity_container)
+        initToolbar()
+        findViewById<Toolbar>(R.id.container_toolbar).setNavigationOnClickListener { cancelCredentialSetup() }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                cancelCredentialSetup()
+            }
+        })
+        // The setup screen is opened from onResume().
+    }
+
+    private fun cancelCredentialSetup() {
+        // Once entered, the new credential is being stored and the outcome has to reach this screen.
+        if (!credentialSetupJob.isBusy)
+            finishWithResult(false, null)
+    }
+
+    private fun resumeCredentialSetup() {
+        credentialSetupJob.onResume(this)
+        if (isFinishing)
+            return
+
+        if (credentialSetupJob.isBusy) {
+            showProgress()
+        } else if (!awaitingCredentialSetup) {
+            // First start, or the process was killed while the credential was being stored.
+            awaitingCredentialSetup = true
+            val intent = Intent(this, AuthSetupActivity::class.java)
+            intent.putExtra(AuthSetupActivity.EXTRA_METHOD, authMethod.name)
+            credentialSetupLauncher.launch(intent)
+        }
+    }
+
+    private fun storeNewCredential(credential: String) {
+        if (credentialSetupJob.isBusy)
+            return
+
+        showProgress()
+        val appContext = applicationContext
+        credentialSetupJob.start {
+            // Deriving the credentials (PBKDF2) is slow. They are stored on this thread so that
+            // they are stored even if no screen is left to show the outcome.
+            val settings = Settings(appContext)
+            val newCredentials = settings.generateAuthCredentials(credential)
+            val key = if (newCredentials != null && settings.saveAuthCredentials(newCredentials, null))
+                newCredentials.key else null
+
+            val outcome: (AuthenticateActivity) -> Unit = { it.onNewCredentialStored(key) }
+            outcome
+        }
+    }
+
+    /** Runs on whichever instance is resumed when [storeNewCredential]'s job has finished. */
+    private fun onNewCredentialStored(key: ByteArray?) {
+        hideProgress()
+        // With password encryption (and no database yet) the key derived from the new credential
+        // is the database key; with KeyStore encryption the caller ignores it.
+        finishWithResult(key != null, key)
+    }
+
+    private fun showProgress() {
+        if (progress == null) {
+            progress = MaterialAlertDialogBuilder(this)
+                .setView(R.layout.dialog_progress)
+                .setCancelable(false)
+                .show()
+        }
+    }
+
+    private fun hideProgress() {
+        progress?.dismiss()
+        progress = null
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(STATE_AWAITING_SETUP, awaitingCredentialSetup)
     }
 
     private fun initPasswordViews() {
@@ -205,6 +330,10 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
 
     override fun onResume() {
         super.onResume()
+        if (settingUpCredential) {
+            resumeCredentialSetup()
+            return
+        }
         checkBackgroundTask()
     }
 
@@ -301,6 +430,9 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
 
     override fun onStart() {
         super.onStart()
+        // Not set up while setting up a credential.
+        if (!::passwordInput.isInitialized)
+            return
         if (settings.autoUnlockAfterAutofill) {
             passwordInput.setAutoFillTextListener(autoFillTextListener)
         }
@@ -308,6 +440,7 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
 
     override fun onPause() {
         super.onPause()
+        credentialSetupJob.onPause(this)
         // We don't want the task to callback to a dead activity and cause a memory leak, so null it here.
         val taskFragment = findTaskFragment()
         if (taskFragment != null) {
@@ -316,11 +449,13 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     }
 
     override fun onStop() {
-        passwordInput.setAutoFillTextListener(null)
+        if (::passwordInput.isInitialized)
+            passwordInput.setAutoFillTextListener(null)
         super.onStop()
     }
 
     override fun onDestroy() {
+        hideProgress()
         // Not set when onCreate() finished the activity early.
         if (::observer.isInitialized)
             ProcessLifecycleOwner.get().lifecycle
@@ -352,5 +487,49 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
 
     companion object {
         private const val TAG_TASK_FRAGMENT = "AuthenticateActivity.TaskFragmentTag"
+        private const val STATE_AWAITING_SETUP = "AuthenticateActivity.awaitingSetup"
+
+        /** Survives recreation of this screen; see [RetainedJob]. */
+        private val credentialSetupJob = RetainedJob<AuthenticateActivity>()
     }
+}
+
+/** What the unlock screen does, see [unlockActionFor]. */
+internal enum class UnlockAction {
+    /** The lock method is not a password or PIN: nothing for this screen to check. */
+    NOTHING_TO_UNLOCK,
+    ASK_CREDENTIAL,
+    /** Have the user set up a new password or PIN, then unlock. */
+    SET_UP_CREDENTIAL,
+    /** Refuse to unlock. */
+    LOCKED_OUT
+}
+
+/**
+ * Decides how to unlock with the stored lock settings. [hasCredential] is whether a credential
+ * (new or old-style hash) is stored for the password or PIN.
+ *
+ * Without a stored credential there is nothing to check a password against, and unlocking anyway
+ * would open the app without any authentication:
+ * - With password encryption the database key derives from the lost credential. A new credential
+ *   would derive a different key, under which the existing database could not be read (and would
+ *   be overwritten on the next save), so an existing database stays locked. Without one (the setup
+ *   failed before anything was saved) there is nothing to lose and a new credential is set up.
+ * - With KeyStore encryption the database does not depend on the credential. Refusing would lock
+ *   the owner out of their accounts for good, with no way back short of deleting all app data, so
+ *   a new credential is set up; from then on the app is locked again.
+ */
+internal fun unlockActionFor(
+    authMethod: AuthMethod,
+    encryption: EncryptionType,
+    hasCredential: Boolean,
+    databaseExists: Boolean
+): UnlockAction {
+    if (authMethod != AuthMethod.PASSWORD && authMethod != AuthMethod.PIN)
+        return UnlockAction.NOTHING_TO_UNLOCK
+    if (hasCredential)
+        return UnlockAction.ASK_CREDENTIAL
+    if (encryption == EncryptionType.PASSWORD && databaseExists)
+        return UnlockAction.LOCKED_OUT
+    return UnlockAction.SET_UP_CREDENTIAL
 }
