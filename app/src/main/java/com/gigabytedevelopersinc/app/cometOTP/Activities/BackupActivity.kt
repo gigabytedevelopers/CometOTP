@@ -37,6 +37,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Tasks.PGPBackupTask
 import com.gigabytedevelopersinc.app.cometOTP.Tasks.PGPRestoreTask
 import com.gigabytedevelopersinc.app.cometOTP.Tasks.PlainTextBackupTask
 import com.gigabytedevelopersinc.app.cometOTP.Tasks.PlainTextRestoreTask
+import com.gigabytedevelopersinc.app.cometOTP.Tasks.UiBasedBackgroundTask
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper
@@ -817,12 +818,17 @@ class BackupActivity : BaseActivity() {
         return supportFragmentManager.findFragmentByTag(TAG_RESTORE_TASK_FRAGMENT) as RestoreTaskFragment?
     }
 
+    /** A fragment without a task (see [BackupTaskFragment.task]) has nothing running. */
+    private fun isRunning(task: UiBasedBackgroundTask<*>?): Boolean {
+        return task != null && !task.isCanceled
+    }
+
     private fun startBackupTask(task: GenericBackupTask) {
         var backupTaskFragment = findBackupTaskFragment()
         val restoreTaskFragment = findRestoreTaskFragment()
 
         // Don't start a task if we already have an active task running (backup or restore).
-        if ((backupTaskFragment == null || backupTaskFragment.task.isCanceled) && (restoreTaskFragment == null || restoreTaskFragment.task.isCanceled)) {
+        if (!isRunning(backupTaskFragment?.task) && !isRunning(restoreTaskFragment?.task)) {
             if (backupTaskFragment == null) {
                 backupTaskFragment = BackupTaskFragment()
                 supportFragmentManager
@@ -842,7 +848,7 @@ class BackupActivity : BaseActivity() {
         var restoreTaskFragment = findRestoreTaskFragment()
 
         // Don't start a task if we already have an active task running (backup or restore).
-        if ((backupTaskFragment == null || backupTaskFragment.task.isCanceled) && (restoreTaskFragment == null || restoreTaskFragment.task.isCanceled)) {
+        if (!isRunning(backupTaskFragment?.task) && !isRunning(restoreTaskFragment?.task)) {
             if (restoreTaskFragment == null) {
                 restoreTaskFragment = RestoreTaskFragment()
                 supportFragmentManager
@@ -861,13 +867,15 @@ class BackupActivity : BaseActivity() {
         val backupTaskFragment = findBackupTaskFragment()
 
         if (backupTaskFragment != null) {
-            if (backupTaskFragment.task.isCanceled) {
-                // The task was canceled or has finished, so remove the task fragment.
+            val task = backupTaskFragment.task
+            if (task == null || task.isCanceled) {
+                // The task was canceled or has finished, or the fragment came back without it
+                // after the process was killed, so remove the task fragment.
                 supportFragmentManager.beginTransaction()
                         .remove(backupTaskFragment)
                         .commit()
             } else {
-                backupTaskFragment.task.setCallback(::handleBackupTaskResult)
+                task.setCallback(::handleBackupTaskResult)
                 showBackupProgress(true)
             }
         }
@@ -878,13 +886,15 @@ class BackupActivity : BaseActivity() {
         val restoreTaskFragment = findRestoreTaskFragment()
 
         if (restoreTaskFragment != null) {
-            if (restoreTaskFragment.task.isCanceled) {
-                // The task was canceled or has finished, so remove the task fragment.
+            val task = restoreTaskFragment.task
+            if (task == null || task.isCanceled) {
+                // The task was canceled or has finished, or the fragment came back without it
+                // after the process was killed, so remove the task fragment.
                 supportFragmentManager.beginTransaction()
                         .remove(restoreTaskFragment)
                         .commit()
             } else {
-                restoreTaskFragment.task.setCallback(::handleRestoreTaskResult)
+                task.setCallback(::handleRestoreTaskResult)
                 showRestoreProgress(true)
             }
         }
@@ -897,11 +907,8 @@ class BackupActivity : BaseActivity() {
         val backupTaskFragment = findBackupTaskFragment()
         val restoreTaskFragment = findRestoreTaskFragment()
 
-        if (backupTaskFragment != null)
-            backupTaskFragment.task.setCallback(null)
-
-        if (restoreTaskFragment != null)
-            restoreTaskFragment.task.setCallback(null)
+        backupTaskFragment?.task?.setCallback(null)
+        restoreTaskFragment?.task?.setCallback(null)
     }
 
     override fun onResume() {
@@ -918,7 +925,9 @@ class BackupActivity : BaseActivity() {
     /** Retained instance fragment to hold a running [GenericBackupTask] between configuration changes.*/
     @Suppress("DEPRECATION")   // retainInstance
     class BackupTaskFragment : Fragment() {
-        lateinit var task: GenericBackupTask
+        /** Null when the fragment was recreated after process death: the task died with the process. */
+        var task: GenericBackupTask? = null
+            private set
 
         init {
             retainInstance = true
@@ -926,14 +935,16 @@ class BackupActivity : BaseActivity() {
 
         fun startTask(task: GenericBackupTask) {
             this.task = task
-            this.task.execute()
+            task.execute()
         }
     }
 
     /** Retained instance fragment to hold a running [GenericRestoreTask] between configuration changes.*/
     @Suppress("DEPRECATION")   // retainInstance
     class RestoreTaskFragment : Fragment() {
-        lateinit var task: GenericRestoreTask
+        /** Null when the fragment was recreated after process death: the task died with the process. */
+        var task: GenericRestoreTask? = null
+            private set
 
         init {
             retainInstance = true
@@ -941,7 +952,7 @@ class BackupActivity : BaseActivity() {
 
         fun startTask(task: GenericRestoreTask) {
             this.task = task
-            this.task.execute()
+            task.execute()
         }
     }
 
