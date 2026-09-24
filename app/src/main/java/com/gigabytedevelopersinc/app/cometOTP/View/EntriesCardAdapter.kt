@@ -153,12 +153,20 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
         if (auto_backup) {
             val backupType = BackupHelper.autoBackupType(context)
-            if (backupType == Constants.BackupType.ENCRYPTED) {
+            val keyMaterial = sharedEncryptionKey?.encoded
+            if (backupType == Constants.BackupType.ENCRYPTED && keyMaterial == null) {
+                // Without the key the database cannot be read back for the backup; an existing
+                // backup file must not be looked up (and overwritten with nothing), so the
+                // auto-backup is skipped and reported as failed.
+                Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
+                        R.string.backup_toast_export_failed,
+                        Snackbar.LENGTH_LONG)
+                        .show()
+            } else if (backupType == Constants.BackupType.ENCRYPTED && keyMaterial != null) {
                 val cryptBackupFile = BackupHelper.backupFile(context, settings.backupLocation, Constants.BackupType.ENCRYPTED)
                 val file = cryptBackupFile.file
 
                 if (file != null) {
-                    val keyMaterial = sharedEncryptionKey!!.encoded
                     val encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial)
 
                     val success = BackupHelper.backupToFile(context, file.uri, settings.backupPasswordEnc, encryptionKey)
