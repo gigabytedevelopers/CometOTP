@@ -35,7 +35,12 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
     AdapterView.OnItemClickListener, View.OnClickListener, TextWatcher {
 
     fun interface EncryptionChangeCallback {
-        fun testEncryptionChange(newKey: ByteArray): Boolean
+        /**
+         * Password encryption only: re-encrypts the database with the key of a new [password]
+         * for [method] (in the background) and stores the new credentials and method only once
+         * that succeeded, then calls [updateSummary].
+         */
+        fun changeCredentials(method: AuthMethod, password: String)
     }
 
     private val entries: List<String>
@@ -152,24 +157,27 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
             if (password.isEmpty())
                 return
 
-            // Nothing is stored yet. With password encryption the database key derives from the
-            // credentials, so they may only replace the old ones once the database has been
-            // re-encrypted with the new key; otherwise the old ones stay in effect.
-            val newCredentials = settings.generateAuthCredentials(password) ?: return
-
             if (settings.encryption == EncryptionType.PASSWORD) {
-                val callback = encryptionChangeCallback ?: return
-
-                if (!callback.testEncryptionChange(newCredentials.key))
-                    return
+                // The database key derives from the credentials, so they may only replace the old
+                // ones once the database has been re-encrypted with the new key. The host does
+                // both off the main thread and stores the method along with the credentials.
+                encryptionChangeCallback?.changeCredentials(value, password)
+                return
             }
 
+            val newCredentials = settings.generateAuthCredentials(password) ?: return
             settings.saveAuthCredentials(newCredentials, value)
         }
 
         // Default-locale lowercase, as in the Java original (the key is read back with an
         // English-locale uppercase in Settings).
         persistString(value.toString().lowercase(Locale.getDefault()))
+        summary = entries[entryValues.indexOf(value)]
+    }
+
+    /** Shows the stored method again, e.g. after [EncryptionChangeCallback.changeCredentials] succeeded. */
+    fun updateSummary() {
+        value = settings.authMethod
         summary = entries[entryValues.indexOf(value)]
     }
 

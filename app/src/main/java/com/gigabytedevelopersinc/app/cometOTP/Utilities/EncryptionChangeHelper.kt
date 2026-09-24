@@ -45,6 +45,13 @@ object EncryptionChangeHelper {
             return Result(Status.NO_KEY, null)
         }
 
+        // The KeyStore key can fail to load. saveDatabase() would report that with a Toast, which
+        // crashes on the background threads this runs on.
+        if (newEncryptionKey == null) {
+            DatabaseHelper.restoreDatabaseBackup(context)
+            return Result(Status.NO_KEY, null)
+        }
+
         if (DatabaseHelper.saveDatabase(context, entries, newEncryptionKey))
             return Result(Status.SUCCESS, newEncryptionKey)
 

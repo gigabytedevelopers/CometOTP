@@ -21,6 +21,7 @@ import android.view.ViewStub
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference
@@ -49,6 +50,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
     internal var encryptionKey: SecretKey? = null
     internal var encryptionChanged = false
+    private var progress: AlertDialog? = null
 
     /* Activity result launchers (replace the request-code based onActivityResult()). */
     private val authenticateLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
@@ -166,6 +168,8 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
     }
 
     override fun onDestroy() {
+        hideProgress()
+
         // Without this the activity stays registered for the life of the process. Every later
         // preference write from any other screen would then re-enter the callback below on a
         // destroyed activity whose fragment is detached, which crashed the app.
@@ -249,34 +253,116 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
         authenticateLauncher.launch(authIntent)
     }
 
-    private fun tryEncryptionChange(newEnc: EncryptionType, newKey: ByteArray?): Boolean {
-        val upgrading = Snackbar.make(findViewById<View>(R.id.container_content), R.string.settings_toast_encryption_changing, Snackbar.LENGTH_LONG)
-        upgrading.show()
+    private fun tryEncryptionChange(newEnc: EncryptionType, newKey: ByteArray?) {
+        startEncryptionChange(newEnc, newKey, null, null)
+    }
 
-        val result = EncryptionChangeHelper.changeEncryption(this, encryptionKey, newEnc, newKey)
-        upgrading.dismiss()
+    /** Password encryption: re-encrypts for a new password or PIN, see [CredentialsPreference]. */
+    internal fun changeCredentials(method: AuthMethod, password: String) {
+        startEncryptionChange(EncryptionType.PASSWORD, null, method, password)
+    }
 
-        return when (result.status) {
+    /**
+     * Re-encrypts the database for [newEnc] on a background thread; deriving a key (PBKDF2) and
+     * re-encrypting are too slow for the main thread. The key is [newKey], or the one derived
+     * from [password] when a new credential for [method] is being set.
+     *
+     * On success whatever the new key depends on is stored right away on that thread: the new
+     * credentials and method, or the new encryption type. Stored state then always matches the
+     * key the database is encrypted with, even if no screen is left to show the result. On
+     * failure nothing is stored and the old key stays in effect.
+     */
+    private fun startEncryptionChange(newEnc: EncryptionType, newKey: ByteArray?, method: AuthMethod?, password: String?) {
+        if (encryptionJob.isBusy)
+            return
+
+        Snackbar.make(findViewById<View>(R.id.container_content), R.string.settings_toast_encryption_changing, Snackbar.LENGTH_LONG).show()
+        showProgress()
+
+        val appContext = applicationContext
+        val currentKey = encryptionKey
+        val encryptionPreferenceKey = getString(R.string.settings_key_encryption)
+
+        encryptionJob.start {
+            val settings = Settings(appContext)
+            val newCredentials = if (password != null) settings.generateAuthCredentials(password) else null
+            val keyBytes = if (password != null) newCredentials?.key else newKey
+
+            // No key (e.g. the credential could not be derived) ends in Status.NO_KEY.
+            val result = EncryptionChangeHelper.changeEncryption(appContext, currentKey, newEnc, keyBytes)
+
+            if (result.status == EncryptionChangeHelper.Status.SUCCESS) {
+                if (newCredentials != null) {
+                    settings.saveAuthCredentials(newCredentials, method)
+                } else {
+                    // Stored the way the encryption ListPreference persists its value.
+                    PreferenceManager.getDefaultSharedPreferences(appContext).edit()
+                        .putString(encryptionPreferenceKey, newEnc.name.lowercase(Locale.ROOT))
+                        .commit()
+                }
+            }
+
+            val credentialsChanged = newCredentials != null
+            val outcome: (SettingsActivity) -> Unit = { it.onEncryptionChangeDone(newEnc, credentialsChanged, result) }
+            outcome
+        }
+    }
+
+    /** Runs on whichever instance is resumed when [startEncryptionChange]'s job has finished. */
+    private fun onEncryptionChangeDone(newEnc: EncryptionType, credentialsChanged: Boolean, result: EncryptionChangeHelper.Result) {
+        hideProgress()
+
+        when (result.status) {
             EncryptionChangeHelper.Status.SUCCESS -> {
                 encryptionKey = result.newKey
                 encryptionChanged = true
 
+                // Already stored; this updates the preferences shown on screen.
                 // Default-locale lowercase, as in the Java original.
-                fragment!!.encryption!!.value = newEnc.name.lowercase(Locale.getDefault())
+                fragment?.encryption?.value = newEnc.name.lowercase(Locale.getDefault())
+                if (credentialsChanged)
+                    fragment?.credentials?.updateSummary()
 
                 Snackbar.make(findViewById<View>(R.id.container_content), R.string.settings_toast_encryption_change_success, Snackbar.LENGTH_LONG).show()
-                true
             }
             EncryptionChangeHelper.Status.BACKUP_FAILED -> {
                 Snackbar.make(findViewById<View>(R.id.container_content), R.string.settings_toast_encryption_backup_failed, Snackbar.LENGTH_LONG).show()
-                false
             }
-            EncryptionChangeHelper.Status.NO_KEY -> false
-            EncryptionChangeHelper.Status.SAVE_FAILED -> {
+            EncryptionChangeHelper.Status.NO_KEY, EncryptionChangeHelper.Status.SAVE_FAILED -> {
                 Snackbar.make(findViewById<View>(R.id.container_content), R.string.settings_toast_encryption_change_failed, Snackbar.LENGTH_LONG).show()
-                false
             }
         }
+    }
+
+    private fun showProgress() {
+        if (progress == null) {
+            progress = MaterialAlertDialogBuilder(this)
+                .setView(R.layout.dialog_progress)
+                .setCancelable(false)
+                .show()
+        }
+    }
+
+    private fun hideProgress() {
+        progress?.dismiss()
+        progress = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        encryptionJob.onResume(this)
+        if (encryptionJob.isBusy)
+            showProgress()
+    }
+
+    override fun onPause() {
+        encryptionJob.onPause(this)
+        super.onPause()
+    }
+
+    // Finishing on screen off would lose the result of a running encryption change.
+    override fun shouldDestroyOnScreenOff(): Boolean {
+        return !encryptionJob.isBusy
     }
 
     private fun requestBackupAccess() {
@@ -302,11 +388,17 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             fragment.pgpSigningKey!!.handleOnActivityResult(requestCode, resultCode, data)
     }
 
+    companion object {
+        /** Survives recreation of this screen; see [RetainedJob]. */
+        private val encryptionJob = RetainedJob<SettingsActivity>()
+    }
+
     class SettingsFragment : PreferenceFragment() {
         internal var catUI: PreferenceCategory? = null
 
         internal lateinit var settings: Settings
         internal var encryption: ListPreference? = null
+        internal var credentials: CredentialsPreference? = null
         internal var useAutoBackup: ListPreference? = null
         internal var useAndroidSync: CheckBoxPreference? = null
 
@@ -358,7 +450,8 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             addPreferencesFromResource(R.xml.preferences)
 
             val credentialsPreference = findPreference(getString(R.string.settings_key_auth)) as CredentialsPreference
-            credentialsPreference.setEncryptionChangeCallback { newKey -> (activity as SettingsActivity).tryEncryptionChange(settings.encryption, newKey) }
+            credentials = credentialsPreference
+            credentialsPreference.setEncryptionChangeCallback { method, password -> (activity as SettingsActivity).changeCredentials(method, password) }
 
             val blockAutofill = findPreference(getString(R.string.settings_key_block_autofill)) as CheckBoxPreference
             val autoUnlockAfterAutofill = findPreference(getString(R.string.settings_key_auto_unlock_after_autofill)) as CheckBoxPreference
