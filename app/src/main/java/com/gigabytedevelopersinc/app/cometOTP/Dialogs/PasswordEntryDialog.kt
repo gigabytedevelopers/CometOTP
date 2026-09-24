@@ -117,9 +117,10 @@ class PasswordEntryDialog(
         if (EditorActionHelper.isActionDoneOrKeyboardEnter(actionId, event)) {
             if (okButton.isEnabled) okButton.performClick()
             return true
-        } else if (EditorActionHelper.isActionUpKeyboardEnter(event!!)) {
+        } else if (event != null && EditorActionHelper.isActionUpKeyboardEnter(event)) {
             // Ignore action up after keyboard enter. Otherwise the cancel button would be selected
-            // after pressing enter with an invalid password.
+            // after pressing enter with an invalid password. IME actions other than Done come
+            // without a KeyEvent; those are left to the default handling.
             return true
         }
 
