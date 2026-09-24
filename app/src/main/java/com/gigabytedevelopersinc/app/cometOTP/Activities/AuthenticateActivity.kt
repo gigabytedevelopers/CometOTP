@@ -66,10 +66,12 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
                 R.string.auth_toast_password_missing else R.string.auth_toast_pin_missing
             Toast.makeText(this, missingPwResId, Toast.LENGTH_LONG).show()
             finishWithResult(true, null)
+            return
         }
         // If we're not using password or pin for auth method, we have nothing to authenticate here.
         if (authMethod != AuthMethod.PASSWORD && authMethod != AuthMethod.PIN) {
             finishWithResult(true, null)
+            return
         }
 
         setTitle(R.string.auth_activity_title)
@@ -315,8 +317,10 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     }
 
     override fun onDestroy() {
-        ProcessLifecycleOwner.get().lifecycle
-            .removeObserver(observer)
+        // Not set when onCreate() finished the activity early.
+        if (::observer.isInitialized)
+            ProcessLifecycleOwner.get().lifecycle
+                .removeObserver(observer)
         super.onDestroy()
     }
 
