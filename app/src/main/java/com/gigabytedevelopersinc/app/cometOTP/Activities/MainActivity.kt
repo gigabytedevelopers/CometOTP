@@ -119,6 +119,10 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     private var countDownTimer: CountDownTimer? = null
 
+    // Registered with the process lifecycle in onCreate() and removed again in onDestroy(), so
+    // only the live activity is observed.
+    private val processLifecycleObserver = ProcessLifecycleObserver()
+
     fun checkAppStart(context: Context, sharedPreferences: SharedPreferences): AppStart? {
         val pInfo: PackageInfo
 
@@ -339,7 +343,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 requireAuthentication = true
         }
 
-        ProcessLifecycleOwner.get().lifecycle.addObserver(ProcessLifecycleObserver())
+        ProcessLifecycleOwner.get().lifecycle.addObserver(processLifecycleObserver)
         onBackPressedDispatcher.addCallback(this, closeOverlaysOnBack)
 
         if (!settings.firstTimeWarningShown) {
@@ -1186,6 +1190,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     override fun onDestroy() {
         dismissSheet()
         settings.unregisterPreferenceChangeListener(this)
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(processLifecycleObserver)
         super.onDestroy()
     }
 
