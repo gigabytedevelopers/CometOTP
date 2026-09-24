@@ -245,7 +245,7 @@ class AboutActivity : BaseActivity() {
         private const val WHATSAPP_URI = "https://chat.whatsapp.com/HvUjQXAkMne3hjSiy1sUpc"
 
         // private static final String CHANGELOG_URI = GITHUB_URI + "/blob/master/CHANGELOG.md";
-        private const val MIT_URI = "$GITHUB_URI/blob/master/LICENSE.txt"
+        private const val MIT_URI = "$GITHUB_URI/blob/master/LICENSE"
         private const val AUTHOR1_GITHUB = "https://github.com/gigabytedevelopers"
         private const val AUTHOR1_PAYPAL = "https://paypal.me/gigabtedevelopers"
 
