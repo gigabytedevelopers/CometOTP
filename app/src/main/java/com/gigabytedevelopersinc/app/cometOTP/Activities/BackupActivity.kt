@@ -834,7 +834,9 @@ class BackupActivity : BaseActivity() {
                     if (settings.openPGPVerify) {
                         val sigResult = IntentCompat.getParcelableExtra(result, OpenPgpApi.RESULT_SIGNATURE, OpenPgpSignatureResult::class.java)
 
-                        if (sigResult!!.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED) {
+                        // No signature result at all (e.g. an unsigned file) cannot be verified
+                        // either, so it is refused the same way as a bad signature.
+                        if (sigResult != null && sigResult.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED) {
                             restoreEntries(outputStreamToString(os), true)
                         } else {
                             Toast.makeText(this, R.string.backup_toast_openpgp_not_verified, Toast.LENGTH_LONG).show()
