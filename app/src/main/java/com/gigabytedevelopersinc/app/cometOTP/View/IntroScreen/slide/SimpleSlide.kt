@@ -406,7 +406,7 @@ open class SimpleSlide protected constructor(builder: Builder) : Slide, Restorab
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                                   savedInstanceState: Bundle?): View? {
-            val arguments = arguments!!
+            val arguments = requireArguments()
 
             val fragment = inflater.inflate(arguments.getInt(ARGUMENT_LAYOUT_RES,
                     R.layout.mi_fragment_simple_slide), container, false)
@@ -489,7 +489,7 @@ open class SimpleSlide protected constructor(builder: Builder) : Slide, Restorab
         override fun onDestroyView() {
             val activity = activity
             if (activity is SimpleSlideActivity) {
-                val id = arguments!!.getLong(ARGUMENT_ID)
+                val id = requireArguments().getLong(ARGUMENT_ID)
                 activity.onSlideDestroyView(this, view, id)
             }
             titleView = null
@@ -499,7 +499,7 @@ open class SimpleSlide protected constructor(builder: Builder) : Slide, Restorab
         }
 
         val slideId: Long
-            get() = arguments!!.getLong(ARGUMENT_ID)
+            get() = requireArguments().getLong(ARGUMENT_ID)
 
         @Suppress("OVERRIDE_DEPRECATION")
         override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,

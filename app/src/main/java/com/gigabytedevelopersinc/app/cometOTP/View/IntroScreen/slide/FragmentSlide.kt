@@ -217,7 +217,7 @@ open class FragmentSlide protected constructor(builder: Builder) : Slide, Restor
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                                   savedInstanceState: Bundle?): View? {
-            val arguments = arguments!!
+            val arguments = requireArguments()
             val themeRes = arguments.getInt(ARGUMENT_THEME_RES)
             val contextThemeWrapper: Context? = if (themeRes != 0) {
                 ContextThemeWrapper(activity, themeRes)
