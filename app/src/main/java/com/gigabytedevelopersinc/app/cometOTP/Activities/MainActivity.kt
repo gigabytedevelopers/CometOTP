@@ -902,9 +902,17 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
-        // The Java original asserted key != null (assertions are off on Android) and then
-        // dereferenced it, so a null key (SharedPreferences.clear() on API 30+) throws here too.
-        val changedKey = key!!
+        // A null key means the preferences were cleared (SharedPreferences.clear(), reported this
+        // way since API 30), e.g. by the panic responder: every setting may have changed, so do
+        // what any of the keys below would.
+        if (key == null) {
+            adapter.notifyDataSetChanged()
+            adapter.clearFilter()
+            recreateActivity = true
+            return
+        }
+
+        val changedKey: String = key
         if (changedKey == getString(R.string.settings_key_label_size) ||
                 changedKey == getString(R.string.settings_key_label_display) ||
                 changedKey == getString(R.string.settings_key_split_group_size) ||
