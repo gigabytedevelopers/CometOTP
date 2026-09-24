@@ -1100,7 +1100,9 @@ open class IntroActivity : AppCompatActivity(), IntroNavigation {
     open fun getButtonCtaLabel(): CharSequence? {
         if (buttonCtaLabel != null)
             return buttonCtaLabel
-        return getString(buttonCtaLabelRes)
+        if (buttonCtaLabelRes != 0)
+            return getString(buttonCtaLabelRes)
+        return null
     }
 
     open fun setButtonCtaLabel(@StringRes buttonCtaLabelRes: Int) {
