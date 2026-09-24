@@ -250,7 +250,7 @@ class Entry {
         jsonObj.put(JSON_LAST_USED, lastUsed)
         jsonObj.put(JSON_USED_FREQUENCY, usedFrequency)
 
-        if (type == OTPType.TOTP)
+        if (type == OTPType.TOTP || type == OTPType.STEAM)
             jsonObj.put(JSON_PERIOD, period)
         else if (type == OTPType.HOTP)
             jsonObj.put(JSON_COUNTER, counter)

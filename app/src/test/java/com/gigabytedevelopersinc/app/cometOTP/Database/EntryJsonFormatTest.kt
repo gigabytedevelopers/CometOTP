@@ -83,8 +83,12 @@ class EntryJsonFormatTest {
         assertEquals("missing counter for HOTP", error.message)
     }
 
+    /**
+     * Steam entries write their period like TOTP does (they used to write neither period nor
+     * counter, so a non-default Steam period was lost on every save).
+     */
     @Test
-    fun steamKeepsItsPaddedSecretAndWritesNeitherPeriodNorCounter() {
+    fun steamKeepsItsPaddedSecretAndWritesThePeriodButNoCounter() {
         val e = Entry(JSONObject("""{"secret":"GEZDGNBVGY======","issuer":"Steam","label":"gamer",
             "digits":5,"type":"STEAM","algorithm":"SHA1","thumbnail":"Steam","period":30}"""))
 
@@ -96,12 +100,32 @@ class EntryJsonFormatTest {
         assertEquals("GEZDGNBVGY======", e.secretEncoded)
 
         assertJson(
-            """{"thumbnail":"Steam","used_frequency":0,"last_used":0,"digits":5,
+            """{"thumbnail":"Steam","period":30,"used_frequency":0,"last_used":0,"digits":5,
             "secret":"GEZDGNBVGY======","label":"gamer","type":"STEAM","issuer":"Steam",
             "algorithm":"SHA1","tags":[]}""",
             e.toJSON()
         )
         assertRoundTrip(e)
+    }
+
+    @Test
+    fun steamWithANonDefaultPeriodKeepsItThroughASave() {
+        val e = Entry(JSONObject("""{"secret":"GEZDGNBVGY======","issuer":"Steam","label":"gamer",
+            "digits":5,"type":"STEAM","algorithm":"SHA1","thumbnail":"Steam","period":60}"""))
+        assertEquals(60, e.period)
+        assertEquals(60, e.toJSON().getInt("period"))
+        assertEquals(60, Entry(JSONObject(e.toJSON().toString())).period)
+        assertRoundTrip(e)
+    }
+
+    /** Steam entries saved before the period was written still load, with the default period. */
+    @Test
+    fun steamSavedWithoutAPeriodLoadsWithThirtySeconds() {
+        val e = Entry(JSONObject("""{"secret":"GEZDGNBVGY======","issuer":"Steam","label":"gamer",
+            "digits":5,"type":"STEAM","algorithm":"SHA1","thumbnail":"Steam"}"""))
+        assertEquals(Entry.OTPType.STEAM, e.type)
+        assertEquals(30, e.period)
+        assertEquals(30, e.toJSON().getInt("period"))
     }
 
     @Test
