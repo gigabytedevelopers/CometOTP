@@ -53,6 +53,13 @@ class CacheActivity : BaseActivity() {
         }
     }
 
+    override fun onDestroy() {
+        // A sheet still showing when the screen closes (rotation, finish) would leak its window.
+        mBottomSheetDialog?.dismiss()
+        mBottomSheetDialog = null
+        super.onDestroy()
+    }
+
     @Suppress("unused")
     private fun initializeCache(context: Context) {
         var size: Long = 0
