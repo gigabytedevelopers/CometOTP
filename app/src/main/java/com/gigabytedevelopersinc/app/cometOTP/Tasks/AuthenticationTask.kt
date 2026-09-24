@@ -100,21 +100,18 @@ constructor(
      * the next unlock.
      */
     class Result(
-        @JvmField val encryptionKey: ByteArray?,
-        @JvmField val authUpgradeFailed: Boolean
+        val encryptionKey: ByteArray?,
+        val authUpgradeFailed: Boolean
     ) {
         companion object {
-            @JvmStatic
             fun success(encryptionKey: ByteArray?): Result {
                 return Result(encryptionKey, false)
             }
 
-            @JvmStatic
             fun upgradeFailure(): Result {
                 return Result(null, true)
             }
 
-            @JvmStatic
             fun failure(): Result {
                 return Result(null, false)
             }

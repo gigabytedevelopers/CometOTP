@@ -534,7 +534,6 @@ open class SimpleSlide protected constructor(builder: Builder) : Slide, Restorab
             private const val ARGUMENT_PERMISSIONS_REQUEST_CODE =
                     "com.gigabytedevelopersinc.app.cometOTP.SimpleFragment.ARGUMENT_PERMISSIONS_REQUEST_CODE"
 
-            @JvmStatic
             fun newInstance(id: Long, title: CharSequence?, @StringRes titleRes: Int,
                             description: CharSequence?, @StringRes descriptionRes: Int,
                             @DrawableRes imageRes: Int, @ColorRes backgroundRes: Int,

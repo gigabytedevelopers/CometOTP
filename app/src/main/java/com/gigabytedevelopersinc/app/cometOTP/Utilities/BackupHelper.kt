@@ -25,9 +25,7 @@ import javax.crypto.SecretKey
  **/
 object BackupHelper {
     class BackupFile {
-        @JvmField
         var file: DocumentFile? = null
-        @JvmField
         var errorMessage = 0
     }
 
@@ -44,7 +42,6 @@ object BackupHelper {
         return mimeType
     }
 
-    @JvmStatic
     fun backupFile(context: Context, backupLocationUri: Uri, type: Constants.BackupType): BackupFile {
         val backupFile = BackupFile()
         val backupLocation = DocumentFile.fromTreeUri(context, backupLocationUri)
@@ -68,7 +65,6 @@ object BackupHelper {
         return backupFile
     }
 
-    @JvmStatic
     fun backupFilename(context: Context, type: Constants.BackupType): String {
         val settings = Settings(context)
         when (type) {
@@ -99,7 +95,6 @@ object BackupHelper {
         return Constants.BACKUP_FILENAME_PLAIN
     }
 
-    @JvmStatic
     fun autoBackupType(context: Context): Constants.BackupType {
         val settings = Settings(context)
 
@@ -115,7 +110,6 @@ object BackupHelper {
     }
 
     /** Returns false without touching [uri] when the database cannot be read. */
-    @JvmStatic
     fun backupToFile(context: Context, uri: Uri?, password: String?, encryptionKey: SecretKey?): Boolean {
         val entries: ArrayList<Entry> = DatabaseHelper.loadDatabase(context, encryptionKey) ?: return false
         val plain = DatabaseHelper.entriesToString(entries)
@@ -123,7 +117,6 @@ object BackupHelper {
         return backupToFile(context, uri, password, plain)
     }
 
-    @JvmStatic
     fun backupToFile(context: Context, uri: Uri?, password: String?, plain: String?): Boolean {
         var success = true
 

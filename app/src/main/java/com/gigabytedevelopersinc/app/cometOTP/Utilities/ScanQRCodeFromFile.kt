@@ -51,7 +51,6 @@ object ScanQRCodeFromFile {
         HINTS_HARDER[DecodeHintType.TRY_HARDER] = java.lang.Boolean.TRUE
     }
 
-    @JvmStatic
     fun scanQRImage(context: Context, uri: Uri): String? {
         //Check if external storage is accessible
         if (!Tools.isExternalStorageReadable()) {

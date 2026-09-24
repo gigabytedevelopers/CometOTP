@@ -54,14 +54,12 @@ abstract class GenericBackupTask(context: Context, uri: Uri?) :
     protected abstract fun doBackup(): Boolean
 
 
-    class BackupTaskResult(@JvmField val success: Boolean, @JvmField val messageId: Int) {
+    class BackupTaskResult(val success: Boolean, val messageId: Int) {
         companion object {
-            @JvmStatic
             fun success(): BackupTaskResult {
                 return BackupTaskResult(true, R.string.backup_toast_export_success)
             }
 
-            @JvmStatic
             fun failure(): BackupTaskResult {
                 return BackupTaskResult(false, R.string.backup_toast_export_failed)
             }

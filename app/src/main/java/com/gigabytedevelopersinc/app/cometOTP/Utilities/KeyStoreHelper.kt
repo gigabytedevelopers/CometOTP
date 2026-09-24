@@ -21,7 +21,6 @@ import javax.security.auth.x500.X500Principal
 
 object KeyStoreHelper {
 
-    @JvmStatic
     fun wipeKeys(context: Context) {
         val keyFile = File(context.filesDir.toString() + "/" + Constants.FILENAME_ENCRYPTED_KEY)
         keyFile.delete()
@@ -38,7 +37,6 @@ object KeyStoreHelper {
         }
     }
 
-    @JvmStatic
     @Throws(GeneralSecurityException::class, IOException::class)
     fun loadOrGenerateAsymmetricKeyPair(@Suppress("UNUSED_PARAMETER") context: Context, alias: String): KeyPair? {
         val keyStore = KeyStore.getInstance("AndroidKeyStore")
@@ -71,7 +69,6 @@ object KeyStoreHelper {
             null
     }
 
-    @JvmStatic
     fun loadEncryptionKeyFromKeyStore(context: Context, failSilent: Boolean): SecretKey? {
         var encKey: SecretKey? = null
 

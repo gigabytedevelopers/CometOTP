@@ -195,7 +195,6 @@ class EntryList {
     }
 
     companion object {
-        @JvmStatic
         fun sortEntries(unsortedEntries: ArrayList<Entry>, sortMode: Constants.SortMode?): ArrayList<Entry> {
             val sorted = ArrayList(unsortedEntries)
 

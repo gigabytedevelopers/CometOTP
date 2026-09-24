@@ -29,7 +29,6 @@ import android.view.inputmethod.EditorInfo
  **/
 object EditorActionHelper {
 
-    @JvmStatic
     fun isActionDoneOrKeyboardEnter(actionId: Int, event: KeyEvent?): Boolean {
         var isKeyboardEnterEvent = false
         if (event != null) {
@@ -40,7 +39,6 @@ object EditorActionHelper {
         return actionId == EditorInfo.IME_ACTION_DONE || isKeyboardEnterEvent
     }
 
-    @JvmStatic
     fun isActionUpKeyboardEnter(event: KeyEvent): Boolean {
         return event.action == ACTION_UP && (event.keyCode == KEYCODE_ENTER || event.keyCode == KEYCODE_NUMPAD_ENTER)
     }

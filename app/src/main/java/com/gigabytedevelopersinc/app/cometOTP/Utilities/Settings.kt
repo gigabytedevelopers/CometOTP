@@ -233,7 +233,7 @@ class Settings(private val context: Context) {
      * database key they derive (password encryption); nothing is stored until [saveAuthCredentials].
      */
     class NewAuthCredentials internal constructor(
-        @JvmField val key: ByteArray,
+        val key: ByteArray,
         internal val password: String,
         internal val iterations: Int
     )
@@ -559,7 +559,6 @@ class Settings(private val context: Context) {
             setBoolean(R.string.settings_key_enable_android_backup_service, value)
         }
 
-    @get:JvmName("getIsAppendingDateTimeToBackups")
     val isAppendingDateTimeToBackups: Boolean
         get() = getBoolean(R.string.settings_key_backup_append_date_time, true)
 

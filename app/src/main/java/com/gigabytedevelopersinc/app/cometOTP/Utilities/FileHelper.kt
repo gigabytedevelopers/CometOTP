@@ -8,7 +8,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 internal object FileHelper {
-    @JvmStatic
     @Throws(IOException::class)
     fun readFileToBytes(file: File): ByteArray {
         FileInputStream(file).use { `in` ->
@@ -22,7 +21,6 @@ internal object FileHelper {
         }
     }
 
-    @JvmStatic
     @Throws(IOException::class)
     fun writeBytesToFile(file: File, data: ByteArray) {
         FileOutputStream(file).use { out ->
@@ -40,7 +38,6 @@ internal object FileHelper {
      * [rename] is only there for the unit tests: on Windows File.renameTo() refuses to replace an
      * existing file.
      */
-    @JvmStatic
     @Throws(IOException::class)
     fun writeBytesToFileAtomically(file: File, data: ByteArray,
                                    rename: (File, File) -> Boolean = { from, to -> from.renameTo(to) }) {

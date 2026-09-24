@@ -475,7 +475,6 @@ object EntryThumbnail {
              * and follow with generic words: "Steam Wallet", "Apple School Manager"); a tie on
              * position goes to the longer name, then to declaration order.
              */
-            @JvmStatic
             fun valueOfFuzzy(thumbnail: String?): EntryThumbnails {
                 if (thumbnail == null) { // Add null check
                     throw IllegalArgumentException("Thumbnail string cannot be null")
@@ -500,7 +499,6 @@ object EntryThumbnail {
                 throw IllegalArgumentException("No matching thumbnail found for (fuzzy): $thumbnail")
             }
 
-            @JvmStatic
             fun valueOfIgnoreCase(thumbnail: String?): EntryThumbnails {
                 if (thumbnail == null) { // Add null check
                     throw IllegalArgumentException("Thumbnail string cannot be null")
@@ -516,7 +514,6 @@ object EntryThumbnail {
         }
     }
 
-    @JvmStatic
     fun getThumbnailGraphic(context: Context, issuer: String?, label: String?, size: Int, thumbnail: EntryThumbnails): Bitmap? {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 

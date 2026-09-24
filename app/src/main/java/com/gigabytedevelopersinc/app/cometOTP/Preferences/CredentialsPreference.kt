@@ -272,7 +272,6 @@ class CredentialsPreference(context: Context, attrs: AttributeSet?) : DialogPref
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
     companion object {
-        @JvmField
         val DEFAULT_VALUE = AuthMethod.NONE
 
         private val entryValues = listOf(

@@ -21,7 +21,6 @@ import java.io.IOException
  * Desc: StorageAccessHelper
  **/
 object StorageAccessHelper {
-    @JvmStatic
     fun saveFile(context: Context, file: Uri, data: ByteArray): Boolean {
         var success = true
 
@@ -48,12 +47,10 @@ object StorageAccessHelper {
         return success
     }
 
-    @JvmStatic
     fun saveFile(context: Context, file: Uri, data: String): Boolean {
         return saveFile(context, file, data.toByteArray(Charsets.UTF_8))
     }
 
-    @JvmStatic
     @Throws(IOException::class)
     fun loadFile(context: Context, file: Uri): ByteArray {
         // openInputStream returns null when the provider has nothing to give; report that as the
@@ -73,7 +70,6 @@ object StorageAccessHelper {
         }
     }
 
-    @JvmStatic
     fun loadFileString(context: Context, file: Uri): String {
         var result = ""
 

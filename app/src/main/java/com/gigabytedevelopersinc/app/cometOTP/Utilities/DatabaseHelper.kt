@@ -16,10 +16,8 @@ import javax.crypto.SecretKey
 
 object DatabaseHelper {
 
-    @JvmField
     internal val DatabaseFileLock = Any()
 
-    @JvmStatic
     fun wipeDatabase(context: Context) {
         val db = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE)
         val dbBackup = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE_BACKUP)
@@ -28,7 +26,6 @@ object DatabaseHelper {
     }
 
     /** Whether a database has been saved (it can exist and still be unreadable). */
-    @JvmStatic
     fun databaseExists(context: Context): Boolean {
         return File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE).exists()
     }
@@ -46,7 +43,6 @@ object DatabaseHelper {
         }
     }
 
-    @JvmStatic
     fun backupDatabase(context: Context): Boolean {
         val original = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE)
         val backup = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE_BACKUP)
@@ -62,7 +58,6 @@ object DatabaseHelper {
         return true
     }
 
-    @JvmStatic
     fun restoreDatabaseBackup(context: Context): Boolean {
         val original = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE)
         val backup = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE_BACKUP)
@@ -80,7 +75,6 @@ object DatabaseHelper {
     }
 
     /* Database functions */
-    @JvmStatic
     fun saveDatabase(context: Context, entries: ArrayList<Entry>, encryptionKey: SecretKey?): Boolean {
         if (encryptionKey == null) {
             Toast.makeText(context, R.string.toast_encryption_key_empty, Toast.LENGTH_LONG).show()
@@ -114,7 +108,6 @@ object DatabaseHelper {
      * backed up in place of the database, which is why it is not an empty list. A database that
      * does not exist yet (nothing saved so far) loads as an empty list.
      */
-    @JvmStatic
     fun loadDatabase(context: Context, encryptionKey: SecretKey?): ArrayList<Entry>? {
         if (encryptionKey == null) {
             Toast.makeText(context, R.string.toast_encryption_key_empty, Toast.LENGTH_LONG).show()
@@ -127,7 +120,6 @@ object DatabaseHelper {
     }
 
     /** [loadDatabase] without the Context: null when [file] exists but cannot be read. */
-    @JvmStatic
     internal fun loadDatabaseFile(file: File, encryptionKey: SecretKey): ArrayList<Entry>? {
         if (!file.exists())
             return ArrayList()
@@ -143,7 +135,6 @@ object DatabaseHelper {
 
     /* Conversion functions */
 
-    @JvmStatic
     fun entriesToString(entries: ArrayList<Entry>): String {
         val json = JSONArray()
 
@@ -163,7 +154,6 @@ object DatabaseHelper {
      * entries around it are still returned. (Callers save what they loaded, so anything left out
      * here is gone from the database after the next save.)
      */
-    @JvmStatic
     fun stringToEntries(data: String?): ArrayList<Entry> {
         if (data == null)
             return ArrayList()
@@ -171,7 +161,6 @@ object DatabaseHelper {
     }
 
     /** [stringToEntries], but null when [data] is not a JSON array at all. */
-    @JvmStatic
     internal fun stringToEntriesOrNull(data: String): ArrayList<Entry>? {
         val entries = ArrayList<Entry>()
 

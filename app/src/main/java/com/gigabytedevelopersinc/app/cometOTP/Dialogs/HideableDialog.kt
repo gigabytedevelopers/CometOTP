@@ -56,7 +56,6 @@ class HideableDialog(context: Context, titleId: Int, msgId: Int, private val hid
     }
 
     companion object {
-        @JvmStatic
         fun ShowHideableDialog(context: Context, titleId: Int, msgId: Int, hideSettingId: Int) {
             val settings = Settings(context)
 

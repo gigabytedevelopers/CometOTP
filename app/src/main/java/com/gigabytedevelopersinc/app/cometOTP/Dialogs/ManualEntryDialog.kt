@@ -41,13 +41,11 @@ object ManualEntryDialog {
     private val TYPES = Entry.OTPType.values()
     private val ALGORITHMS = TokenCalculator.HashAlgorithm.values()
 
-    @JvmStatic
     fun show(callingActivity: MainActivity, settings: Settings, adapter: EntriesCardAdapter) {
         show(callingActivity, settings, adapter, null, null)
     }
 
     @SuppressLint("SetTextI18n")
-    @JvmStatic
     fun show(callingActivity: MainActivity, settings: Settings, adapter: EntriesCardAdapter,
              oldEntry: Entry?, updateCallback: UpdateCallback?) {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)

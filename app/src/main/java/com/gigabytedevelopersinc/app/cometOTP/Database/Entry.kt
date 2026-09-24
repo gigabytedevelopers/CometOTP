@@ -488,7 +488,6 @@ class Entry {
         const val COLOR_RED = 1
         private const val EXPIRY_TIME = 8
 
-        @JvmStatic
         fun validateSecret(secret: String?, type: OTPType?): Boolean {
             try {
                 if (type == OTPType.MOTP)

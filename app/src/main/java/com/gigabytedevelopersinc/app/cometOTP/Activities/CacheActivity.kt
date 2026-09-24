@@ -61,7 +61,6 @@ class CacheActivity : BaseActivity() {
     }
 
     companion object {
-        @JvmStatic
         fun deleteCache(context: Context) {
             try {
                 val dir = context.cacheDir
@@ -71,7 +70,6 @@ class CacheActivity : BaseActivity() {
             }
         }
 
-        @JvmStatic
         fun deleteDir(dir: File?): Boolean {
             return if (dir != null && dir.isDirectory) {
                 // list() is null when the folder cannot be read; it cannot be emptied then either.
@@ -87,7 +85,6 @@ class CacheActivity : BaseActivity() {
                 dir != null && dir.isFile && dir.delete()
         }
 
-        @JvmStatic
         fun readableFileSize(size: Long): String {
             if (size <= 0) return "0 Bytes"
             val units = arrayOf("Bytes", "kB", "MB", "GB", "TB")

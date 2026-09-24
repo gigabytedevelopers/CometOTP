@@ -46,7 +46,6 @@ object CheatSheet {
      *
      * @param view The view to add a cheat sheet for.
      */
-    @JvmStatic
     fun setup(view: View) {
         view.setOnLongClickListener { view1 -> showCheatSheet(view1, view1.contentDescription) }
     }
@@ -60,7 +59,6 @@ object CheatSheet {
      * @param view      The view to add a cheat sheet for.
      * @param textResId The string resource containing the text to show on long-press.
      */
-    @JvmStatic
     fun setup(view: View, textResId: Int) {
         view.setOnLongClickListener { view1 -> showCheatSheet(view1, view1.context.getString(textResId)) }
     }
@@ -74,7 +72,6 @@ object CheatSheet {
      * @param view The view to add a cheat sheet for.
      * @param text The text to show on long-press.
      */
-    @JvmStatic
     fun setup(view: View, text: CharSequence?) {
         view.setOnLongClickListener { view1 -> showCheatSheet(view1, text) }
     }
@@ -85,7 +82,6 @@ object CheatSheet {
      *
      * @param view The view whose cheat sheet should be removed.
      */
-    @JvmStatic
     fun remove(view: View) {
         view.setOnLongClickListener(null)
     }

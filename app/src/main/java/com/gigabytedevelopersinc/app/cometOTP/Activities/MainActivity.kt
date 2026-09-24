@@ -1266,7 +1266,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     companion object {
-        @JvmField
         var animatorDuration: Long = 1000
 
         private const val INTENT_SCAN_QR = "com.gigabytedevelopersinc.app.cometOTP.intent.SCAN_QR"

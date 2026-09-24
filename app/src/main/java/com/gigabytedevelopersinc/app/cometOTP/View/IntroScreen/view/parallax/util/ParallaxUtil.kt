@@ -11,7 +11,6 @@ import java.util.Queue
 
 object ParallaxUtil {
 
-    @JvmStatic
     fun findParallaxableChildren(root: View): MutableList<Parallaxable> {
         val parallaxableChildrenFound: MutableList<Parallaxable> = LinkedList()
         val queue: Queue<View> = LinkedList()
@@ -35,7 +34,6 @@ object ParallaxUtil {
      * @param parallaxableChildren The list of parallaxable items to set the offset to.
      * @param offset The offset to assign.
      */
-    @JvmStatic
     fun setOffsetToParallaxableList(
             parallaxableChildren: List<Parallaxable>,
             @FloatRange(from = -1.0, to = 1.0) offset: Float

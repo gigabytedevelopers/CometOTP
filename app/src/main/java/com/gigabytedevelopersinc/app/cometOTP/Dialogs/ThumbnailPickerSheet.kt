@@ -25,7 +25,6 @@ object ThumbnailPickerSheet {
         fun onThumbnailPicked(thumbnail: EntryThumbnail.EntryThumbnails)
     }
 
-    @JvmStatic
     fun show(context: Context, issuer: String?, label: String?, callback: Callback) {
         val sheet = BottomSheetDialog(context)
         sheet.setContentView(R.layout.sheet_thumbnail_picker)

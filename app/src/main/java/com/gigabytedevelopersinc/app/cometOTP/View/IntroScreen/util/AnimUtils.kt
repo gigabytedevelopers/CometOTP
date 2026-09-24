@@ -31,7 +31,6 @@ object AnimUtils {
 
     private var fastOutSlowIn: Interpolator? = null
 
-    @JvmStatic
     fun getFastOutSlowInInterpolator(context: Context): Interpolator {
         if (fastOutSlowIn == null) {
             fastOutSlowIn = AnimationUtils.loadInterpolator(context,
@@ -40,7 +39,6 @@ object AnimUtils {
         return fastOutSlowIn!!
     }
 
-    @JvmStatic
     fun applyShakeAnimation(context: Context, view: View) {
         val shake: Animation = AnimationUtils.loadAnimation(context, R.anim.mi_shake)
         view.startAnimation(shake)

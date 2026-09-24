@@ -10,7 +10,6 @@ import java.util.regex.Pattern
 object DimensionConverter {
 
     // -- Initialize dimension string to constant lookup.
-    @JvmField
     val dimensionConstantLookup: Map<String, Int> = initDimensionConstantLookup()
     private fun initDimensionConstantLookup(): Map<String, Int> {
         val m: MutableMap<String, Int> = HashMap()
@@ -26,7 +25,6 @@ object DimensionConverter {
     // -- Initialize pattern for dimension string.
     private val DIMENSION_PATTERN = Pattern.compile("^\\s*(\\d+(\\.\\d+)*)\\s*([a-zA-Z]+)\\s*$")
 
-    @JvmStatic
     fun stringToDimensionPixelSize(dimension: String, metrics: DisplayMetrics): Int {
         // -- Mimics TypedValue.complexToDimensionPixelSize(int data, DisplayMetrics metrics).
         val internalDimension = stringToInternalDimension(dimension)
@@ -39,7 +37,6 @@ object DimensionConverter {
         return -1
     }
 
-    @JvmStatic
     fun stringToDimension(dimension: String, metrics: DisplayMetrics): Float {
         // -- Mimics TypedValue.complexToDimension(int data, DisplayMetrics metrics).
         val internalDimension = stringToInternalDimension(dimension)

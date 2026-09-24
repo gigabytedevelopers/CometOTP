@@ -29,15 +29,12 @@ abstract class GenericRestoreTask(context: Context, uri: Uri?) :
     abstract override fun doInBackground(): RestoreTaskResult
 
     class RestoreTaskResult(
-        @JvmField val success: Boolean,
-        @JvmField val payload: String?,
-        @JvmField val messageId: Int
+        val success: Boolean,
+        val payload: String?,
+        val messageId: Int
     ) {
-        @JvmField
         var isPGP = false
-        @JvmField
         var decryptIntent: Intent? = null
-        @JvmField
         var uri: Uri? = null
 
         constructor(success: Boolean, payload: String?, messageId: Int, isPGP: Boolean, decryptIntent: Intent?, uri: Uri?) :
@@ -48,12 +45,10 @@ abstract class GenericRestoreTask(context: Context, uri: Uri?) :
         }
 
         companion object {
-            @JvmStatic
             fun success(payload: String?): RestoreTaskResult {
                 return RestoreTaskResult(true, payload, 0)
             }
 
-            @JvmStatic
             fun failure(messageId: Int): RestoreTaskResult {
                 return RestoreTaskResult(false, null, messageId)
             }

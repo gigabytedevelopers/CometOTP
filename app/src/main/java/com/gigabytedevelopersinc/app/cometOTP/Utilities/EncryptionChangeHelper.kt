@@ -19,8 +19,8 @@ object EncryptionChangeHelper {
     enum class Status { SUCCESS, BACKUP_FAILED, NO_KEY, SAVE_FAILED }
 
     class Result internal constructor(
-        @JvmField val status: Status,
-        @JvmField val newKey: SecretKey?
+        val status: Status,
+        val newKey: SecretKey?
     )
 
     /**
@@ -38,7 +38,6 @@ object EncryptionChangeHelper {
      * [revert] is called, and the change fails as a whole. Only if the database cannot be put back
      * either does the new key stay in effect, as before, since the preferences in memory match it.
      */
-    @JvmStatic
     fun changeEncryption(context: Context, currentKey: SecretKey?,
                          newType: Constants.EncryptionType, newKeyBytes: ByteArray?,
                          store: () -> Boolean = { true }, revert: () -> Unit = {}): Result {

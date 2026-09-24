@@ -86,7 +86,6 @@ class TagsAdapter(context: Context, tags: HashMap<String, Boolean>) :
     companion object {
         private const val layoutResourceId = android.R.layout.simple_list_item_multiple_choice
 
-        @JvmStatic
         fun createTagsMap(context: Context, entries: ArrayList<Entry>, settings: Settings): HashMap<String, Boolean> {
             val tagsHashMap = HashMap<String, Boolean>()
 

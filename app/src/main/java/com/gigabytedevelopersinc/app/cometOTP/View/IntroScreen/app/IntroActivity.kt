@@ -1354,7 +1354,6 @@ open class IntroActivity : AppCompatActivity(), IntroNavigation {
         const val INFINITE = -1
         const val DEFAULT_AUTOPLAY_REPEAT_COUNT = INFINITE
 
-        @JvmField
         val ACCELERATE_DECELERATE_INTERPOLATOR: Interpolator = AccelerateDecelerateInterpolator()
     }
 }

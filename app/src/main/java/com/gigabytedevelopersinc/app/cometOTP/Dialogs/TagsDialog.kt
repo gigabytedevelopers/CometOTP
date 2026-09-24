@@ -14,7 +14,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.concurrent.Callable
 
 object TagsDialog {
-    @JvmStatic
     fun show(context: Context, tagsAdapter: TagsAdapter, newTagCallable: Callable<*>?, selectedTagsCallable: Callable<*>?) {
         val margin = context.resources.getDimensionPixelSize(R.dimen.activity_margin)
         val marginSmall = context.resources.getDimensionPixelSize(R.dimen.activity_margin_small)

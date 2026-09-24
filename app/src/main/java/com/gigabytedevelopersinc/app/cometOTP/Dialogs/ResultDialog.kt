@@ -23,7 +23,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 object ResultDialog {
     private enum class Kind { SUCCESS, FAILURE, WARNING }
 
-    @JvmStatic
     fun showSuccess(context: Context, @DrawableRes icon: Int,
                     @StringRes title: Int, @StringRes message: Int,
                     @StringRes primaryLabel: Int, onPrimary: Runnable?): AlertDialog {
@@ -31,7 +30,6 @@ object ResultDialog {
                 primaryLabel, onPrimary, 0, null)
     }
 
-    @JvmStatic
     fun showSuccessWithSecondary(context: Context, @DrawableRes icon: Int,
                                  @StringRes title: Int, @StringRes message: Int,
                                  @StringRes primaryLabel: Int, onPrimary: Runnable?,
@@ -40,7 +38,6 @@ object ResultDialog {
                 primaryLabel, onPrimary, secondaryLabel, onSecondary)
     }
 
-    @JvmStatic
     fun showFailure(context: Context, @DrawableRes icon: Int,
                     @StringRes title: Int, @StringRes message: Int,
                     @StringRes primaryLabel: Int, onPrimary: Runnable?,
@@ -49,7 +46,6 @@ object ResultDialog {
                 primaryLabel, onPrimary, secondaryLabel, onSecondary)
     }
 
-    @JvmStatic
     fun showWarning(context: Context, @StringRes title: Int, message: String,
                     @StringRes primaryLabel: Int, onPrimary: Runnable?,
                     @StringRes secondaryLabel: Int, onSecondary: Runnable?): AlertDialog {
@@ -57,7 +53,6 @@ object ResultDialog {
                 primaryLabel, onPrimary, secondaryLabel, onSecondary)
     }
 
-    @JvmStatic
     fun showWarningIcon(context: Context, @DrawableRes icon: Int,
                         @StringRes title: Int, message: String,
                         @StringRes primaryLabel: Int, onPrimary: Runnable?,

@@ -27,21 +27,18 @@ object Tools {
     private const val CSS_RGBA_FORMAT = "rgba(%1\$d,%2\$d,%3\$d,%4\$1f)"
 
     /* Checks if external storage is available for read and write */
-    @JvmStatic
     fun isExternalStorageWritable(): Boolean {
         val state = Environment.getExternalStorageState()
         return Environment.MEDIA_MOUNTED == state
     }
 
     /* Checks if external storage is available to at least read */
-    @JvmStatic
     fun isExternalStorageReadable(): Boolean {
         val state = Environment.getExternalStorageState()
         return Environment.MEDIA_MOUNTED == state || Environment.MEDIA_MOUNTED_READ_ONLY == state
     }
 
     /* Get a color based on the current theme */
-    @JvmStatic
     fun getThemeColor(context: Context, colorAttr: Int): Int {
         val theme = context.theme
         val arr = theme.obtainStyledAttributes(intArrayOf(colorAttr))
@@ -52,7 +49,6 @@ object Tools {
         return colorValue
     }
 
-    @JvmStatic
     fun getThemeResource(context: Context, styleAttr: Int): Int {
         val theme = context.theme
         val arr = theme.obtainStyledAttributes(intArrayOf(styleAttr))
@@ -64,23 +60,19 @@ object Tools {
     }
 
     /* Create a ColorFilter based on the current theme */
-    @JvmStatic
     fun getThemeColorFilter(context: Context, colorAttr: Int): ColorFilter {
         return PorterDuffColorFilter(getThemeColor(context, colorAttr), PorterDuff.Mode.SRC_IN)
     }
 
-    @JvmStatic
     fun buildUri(base: String?, name: String): Uri {
         return Uri.fromFile(File(base, name))
     }
 
-    @JvmStatic
     fun mkdir(path: String): Boolean {
         val dir = File(path)
         return dir.exists() || dir.mkdirs()
     }
 
-    @JvmStatic
     @Suppress("DEPRECATION")
     fun getSystemLocale(): Locale {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -90,7 +82,6 @@ object Tools {
         }
     }
 
-    @JvmStatic
     fun formatTokenString(token: Int, digits: Int): String {
         val numberFormat = NumberFormat.getInstance(Locale.ENGLISH)
         numberFormat.minimumIntegerDigits = digits
@@ -100,7 +91,6 @@ object Tools {
     }
 
 
-    @JvmStatic
     fun formatToken(s: String?, chunkSize: Int): String? {
         if (chunkSize == 0 || s == null)
             return s
@@ -116,14 +106,12 @@ object Tools {
         return ret.toString().trim { it <= ' ' }
     }
 
-    @JvmStatic
     fun getDateTimeString(): String {
         val df: DateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH)
         val now = Calendar.getInstance().time
         return df.format(now)
     }
 
-    @JvmStatic
     fun copyToClipboard(context: Context, text: String?) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText(context.getString(R.string.label_clipboard_content), text)

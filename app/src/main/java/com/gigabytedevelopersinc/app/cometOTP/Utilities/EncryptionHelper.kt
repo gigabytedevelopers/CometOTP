@@ -30,19 +30,15 @@ import javax.crypto.spec.SecretKeySpec
 
 object EncryptionHelper {
     class PBKDF2Credentials {
-        @JvmField
         var password: ByteArray? = null
-        @JvmField
         var key: ByteArray? = null
     }
 
-    @JvmStatic
     fun generateRandomIterations(): Int {
         val rand = Random()
         return rand.nextInt((Constants.PBKDF2_MAX_ITERATIONS - Constants.PBKDF2_MIN_ITERATIONS) + 1) + Constants.PBKDF2_MIN_ITERATIONS
     }
 
-    @JvmStatic
     fun generateRandom(length: Int): ByteArray {
         val raw = ByteArray(length)
         SecureRandom().nextBytes(raw)
@@ -50,7 +46,6 @@ object EncryptionHelper {
         return raw
     }
 
-    @JvmStatic
     @Throws(NoSuchAlgorithmException::class, InvalidKeySpecException::class)
     fun generatePBKDF2Credentials(password: String, salt: ByteArray, iter: Int): PBKDF2Credentials {
         val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
@@ -67,12 +62,10 @@ object EncryptionHelper {
         return credentials
     }
 
-    @JvmStatic
     fun generateSymmetricKey(data: ByteArray): SecretKey {
         return SecretKeySpec(data, 0, data.size, "AES")
     }
 
-    @JvmStatic
     @Throws(NoSuchAlgorithmException::class, InvalidKeySpecException::class)
     fun generateSymmetricKeyPBKDF2(password: String, iter: Int, salt: ByteArray): SecretKey {
         val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
@@ -81,7 +74,6 @@ object EncryptionHelper {
         return secretKeyFactory.generateSecret(keySpec)
     }
 
-    @JvmStatic
     @Throws(NoSuchAlgorithmException::class)
     fun generateSymmetricKeyFromPassword(password: String): SecretKey {
         val sha = MessageDigest.getInstance("SHA-256")
@@ -89,7 +81,6 @@ object EncryptionHelper {
         return SecretKeySpec(sha.digest(password.toByteArray(StandardCharsets.UTF_8)), "AES")
     }
 
-    @JvmStatic
     @Throws(NoSuchPaddingException::class, NoSuchAlgorithmException::class, InvalidAlgorithmParameterException::class, InvalidKeyException::class, UnsupportedEncodingException::class, BadPaddingException::class, IllegalBlockSizeException::class)
     fun encrypt(secretKey: SecretKey, iv: IvParameterSpec, plainText: ByteArray): ByteArray {
         val cipher = Cipher.getInstance(Constants.ALGORITHM_SYMMETRIC)
@@ -98,7 +89,6 @@ object EncryptionHelper {
         return cipher.doFinal(plainText)
     }
 
-    @JvmStatic
     @Throws(NoSuchPaddingException::class, BadPaddingException::class, InvalidKeyException::class, NoSuchAlgorithmException::class, IllegalBlockSizeException::class, UnsupportedEncodingException::class, InvalidAlgorithmParameterException::class)
     fun encrypt(secretKey: SecretKey, plaintext: ByteArray): ByteArray {
         val iv = ByteArray(Constants.ENCRYPTION_IV_LENGTH)
@@ -113,7 +103,6 @@ object EncryptionHelper {
         return combined
     }
 
-    @JvmStatic
     @Throws(NoSuchPaddingException::class, BadPaddingException::class, InvalidKeyException::class, NoSuchAlgorithmException::class, IllegalBlockSizeException::class, UnsupportedEncodingException::class, InvalidAlgorithmParameterException::class)
     fun encrypt(publicKey: PublicKey, plaintext: ByteArray): ByteArray {
         val cipher = Cipher.getInstance(Constants.ALGORITHM_ASYMMETRIC)
@@ -122,7 +111,6 @@ object EncryptionHelper {
         return cipher.doFinal(plaintext)
     }
 
-    @JvmStatic
     @Throws(NoSuchPaddingException::class, InvalidKeyException::class, NoSuchAlgorithmException::class, IllegalBlockSizeException::class, BadPaddingException::class, InvalidAlgorithmParameterException::class)
     fun decrypt(secretKey: SecretKey, iv: IvParameterSpec, cipherText: ByteArray): ByteArray {
         val cipher = Cipher.getInstance(Constants.ALGORITHM_SYMMETRIC)
@@ -131,7 +119,6 @@ object EncryptionHelper {
         return cipher.doFinal(cipherText)
     }
 
-    @JvmStatic
     @Throws(NoSuchPaddingException::class, InvalidKeyException::class, NoSuchAlgorithmException::class, IllegalBlockSizeException::class, BadPaddingException::class, InvalidAlgorithmParameterException::class)
     fun decrypt(secretKey: SecretKey, cipherText: ByteArray): ByteArray {
         // java.util.Arrays on purpose: unlike Kotlin's copyOfRange it zero-pads past the end.
@@ -141,7 +128,6 @@ object EncryptionHelper {
         return decrypt(secretKey, IvParameterSpec(iv), encrypted)
     }
 
-    @JvmStatic
     @Throws(NoSuchPaddingException::class, InvalidKeyException::class, NoSuchAlgorithmException::class, IllegalBlockSizeException::class, BadPaddingException::class, InvalidAlgorithmParameterException::class)
     fun decrypt(privateKey: PrivateKey, cipherText: ByteArray): ByteArray {
         val cipher = Cipher.getInstance(Constants.ALGORITHM_ASYMMETRIC)
@@ -155,7 +141,6 @@ object EncryptionHelper {
      * The symmetric secret key is stored securely on disk by wrapping
      * it with a public/private key pair, possibly backed by hardware.
      */
-    @JvmStatic
     @Throws(GeneralSecurityException::class, IOException::class)
     fun loadOrGenerateWrappedKey(keyFile: File, keyPair: KeyPair): SecretKey {
         val wrapper = SecretKeyWrapper(keyPair)

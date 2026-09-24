@@ -33,7 +33,6 @@ object LauncherIcon {
     }
 
     /** The variant whose alias is currently enabled, falling back to the default. */
-    @JvmStatic
     fun current(context: Context): String {
         val pm = context.packageManager
         for (variant in ALL) {
@@ -49,7 +48,6 @@ object LauncherIcon {
      * turned off, so the launcher never sees a moment with no entry at all and the shortcut is not
      * dropped from the home screen.
      */
-    @JvmStatic
     fun apply(context: Context, variant: String?) {
         var chosenVariant: String = variant ?: DEFAULT
 

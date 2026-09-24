@@ -39,7 +39,6 @@ class CoachMarkOverlay(context: Context) : FrameLayout(context) {
         private const val HOLE_PADDING_DP = 8f
 
         /** Starts the tour inside `root`; the overlay removes itself when it finishes. */
-        @JvmStatic
         fun show(root: ViewGroup, steps: List<Step>, onFinished: Runnable?): CoachMarkOverlay {
             val overlay = CoachMarkOverlay(root.context)
             overlay.steps.addAll(steps)

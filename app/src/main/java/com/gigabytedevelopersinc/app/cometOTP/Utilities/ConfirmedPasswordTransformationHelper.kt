@@ -22,7 +22,6 @@ import com.google.android.material.textfield.TextInputLayout
 object ConfirmedPasswordTransformationHelper {
 
     /** Sets up the specified password views for a toggleable obscure/view password text transformation. */
-    @JvmStatic
     fun setup(passwordLayout: TextInputLayout, passwordInput: TextInputEditText, passwordConfirmInput: EditText) {
         passwordLayout.setEndIconOnClickListener {
             val wasShowingPassword = passwordInput.transformationMethod is PasswordTransformationMethod

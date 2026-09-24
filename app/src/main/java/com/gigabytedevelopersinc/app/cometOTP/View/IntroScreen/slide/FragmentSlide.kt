@@ -235,7 +235,6 @@ open class FragmentSlide protected constructor(builder: Builder) : Slide, Restor
             private const val ARGUMENT_THEME_RES =
                     "com.gigabytedevelopersinc.app.cometOTP.SimpleFragment.ARGUMENT_THEME_RES"
 
-            @JvmStatic
             fun newInstance(@LayoutRes layoutRes: Int, @StyleRes themeRes: Int): FragmentSlideFragment {
                 val arguments = Bundle()
                 arguments.putInt(ARGUMENT_LAYOUT_RES, layoutRes)
@@ -246,7 +245,6 @@ open class FragmentSlide protected constructor(builder: Builder) : Slide, Restor
                 return fragment
             }
 
-            @JvmStatic
             fun newInstance(@LayoutRes layoutRes: Int): FragmentSlideFragment {
                 return newInstance(layoutRes, 0)
             }

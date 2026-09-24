@@ -44,7 +44,6 @@ object NotificationHelper {
         }
     }
 
-    @JvmStatic
     fun initializeNotificationChannels(context: Context) {
         if (GeneralUtils.isOreo()) {
             for (channel in Constants.NotificationChannel.values()) {
@@ -58,7 +57,6 @@ object NotificationHelper {
      * requires the POST_NOTIFICATIONS runtime permission; on older versions only the per-app
      * notification toggle matters.
      */
-    @JvmStatic
     fun canPostNotifications(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -68,12 +66,10 @@ object NotificationHelper {
         return NotificationManagerCompat.from(context).areNotificationsEnabled()
     }
 
-    @JvmStatic
     fun notify(context: Context, channel: Constants.NotificationChannel, resIdTitle: Int, resIdBody: Int) {
         notify(context, channel, resIdTitle, context.getText(resIdBody).toString())
     }
 
-    @JvmStatic
     fun notify(context: Context, channel: Constants.NotificationChannel, resIdTitle: Int, resBody: String?) {
         if (!canPostNotifications(context)) {
             // The system would silently drop the notification anyway; log it so the outcome of a

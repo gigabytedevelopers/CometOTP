@@ -35,7 +35,6 @@ object TagEditSheet {
         fun onTagSaved(oldName: String?, name: String, @ColorInt color: Int, showCount: Boolean)
     }
 
-    @JvmStatic
     fun show(context: Context, existingTag: String?,
              takenNames: List<String>, callback: Callback) {
         val sheet = BottomSheetDialog(context)

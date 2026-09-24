@@ -26,7 +26,6 @@ object TokenCalculator {
         SHA1, SHA256, SHA512
     }
 
-    @JvmField
     val DEFAULT_ALGORITHM = HashAlgorithm.SHA1
 
     @Throws(NoSuchAlgorithmException::class, InvalidKeyException::class)
@@ -40,12 +39,10 @@ object TokenCalculator {
     }
 
     // TODO: Rewrite tests so this compatibility wrapper can be removed
-    @JvmStatic
     fun TOTP_RFC6238(secret: ByteArray, period: Int, time: Long, digits: Int, algorithm: HashAlgorithm): Int {
         return TOTP_RFC6238(secret, period, time, digits, algorithm, 0)
     }
 
-    @JvmStatic
     fun TOTP_RFC6238(secret: ByteArray, period: Int, time: Long, digits: Int, algorithm: HashAlgorithm, offset: Int): Int {
         val fullToken = TOTP(secret, period, time, algorithm, offset)
         val div = Math.pow(10.0, digits.toDouble()).toInt()
@@ -53,12 +50,10 @@ object TokenCalculator {
         return fullToken % div
     }
 
-    @JvmStatic
     fun TOTP_RFC6238(secret: ByteArray, period: Int, digits: Int, algorithm: HashAlgorithm, offset: Int): String {
         return Tools.formatTokenString(TOTP_RFC6238(secret, period, System.currentTimeMillis() / 1000, digits, algorithm, offset), digits)
     }
 
-    @JvmStatic
     fun TOTP_Steam(secret: ByteArray, period: Int, digits: Int, algorithm: HashAlgorithm, offset: Int): String {
         var fullToken = TOTP(secret, period, System.currentTimeMillis() / 1000, algorithm, offset)
 
@@ -72,7 +67,6 @@ object TokenCalculator {
         return tokenBuilder.toString()
     }
 
-    @JvmStatic
     fun HOTP(secret: ByteArray, counter: Long, digits: Int, algorithm: HashAlgorithm): String {
         val fullToken = HOTP(secret, counter, algorithm)
         val div = Math.pow(10.0, digits.toDouble()).toInt()
@@ -106,7 +100,6 @@ object TokenCalculator {
         return r
     }
 
-    @JvmStatic
     fun MOTP(PIN: String, secret: String, epoch: Long, offset: Int): String {
         val epochText = ((epoch / 10) + offset).toString()
         val hashText = epochText + secret + PIN
