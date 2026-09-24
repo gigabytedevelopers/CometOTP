@@ -103,18 +103,19 @@ open class InkPageIndicator @JvmOverloads constructor(
     private var measured = false
 
     init {
-        val density = context.resources.displayMetrics.density.toInt()
+        // Kept as a float: truncating it (2.625 to 2, 0.75 to 0) shrank the default sizes.
+        val density = context.resources.displayMetrics.density
 
         // Load attributes
         val a = this.context.obtainStyledAttributes(
                 attrs, R.styleable.InkPageIndicator, defStyle, 0)
 
         dotDiameter = a.getDimensionPixelSize(R.styleable.InkPageIndicator_dotDiameter,
-                DEFAULT_DOT_SIZE * density)
+                Math.round(DEFAULT_DOT_SIZE * density))
         dotRadius = (dotDiameter / 2).toFloat()
         halfDotRadius = dotRadius / 2
         gap = a.getDimensionPixelSize(R.styleable.InkPageIndicator_dotGap,
-                DEFAULT_GAP * density)
+                Math.round(DEFAULT_GAP * density))
         animDuration = a.getInteger(R.styleable.InkPageIndicator_animationDuration,
                 DEFAULT_ANIM_DURATION).toLong()
         animHalfDuration = animDuration / 2
