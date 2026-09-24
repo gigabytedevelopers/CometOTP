@@ -20,8 +20,6 @@
     <string name="about_title_authors">Authors</string>
 
     <string name="about_label_main_author">Main author</string>
-    <string name="about_label_original_author">Author of the app idea</string>
-    <string name="about_label_original_author_main">Main author of the app idea</string>
     <string name="about_label_original_author_main_google">Google Authenticator app idea</string>
     <string name="about_label_original_app">Original App</string>
     <string name="about_label_github" translatable="false">Github</string>
@@ -29,8 +27,6 @@
 
     <string name="about_name_author1" translatable="false">Gigabyte Developers</string>
     <string name="about_name_author2" translatable="false">Google</string>
-    <string name="about_name_author3" translatable="false">Jakob Nixdorf</string>
-    <string name="about_name_author4" translatable="false">Bruno Bierbaumer</string>
 
     <!-- Support -->
     <string name="about_title_support">Support Development</string>

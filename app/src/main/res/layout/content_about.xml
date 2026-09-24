@@ -321,52 +321,6 @@
 
         <View style="@style/Widget.Comet.Divider" />
 
-        <LinearLayout style="@style/Widget.Comet.AboutRow">
-
-            <ImageView
-                android:id="@+id/aboutImgAuthor3"
-                style="@style/Widget.Comet.AboutRowIcon"
-                app:srcCompat="@drawable/ic_account_circle_gray" />
-
-            <LinearLayout style="@style/Widget.Comet.AboutRowText">
-
-                <TextView
-                    style="@style/Widget.Comet.AboutRowTitle"
-                    android:text="@string/about_name_author3" />
-
-                <TextView
-                    style="@style/Widget.Comet.AboutRowSubtitle"
-                    android:text="@string/about_label_original_author" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <View style="@style/Widget.Comet.Divider" />
-
-        <LinearLayout style="@style/Widget.Comet.AboutRow">
-
-            <ImageView
-                android:id="@+id/aboutImgAuthor4"
-                style="@style/Widget.Comet.AboutRowIcon"
-                app:srcCompat="@drawable/ic_account_circle_gray" />
-
-            <LinearLayout style="@style/Widget.Comet.AboutRowText">
-
-                <TextView
-                    style="@style/Widget.Comet.AboutRowTitle"
-                    android:text="@string/about_name_author4" />
-
-                <TextView
-                    style="@style/Widget.Comet.AboutRowSubtitle"
-                    android:text="@string/about_label_original_author_main" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <View style="@style/Widget.Comet.Divider" />
-
         <!-- Thumbnail disclaimer -->
         <LinearLayout
             android:id="@+id/thumb_expand"
