@@ -77,7 +77,6 @@ So make sure you have a **current backup** before switching!
 
  * [Android CustomTabs](https://github.com/saschpe/android-customtabs)
  * [Apache Commons Codec](https://commons.apache.org/proper/commons-codec)
- * [Expandable Layout](https://github.com/AAkira/ExpandableLayout)
  * [Floating Action Button Speed Dial](https://github.com/leinardi/FloatingActionButtonSpeedDial)
  * [material-intro](https://github.com/heinrichreimer/material-intro)
  * [MaterialProgressBar](https://github.com/DreaminginCodeZH/MaterialProgressBar)
