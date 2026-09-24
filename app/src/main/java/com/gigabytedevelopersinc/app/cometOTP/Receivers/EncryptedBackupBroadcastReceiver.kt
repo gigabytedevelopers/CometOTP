@@ -76,9 +76,10 @@ class EncryptedBackupBroadcastReceiver : BackupBroadcastReceiver() {
                     System.arraycopy(salt, 0, data, Constants.INT_LENGTH, Constants.ENCRYPTION_IV_LENGTH)
                     System.arraycopy(encrypted, 0, data, Constants.INT_LENGTH + Constants.ENCRYPTION_IV_LENGTH, encrypted.size)
 
-                    StorageAccessHelper.saveFile(context, file.uri, data)
-
-                    NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_SUCCESS, R.string.backup_receiver_title_backup_success, file.name)
+                    if (StorageAccessHelper.saveFile(context, file.uri, data))
+                        NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_SUCCESS, R.string.backup_receiver_title_backup_success, file.name)
+                    else
+                        NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_FAILED, R.string.backup_receiver_title_backup_failed, R.string.backup_toast_export_failed)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     NotificationHelper.notify(context, Constants.NotificationChannel.BACKUP_FAILED, R.string.backup_receiver_title_backup_failed, R.string.backup_toast_export_failed)
