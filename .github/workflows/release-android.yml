@@ -144,20 +144,35 @@ jobs:
       # upload-google-play reads files named whatsnew-<locale>, which is not the <versionCode>.txt
       # that fastlane's supply uses. Getting that wrong is silent: the bundle uploads and the
       # release simply arrives with no notes on it, which is what happened to 8.0.0.
+      #
+      # The hand-written notes are named after the version they describe. They used to live in one
+      # default.txt that was used whenever it existed, so 8.1.0 went out with the 8.0.0 text; a
+      # file named for its version cannot be picked up by the next one. Without one, git-cliff's
+      # list is rewritten as plain text and cut at the last whole entry that fits.
       - name: Prepare the Play release notes
+        env:
+          VERSION: ${{ steps.version.outputs.name }}
         run: |
-          src="fastlane/metadata/android/en-US/changelogs/default.txt"
+          src="fastlane/metadata/android/en-US/changelogs/$VERSION.txt"
           out="$RUNNER_TEMP/whatsnew"
           mkdir -p "$out"
-          # Play rejects anything over 500 characters, so a hand-written file wins where one
-          # exists and the generated notes are trimmed otherwise.
           if [ -f "$src" ]; then
+            # Play counts characters, not bytes, and refuses the whole upload over 500.
+            chars=$(python3 -c 'import sys; print(len(open(sys.argv[1], encoding="utf-8").read().strip()))' "$src")
+            if [ "$chars" -gt 500 ]; then
+              echo "::error::$src is $chars characters; Play allows 500. Shorten it and run the release again."
+              exit 1
+            fi
             cp "$src" "$out/whatsnew-en-US"
+            echo "Using the hand-written notes in $src."
           else
-            head -c 480 RELEASE_NOTES.md > "$out/whatsnew-en-US"
+            echo "::warning::No hand-written Play notes at $src, so Play gets notes generated from the commits. Add that file before releasing to write your own."
+            if ! python3 .github/scripts/play_notes.py RELEASE_NOTES.md "$out/whatsnew-en-US"; then
+              echo "CometOTP $VERSION. See the full list of changes on GitHub." > "$out/whatsnew-en-US"
+            fi
           fi
           echo "WHATSNEW_DIR=$out" >> "$GITHUB_ENV"
-          echo "$(wc -c < "$out/whatsnew-en-US") characters:"
+          echo "---- What's new ($(python3 -c 'import sys; print(len(open(sys.argv[1], encoding="utf-8").read().strip()))' "$out/whatsnew-en-US") characters):"
           cat "$out/whatsnew-en-US"
 
       # `tracks` replaced the deprecated `track` input and takes a comma-separated list; this passes

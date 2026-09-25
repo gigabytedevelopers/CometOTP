@@ -1,0 +1,7 @@
+CometOTP 8.1.0 is a reliability and security update.
+
+Security: CometOTP asks you to unlock again after Android closes it in the background, and no longer keeps your password or database key in saved screen state.
+
+Fixed: more than 70 bugs, including crashes in the intro, backup and password screens, backups that could be left half-written, and Steam accounts losing their settings.
+
+Improved: the app is now written entirely in Kotlin.
