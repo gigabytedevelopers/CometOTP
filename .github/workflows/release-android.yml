@@ -75,13 +75,8 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # setup-gradle v6 moved its default ("enhanced") caching into a proprietary component, and
-      # using it means accepting Gradle's Terms of Use. The basic provider is the MIT-licensed one
-      # built on actions/cache. Remove cache-provider to switch back to enhanced caching.
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-provider: basic
 
       # The keystore lives in the runner's temp directory, which is wiped when the job ends, and
       # never inside the workspace, so it cannot be picked up by an artifact upload.

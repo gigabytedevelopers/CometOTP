@@ -38,13 +38,8 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # setup-gradle v6 moved its default ("enhanced") caching into a proprietary component, and
-      # using it means accepting Gradle's Terms of Use. The basic provider is the MIT-licensed one
-      # built on actions/cache. Remove cache-provider to switch back to enhanced caching.
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-provider: basic
 
       - name: Run unit tests
         run: ./gradlew --no-daemon testDebugUnitTest
@@ -73,8 +68,6 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-provider: basic
 
       - name: Run lint
         run: ./gradlew --no-daemon lintDebug
@@ -103,8 +96,6 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-provider: basic
 
       # Debug only. A release build would need the signing key, and the whole point of running
       # pull requests without secrets is that this job works for a fork too.
@@ -134,8 +125,6 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-provider: basic
 
       - name: Enable KVM
         run: |
