@@ -105,8 +105,9 @@ Two things keep this out of reach of the public once the repository is open:
 A release is a version bump. There is nothing to tag by hand:
 
 1. Merge everything you want in the release.
-2. Open a pull request that bumps `app/version.properties` (`VERSION_MAJOR`/`MINOR`/`PATCH`), and
-   merge it.
+2. Open a pull request that bumps `app/version.properties` (`VERSION_MAJOR`/`MINOR`/`PATCH`) and
+   adds the Play "What's new" text as `fastlane/metadata/android/en-US/changelogs/<version>.txt`
+   (see [Play release notes](#play-release-notes)), and merge it.
 3. When CI passes on that commit on `master`, **Auto release** sees there is no tag for the new
    version yet, tags the commit `v<version>`, and starts Release Android and Release iOS on it. The
    Android job then waits for the `production` environment's approval, if you set one.
@@ -175,14 +176,27 @@ Squash-merging it with the green button is fine, since the commit is the bot's, 
 
 ### Play release notes
 
-`fastlane/metadata/android/en-US/changelogs/default.txt` is the "What's new" text, capped at the
-500 characters Play allows. Delete it and the workflow falls back to the first 480 characters of
-the generated notes.
+Write the "What's new" text for a release in
+`fastlane/metadata/android/en-US/changelogs/<version>.txt`, for example `8.2.0.txt`, and include it
+in the pull request that bumps the version. Play allows 500 characters; a longer file fails the
+release before anything is uploaded.
 
-The workflow copies it to `whatsnew-en-US` in a temporary directory and points the upload there,
-because that is the name `upload-google-play` looks for. Fastlane's `supply` wants
+The file is named after the version so it can only ever describe that version. It used to be a
+single `default.txt` that every release picked up, so 8.1.0 shipped to Play with the 8.0.0 text.
+The old files stay as a record of what each release said.
+
+Without a file for the version, the release still goes out: the workflow warns, and builds the
+text from the generated notes instead, as plain text with New, Fixed and Improved sections, stopping
+at the last whole entry that fits and ending with "Plus N more changes." That is serviceable but
+reads like a commit log, so write the file for anything users will see.
+
+The workflow copies the file to `whatsnew-en-US` in a temporary directory and points the upload
+there, because that is the name `upload-google-play` looks for. Fastlane's `supply` wants
 `<versionCode>.txt` instead; using that name here uploads the bundle with no notes at all and says
-nothing about it. Keep `default.txt` where it is and let the workflow do the renaming.
+nothing about it. Name the file after the version and let the workflow do the renaming.
+
+To change the text of a release that is already on Play, edit it in the Play Console. Promoting a
+release to another track there also lets you rewrite its notes.
 
 Write the text as one line per paragraph. Play preserves newlines, so a hard-wrapped file shows
 its wrapping as line breaks in the middle of sentences.
