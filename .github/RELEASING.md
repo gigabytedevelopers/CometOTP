@@ -81,6 +81,7 @@ approve each deployment by hand.
 | `ANDROID_KEY_ALIAS` | Key alias inside the keystore |
 | `ANDROID_KEY_PASSWORD` | Key password |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Google Play service account JSON, pasted whole |
+| `RELEASE_BOT_PRIVATE_KEY` | The release bot GitHub App's private key (`.pem`), pasted whole. Goes with the `RELEASE_BOT_CLIENT_ID` **variable**; see below |
 
 To encode the keystore:
 
@@ -144,6 +145,33 @@ The job builds a signed App Bundle, uploads it with the ProGuard mapping so cras
 deobfuscate, attaches the bundle to a GitHub release, and opens a pull request adding the new
 section to `CHANGELOG.md`. That last step is a pull request rather than a push because `master` is
 protected, and the rules apply to the workflow too.
+
+### The changelog pull request and the release bot
+
+The changelog pull request is opened by a GitHub App, the release bot, rather than the workflow's
+own `GITHUB_TOKEN`. A pull request opened with `GITHUB_TOKEN` gets its CI run held at "action
+required" until someone approves it, so the required checks never report, as happened to 8.1.0.
+The app's pull request runs CI like anyone else's, and because the app is the author, you can
+approve it as code owner. Either way the commit is made through the API (`sign-commits`), so GitHub
+signs it and it passes the signed-commits rule.
+
+Set it up once:
+
+1. **Settings → Developer settings → GitHub Apps → New GitHub App** (on the organisation that owns
+   the repository). Name it something like "CometOTP release bot", untick **Webhook → Active**,
+   and under **Repository permissions** give it **Contents: Read and write** and **Pull requests:
+   Read and write**. Nothing else.
+2. Create it, note its **Client ID**, and under **Private keys** generate a key. A `.pem` file
+   downloads.
+3. **Install App** → install it on this repository only.
+4. In this repository, **Settings → Secrets and variables → Actions → Variables**: add
+   `RELEASE_BOT_CLIENT_ID` with the client ID.
+5. **Settings → Environments → production**: add the secret `RELEASE_BOT_PRIVATE_KEY` with the
+   whole contents of the `.pem` file, then delete the file.
+
+Until that is done the workflow falls back to `GITHUB_TOKEN` and warns: the pull request still
+opens with a signed commit, but you have to press **Approve and run** on it before its CI runs.
+Squash-merging it with the green button is fine, since the commit is the bot's, not yours.
 
 ### Play release notes
 
