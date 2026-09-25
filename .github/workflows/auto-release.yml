@@ -50,7 +50,7 @@ jobs:
 
     steps:
       # The commit CI tested, not whatever master has moved on to since.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0   # all the tags, to compare against
