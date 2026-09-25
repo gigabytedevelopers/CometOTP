@@ -60,9 +60,10 @@ requests, but you do not need a second person to approve your own, which as the 
 you would otherwise be unable to do — GitHub does not let anyone approve their own pull request.
 Remove the `bypass_actors` entry once there is a second maintainer who can review your work.
 
-`.github/CODEOWNERS` is what routes every pull request for that review. It names `@enwokoma` and
-`@princesseke`, so both are asked on every pull request and an approval from either one satisfies
-the ruleset. The author is never asked to review their own, so each reviews the other's. Owners
+`.github/CODEOWNERS` is what routes every pull request for that review. It names
+`@gigabytedevelopersinc`, `@enwokoma` and `@princesseke`, so all three are asked on every pull
+request and an approval from any one of them satisfies the ruleset. The author is never asked to
+review their own, so the other two are. Owners
 must be user accounts or `@org/team` names with write access; the organisation `@gigabytedevelopers`
 is neither, and while the file named it, no review was ever requested automatically. GitHub lists
 any owner it cannot resolve under the file's "Code owners errors" on the repository page.

@@ -1,13 +1,14 @@
-# Every pull request asks both of these people for a review, and the branch ruleset requires an
+# Every pull request asks all of these people for a review, and the branch ruleset requires an
 # approval from one of them before it can be merged. GitHub never asks the author to review their
-# own pull request, so each of you reviews the other's.
+# own pull request, so the other two are asked. The order has no effect on who is asked or whose
+# approval counts; @gigabytedevelopersinc is listed first as the primary owner.
 #
 # Owners have to be user accounts or @org/team names with write access. The organisation itself
 # (@gigabytedevelopers) is neither, which is why this file used to match nobody and no review was
 # ever requested automatically.
-*       @enwokoma @princesseke
+*       @gigabytedevelopersinc @enwokoma @princesseke
 
 # The release machinery and anything that touches signing deserves a second look.
-/.github/                   @enwokoma @princesseke
-/app/build.gradle           @enwokoma @princesseke
-/cliff.toml                 @enwokoma @princesseke
+/.github/                   @gigabytedevelopersinc @enwokoma @princesseke
+/app/build.gradle           @gigabytedevelopersinc @enwokoma @princesseke
+/cliff.toml                 @gigabytedevelopersinc @enwokoma @princesseke
