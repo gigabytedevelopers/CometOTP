@@ -60,7 +60,12 @@ requests, but you do not need a second person to approve your own, which as the 
 you would otherwise be unable to do — GitHub does not let anyone approve their own pull request.
 Remove the `bypass_actors` entry once there is a second maintainer who can review your work.
 
-`.github/CODEOWNERS` is what routes every pull request to you for that review.
+`.github/CODEOWNERS` is what routes every pull request for that review. It names `@enwokoma` and
+`@princesseke`, so both are asked on every pull request and an approval from either one satisfies
+the ruleset. The author is never asked to review their own, so each reviews the other's. Owners
+must be user accounts or `@org/team` names with write access; the organisation `@gigabytedevelopers`
+is neither, and while the file named it, no review was ever requested automatically. GitHub lists
+any owner it cannot resolve under the file's "Code owners errors" on the repository page.
 
 If you rename a CI job, update the matching `context` in the ruleset. A required check that no
 longer reports leaves pull requests stuck waiting for it forever.
