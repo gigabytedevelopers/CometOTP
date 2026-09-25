@@ -1,14 +1,16 @@
-# Every pull request asks all of these people for a review, and the branch ruleset requires an
-# approval from one of them before it can be merged. GitHub never asks the author to review their
-# own pull request, so the other two are asked. The order has no effect on who is asked or whose
-# approval counts; @gigabytedevelopersinc is listed first as the primary owner.
+# Every pull request asks @princesseke for a review, and the branch ruleset requires her approval
+# before it can be merged: as the only code owner, hers is the only approval that counts.
+#
+# GitHub never asks the author to review their own pull request, so a pull request Princess opens
+# has no code owner to approve it; it can only be merged by an admin through the ruleset's bypass.
+# Add a second owner to this file if her pull requests should go through review too.
 #
 # Owners have to be user accounts or @org/team names with write access. The organisation itself
 # (@gigabytedevelopers) is neither, which is why this file used to match nobody and no review was
 # ever requested automatically.
-*       @gigabytedevelopersinc @enwokoma @princesseke
+*       @princesseke
 
 # The release machinery and anything that touches signing deserves a second look.
-/.github/                   @gigabytedevelopersinc @enwokoma @princesseke
-/app/build.gradle           @gigabytedevelopersinc @enwokoma @princesseke
-/cliff.toml                 @gigabytedevelopersinc @enwokoma @princesseke
+/.github/                   @princesseke
+/app/build.gradle           @princesseke
+/cliff.toml                 @princesseke
