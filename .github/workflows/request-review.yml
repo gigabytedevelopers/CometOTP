@@ -1,0 +1,45 @@
+name: Request review
+
+# Asks @princesseke to review every pull request. The owners in CODEOWNERS cannot approve their own
+# pull requests, so she is the reviewer whose approval the ruleset's one required review comes
+# from.
+#
+# This is the one workflow here on pull_request_target rather than pull_request, because a pull
+# request from a fork gets a read-only token under pull_request and could not request a reviewer.
+# pull_request_target runs this file as it is on master, never the pull request's copy, and the job
+# never checks out or runs anything from the pull request, so a fork cannot use it to reach the
+# token. Keep it that way: no actions/checkout here.
+on:
+  pull_request_target:
+    # synchronize as well, because a new push dismisses her approval (the ruleset's
+    # dismiss_stale_reviews_on_push), and this asks her again for the new commits.
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions: {}
+
+concurrency:
+  group: request-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  request:
+    name: Request review from Princess
+    # Not on drafts, which are not ready for review, and not on her own pull requests, since GitHub
+    # does not let anyone review their own. Hers are approved by anyone else with write access.
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.user.login != 'princesseke'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Request the review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          # Asking again while she is already requested is a no-op, so this is safe on every push.
+          gh api -X POST "repos/$REPO/pulls/$PR/requested_reviewers" -f 'reviewers[]=princesseke' --silent
+          echo "Requested a review from @princesseke on #$PR."

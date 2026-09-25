@@ -1,10 +1,11 @@
 # Releasing CometOTP
 
-Four workflows live in `.github/workflows`:
+Five workflows live in `.github/workflows`:
 
 | Workflow | File | When it runs |
 | --- | --- | --- |
 | CI | `ci.yml` | Every pull request, and every push to `master` |
+| Request review | `request-review.yml` | Every pull request that is not a draft; asks `@princesseke` to review |
 | Auto release | `auto-release.yml` | After CI passes on `master`; starts both releases when the version is new |
 | Release Android | `release-android.yml` | Started by Auto release, a `v*` tag, or run by hand |
 | Release iOS | `release-ios.yml` | Same as Android, but **switched off** until enabled |
@@ -20,7 +21,15 @@ Nobody, including you, should be able to push straight to `master`. Import the r
 gh api -X POST repos/gigabytedevelopers/CometOTP/rulesets --input .github/rulesets/protect-master.json
 ```
 
-It requires a pull request with one approving review from a code owner, dismisses stale approvals
+After changing the file, apply it to the existing ruleset (id 23826211) rather than creating a
+second one:
+
+```bash
+gh api -X PUT repos/gigabytedevelopers/CometOTP/rulesets/23826211 --input .github/rulesets/protect-master.json
+```
+
+It requires a pull request with one approving review from anyone with write access (in practice
+`@princesseke`, see below), dismisses stale approvals
 when new commits land, requires review threads to be resolved, forbids force pushes and deletions,
 keeps history linear, requires signed commits, and blocks the merge until all four CI jobs pass.
 
@@ -55,19 +64,27 @@ For a contributor's pull request, where the commits are signed by them rather th
 green button is fine — squash, and GitHub signs the result.
 
 Repository admins are on the bypass list. Everyone else is fully bound: a fork's pull request
-needs your review and four passing checks before it can be merged. You still work through pull
-requests, but you do not need a second person to approve your own, which as the only code owner
-you would otherwise be unable to do — GitHub does not let anyone approve their own pull request.
-Remove the `bypass_actors` entry once there is a second maintainer who can review your work.
+needs an approving review and four passing checks before it can be merged. Admins still work
+through pull requests reviewed by Princess (see [Who reviews](#who-reviews)); the bypass is what
+lets you push a locally merged branch straight to `master`. Remove the `bypass_actors` entry if you
+stop merging locally and want the rules to bind admins too.
 
-`.github/CODEOWNERS` is what routes every pull request for that review. It names only
-`@princesseke`, so she is asked on every pull request and hers is the only approval that satisfies
-the ruleset. GitHub never lets an author approve their own pull request, so one that Princess opens
-has no code owner to approve it and can only be merged by an admin through the bypass; add a second
-owner to the file if her pull requests should be reviewed too. Owners
-must be user accounts or `@org/team` names with write access; the organisation `@gigabytedevelopers`
-is neither, and while the file named it, no review was ever requested automatically. GitHub lists
-any owner it cannot resolve under the file's "Code owners errors" on the repository page.
+### Who reviews
+
+`@princesseke` reviews every pull request. She is not an owner: she is the reviewer because GitHub
+never lets the author of a pull request approve it, so the owners cannot approve their own work.
+The **Request review** workflow asks her on every pull request that is not a draft, and again on
+each new push, since a push dismisses her earlier approval.
+
+The owners, `@gigabytedevelopersinc` and `@enwokoma`, are listed in `.github/CODEOWNERS`. GitHub
+asks them for a review too (never the author), but the ruleset does not require a code owner's
+approval, only one approving review from someone with write access. That is what lets Princess's
+approval count. A pull request Princess opens is not sent to her; either owner approves it.
+
+Owners must be user accounts or `@org/team` names with write access. The organisation
+`@gigabytedevelopers` is neither, and while the file named it, no review was ever requested
+automatically. GitHub lists any owner it cannot resolve under the file's "Code owners errors" on
+the repository page.
 
 If you rename a CI job, update the matching `context` in the ruleset. A required check that no
 longer reports leaves pull requests stuck waiting for it forever.
