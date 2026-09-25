@@ -1,9 +1,15 @@
-# Every change needs a review from the repository owner before it can be merged.
-# The branch ruleset requires a review from a code owner, so this file is what routes
-# a pull request to you.
-*       @gigabytedevelopers
+# The owners of the project. GitHub asks them for a review on every pull request (never the
+# author), but their approval is not what the ruleset requires: any approving review from someone
+# with write access counts, and the review comes from @princesseke, who is asked on every pull
+# request by .github/workflows/request-review.yml. An owner cannot approve their own pull request,
+# which is why the reviewer is someone other than the owners.
+#
+# Owners have to be user accounts or @org/team names with write access. The organisation itself
+# (@gigabytedevelopers) is neither, which is why this file used to match nobody and no review was
+# ever requested automatically.
+*       @gigabytedevelopersinc @enwokoma
 
 # The release machinery and anything that touches signing deserves a second look.
-/.github/                   @gigabytedevelopers
-/app/build.gradle           @gigabytedevelopers
-/cliff.toml                 @gigabytedevelopers
+/.github/                   @gigabytedevelopersinc @enwokoma
+/app/build.gradle           @gigabytedevelopersinc @enwokoma
+/cliff.toml                 @gigabytedevelopersinc @enwokoma
