@@ -165,13 +165,16 @@ jobs:
           echo "$(wc -c < "$out/whatsnew-en-US") characters:"
           cat "$out/whatsnew-en-US"
 
+      # `tracks` replaced the deprecated `track` input and takes a comma-separated list; this passes
+      # the one track. The fallback is not optional: a tag push has no inputs, and an empty `tracks`
+      # makes the action publish straight to production.
       - name: Publish to Google Play
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.gigabytedevelopersinc.app.CometOTP
           releaseFiles: app/build/outputs/bundle/release/*.aab
-          track: ${{ inputs.track || 'internal' }}
+          tracks: ${{ inputs.track || 'internal' }}
           status: ${{ inputs.status || 'completed' }}
           whatsNewDirectory: ${{ env.WHATSNEW_DIR }}
           mappingFile: app/build/outputs/mapping/release/mapping.txt
