@@ -89,16 +89,20 @@
                             android:paddingEnd="44dp"
                             tools:ignore="RtlSymmetry" />
 
+                        <!-- Bounded ripple, not borderless: a borderless one is drawn on the
+                             toolbar behind the pill. Hidden while the field is empty. -->
                         <ImageButton
                             android:id="@+id/searchClear"
                             android:layout_width="44dp"
                             android:layout_height="44dp"
                             android:layout_gravity="end|center_vertical"
-                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:background="@drawable/ripple_icon_circle"
                             android:contentDescription="@string/button_clear_search"
                             android:padding="12dp"
+                            android:visibility="gone"
                             app:srcCompat="@drawable/ic_close"
-                            app:tint="?attr/colorOnSurface" />
+                            app:tint="?attr/colorOnSurface"
+                            tools:visibility="visible" />
 
                     </FrameLayout>
 
