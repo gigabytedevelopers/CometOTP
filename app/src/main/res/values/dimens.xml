@@ -47,13 +47,27 @@
     <dimen name="tag_chip_height">18dp</dimen>
     <dimen name="tag_bar_width">4dp</dimen>
     <dimen name="nav_row_radius">5dp</dimen>
-    <dimen name="nav_row_height">54dp</dimen>
-    <dimen name="sheet_row_inset">20dp</dimen>
     <dimen name="sheet_handle_width">46dp</dimen>
     <dimen name="sheet_handle_height">5dp</dimen>
     <item name="sheet_scrim" type="dimen" format="float">0.6</item>
-    <dimen name="sheet_side_padding">30dp</dimen>
-    <dimen name="sheet_field_gap">24dp</dimen>
+
+    <!-- Bottom sheets follow Material 3.
+
+         A list of actions is laid out like a navigation drawer: 56dp rows inset 12dp from the
+         sheet's edges, each with its icon and text 16dp inside it and nothing between rows, so the
+         pressed and selected fill floats clear of the screen edge.
+
+         Forms and messages keep the 16dp margin a phone layout has on each side, 16dp between
+         fields, 8dp between a label and what it labels, 24dp between sections and above the main
+         action, and 8dp between stacked buttons. -->
+    <dimen name="nav_row_height">56dp</dimen>
+    <dimen name="sheet_list_inset">12dp</dimen>
+    <dimen name="sheet_side_padding">@dimen/space_md</dimen>
+    <dimen name="sheet_header_gap">@dimen/space_sm</dimen><!-- the 48dp title row to the first item -->
+    <dimen name="sheet_field_gap">@dimen/space_md</dimen>
+    <dimen name="sheet_label_gap">@dimen/space_sm</dimen>
+    <dimen name="sheet_section_gap">@dimen/space_lg</dimen>
+    <dimen name="sheet_button_gap">@dimen/space_sm</dimen>
     <dimen name="input_vertical_padding">17dp</dimen>
     <dimen name="input_horizontal_padding">20dp</dimen>
     <dimen name="thumbnail_tile_size">68dp</dimen>

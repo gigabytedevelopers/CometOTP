@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingStart="@dimen/space_md"
-    android:paddingEnd="@dimen/space_md">
+    android:paddingStart="@dimen/sheet_side_padding"
+    android:paddingEnd="@dimen/sheet_side_padding">
 
     <View style="@style/Widget.Comet.SheetHandle" />
 
@@ -38,7 +38,7 @@
         style="@style/Widget.Comet.PillField"
         android:layout_width="match_parent"
         android:layout_height="44dp"
-        android:layout_marginTop="@dimen/space_sm"
+        android:layout_marginTop="@dimen/sheet_header_gap"
         android:autofillHints="no"
         android:drawablePadding="@dimen/space_sm"
         android:hint="@string/search_hint"
@@ -52,7 +52,7 @@
         android:id="@+id/thumbnail_grid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginTop="@dimen/sheet_field_gap"
         android:layout_weight="1"
         android:clipToPadding="false"
         android:horizontalSpacing="@dimen/space_md"

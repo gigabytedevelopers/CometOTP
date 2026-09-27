@@ -48,7 +48,7 @@
             android:layout_width="@dimen/thumbnail_tile_size"
             android:layout_height="@dimen/thumbnail_tile_size"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="17dp"
+            android:layout_marginTop="@dimen/sheet_header_gap"
             android:background="@drawable/bg_thumbnail_placeholder"
             android:clickable="true"
             android:focusable="true"
@@ -80,7 +80,7 @@
             style="@style/Widget.Comet.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="@dimen/sheet_field_gap"
             android:hint="@string/label_key"
             app:endIconContentDescription="@string/help_key"
             app:endIconDrawable="@drawable/ic_info_filled"
@@ -102,7 +102,7 @@
             android:id="@+id/manual_secret_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
+            android:layout_marginTop="@dimen/sheet_field_gap"
             android:background="@drawable/bg_pill_field"
             android:fontFamily="@font/droid_sans_mono_slashed"
             android:maxLines="3"
@@ -226,12 +226,10 @@
             android:id="@+id/dialog_expand_button"
             android:layout_width="match_parent"
             android:layout_height="44dp"
-            android:layout_marginTop="@dimen/space_sm"
+            android:layout_marginTop="@dimen/sheet_field_gap"
             android:background="?attr/selectableItemBackground"
             android:drawablePadding="@dimen/space_sm"
             android:gravity="center_vertical"
-            android:paddingStart="@dimen/space_sm"
-            android:paddingEnd="@dimen/space_sm"
             android:text="@string/label_advanced"
             android:textAppearance="@style/TextAppearance.Comet.LabelLarge"
             android:textColor="?attr/colorOnSurface"
@@ -313,7 +311,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_lg">
+            android:layout_marginTop="@dimen/sheet_section_gap">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/manual_submit"

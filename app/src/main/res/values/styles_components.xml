@@ -422,18 +422,19 @@
     </style>
 
     <!-- Navigation / action rows inside bottom sheets -->
+    <!-- A row in a sheet's list of actions, sized as a Material 3 navigation drawer item: 56dp
+         tall, icon and text 16dp in from the start, 12dp from icon to text, 24dp clear at the end.
+         Rows sit directly under one another; the sheet insets them from its edges. -->
     <style name="Widget.Comet.NavRow" parent="">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/nav_row_height</item>
-        <item name="android:layout_marginTop">4dp</item>
-        <item name="android:layout_marginBottom">4dp</item>
         <item name="android:background">@drawable/bg_nav_row</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingStart">@dimen/space_md</item>
-        <item name="android:paddingEnd">@dimen/space_md</item>
-        <item name="android:drawablePadding">@dimen/space_md</item>
+        <item name="android:paddingEnd">@dimen/space_lg</item>
+        <item name="android:drawablePadding">12dp</item>
         <item name="android:drawableTint">@color/nav_row_text</item>
         <item name="drawableTint">@color/nav_row_text</item>
         <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
@@ -448,9 +449,13 @@
         <item name="android:textColor">@color/nav_row_text_destructive</item>
     </style>
 
+    <!-- A list row like NavRow, with a radio in place of the icon. The radio carries an inset of
+         its own: the margin lines its circle up with the rows' icons, the padding its text with
+         theirs. -->
     <style name="Widget.Comet.SortOption" parent="Widget.Material3.CompoundButton.RadioButton">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_height">@dimen/nav_row_height</item>
+        <item name="android:layout_marginStart">@dimen/space_sm</item>
         <item name="android:paddingStart">@dimen/space_sm</item>
         <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
         <item name="android:textSize">15sp</item>
