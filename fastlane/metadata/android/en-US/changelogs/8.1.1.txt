@@ -1,0 +1,5 @@
+CometOTP 8.1.1 polishes search and dialogs.
+
+New: the timer stays at the top of the screen while you search, as long as the search finds something.
+
+Fixed: tapping the clear (X) button in the search field now shows its feedback on the button instead of behind the field, and the OK button in password dialogs looks disabled until the password is long enough.
