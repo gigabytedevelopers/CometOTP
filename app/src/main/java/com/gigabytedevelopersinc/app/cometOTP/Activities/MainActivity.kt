@@ -497,7 +497,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         updateSortIcon(settings.sortMode)
 
         findViewById<View>(R.id.searchBack).setOnClickListener { exitSearchMode() }
-        findViewById<View>(R.id.searchClear).setOnClickListener { searchField.setText("") }
+        val searchClear = findViewById<View>(R.id.searchClear)
+        searchClear.setOnClickListener { searchField.setText("") }
 
         searchField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -507,6 +508,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             }
 
             override fun afterTextChanged(s: Editable) {
+                // Only offered when there is something to clear; on an empty field it did nothing.
+                searchClear.visibility = if (s.isEmpty()) View.GONE else View.VISIBLE
                 if (searchMode)
                     setFilterString(s.toString())
             }
