@@ -1,51 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Asks before turning on the special features. Built like the app's other sheets: no background
+     of its own, so the themed sheet with its rounded top shows; handle, centred title, the
+     explanation, then the action with the way out beneath it. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_gravity="bottom"
-    android:background="?attr/windowBackground"
     android:orientation="vertical"
-    android:padding="15dp"
-    app:layout_behavior="@string/bottom_sheet_behavior">
+    android:paddingStart="@dimen/sheet_side_padding"
+    android:paddingEnd="@dimen/sheet_side_padding"
+    android:paddingBottom="@dimen/space_lg">
+
+    <View style="@style/Widget.Comet.SheetHandle" />
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:text="@string/title_special_features"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textColor="@color/colorPrimary"/>
-    <TextView
-        android:id="@+id/detail"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:text="@string/about_dialog_special_features"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
-
-    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:gravity="end"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/button_no"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/no_cancel"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:textColor="@color/colorAccent"/>
-        <Button
-            android:id="@+id/button_yes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/yes_enable"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:textColor="@color/colorAccent"/>
-    </LinearLayout>
+        android:layout_marginTop="@dimen/space_lg"
+        android:gravity="center"
+        android:text="@string/title_special_features"
+        android:textAppearance="@style/TextAppearance.Comet.SheetTitle" />
+
+    <TextView
+        android:id="@+id/detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sheet_field_gap"
+        android:text="@string/about_dialog_special_features"
+        android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_yes"
+        style="@style/Widget.Comet.Button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginTop="@dimen/sheet_section_gap"
+        android:text="@string/yes_enable" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_no"
+        style="@style/Widget.Comet.Button.Text"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginTop="@dimen/sheet_button_gap"
+        android:text="@string/no_cancel" />
 
 </LinearLayout>

@@ -37,7 +37,7 @@
     <string name="about_title_data_cache">Data and Cache</string>
     <string name="clear">Clear</string>
 
-    <string name="title_special_features">Request to Enable Special Features</string>
+    <string name="title_special_features">Enable special features?</string>
     <string name="about_title_special_features">Special Features</string>
     <string name="about_dialog_special_features">Are you sure you want to enable the Special
         Features of CometOTP? Most of them are non-standard OTP algorithms which were implemented on special
