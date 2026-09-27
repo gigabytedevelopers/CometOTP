@@ -42,6 +42,8 @@
                     app:srcCompat="@drawable/ic_logo_horizontal"
                     app:tint="?attr/colorOnSurface" />
 
+                <!-- Also stays up in search mode while there are results; the search bar's end
+                     padding then makes room for it (MainActivity.updateAppBarCountdown). -->
                 <com.gigabytedevelopersinc.app.cometOTP.View.CountdownRingView
                     android:id="@+id/appBarCountdown"
                     android:layout_width="32dp"
