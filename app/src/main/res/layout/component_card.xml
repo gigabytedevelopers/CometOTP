@@ -55,131 +55,128 @@
 
         </FrameLayout>
 
-        <!-- Issuer + tag chip -->
+        <!-- Issuer and tag, token (or its cover while hidden) and account label, stacked in one
+             column centred on the card. Only the lines that are showing take up room, so the text
+             stays centred against the icon with or without an issuer or a label: anchored to the
+             top, a card missing either had its text sitting above the icon. -->
         <LinearLayout
-            android:id="@+id/issuerRow"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_md"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="@dimen/space_sm"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toStartOf="@id/trailingGroup"
-            app:layout_constraintStart_toEndOf="@id/thumbnailFrame"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/textViewIssuer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.Comet.Caption"
-                tools:text="Facebook" />
-
-            <TextView
-                android:id="@+id/textViewTags"
-                style="@style/Widget.Comet.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/space_sm"
-                android:visibility="gone"
-                tools:text="Important"
-                tools:visibility="visible" />
-
-        </LinearLayout>
-
-        <!-- Token (visible) -->
-        <LinearLayout
-            android:id="@+id/valueLayout"
+            android:id="@+id/textColumn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_md"
             android:layout_marginEnd="@dimen/space_sm"
             android:orientation="vertical"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/trailingGroup"
             app:layout_constraintStart_toEndOf="@id/thumbnailFrame"
-            app:layout_constraintTop_toBottomOf="@id/issuerRow">
+            app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/valueText"
+            <!-- Issuer + tag chip -->
+            <LinearLayout
+                android:id="@+id/issuerRow"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/token_line_height"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.Comet.Code"
-                android:textDirection="ltr"
-                app:autoSizeMaxTextSize="22sp"
-                app:autoSizeMinTextSize="14sp"
-                app:autoSizeStepGranularity="1sp"
-                app:autoSizeTextType="uniform"
-                tools:text="4119 3435" />
+                android:orientation="horizontal">
 
+                <TextView
+                    android:id="@+id/textViewIssuer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Comet.Caption"
+                    tools:text="Facebook" />
+
+                <TextView
+                    android:id="@+id/textViewTags"
+                    style="@style/Widget.Comet.TagChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_sm"
+                    android:visibility="gone"
+                    tools:text="Important"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
+            <!-- Token (visible) -->
+            <LinearLayout
+                android:id="@+id/valueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/valueText"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/token_line_height"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Comet.Code"
+                    android:textDirection="ltr"
+                    app:autoSizeMaxTextSize="22sp"
+                    app:autoSizeMinTextSize="14sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform"
+                    tools:text="4119 3435" />
+
+                <TextView
+                    android:id="@+id/valueTextPrev"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Comet.BodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textDirection="ltr"
+                    android:visibility="gone"
+                    tools:text="220 671"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
+            <!-- Token (hidden / tap to reveal) -->
+            <LinearLayout
+                android:id="@+id/coverLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/coverImg"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginEnd="@dimen/space_sm"
+                    android:contentDescription="@null"
+                    app:srcCompat="@drawable/ic_eye_off"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/label_hidden"
+                    android:text="@string/bullet_placeholder"
+                    android:textAppearance="@style/TextAppearance.Comet.Code"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+            </LinearLayout>
+
+            <!-- Account label -->
             <TextView
-                android:id="@+id/valueTextPrev"
+                android:id="@+id/textViewLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.Comet.BodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textDirection="ltr"
-                android:visibility="gone"
-                tools:text="220 671"
-                tools:visibility="visible" />
+                android:textAppearance="@style/TextAppearance.Comet.Caption"
+                tools:text="mynameisthis@email.com" />
 
         </LinearLayout>
-
-        <!-- Token (hidden / tap to reveal) -->
-        <LinearLayout
-            android:id="@+id/coverLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_md"
-            android:layout_marginEnd="@dimen/space_sm"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@id/trailingGroup"
-            app:layout_constraintStart_toEndOf="@id/thumbnailFrame"
-            app:layout_constraintTop_toBottomOf="@id/issuerRow">
-
-            <ImageView
-                android:id="@+id/coverImg"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginEnd="@dimen/space_sm"
-                android:contentDescription="@null"
-                app:srcCompat="@drawable/ic_eye_off"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/label_hidden"
-                android:text="@string/bullet_placeholder"
-                android:textAppearance="@style/TextAppearance.Comet.Code"
-                android:textColor="?attr/colorOnSurfaceVariant" />
-
-        </LinearLayout>
-
-        <!-- Account label -->
-        <TextView
-            android:id="@+id/textViewLabel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_md"
-            android:layout_marginEnd="@dimen/space_sm"
-            android:layout_marginBottom="12dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Comet.Caption"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/trailingGroup"
-            app:layout_constraintStart_toEndOf="@id/thumbnailFrame"
-            app:layout_constraintTop_toBottomOf="@id/valueLayout"
-            tools:text="mynameisthis@email.com" />
 
         <!-- Trailing: HOTP counter, countdown ring, then options over copy -->
         <LinearLayout
