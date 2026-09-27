@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Text and icon colour of Widget.Comet.Button.Text. A disabled button fades to the Material
+     disabled emphasis (on-surface at 38%); a plain colour here kept it primary-coloured, so a
+     disabled OK looked as ready to press as an enabled one. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.38" android:color="?attr/colorOnSurface" android:state_enabled="false" />
+    <item android:color="?attr/colorPrimary" />
+</selector>
