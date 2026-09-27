@@ -9,8 +9,13 @@ name: Auto release
 # is a release, and every other merge is not.
 #
 # A tag created with GITHUB_TOKEN does not start other workflows (GitHub's guard against runaway
-# loops), so the release workflows are started with workflow_dispatch, the one event that token is
-# allowed to trigger. The production environment's reviewers still have to approve the Android job.
+# loops), so the release workflows are started with workflow_dispatch. The production
+# environment's reviewers still have to approve the Android job.
+#
+# They are started with the owner's token (RELEASE_DISPATCH_TOKEN), so each release run, and the
+# production deployment it records, is by the owner rather than github-actions, exactly as when
+# the owner releases by hand. The tag itself stays on GITHUB_TOKEN: a tag pushed with the owner's
+# token would also fire the release workflows' own tag trigger and every release would run twice.
 #
 # workflow_run only fires for workflows on the default branch, so none of this happens for a pull
 # request; a fork cannot reach it at all.
@@ -87,11 +92,23 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
         run: gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$TAG" -f sha="$SHA" --silent
 
+      # Without the owner's token the releases still start, as github-actions; see the comment at
+      # the top and "Who a release is deployed by" in .github/RELEASING.md.
+      - name: Say so if the releases start as github-actions
+        if: steps.version.outputs.new == 'true'
+        env:
+          DISPATCH_TOKEN: ${{ secrets.RELEASE_DISPATCH_TOKEN }}
+        run: |
+          if [ -z "$DISPATCH_TOKEN" ]; then
+            echo "::warning::RELEASE_DISPATCH_TOKEN is not set, so the releases start as github-actions and the production deployment is recorded as theirs."
+          fi
+
       # Started on the tag, so each runs its own workflow file as it was at that commit, and the
       # Android tag check sees the tag it expects.
       - name: Start Release Android
         if: steps.version.outputs.new == 'true'
         env:
+          GH_TOKEN: ${{ secrets.RELEASE_DISPATCH_TOKEN || github.token }}
           TAG: ${{ steps.version.outputs.tag }}
         run: gh workflow run release-android.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
 
@@ -99,6 +116,7 @@ jobs:
       - name: Start Release iOS
         if: steps.version.outputs.new == 'true'
         env:
+          GH_TOKEN: ${{ secrets.RELEASE_DISPATCH_TOKEN || github.token }}
           TAG: ${{ steps.version.outputs.tag }}
         run: gh workflow run release-ios.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
 
