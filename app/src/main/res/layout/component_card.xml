@@ -18,7 +18,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="72dp">
+        android:minHeight="@dimen/card_min_height">
 
         <!-- Coloured tag bar on the leading edge (visible when the entry is tagged) -->
         <View

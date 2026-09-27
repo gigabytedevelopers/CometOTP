@@ -79,6 +79,11 @@
     <dimen name="card_corner_radius">12dp</dimen>
     <dimen name="card_padding_without_corners">14dp</dimen>
     <dimen name="card_thumbnail_size">44dp</dimen>
+    <!-- As tall as a card showing an issuer, a token and a label (12 + 16 + 30 + 16 + 12dp, measured
+         at 242px on a 450dpi phone), so a card missing a line is no shorter than one that has them
+         all, and the 72dp column of menu and copy buttons stays 7dp clear of the card's edges. At
+         72dp the two buttons ran from the top edge to the bottom one. -->
+    <dimen name="card_min_height">86dp</dimen>
 
     <!-- The default letter tile text size (relative to the height of the tile) -->
     <item name="tile_letter_font_size_scale" type="dimen" format="float">0.75</item>
