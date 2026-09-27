@@ -107,6 +107,10 @@ approve each deployment by hand.
 | `PLAY_SERVICE_ACCOUNT_JSON` | Google Play service account JSON, pasted whole |
 | `RELEASE_BOT_PRIVATE_KEY` | The release bot GitHub App's private key (`.pem`), pasted whole. Goes with the `RELEASE_BOT_CLIENT_ID` **variable**; see below |
 
+One secret is the exception and sits on the repository instead: `RELEASE_DISPATCH_TOKEN`, a token of
+yours that Auto release starts the releases with, so they are deployed by you. See [Who a release
+is deployed by](#who-a-release-is-deployed-by).
+
 To encode the keystore:
 
 ```bash
@@ -147,6 +151,34 @@ build gets a higher code and nothing has to be written back to the repository. S
 
 Auto release publishes to `internal`; promote from the Play Console, or run **Actions → Release
 Android → Run workflow** on the tag and choose `production`.
+
+### Who a release is deployed by
+
+The Deployments page names whoever started the release run: "Deployed to production by …". A run
+Auto release starts with the workflow's own token shows **github-actions**, as 8.1.0 and 8.1.1 do.
+To have it show **@enwokoma**, as a release started by hand does, Auto release starts the releases
+with a token of yours, the repository secret `RELEASE_DISPATCH_TOKEN`. Until it is set the
+releases still go out, as github-actions, with a warning in the Auto release run.
+
+Set it up once, signed in as @enwokoma:
+
+1. **Settings (your account) → Developer settings → Personal access tokens → Fine-grained tokens
+   → Generate new token.** Resource owner: **gigabytedevelopers**. Repository access: **Only select
+   repositories → CometOTP**. Repository permissions: **Actions: Read and write**, nothing else
+   (Metadata: Read is added automatically). Pick an expiry you will remember; see below.
+2. If the organisation requires approval for fine-grained tokens, approve it under the
+   organisation's **Settings → Personal access tokens → Pending requests**.
+3. In this repository, **Settings → Secrets and variables → Actions → Repository secrets**: add
+   `RELEASE_DISPATCH_TOKEN` with the token. It is a repository secret rather than a `production`
+   environment one, because Auto release is not a deployment and must not appear as one.
+
+The token can do nothing but start and read workflow runs in this repository; it cannot read code,
+push, or reach the signing secrets, which stay on the `production` environment. When it expires,
+releases quietly go back to being deployed by github-actions (the warning says so), so renew it
+before then and replace the secret.
+
+Only the deployments made after the token is in place change. The existing ones keep the name they
+were recorded with.
 
 ### Releasing by hand
 
