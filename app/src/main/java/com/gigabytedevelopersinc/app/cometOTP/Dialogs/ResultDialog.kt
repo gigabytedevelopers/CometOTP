@@ -30,6 +30,13 @@ object ResultDialog {
                 primaryLabel, onPrimary, 0, null)
     }
 
+    /** For a title and message put together at runtime, such as counts. */
+    fun showSuccess(context: Context, @DrawableRes icon: Int,
+                    title: String, message: String,
+                    @StringRes primaryLabel: Int, onPrimary: Runnable?): AlertDialog {
+        return show(context, icon, Kind.SUCCESS, title, message, primaryLabel, onPrimary, 0, null)
+    }
+
     fun showSuccessWithSecondary(context: Context, @DrawableRes icon: Int,
                                  @StringRes title: Int, @StringRes message: Int,
                                  @StringRes primaryLabel: Int, onPrimary: Runnable?,

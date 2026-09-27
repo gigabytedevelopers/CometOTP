@@ -577,4 +577,30 @@
         <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
+
+    <!-- A numbered step in an instruction panel: the number in a primary circle, then the text. -->
+    <style name="Widget.Comet.ImportStep" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/space_sm</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="Widget.Comet.ImportStepNumber" parent="">
+        <item name="android:layout_width">22dp</item>
+        <item name="android:layout_height">22dp</item>
+        <item name="android:background">@drawable/bg_badge_primary</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.LabelSmall</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="Widget.Comet.ImportStepText" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">12dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.BodyMedium</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
 </resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Scans the codes of a Google Authenticator export one after another, without closing the
+     camera between them. The barcode view's own status line carries the progress. Black behind the
+     preview so the theme's background does not flash before the camera starts. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/importScanRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:ignore="Overdraw">
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/importBarcodeView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:id="@+id/importScanClose"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|start"
+        android:layout_margin="@dimen/space_sm"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/import_scan_close"
+        app:srcCompat="@drawable/ic_close"
+        app:tint="@android:color/white" />
+
+</FrameLayout>

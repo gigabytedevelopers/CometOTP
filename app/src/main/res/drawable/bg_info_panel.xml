@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A block of explanatory text inside a sheet: filled like the sheet's input fields, since a
+     surface-coloured card would disappear into the sheet behind it. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="?attr/colorInputFill" />
+    <corners android:radius="@dimen/card_corner_radius" />
+</shape>

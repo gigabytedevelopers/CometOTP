@@ -32,4 +32,10 @@
         android:text="@string/button_setup_key"
         app:drawableStartCompat="@drawable/ic_edit_pen" />
 
+    <TextView
+        android:id="@+id/add_import_google_auth"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/button_import_google_auth"
+        app:drawableStartCompat="@drawable/ic_import_accounts" />
+
 </LinearLayout>

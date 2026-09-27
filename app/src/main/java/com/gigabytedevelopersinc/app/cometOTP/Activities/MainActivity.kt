@@ -11,6 +11,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -36,6 +37,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -55,6 +58,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ManualEntryDialog
+import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ResultDialog
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AppStart
@@ -62,6 +66,8 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.GoogleAuthImportSession
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.GoogleAuthMigration
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.LauncherIcon
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.NotificationHelper
@@ -75,6 +81,7 @@ import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.SimpleItemTouchHelperCallback
 import com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -162,9 +169,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     // QR code scanning
     private fun scanQRCode() {
+        // No barcode image: the scanner would write a picture of every code it reads into the
+        // cache directory, secret included, and nothing here ever used it. A Google
+        // Authenticator export code carries every secret of the export at once.
         val options = ScanOptions()
                 .setOrientationLocked(false)
-                .setBarcodeImageEnabled(true)
+                .setBarcodeImageEnabled(false)
                 .setBeepEnabled(false)
                 .setCaptureActivity(SecureCaptureActivity::class.java)
         scanQrLauncher.launch(options)
@@ -240,6 +250,32 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 authKey = result.data!!.getByteArrayExtra(Constants.EXTRA_AUTH_PASSWORD_KEY)
             updateEncryption(authKey)
         }
+    }
+
+    // The scanner leaves what it read in the pending import; nothing comes back in the result.
+    private val importScanLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+        continueGoogleAuthImport()
+    }
+
+    private val importImagesLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { result ->
+        val data = result.data
+        if (result.resultCode != RESULT_OK || data == null)
+            return@registerForActivityResult
+
+        // Several images arrive as clip data, a single one as the data URI.
+        val images = ArrayList<Uri>()
+        val clip = data.clipData
+        if (clip != null) {
+            for (i in 0 until clip.itemCount)
+                clip.getItemAt(i).uri?.let { images.add(it) }
+        } else {
+            data.data?.let { images.add(it) }
+        }
+
+        if (images.isNotEmpty())
+            readImportImages(images)
     }
 
     private fun showFirstTimeWarning() {
@@ -722,6 +758,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         bindSheetAction(sheet, R.id.add_scan_qr, ::scanQRCode)
         bindSheetAction(sheet, R.id.add_qr_from_image, ::showOpenFileSelector)
         bindSheetAction(sheet, R.id.add_setup_key) { ManualEntryDialog.show(this@MainActivity, settings, adapter) }
+        bindSheetAction(sheet, R.id.add_import_google_auth, ::showGoogleAuthImportSheet)
     }
 
     private fun showNavigationSheet() {
@@ -853,6 +890,13 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     override fun onResume() {
         super.onResume()
+
+        // Images read while the lock screen is up are handed over once it has been passed, so the
+        // import is never offered over a locked app or before the database has been opened.
+        val lockScreenNext = requireAuthentication && settings.authMethod != AuthMethod.NONE
+        if (!lockScreenNext)
+            importImagesJob.onResume(this)
+
         if (requireAuthentication) {
             if (settings.authMethod != AuthMethod.NONE) {
                 requireAuthentication = false
@@ -918,6 +962,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     public override fun onPause() {
+        importImagesJob.onPause(this)
         if (settings.authMethod == AuthMethod.DEVICE)
             runOnUiThread { findViewById<View>(R.id.cardList).visibility = View.INVISIBLE }
         super.onPause()
@@ -1201,6 +1246,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     private fun addQRCode(result: String?) {
+        // A Google Authenticator export code read by the regular scanner or from an image.
+        if (result != null && GoogleAuthMigration.isMigrationUri(result)) {
+            addGoogleAuthCode(result)
+            return
+        }
+
         if (!TextUtils.isEmpty(result)) {
             try {
                 val e = Entry(result!!)
@@ -1212,6 +1263,203 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 Toast.makeText(this, R.string.toast_invalid_qr_code, Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    /* ------------------------------------------------------------------------------------------
+     * Import from Google Authenticator
+     *
+     * The codes collect in GoogleAuthImportSession.pending, from the import scanner, from chosen
+     * images, or from the regular scanner when it happens to read one. Once every code of the
+     * export is in, the accounts are listed for confirmation before anything is added.
+     * ------------------------------------------------------------------------------------------ */
+
+    private var importImagesProgress: AlertDialog? = null
+
+    private fun showGoogleAuthImportSheet() {
+        val sheet = openSheet(R.layout.sheet_import_google_auth)
+        val session = GoogleAuthImportSession.pending
+
+        sheet.findViewById<View>(R.id.sheetClose)?.setOnClickListener { sheet.dismiss() }
+
+        // Part of a multi-code export is in: say how far it got. The rest can come from either button.
+        val progress = sheet.findViewById<TextView>(R.id.importProgress)
+        if (progress != null && !session.isEmpty && !session.isComplete) {
+            progress.text = resources.getQuantityString(R.plurals.import_google_auth_progress,
+                    session.expected, session.received, session.expected)
+            progress.visibility = View.VISIBLE
+        }
+
+        sheet.findViewById<View>(R.id.importScanCamera)?.setOnClickListener {
+            sheet.dismiss()
+            importScanLauncher.launch(Intent(this, ImportScanActivity::class.java))
+        }
+        sheet.findViewById<View>(R.id.importChooseImages)?.setOnClickListener {
+            sheet.dismiss()
+            val picker = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType("image/*")
+                    .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            importImagesLauncher.launch(picker)
+        }
+
+        // Fully open: the steps and both buttons belong together, and are taller than a peek.
+        sheet.behavior.skipCollapsed = true
+        sheet.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    /** Called with whatever the scanner or the images added: review a whole export, or show how far a partial one got. */
+    private fun continueGoogleAuthImport() {
+        val session = GoogleAuthImportSession.pending
+        when {
+            session.isComplete -> showGoogleAuthImportReview()
+            !session.isEmpty -> showGoogleAuthImportSheet()
+        }
+    }
+
+    /** One code read by the regular scanner or the single-image picker. */
+    private fun addGoogleAuthCode(code: String) {
+        if (!addToPendingImport(code)) {
+            Toast.makeText(this, R.string.toast_invalid_qr_code, Toast.LENGTH_LONG).show()
+            return
+        }
+        continueGoogleAuthImport()
+    }
+
+    /** @return false when the code is damaged or numbers itself outside its own export. */
+    private fun addToPendingImport(code: String): Boolean {
+        return try {
+            GoogleAuthImportSession.pending.add(GoogleAuthMigration.parse(code))
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+    }
+
+    private fun readImportImages(images: List<Uri>) {
+        if (importImagesJob.isBusy)
+            return
+
+        importImagesProgress = MaterialAlertDialogBuilder(this)
+                .setView(R.layout.dialog_progress)
+                .setCancelable(false)
+                .show()
+
+        val context = applicationContext
+        importImagesJob.start {
+            val codes = ArrayList<String>()
+            for (image in images) {
+                val text = ScanQRCodeFromFile.decodeQuietly(context, image)
+                if (text != null && GoogleAuthMigration.isMigrationUri(text))
+                    codes.add(text)
+            }
+            val result: (MainActivity) -> Unit = { activity -> activity.onImportImagesRead(codes, images.size) }
+            result
+        }
+    }
+
+    private fun onImportImagesRead(codes: List<String>, imageCount: Int) {
+        importImagesProgress?.dismiss()
+        importImagesProgress = null
+
+        var added = 0
+        for (code in codes) {
+            if (addToPendingImport(code))
+                added++
+        }
+
+        val unreadable = imageCount - added
+        if (added == 0)
+            Toast.makeText(this, R.string.import_images_none_found, Toast.LENGTH_LONG).show()
+        else if (unreadable > 0)
+            Toast.makeText(this, resources.getQuantityString(R.plurals.import_images_unreadable, unreadable, unreadable),
+                    Toast.LENGTH_LONG).show()
+
+        continueGoogleAuthImport()
+    }
+
+    /**
+     * Lists what the export would add before anything is added. Accounts already in CometOTP are
+     * listed apart and not counted, so importing an export a second time does not ask to "import"
+     * accounts that would be left exactly as they are.
+     */
+    private fun showGoogleAuthImportReview() {
+        val session = GoogleAuthImportSession.pending
+        val converted = GoogleAuthMigration.convert(session.accounts)
+        val (present, fresh) = converted.entries.partition { adapter.entries.contains(it) }
+
+        val message = StringBuilder()
+        fun section(@StringRes heading: Int, lines: List<String>) {
+            if (lines.isEmpty())
+                return
+            if (message.isNotEmpty())
+                message.append('\n')
+            if (heading != 0)
+                message.append(getString(heading)).append('\n')
+            for (line in lines)
+                message.append("• ").append(line).append('\n')
+        }
+
+        section(0, fresh.map { GoogleAuthMigration.displayName(it.issuer, it.label ?: "") })
+        // With nothing new the title already says it, so the list needs no heading of its own.
+        section(if (fresh.isEmpty()) 0 else R.string.import_review_present_heading,
+                present.map { GoogleAuthMigration.displayName(it.issuer, it.label ?: "") })
+        section(if (converted.entries.isEmpty()) R.string.import_review_none_message else R.string.import_review_skipped_heading,
+                converted.skipped.map { it.displayName + " " + getString(skipReasonText(it.reason)) })
+
+        val builder = MaterialAlertDialogBuilder(this)
+                .setMessage(message.toString().trimEnd())
+                .setOnCancelListener { session.clear() }
+
+        when {
+            fresh.isNotEmpty() ->
+                builder.setTitle(resources.getQuantityString(R.plurals.import_review_title, fresh.size, fresh.size))
+                        .setPositiveButton(R.string.import_review_confirm) { _, _ -> importGoogleAuthEntries(fresh) }
+                        .setNegativeButton(android.R.string.cancel) { _, _ -> session.clear() }
+            present.isNotEmpty() ->
+                builder.setTitle(R.string.import_nothing_new_title)
+                        .setPositiveButton(android.R.string.ok) { _, _ -> session.clear() }
+            else ->
+                builder.setTitle(R.string.import_review_title_none)
+                        .setPositiveButton(android.R.string.ok) { _, _ -> session.clear() }
+        }
+
+        builder.show()
+    }
+
+    private fun importGoogleAuthEntries(entries: List<Entry>) {
+        GoogleAuthImportSession.pending.clear()
+
+        val now = System.currentTimeMillis()
+        for (e in entries) {
+            e.updateOTP(false)
+            e.lastUsed = now
+        }
+
+        val added = adapter.addEntries(entries)
+        refreshTags()
+
+        if (added == 0) {
+            ResultDialog.showSuccess(this, R.drawable.ic_import_accounts,
+                    getString(R.string.import_nothing_new_title), getString(R.string.import_nothing_new_message),
+                    R.string.continue_on, null)
+            return
+        }
+
+        val duplicates = entries.size - added
+        var message = getString(R.string.import_done_message)
+        if (duplicates > 0)
+            message += " " + resources.getQuantityString(R.plurals.import_done_duplicates, duplicates, duplicates)
+
+        ResultDialog.showSuccess(this, R.drawable.ic_import_accounts,
+                resources.getQuantityString(R.plurals.import_done_title, added, added), message,
+                R.string.continue_on, null)
+    }
+
+    private fun skipReasonText(reason: GoogleAuthMigration.SkipReason): Int = when (reason) {
+        GoogleAuthMigration.SkipReason.UNSUPPORTED_ALGORITHM -> R.string.import_skip_algorithm
+        GoogleAuthMigration.SkipReason.UNSUPPORTED_DIGITS -> R.string.import_skip_digits
+        GoogleAuthMigration.SkipReason.UNSUPPORTED_TYPE -> R.string.import_skip_type
+        GoogleAuthMigration.SkipReason.EMPTY_SECRET -> R.string.import_skip_secret
     }
 
     private inner class ProcessLifecycleObserver : DefaultLifecycleObserver {
@@ -1362,6 +1610,9 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
          */
         private const val STATE_PROCESS_TOKEN = "processToken"
         private val PROCESS_TOKEN = UUID.randomUUID().toString()
+
+        /** Reads chosen images for a Google Authenticator import; outlives a recreated screen. */
+        private val importImagesJob = RetainedJob<MainActivity>()
 
         @IdRes
         private fun sortModeToId(mode: SortMode): Int {

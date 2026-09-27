@@ -112,6 +112,25 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         }
     }
 
+    /**
+     * Adds several entries with one save and one auto-backup, rather than one per entry. Entries
+     * already in the list are left out without a message each; the caller reports them.
+     *
+     * @return how many were added.
+     */
+    fun addEntries(newEntries: List<Entry>): Int {
+        var added = 0
+        for (e in newEntries) {
+            if (entryList.addEntry(e))
+                added++
+        }
+
+        if (added > 0)
+            saveAndRefresh(settings.autoBackupEncryptedPasswordsEnabled)
+
+        return added
+    }
+
     private fun getRealIndex(displayPosition: Int): Int {
         return entryList.indexOf(displayedEntries[displayPosition])
     }

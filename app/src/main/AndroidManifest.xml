@@ -192,6 +192,10 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.SecureCaptureActivity" />
         <activity
+            android:name=".Activities.ImportScanActivity"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Activities.PanicResponderActivity"
             android:launchMode="singleInstance"
             android:noHistory="true"

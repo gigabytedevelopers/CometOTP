@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Add sheet -->
+    <string name="button_import_google_auth">Import from Google Authenticator</string>
+
+    <!-- Import sheet -->
+    <string name="import_google_auth_title">Import from Google Authenticator</string>
+    <string name="import_google_auth_steps_heading">In Google Authenticator</string>
+    <string name="import_google_auth_step_1">Open the menu and tap <b>Transfer accounts</b>, then <b>Export accounts</b>.</string>
+    <string name="import_google_auth_step_2">Choose the accounts to move and tap <b>Next</b>. A large export is shown as several QR codes.</string>
+    <string name="import_google_auth_step_3">Google Authenticator blocks screenshots. If it is on this phone, photograph its codes with another device and choose the photos here.</string>
+    <string name="import_google_auth_scan">Scan with camera</string>
+    <string name="import_google_auth_images">Choose QR images</string>
+    <!-- Quantity follows the second number, the export's size. -->
+    <plurals name="import_google_auth_progress">
+        <item quantity="one">%1$d of %2$d code scanned. Scan the rest to continue.</item>
+        <item quantity="other">%1$d of %2$d codes scanned. Scan the rest to continue.</item>
+    </plurals>
+
+    <!-- Scanner -->
+    <string name="import_scan_prompt_first">Point the camera at a QR code from Google Authenticator</string>
+    <!-- Both quantities follow the second number, the export's size. -->
+    <plurals name="import_scan_prompt_next">
+        <item quantity="one">%1$d of %2$d code scanned. Tap Next in Google Authenticator to show another.</item>
+        <item quantity="other">%1$d of %2$d codes scanned. Tap Next in Google Authenticator to show another.</item>
+    </plurals>
+    <plurals name="import_scan_restarted">
+        <item quantity="one">That code is from a different export, so scanning started again. %1$d of %2$d code scanned.</item>
+        <item quantity="other">That code is from a different export, so scanning started again. %1$d of %2$d codes scanned.</item>
+    </plurals>
+    <string name="import_scan_not_export">That is not a Google Authenticator export code</string>
+    <string name="import_scan_damaged">That code could not be read. Try again from a little further away.</string>
+    <string name="import_scan_close">Stop scanning</string>
+    <string name="import_camera_permission_denied">CometOTP needs the camera to scan the codes</string>
+
+    <!-- Reading chosen images -->
+    <string name="import_images_none_found">No Google Authenticator code was found in the chosen images</string>
+    <plurals name="import_images_unreadable">
+        <item quantity="one">%d image had no Google Authenticator code in it</item>
+        <item quantity="other">%d images had no Google Authenticator code in them</item>
+    </plurals>
+
+    <!-- Review before importing -->
+    <plurals name="import_review_title">
+        <item quantity="one">Import %d account?</item>
+        <item quantity="other">Import %d accounts?</item>
+    </plurals>
+    <string name="import_review_title_none">Nothing to import</string>
+    <string name="import_review_present_heading">Already in CometOTP, and left as they are:</string>
+    <string name="import_review_skipped_heading">These can\'t be used in CometOTP and will be left out:</string>
+    <string name="import_review_none_message">None of the accounts in this export can be used in CometOTP:</string>
+    <string name="import_review_confirm">Import</string>
+    <string name="import_skip_algorithm">uses MD5</string>
+    <string name="import_skip_digits">uses an unsupported number of digits</string>
+    <string name="import_skip_type">is an unsupported type</string>
+    <string name="import_skip_secret">has no secret</string>
+
+    <!-- Outcome -->
+    <plurals name="import_done_title">
+        <item quantity="one">%d account imported</item>
+        <item quantity="other">%d accounts imported</item>
+    </plurals>
+    <string name="import_done_message">Your accounts are ready to use. Keep them in Google Authenticator until you have signed in with a code from CometOTP.</string>
+    <plurals name="import_done_duplicates">
+        <item quantity="one">%d was already in CometOTP and was left as it was.</item>
+        <item quantity="other">%d were already in CometOTP and were left as they were.</item>
+    </plurals>
+    <string name="import_nothing_new_title">Already in CometOTP</string>
+    <string name="import_nothing_new_message">Every account in this export is already in CometOTP, so nothing was changed.</string>
+</resources>
