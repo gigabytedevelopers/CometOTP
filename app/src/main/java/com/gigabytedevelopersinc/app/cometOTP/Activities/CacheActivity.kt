@@ -42,9 +42,10 @@ class CacheActivity : BaseActivity() {
             bottomSheetLayout.findViewById<View>(R.id.button_yes).setOnClickListener {
                 deleteCache(baseContext)
                 mBottomSheetDialog!!.dismiss()
+                // Above the button rather than over it.
                 Snackbar.make(findViewById(R.id.clear_cache_layout),
-                        "CometOTP Cache Storage has been Cleared!",
-                        Snackbar.LENGTH_LONG).show()
+                        R.string.clear_cache_done,
+                        Snackbar.LENGTH_LONG).setAnchorView(clearCache).show()
             }
             mBottomSheetDialog = BottomSheetDialog(this@CacheActivity)
             mBottomSheetDialog!!.setContentView(bottomSheetLayout)

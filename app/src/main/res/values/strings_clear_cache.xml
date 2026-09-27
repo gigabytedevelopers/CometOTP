@@ -17,4 +17,5 @@
         delay automatically loading back your accounts linked to CometOTP.
     </string>
     <string name="clear_cache_button">Clear Cache</string>
+    <string name="clear_cache_done">The cache has been cleared</string>
 </resources>

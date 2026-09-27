@@ -568,4 +568,13 @@
         <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
+
+    <!-- A paragraph of the Clear Cache explanation: body text, 16dp from the one above. -->
+    <style name="Widget.Comet.ClearCacheParagraph" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/space_md</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
 </resources>
