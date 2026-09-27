@@ -172,18 +172,22 @@
         <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
+    <!-- The colours are state lists so a disabled button looks disabled. The container is always
+         transparent: the Expressive button family fills a disabled button with on-surface at 12%,
+         which on a text button read as a tonal highlight on exactly the button you cannot press. -->
     <style name="Widget.Comet.Button.Text" parent="Widget.Material3Expressive.Button.TextButton">
         <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
         <item name="android:textAppearance">@style/TextAppearance.Comet.LabelLarge</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="iconTint">?attr/colorPrimary</item>
+        <item name="android:textColor">@color/btn_text_text</item>
+        <item name="iconTint">@color/btn_text_text</item>
+        <item name="backgroundTint">@android:color/transparent</item>
     </style>
 
     <style name="Widget.Comet.Button.Text.Danger">
-        <item name="android:textColor">?attr/colorError</item>
-        <item name="iconTint">?attr/colorError</item>
+        <item name="android:textColor">@color/btn_text_danger_text</item>
+        <item name="iconTint">@color/btn_text_danger_text</item>
     </style>
 
     <style name="Widget.Comet.Button.Icon" parent="Widget.Material3Expressive.Button.IconButton.Standard">
