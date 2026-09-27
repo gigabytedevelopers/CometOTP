@@ -1,6 +1,7 @@
 @file:Suppress("PackageName")
 package com.gigabytedevelopersinc.app.cometOTP.Activities
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.KeyguardManager
@@ -106,6 +107,10 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private lateinit var appBarSearch: View
     private lateinit var searchField: EditText
     private lateinit var appBarCountdown: CountdownRingView
+    // What updateAppBarCountdown() last settled on, and the animation between the two states.
+    private var countdownShown: Boolean? = null
+    private var countdownSearchEnd = -1
+    private var countdownPaddingAnimator: ValueAnimator? = null
 
     private lateinit var bottomBar: NotchedBottomBar
     private lateinit var sortButton: MaterialButton
@@ -611,12 +616,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         searchMode = true
         appBarBrand.visibility = View.GONE
-        appBarCountdown.visibility = View.GONE
         appBarSearch.visibility = View.VISIBLE
         bottomBar.visibility = View.GONE
         fab.hide()
         touchHelperCallback.setDragEnabled(false)
-        updateEmptyState()
+        // Also places the countdown at the end of the search bar, since every entry still matches.
+        updateEmptyState(animateCountdown = false)
         updateBackCallbackState()
 
         if (focus) {
@@ -655,14 +660,13 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         appBarSearch.visibility = View.GONE
         appBarBrand.visibility = View.VISIBLE
-        appBarCountdown.visibility = if (settings.isHideGlobalTimeoutEnabled) View.GONE else View.VISIBLE
         bottomBar.visibility = View.VISIBLE
         fab.show()
 
         if (!::adapter.isInitialized || adapter.sortMode == SortMode.UNSORTED)
             touchHelperCallback.setDragEnabled(true)
 
-        updateEmptyState()
+        updateEmptyState(animateCountdown = false)
         updateBackCallbackState()
     }
 
@@ -1244,13 +1248,15 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     /**
      * Shows the empty state when the list has no items and hides the global countdown while there
      * is nothing to count down for. In search mode the "no results" copy is used instead.
+     *
+     * [animateCountdown] is off when switching in or out of search mode, where the whole app bar
+     * changes at once and only the countdown's appearing or disappearing while typing should move.
      */
-    private fun updateEmptyState() {
+    private fun updateEmptyState(animateCountdown: Boolean = true) {
         val itemCount = adapter.itemCount
         val empty = itemCount <= 0
 
-        if (!searchMode)
-            appBarCountdown.visibility = if (settings.isHideGlobalTimeoutEnabled || empty) View.GONE else View.VISIBLE
+        updateAppBarCountdown(empty, animateCountdown)
 
         if (searchMode) {
             emptyIllustration.setImageResource(R.drawable.ill_no_results)
@@ -1262,6 +1268,67 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             emptySubtitle.setText(R.string.empty_services_subtitle)
         }
         emptyState.visibility = if (empty) View.VISIBLE else View.GONE
+    }
+
+    /**
+     * Shows the global countdown whenever there are entries on screen for it to count down for:
+     * the list at home, and the results while searching, unless "Hide general timeout bar" is on.
+     *
+     * The ring stays where it is at the end of the app bar. While searching, the search bar's end
+     * padding makes room for it, so the field ends just before the ring rather than under it, and
+     * takes the full width again when there are no results and the ring is hidden.
+     */
+    private fun updateAppBarCountdown(empty: Boolean, animate: Boolean) {
+        val visible = !settings.isHideGlobalTimeoutEnabled && !empty
+
+        val searchEnd = if (visible) {
+            val ring = appBarCountdown.layoutParams as ViewGroup.MarginLayoutParams
+            ring.marginEnd + ring.width + resources.getDimensionPixelSize(R.dimen.space_sm)
+        } else {
+            resources.getDimensionPixelSize(R.dimen.space_md)
+        }
+
+        // Compared with what was last asked for, not the ring's visibility, which stays VISIBLE
+        // until a fade-out has finished.
+        val ringChanges = countdownShown != visible
+        countdownShown = visible
+        if (!ringChanges && countdownSearchEnd == searchEnd)
+            return
+        countdownSearchEnd = searchEnd
+
+        countdownPaddingAnimator?.cancel()
+        appBarCountdown.animate().cancel()
+
+        // Only while typing: results appearing or running out slide the field's end and fade the
+        // ring, rather than making the field jump. Animated by hand rather than with a layout
+        // transition, whose ChangeBounds holds the search bar's layout while it runs and lost the
+        // final width when the next keystroke asked for a layout in the meantime.
+        if (animate && searchMode && ringChanges && appBarSearch.isLaidOut) {
+            countdownPaddingAnimator = ValueAnimator.ofInt(appBarSearch.paddingEnd, searchEnd).apply {
+                duration = COUNTDOWN_TRANSITION_MS
+                addUpdateListener { setSearchBarEndPadding(it.animatedValue as Int) }
+                start()
+            }
+            if (visible) {
+                appBarCountdown.alpha = 0f
+                appBarCountdown.visibility = View.VISIBLE
+                appBarCountdown.animate().alpha(1f).setDuration(COUNTDOWN_TRANSITION_MS)
+            } else {
+                appBarCountdown.animate().alpha(0f).setDuration(COUNTDOWN_TRANSITION_MS).withEndAction {
+                    appBarCountdown.visibility = View.GONE
+                    appBarCountdown.alpha = 1f
+                }
+            }
+        } else {
+            appBarCountdown.alpha = 1f
+            appBarCountdown.visibility = if (visible) View.VISIBLE else View.GONE
+            setSearchBarEndPadding(searchEnd)
+        }
+    }
+
+    private fun setSearchBarEndPadding(end: Int) {
+        appBarSearch.setPaddingRelative(appBarSearch.paddingStart, appBarSearch.paddingTop,
+                end, appBarSearch.paddingBottom)
     }
 
     override fun shouldDestroyOnScreenOff(): Boolean {
@@ -1282,6 +1349,9 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         /** How long a tapped sheet row stays highlighted before the sheet closes. */
         private const val SHEET_ACTION_FEEDBACK_MS = 180L
+
+        /** How long the search field takes to make room for, or take back, the countdown. */
+        private const val COUNTDOWN_TRANSITION_MS = 200L
 
         private const val LAST_APP_VERSION = "1"
         private var appStart: AppStart? = null
