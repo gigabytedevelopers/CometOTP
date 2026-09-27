@@ -5,6 +5,22 @@ All notable changes to CometOTP are recorded here.
 Entries from 8.0.0 onwards are generated from the commit history when a release is deployed, so
 the wording follows the commit subjects. See `.github/RELEASING.md` for how that works.
 
+## 8.1.1 (2026-09-27)
+
+
+### Fix
+
+- Show the search clear button's touch feedback on the button, not behind the field (#22)
+- Show disabled text buttons as disabled, starting with the password dialog's OK (#23)
+
+### Improvement
+
+- Add the 8.1.0 changelog entry (#17)
+
+### New
+
+- Keep the timer visible while searching, as long as there are results (#24)
+
 ## 8.1.0 (2026-09-24)
 
 
