@@ -257,45 +257,6 @@ release to another track there also lets you rewrite its notes.
 Write the text as one line per paragraph. Play preserves newlines, so a hard-wrapped file shows
 its wrapping as line breaks in the middle of sentences.
 
-### The website changelog
-
-About → Changelog opens https://gigabytedevelopers.com/apps/cometotp/changelog/. That page reads
-`log/CHANGELOG.md` next to it and has no error state: if it cannot read the file it says "Loading"
-forever. Mode 750 is enough to cause that, because the web server then answers with a redirect to
-its 404 page.
-
-That file is `website/CHANGELOG.md` in this repository. Nothing in GitHub can reach the server;
-the server fetches the file instead, with a cron job that runs every 15 minutes. It downloads
-`website/CHANGELOG.md` from `master` and installs it with mode 644, but only when it has changed
-and starts with the `---` the changelog does, so a failed download or an error page never
-replaces the page.
-
-Each release adds itself: Release Android runs `.github/scripts/website_changelog.py`, which puts
-the release above the newest one in `website/CHANGELOG.md`, and the changelog pull request carries
-that change along with `CHANGELOG.md`. The website shows the release within 15 minutes of that
-pull request being merged. The entries come from the Play notes file for the version, one section
-per "New:", "Improved:", "Fixed:" or "Security:" paragraph, with the summary paragraph left out.
-Without that file they come from the commits, as on GitHub.
-
-To change the page, edit `website/CHANGELOG.md` here, in a pull request. The copy on the server,
-and the one in the `gigabytedevelopers/website` repository, are overwritten the next time this
-file changes, so edits made there do not last. To add a release the workflow missed:
-
-```bash
-python3 .github/scripts/website_changelog.py website/CHANGELOG.md \
-  fastlane/metadata/android/en-US/changelogs/8.2.0.txt 8.2.0 2026-10-01T10:00:00 website/CHANGELOG.md
-```
-
-Set the cron job up once, in cPanel → **Cron Jobs**, with **Once Per Fifteen Minutes**
-(`*/15 * * * *`) and this command:
-
-```sh
-f=$HOME/public_html/apps/cometotp/changelog/log/CHANGELOG.md; curl -fsSL --max-time 60 --max-filesize 1048576 -o $f.new https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/website/CHANGELOG.md && test -s $f.new && head -n 1 $f.new | grep -q ^--- && { cmp -s $f.new $f || { chmod 644 $f.new && mv -f $f.new $f; }; }; rm -f $f.new
-```
-
-It prints nothing unless a download fails, so the cron email only arrives when something is wrong.
-It contains no `%`, which cron would otherwise treat as a line break.
-
 ## Enabling iOS later
 
 The iOS workflow is complete but gated. Every run currently stops at a job that prints a notice and
