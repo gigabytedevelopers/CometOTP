@@ -277,9 +277,11 @@ pull request being merged. The entries come from the Play notes file for the ver
 per "New:", "Improved:", "Fixed:" or "Security:" paragraph, with the summary paragraph left out.
 Without that file they come from the commits, as on GitHub.
 
-To change the page, edit `website/CHANGELOG.md` here, in a pull request. The copy on the server,
-and the one in the `gigabytedevelopers/website` repository, are overwritten the next time this
-file changes, so edits made there do not last. To add a release the workflow missed:
+To change the page, edit `website/CHANGELOG.md` here, in a pull request. The copy on the server
+is overwritten the next time this file changes, so edits made there do not last. The
+`gigabytedevelopers/website` repository keeps a copy at `apps/cometotp/changelog/log/CHANGELOG.md`,
+which its Sync CometOTP changelog workflow updates from this file every six hours; edits made
+to that copy are overwritten too. To add a release the workflow missed:
 
 ```bash
 python3 .github/scripts/website_changelog.py website/CHANGELOG.md \
@@ -290,10 +292,12 @@ Set the cron job up once, in cPanel → **Cron Jobs**, with **Once Per Fifteen M
 (`*/15 * * * *`) and this command:
 
 ```sh
-f=$HOME/public_html/apps/cometotp/changelog/log/CHANGELOG.md; curl -fsSL --max-time 60 --max-filesize 1048576 -o $f.new https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/website/CHANGELOG.md && test -s $f.new && head -n 1 $f.new | grep -q ^--- && { cmp -s $f.new $f || { chmod 644 $f.new && mv -f $f.new $f; }; }; rm -f $f.new
+f=$HOME/public_html/apps/cometotp/changelog/log/CHANGELOG.md; curl -fsSL --max-time 60 --max-filesize 1048576 -o $f.new https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/website/CHANGELOG.md && test -s $f.new && head -n 1 $f.new | grep -q ^--- && { cmp -s $f.new $f || { chmod 644 $f.new && mv -f $f.new $f; }; }; rm -f $f.new; test -f $f && chmod 644 $f
 ```
 
-It prints nothing unless a download fails, so the cron email only arrives when something is wrong.
+It also sets the file back to 644 on every run, even when the content has not changed, so an
+upload from an IDE that leaves it at 750 fixes itself within 15 minutes. It prints nothing unless
+a download fails, so the cron email only arrives when something is wrong.
 It contains no `%`, which cron would otherwise treat as a line break.
 
 ## Enabling iOS later
