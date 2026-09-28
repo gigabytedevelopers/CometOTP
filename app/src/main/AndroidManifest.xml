@@ -225,5 +225,17 @@
     <!-- Required on Android 11+ for andOTP to be able to select a PGP provider -->
     <queries>
         <package android:name="org.sufficientlysecure.keychain" />
+
+        <!-- Browsers that can show a Custom Tab. From Android 11 an app cannot see other apps
+             unless it declares them here, so without these the custom tabs helper found no
+             browser at all and always opened links in its bare WebView fallback. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
     </queries>
 </manifest>
