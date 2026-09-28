@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""Adds a release to the changelog page on gigabytedevelopers.com.
+"""Adds a release to website/CHANGELOG.md, the changelog page on gigabytedevelopers.com.
 
 The page (apps/cometotp/changelog/ on the website) is LogLive: it reads log/CHANGELOG.md next to
-it, which starts with a "---" front matter block and "# CometOTP", then one section per release:
+it, which a cron job on the server fetches from website/CHANGELOG.md on master. The file starts
+with a "---" front matter block and "# CometOTP", then has one section per release:
 
     ## 8.1.1 (2026-09-27T19:00:00)
     ### Improvement
     - ...
 
-The file on the server is the only copy with every release in it, and older entries there are
-edited by hand, so this never rebuilds it: it takes the file as it is on the server and puts the
-new release above the newest one, leaving everything else byte for byte, including its CRLF line
-endings.
+Older entries are edited by hand, so this never rebuilds the file: it puts the new release above
+the newest one and leaves everything else byte for byte, including its line endings.
 
 The entries come from the hand-written Play notes for the version when there are some, because
 those are written for people using the app, as the rest of that page is. Each "Label: text"
@@ -23,7 +22,8 @@ Exits 0 having written OUTPUT, 3 if the file already has this version (OUTPUT is
 and 1 if the file on the server does not look like the changelog or there is nothing to add.
 
 Usage: website_changelog.py CURRENT.md NOTES VERSION DATE OUTPUT
-       NOTES is a Play notes .txt or git-cliff .md; DATE is YYYY-MM-DDTHH:MM:SS.
+       NOTES is a Play notes .txt or git-cliff .md; DATE is YYYY-MM-DDTHH:MM:SS. OUTPUT may be
+       CURRENT.md itself.
 """
 import io
 import re

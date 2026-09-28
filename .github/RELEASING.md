@@ -106,9 +106,6 @@ approve each deployment by hand.
 | `ANDROID_KEY_PASSWORD` | Key password |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Google Play service account JSON, pasted whole |
 | `RELEASE_BOT_PRIVATE_KEY` | The release bot GitHub App's private key (`.pem`), pasted whole. Goes with the `RELEASE_BOT_CLIENT_ID` **variable**; see below |
-| `WEBSITE_DEPLOY_KEY` | The hosting account's SSH private key, which uploads the website's changelog; see [The website changelog](#the-website-changelog) |
-| `WEBSITE_KEY_PASSPHRASE` | That key's passphrase |
-| `WEBSITE_SSH_USER` | The hosting account's SSH user name |
 
 One secret is the exception and sits on the repository instead: `RELEASE_DISPATCH_TOKEN`, a token of
 yours that Auto release starts the releases with, so they are deployed by you. See [Who a release
@@ -263,52 +260,41 @@ its wrapping as line breaks in the middle of sentences.
 ### The website changelog
 
 About → Changelog opens https://gigabytedevelopers.com/apps/cometotp/changelog/. That page reads
-`log/CHANGELOG.md` next to it, in `public_html` on the hosting account, and has no error state: if
-it cannot read the file it says "Loading" forever. Mode 750 is enough to cause that, because the
-web server then answers with a redirect to its 404 page.
+`log/CHANGELOG.md` next to it and has no error state: if it cannot read the file it says "Loading"
+forever. Mode 750 is enough to cause that, because the web server then answers with a redirect to
+its 404 page.
 
-After a release is on Play, Release Android runs **Website changelog** (`website-changelog.yml`)
-as a job of its own. It downloads the file from the website, adds the release above the newest
-one with `.github/scripts/website_changelog.py`, uploads it, and checks the website then serves
-the new section. The entries come from the Play notes file for the version, one section per
-"New:", "Improved:", "Fixed:" or "Security:" paragraph, with the summary paragraph left out.
-Without that file they come from the commits, as on GitHub. The release is dated when it was
-tagged. A version the file already has is left alone, so edits made to the file by hand are kept.
+That file is `website/CHANGELOG.md` in this repository. Nothing in GitHub can reach the server;
+the server fetches the file instead, with a cron job that runs every 15 minutes. It downloads
+`website/CHANGELOG.md` from `master` and installs it with mode 644, but only when it has changed
+and starts with the `---` the changelog does, so a failed download or an error page never
+replaces the page.
 
-Because the file on the server is the one that gets updated, download it before editing it by
-hand. Uploading an older copy, for example on save from an IDE, drops the releases added since.
+Each release adds itself: Release Android runs `.github/scripts/website_changelog.py`, which puts
+the release above the newest one in `website/CHANGELOG.md`, and the changelog pull request carries
+that change along with `CHANGELOG.md`. The website shows the release within 15 minutes of that
+pull request being merged. The entries come from the Play notes file for the version, one section
+per "New:", "Improved:", "Fixed:" or "Security:" paragraph, with the summary paragraph left out.
+Without that file they come from the commits, as on GitHub.
 
-To publish a release the job missed, or to try the upload, run **Actions → Website changelog →
-Run workflow** with the version. Tick **republish** to upload the file even though it already has
-that version.
-
-Set it up once, by adding the key you already sign in to the hosting account with, its passphrase
-and the account's user name to the `production` environment:
+To change the page, edit `website/CHANGELOG.md` here, in a pull request. The copy on the server,
+and the one in the `gigabytedevelopers/website` repository, are overwritten the next time this
+file changes, so edits made there do not last. To add a release the workflow missed:
 
 ```bash
-gh secret set WEBSITE_DEPLOY_KEY --env production --repo gigabytedevelopers/CometOTP < ~/.ssh/id_ed25519
-gh secret set WEBSITE_KEY_PASSPHRASE --env production --repo gigabytedevelopers/CometOTP
-gh secret set WEBSITE_SSH_USER --env production --repo gigabytedevelopers/CometOTP --body <user>
+python3 .github/scripts/website_changelog.py website/CHANGELOG.md \
+  fastlane/metadata/android/en-US/changelogs/8.2.0.txt 8.2.0 2026-10-01T10:00:00 website/CHANGELOG.md
 ```
 
-The second command asks for the passphrase, so it never lands in your shell history. Then run
-**Website changelog** with the latest version and **republish** ticked to check it works.
+Set the cron job up once, in cPanel → **Cron Jobs**, with **Once Per Fifteen Minutes**
+(`*/15 * * * *`) and this command:
 
-The job unlocks the key into an agent that lasts only for the upload step, so neither the unlocked
-key nor the passphrase is ever written to disk or shown in the log. On the server it writes the
-upload next to the file and swaps it in only once the upload is complete, starts with the `---`
-the changelog does, and has mode 644.
+```sh
+f=$HOME/public_html/apps/cometotp/changelog/log/CHANGELOG.md; curl -fsSL --max-time 60 --max-filesize 1048576 -o $f.new https://raw.githubusercontent.com/gigabytedevelopers/CometOTP/master/website/CHANGELOG.md && test -s $f.new && head -n 1 $f.new | grep -q ^--- && { cmp -s $f.new $f || { chmod 644 $f.new && mv -f $f.new $f; }; }; rm -f $f.new
+```
 
-That key opens a shell on the whole hosting account, and if it is also your GitHub SSH key, it can
-push as you. Anything that can run a job in the `production` environment can use it. Adding
-yourself as a required reviewer on that environment (Settings → Environments → production), and
-limiting it to `master` and tags, keeps that to runs you have approved. If the key is ever
-replaced, update `WEBSITE_DEPLOY_KEY` and `WEBSITE_KEY_PASSPHRASE`, or the upload fails.
-
-The server's host key is pinned in the workflow, so the key is never offered to anything else. If
-the host is moved or its key changes, the upload fails with a host key error. Replace the
-`known_hosts` line in `website-changelog.yml` with the new key from `ssh-keyscan -p 21098
-gigabytedevelopers.com`, after checking its fingerprint against the hosting provider.
+It prints nothing unless a download fails, so the cron email only arrives when something is wrong.
+It contains no `%`, which cron would otherwise treat as a line break.
 
 ## Enabling iOS later
 

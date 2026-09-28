@@ -1,8 +1,7 @@
 name: Release Android
 
-# Builds a signed App Bundle, publishes it to Google Play, writes the release notes, opens a pull
-# request that adds the new section to CHANGELOG.md, and adds the release to the website's
-# changelog page (website-changelog.yml).
+# Builds a signed App Bundle, publishes it to Google Play, writes the release notes, and opens a
+# pull request that adds the new section to CHANGELOG.md and to the website's changelog.
 #
 # Nothing here reads a secret until the `production` environment has released the job, so you can
 # require your own approval on every deployment from Settings -> Environments.
@@ -48,9 +47,6 @@ jobs:
     permissions:
       contents: write        # create the GitHub release
       pull-requests: write   # open the changelog pull request
-
-    outputs:
-      version: ${{ steps.version.outputs.name }}
 
     steps:
       - uses: actions/checkout@v7
@@ -231,6 +227,31 @@ jobs:
         continue-on-error: true
         run: python3 .github/scripts/insert_changelog.py CHANGELOG.md NEW_SECTION.md
 
+      # The changelog page on gigabytedevelopers.com (About -> Changelog) is website/CHANGELOG.md:
+      # a cron job on the server fetches it from master, so the release reaches the page once this
+      # pull request is merged. The entries come from the hand-written Play notes, which are
+      # written for people using the app as the rest of that page is, or from the commits when
+      # there are none. A version the file already has is left alone.
+      - name: Add the release to the website changelog
+        id: website
+        continue-on-error: true
+        env:
+          VERSION: ${{ steps.version.outputs.name }}
+        run: |
+          notes="fastlane/metadata/android/en-US/changelogs/$VERSION.txt"
+          [ -f "$notes" ] || notes=RELEASE_NOTES.md
+          status=0
+          python3 .github/scripts/website_changelog.py website/CHANGELOG.md "$notes" "$VERSION" \
+            "$(date -u +%Y-%m-%dT%H:%M:%S)" website/CHANGELOG.md || status=$?
+          [ "$status" = 0 ] || [ "$status" = 3 ]
+
+      - name: Say so if the website changelog was not updated
+        if: steps.website.outcome == 'failure'
+        run: |
+          v="${{ steps.version.outputs.name }}"
+          echo "::warning::$v was not added to website/CHANGELOG.md, so the changelog page on the website will not show it."
+          echo "::warning::Add it by hand with .github/scripts/website_changelog.py; see 'The website changelog' in .github/RELEASING.md."
+
       # A pull request opened with GITHUB_TOKEN does not run CI without someone approving it first,
       # and the required checks never report until then. A GitHub App's token has no such limit,
       # and its pull request is authored by the app, so you can approve it as code owner.
@@ -275,7 +296,9 @@ jobs:
             ${{ steps.version.outputs.name }} (versionCode ${{ steps.version.outputs.code }}).
           commit-message: "chore: Add the ${{ steps.version.outputs.name }} changelog entry"
           base: master
-          add-paths: CHANGELOG.md
+          add-paths: |
+            CHANGELOG.md
+            website/CHANGELOG.md
 
       # Not silent: a swallowed failure that nobody sees is worse than a red tick.
       - name: Say so if the changelog was not opened
@@ -289,12 +312,3 @@ jobs:
         if: always()
         run: rm -f "$RUNNER_TEMP/release.keystore"
 
-  # A job of its own, so that the website being down shows as this job failing rather than as the
-  # release failing: by now the app is already on Play.
-  website-changelog:
-    name: Website changelog
-    needs: release
-    uses: ./.github/workflows/website-changelog.yml
-    with:
-      version: ${{ needs.release.outputs.version }}
-    secrets: inherit
