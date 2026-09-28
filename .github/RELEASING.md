@@ -106,6 +106,8 @@ approve each deployment by hand.
 | `ANDROID_KEY_PASSWORD` | Key password |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Google Play service account JSON, pasted whole |
 | `RELEASE_BOT_PRIVATE_KEY` | The release bot GitHub App's private key (`.pem`), pasted whole. Goes with the `RELEASE_BOT_CLIENT_ID` **variable**; see below |
+| `WEBSITE_DEPLOY_KEY` | The private key that uploads the website's changelog; see [The website changelog](#the-website-changelog) |
+| `WEBSITE_SSH_USER` | The hosting account's SSH user name, for that upload |
 
 One secret is the exception and sits on the repository instead: `RELEASE_DISPATCH_TOKEN`, a token of
 yours that Auto release starts the releases with, so they are deployed by you. See [Who a release
@@ -256,6 +258,64 @@ release to another track there also lets you rewrite its notes.
 
 Write the text as one line per paragraph. Play preserves newlines, so a hard-wrapped file shows
 its wrapping as line breaks in the middle of sentences.
+
+### The website changelog
+
+About → Changelog opens https://gigabytedevelopers.com/apps/cometotp/changelog/. That page reads
+`log/CHANGELOG.md` next to it, in `public_html` on the hosting account, and has no error state: if
+it cannot read the file it says "Loading" forever. Mode 750 is enough to cause that, because the
+web server then answers with a redirect to its 404 page.
+
+After a release is on Play, Release Android runs **Website changelog** (`website-changelog.yml`)
+as a job of its own. It downloads the file from the website, adds the release above the newest
+one with `.github/scripts/website_changelog.py`, uploads it, and checks the website then serves
+the new section. The entries come from the Play notes file for the version, one section per
+"New:", "Improved:", "Fixed:" or "Security:" paragraph, with the summary paragraph left out.
+Without that file they come from the commits, as on GitHub. The release is dated when it was
+tagged. A version the file already has is left alone, so edits made to the file by hand are kept.
+
+Because the file on the server is the one that gets updated, download it before editing it by
+hand. Uploading an older copy, for example on save from an IDE, drops the releases added since.
+
+To publish a release the job missed, or to try the upload, run **Actions → Website changelog →
+Run workflow** with the version. Tick **republish** to upload the file even though it already has
+that version.
+
+Set it up once. The deploy key can do exactly one thing: the server runs a fixed command for it
+that writes what it is sent to that file with mode 644, and only if it starts with the `---` the
+changelog does. It cannot open a shell, read anything, or forward ports.
+
+1. Make a key with no passphrase, since the workflow cannot type one:
+
+   ```bash
+   ssh-keygen -t ed25519 -N "" -C cometotp-release -f ~/.ssh/cometotp_release
+   ```
+
+2. Authorize it on the server with that command attached, using your own login. Replace `<user>`
+   with the hosting account's user name:
+
+   ```bash
+   { printf '%s ' 'restrict,command="umask 022; f=$HOME/public_html/apps/cometotp/changelog/log/CHANGELOG.md; head -c 1048576 > $f.upload && test -s $f.upload && head -n 1 $f.upload | grep -q ^--- && chmod 644 $f.upload && mv -f $f.upload $f || { rm -f $f.upload; echo refused >&2; exit 1; }"'; cat ~/.ssh/cometotp_release.pub; } | ssh -p 21098 <user>@gigabytedevelopers.com 'cat >> ~/.ssh/authorized_keys'
+   ```
+
+   Do not add it through cPanel's **SSH Access** page instead: that authorizes the key with no
+   restriction, which gives it the whole account.
+
+3. Add the private key and the user name to the `production` environment, then delete the private
+   key file:
+
+   ```bash
+   gh secret set WEBSITE_DEPLOY_KEY --env production --repo gigabytedevelopers/CometOTP < ~/.ssh/cometotp_release
+   gh secret set WEBSITE_SSH_USER --env production --repo gigabytedevelopers/CometOTP --body <user>
+   rm ~/.ssh/cometotp_release
+   ```
+
+4. Run **Website changelog** with the latest version and **republish** ticked to check it works.
+
+The server's host key is pinned in the workflow, so the key is never offered to anything else. If
+the host is moved or its key changes, the upload fails with a host key error. Replace the
+`known_hosts` line in `website-changelog.yml` with the new key from `ssh-keyscan -p 21098
+gigabytedevelopers.com`, after checking its fingerprint against the hosting provider.
 
 ## Enabling iOS later
 

@@ -1,0 +1,165 @@
+name: Website changelog
+
+# Adds a release to the changelog page on gigabytedevelopers.com, which About -> Changelog opens.
+# The Android release workflow calls this once the release is on Play; run it by hand to publish
+# a version it missed. See "The website changelog" in .github/RELEASING.md for the one-off setup.
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Version to add, such as 8.2.0
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to add, such as 8.2.0. Its tag must exist.
+        type: string
+        required: true
+      republish:
+        description: Upload the file again even if it already has this version (tests the upload)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  PAGE_URL: https://gigabytedevelopers.com/apps/cometotp/changelog/
+  FILE_URL: https://gigabytedevelopers.com/apps/cometotp/changelog/log/CHANGELOG.md
+  SSH_HOST: gigabytedevelopers.com
+  SSH_PORT: '21098'
+
+jobs:
+  publish:
+    name: Publish to the website
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Workflow-level concurrency here would share the caller's group and wait on itself forever.
+    concurrency:
+      group: website-changelog
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: ${{ env.PAGE_URL }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # git-cliff needs the history and tags when there are no hand-written notes.
+          fetch-depth: 0
+
+      - name: Check the version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$'; then
+            echo "::error::'$VERSION' is not a version such as 8.2.0."
+            exit 1
+          fi
+          if ! git rev-parse -q --verify "refs/tags/v$VERSION" > /dev/null; then
+            echo "::error::There is no v$VERSION tag. Release it first, or pick a version that has been released."
+            exit 1
+          fi
+          # Dated when it was tagged, not when this ran, so running it again gives the same entry.
+          date=$(TZ=UTC git for-each-ref --format='%(creatordate:format-local:%Y-%m-%dT%H:%M:%S)' "refs/tags/v$VERSION")
+          echo "RELEASE_DATE=$date" >> "$GITHUB_ENV"
+          # git-cliff's range for this release: from the tag before it, or from the start.
+          previous=$(git describe --tags --abbrev=0 --match 'v[0-9]*' "v$VERSION^" 2>/dev/null || true)
+          echo "CLIFF_RANGE=${previous:+$previous..}v$VERSION" >> "$GITHUB_ENV"
+
+      # The page is written for people using the app, so the hand-written Play notes come first.
+      - name: Choose the notes
+        id: source
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          notes="fastlane/metadata/android/en-US/changelogs/$VERSION.txt"
+          if [ -f "$notes" ]; then
+            echo "Using the hand-written Play notes in $notes."
+            echo "notes=$notes" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::No Play notes at $notes, so the website gets the entries generated from the commits."
+            echo "notes=RELEASE_NOTES.md" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate the notes from the commits
+        if: steps.source.outputs.notes == 'RELEASE_NOTES.md'
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: ${{ env.CLIFF_RANGE }} --strip all
+        env:
+          OUTPUT: RELEASE_NOTES.md
+
+      # The file on the server is the only full copy, so the release goes into that one. The query
+      # string gets past the host's cache; -f makes a missing or unreadable file fail here, before
+      # anything could be uploaded over it.
+      - name: Download the changelog from the website
+        run: curl -fsS --retry 3 --retry-all-errors -o "$RUNNER_TEMP/current.md" "$FILE_URL?run=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+
+      - name: Add the release
+        id: add
+        env:
+          VERSION: ${{ inputs.version }}
+          REPUBLISH: ${{ inputs.republish }}
+        run: |
+          status=0
+          python3 .github/scripts/website_changelog.py "$RUNNER_TEMP/current.md" \
+            "${{ steps.source.outputs.notes }}" "$VERSION" "$RELEASE_DATE" "$RUNNER_TEMP/new.md" || status=$?
+          case "$status" in
+            0) echo "upload=true" >> "$GITHUB_OUTPUT" ;;
+            3)
+              if [ "$REPUBLISH" = true ]; then
+                cp "$RUNNER_TEMP/current.md" "$RUNNER_TEMP/new.md"
+                echo "Uploading the file unchanged, as asked."
+                echo "upload=true" >> "$GITHUB_OUTPUT"
+              else
+                echo "upload=false" >> "$GITHUB_OUTPUT"
+              fi
+              ;;
+            *) exit "$status" ;;
+          esac
+
+      # The deploy key can do one thing: the server's authorized_keys pins it to a command that
+      # writes what it is sent to that one file with mode 644. A file left at 750 is unreadable to
+      # the web server, which answers with a redirect to its 404 page and leaves the page on
+      # "Loading" for good. The host keys are pinned so the key is never offered to anything else.
+      - name: Upload it
+        if: steps.add.outputs.upload == 'true'
+        env:
+          DEPLOY_KEY: ${{ secrets.WEBSITE_DEPLOY_KEY }}
+          SSH_USER: ${{ secrets.WEBSITE_SSH_USER }}
+        run: |
+          if [ -z "$DEPLOY_KEY" ] || [ -z "$SSH_USER" ]; then
+            echo "::error::WEBSITE_DEPLOY_KEY or WEBSITE_SSH_USER is not set on the production environment. See .github/RELEASING.md."
+            exit 1
+          fi
+          install -m 600 /dev/null "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          cat > "$RUNNER_TEMP/known_hosts" <<'EOF'
+          [gigabytedevelopers.com]:21098 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINI1feHr6G9O7tInwjOeP3zQkSGVstZa9l0OjUs5+uqn
+          EOF
+          ssh -i "$RUNNER_TEMP/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" \
+            -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" < "$RUNNER_TEMP/new.md"
+
+      - name: Check the page can read it
+        if: steps.add.outputs.upload == 'true'
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            code=$(curl -sS -o "$RUNNER_TEMP/live.md" -w '%{http_code}' "$FILE_URL?check=$GITHUB_RUN_ID-$attempt" || true)
+            if [ "$code" = 200 ] && grep -q "^## $VERSION (" "$RUNNER_TEMP/live.md"; then
+              echo "$FILE_URL has $VERSION."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::$FILE_URL answered $code without a $VERSION section. Check the file's permissions on the server (644)."
+          exit 1
+
+      - name: Remove the deploy key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/deploy_key"
