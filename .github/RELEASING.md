@@ -106,8 +106,9 @@ approve each deployment by hand.
 | `ANDROID_KEY_PASSWORD` | Key password |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Google Play service account JSON, pasted whole |
 | `RELEASE_BOT_PRIVATE_KEY` | The release bot GitHub App's private key (`.pem`), pasted whole. Goes with the `RELEASE_BOT_CLIENT_ID` **variable**; see below |
-| `WEBSITE_DEPLOY_KEY` | The private key that uploads the website's changelog; see [The website changelog](#the-website-changelog) |
-| `WEBSITE_SSH_USER` | The hosting account's SSH user name, for that upload |
+| `WEBSITE_DEPLOY_KEY` | The hosting account's SSH private key, which uploads the website's changelog; see [The website changelog](#the-website-changelog) |
+| `WEBSITE_KEY_PASSPHRASE` | That key's passphrase |
+| `WEBSITE_SSH_USER` | The hosting account's SSH user name |
 
 One secret is the exception and sits on the repository instead: `RELEASE_DISPATCH_TOKEN`, a token of
 yours that Auto release starts the releases with, so they are deployed by you. See [Who a release
@@ -281,36 +282,28 @@ To publish a release the job missed, or to try the upload, run **Actions → Web
 Run workflow** with the version. Tick **republish** to upload the file even though it already has
 that version.
 
-Set it up once. The deploy key can do exactly one thing: the server runs a fixed command for it
-that writes what it is sent to that file with mode 644, and only if it starts with the `---` the
-changelog does. It cannot open a shell, read anything, or forward ports.
+Set it up once, by adding the key you already sign in to the hosting account with, its passphrase
+and the account's user name to the `production` environment:
 
-1. Make a key with no passphrase, since the workflow cannot type one:
+```bash
+gh secret set WEBSITE_DEPLOY_KEY --env production --repo gigabytedevelopers/CometOTP < ~/.ssh/id_ed25519
+gh secret set WEBSITE_KEY_PASSPHRASE --env production --repo gigabytedevelopers/CometOTP
+gh secret set WEBSITE_SSH_USER --env production --repo gigabytedevelopers/CometOTP --body <user>
+```
 
-   ```bash
-   ssh-keygen -t ed25519 -N "" -C cometotp-release -f ~/.ssh/cometotp_release
-   ```
+The second command asks for the passphrase, so it never lands in your shell history. Then run
+**Website changelog** with the latest version and **republish** ticked to check it works.
 
-2. Authorize it on the server with that command attached, using your own login. Replace `<user>`
-   with the hosting account's user name:
+The job unlocks the key into an agent that lasts only for the upload step, so neither the unlocked
+key nor the passphrase is ever written to disk or shown in the log. On the server it writes the
+upload next to the file and swaps it in only once the upload is complete, starts with the `---`
+the changelog does, and has mode 644.
 
-   ```bash
-   { printf '%s ' 'restrict,command="umask 022; f=$HOME/public_html/apps/cometotp/changelog/log/CHANGELOG.md; head -c 1048576 > $f.upload && test -s $f.upload && head -n 1 $f.upload | grep -q ^--- && chmod 644 $f.upload && mv -f $f.upload $f || { rm -f $f.upload; echo refused >&2; exit 1; }"'; cat ~/.ssh/cometotp_release.pub; } | ssh -p 21098 <user>@gigabytedevelopers.com 'cat >> ~/.ssh/authorized_keys'
-   ```
-
-   Do not add it through cPanel's **SSH Access** page instead: that authorizes the key with no
-   restriction, which gives it the whole account.
-
-3. Add the private key and the user name to the `production` environment, then delete the private
-   key file:
-
-   ```bash
-   gh secret set WEBSITE_DEPLOY_KEY --env production --repo gigabytedevelopers/CometOTP < ~/.ssh/cometotp_release
-   gh secret set WEBSITE_SSH_USER --env production --repo gigabytedevelopers/CometOTP --body <user>
-   rm ~/.ssh/cometotp_release
-   ```
-
-4. Run **Website changelog** with the latest version and **republish** ticked to check it works.
+That key opens a shell on the whole hosting account, and if it is also your GitHub SSH key, it can
+push as you. Anything that can run a job in the `production` environment can use it. Adding
+yourself as a required reviewer on that environment (Settings → Environments → production), and
+limiting it to `master` and tags, keeps that to runs you have approved. If the key is ever
+replaced, update `WEBSITE_DEPLOY_KEY` and `WEBSITE_KEY_PASSPHRASE`, or the upload fails.
 
 The server's host key is pinned in the workflow, so the key is never offered to anything else. If
 the host is moved or its key changes, the upload fails with a host key error. Replace the

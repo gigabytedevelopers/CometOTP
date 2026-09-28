@@ -121,28 +121,48 @@ jobs:
             *) exit "$status" ;;
           esac
 
-      # The deploy key can do one thing: the server's authorized_keys pins it to a command that
-      # writes what it is sent to that one file with mode 644. A file left at 750 is unreadable to
-      # the web server, which answers with a redirect to its 404 page and leaves the page on
-      # "Loading" for good. The host keys are pinned so the key is never offered to anything else.
+      # Signs in with the hosting account's own key, unlocked into an agent that lives only for this
+      # step, so the unlocked key is never written to disk and the passphrase never appears on a
+      # command line. The server writes the upload beside the file and only swaps it in once it
+      # has arrived whole, starts like the changelog, and is set to 644: a file left at 750 is
+      # unreadable to the web server, which then redirects to its 404 page and leaves the page on
+      # "Loading" for good. The host key is pinned so the key is never offered to anything else.
       - name: Upload it
         if: steps.add.outputs.upload == 'true'
         env:
           DEPLOY_KEY: ${{ secrets.WEBSITE_DEPLOY_KEY }}
+          KEY_PASSPHRASE: ${{ secrets.WEBSITE_KEY_PASSPHRASE }}
           SSH_USER: ${{ secrets.WEBSITE_SSH_USER }}
         run: |
           if [ -z "$DEPLOY_KEY" ] || [ -z "$SSH_USER" ]; then
             echo "::error::WEBSITE_DEPLOY_KEY or WEBSITE_SSH_USER is not set on the production environment. See .github/RELEASING.md."
             exit 1
           fi
+          eval "$(ssh-agent -s)" > /dev/null
+          trap 'ssh-agent -k > /dev/null; rm -f "$RUNNER_TEMP/deploy_key" "$RUNNER_TEMP/askpass" "$RUNNER_TEMP/askpass.used"' EXIT
           install -m 600 /dev/null "$RUNNER_TEMP/deploy_key"
           printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          # ssh-add asks this for the passphrase, which it reads from the environment. It answers
+          # once: ssh-add asks again after a wrong one, and would otherwise keep asking forever.
+          install -m 700 /dev/null "$RUNNER_TEMP/askpass"
+          cat > "$RUNNER_TEMP/askpass" <<'EOF'
+          #!/bin/sh
+          [ -e "$0.used" ] && exit 1
+          : > "$0.used"
+          printf '%s\n' "$KEY_PASSPHRASE"
+          EOF
+          if ! SSH_ASKPASS="$RUNNER_TEMP/askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=: \
+              ssh-add -q "$RUNNER_TEMP/deploy_key" < /dev/null; then
+            echo "::error::Could not unlock WEBSITE_DEPLOY_KEY. Check WEBSITE_KEY_PASSPHRASE on the production environment."
+            exit 1
+          fi
+          rm -f "$RUNNER_TEMP/deploy_key" "$RUNNER_TEMP/askpass" "$RUNNER_TEMP/askpass.used"
           cat > "$RUNNER_TEMP/known_hosts" <<'EOF'
           [gigabytedevelopers.com]:21098 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINI1feHr6G9O7tInwjOeP3zQkSGVstZa9l0OjUs5+uqn
           EOF
-          ssh -i "$RUNNER_TEMP/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes \
-            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" \
-            -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" < "$RUNNER_TEMP/new.md"
+          install_file='umask 022; f=public_html/apps/cometotp/changelog/log/CHANGELOG.md; head -c 1048576 > $f.upload && test -s $f.upload && head -n 1 $f.upload | grep -q ^--- && chmod 644 $f.upload && mv -f $f.upload $f || { rm -f $f.upload; echo "The server refused the upload." >&2; exit 1; }'
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" \
+            -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "$install_file" < "$RUNNER_TEMP/new.md"
 
       - name: Check the page can read it
         if: steps.add.outputs.upload == 'true'
@@ -159,7 +179,3 @@ jobs:
           done
           echo "::error::$FILE_URL answered $code without a $VERSION section. Check the file's permissions on the server (644)."
           exit 1
-
-      - name: Remove the deploy key
-        if: always()
-        run: rm -f "$RUNNER_TEMP/deploy_key"
