@@ -417,7 +417,17 @@ class ScheduledBackupActivity : BaseActivity() {
     }
 
     private fun onDriveAuthorized(result: AuthorizationResult) {
-        val email = DriveAuth.accountEmail(result)
+        // Naming the account can take a Drive call; a closed screen just drops the answer.
+        Thread {
+            val email = DriveAuth.accountEmail(result)
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed)
+                    saveDriveAccount(email)
+            }
+        }.start()
+    }
+
+    private fun saveDriveAccount(email: String?) {
         if (email.isNullOrEmpty()) {
             Toast.makeText(this, R.string.backup_error_drive_reconnect, Toast.LENGTH_LONG).show()
             return

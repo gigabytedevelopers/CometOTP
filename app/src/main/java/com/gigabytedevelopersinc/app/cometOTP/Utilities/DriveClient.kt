@@ -35,6 +35,15 @@ class DriveClient(
     class DriveException(val status: Int, val retryable: Boolean, message: String, cause: Throwable? = null) :
         IOException(message, cause)
 
+    /** The address of the account the token belongs to. */
+    fun accountEmail(): String {
+        val response = request("GET", "$API/about?fields=${encode("user(emailAddress)")}", null, null)
+        val user = parseObject(response).optJSONObject("user")
+        return user?.optString("emailAddress").orEmpty().ifEmpty {
+            throw DriveException(0, false, "Google Drive did not name the account")
+        }
+    }
+
     /** A folder of this name that this app created and that is not in the trash. */
     fun findFolder(name: String): String? {
         val q = "name = '${escapeQuery(name)}' and mimeType = '$FOLDER_MIME' and trashed = false"

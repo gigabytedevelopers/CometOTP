@@ -5,6 +5,7 @@ import android.accounts.Account
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.annotation.WorkerThread
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupDestination.DestinationException
@@ -59,11 +60,26 @@ object DriveAuth {
         return Identity.getAuthorizationClient(activity).getAuthorizationResultFromIntent(data)
     }
 
-    /** The account a grant was given for, to show and to ask for the same one later. */
-    @Suppress("DEPRECATION")   // toGoogleSignInAccount is the only way the result names the account
+    /**
+     * The account a grant was given for, to show and to ask for the same one later. The result
+     * only names it when an identity scope was granted too, which drive.file alone is not, so
+     * Drive is asked with the new token. That call also shows the grant works. Null on failure.
+     */
+    @WorkerThread
+    @Suppress("DEPRECATION")   // toGoogleSignInAccount: the result's own record of the account
     fun accountEmail(result: AuthorizationResult): String? {
-        return result.toGoogleSignInAccount()?.email
+        result.toGoogleSignInAccount()?.email?.let { return it }
+
+        val token = result.accessToken ?: return null
+        return try {
+            DriveClient(token = { token }, invalidateToken = {}).accountEmail()
+        } catch (e: DriveClient.DriveException) {
+            Log.w(TAG, "Could not look up the Drive account", e)
+            null
+        }
     }
+
+    private val TAG = DriveAuth::class.java.simpleName
 
     /**
      * An access token without any UI, for background backups. Throws when the user has to connect
