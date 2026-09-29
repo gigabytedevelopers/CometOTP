@@ -42,6 +42,7 @@
     <string name="scheduled_backup_label_drive_folder">Drive folder</string>
     <string name="scheduled_backup_desc_drive_folder">%1$s (CometOTP can only see folders it created)</string>
     <string name="scheduled_backup_dialog_folder_title">Drive folder name</string>
+    <string name="scheduled_backup_hint_folder_name">Folder name</string>
     <string name="scheduled_backup_dialog_disconnect_title">Disconnect Google Drive?</string>
     <string name="scheduled_backup_dialog_disconnect_msg">CometOTP will stop backing up to %1$s. Backups already in Drive stay there.</string>
     <string name="scheduled_backup_button_disconnect">Disconnect</string>
