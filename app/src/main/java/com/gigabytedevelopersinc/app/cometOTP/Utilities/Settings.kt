@@ -650,6 +650,33 @@ class Settings(private val context: Context) {
             setString(R.string.settings_key_backup_destination, value.name.lowercase(Locale.ENGLISH))
         }
 
+    /** The Google account backups go to in Drive; empty when Drive is not connected. */
+    var driveAccount: String
+        get() = getString(R.string.settings_key_backup_drive_account, "")
+        set(value) {
+            setString(R.string.settings_key_backup_drive_account, value)
+        }
+
+    /** The name of the Drive folder the app creates for backups. */
+    var driveFolderName: String
+        get() = getString(R.string.settings_key_backup_drive_folder_name, "").ifBlank { DEFAULT_DRIVE_FOLDER_NAME }
+        set(value) {
+            setString(R.string.settings_key_backup_drive_folder_name, value)
+        }
+
+    /** The Drive id of that folder, once it has been found or created. */
+    var driveFolderId: String
+        get() = getString(R.string.settings_key_backup_drive_folder_id, "")
+        set(value) {
+            setString(R.string.settings_key_backup_drive_folder_id, value)
+        }
+
+    var scheduledBackupOnlyUnmetered: Boolean
+        get() = getBoolean(R.string.settings_key_sched_backup_unmetered, false)
+        set(value) {
+            setBoolean(R.string.settings_key_sched_backup_unmetered, value)
+        }
+
     var scheduledBackupEnabled: Boolean
         get() = getBoolean(R.string.settings_key_sched_backup_enabled, false)
         set(value) {
@@ -744,4 +771,8 @@ class Settings(private val context: Context) {
 
     val showPrevToken: Boolean
         get() = getBoolean(R.string.settings_key_show_prev_token, false)
+
+    companion object {
+        const val DEFAULT_DRIVE_FOLDER_NAME = "CometOTP Backups"
+    }
 }

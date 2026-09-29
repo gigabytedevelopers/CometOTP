@@ -39,7 +39,8 @@ interface BackupDestination {
             return when (settings.backupDestination) {
                 Constants.BackupDestinationType.LOCAL ->
                     if (settings.isBackupLocationSet) LocalFolderDestination(context, settings.backupLocation) else null
-                Constants.BackupDestinationType.DRIVE -> null
+                Constants.BackupDestinationType.DRIVE ->
+                    if (settings.driveAccount.isNotEmpty()) DriveDestination(context, settings) else null
             }
         }
 

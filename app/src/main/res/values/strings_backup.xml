@@ -20,7 +20,7 @@
     <string name="backup_result_created_msg">Backup has been saved successfully.</string>
     <string name="backup_result_restored_title">Restore Successful</string>
     <string name="backup_result_restored_msg">Your services were successfully recovered.</string>
-    <string name="backup_toast_auto_sync_requirements">Choose a backup folder and set a backup password under Scheduled Backups to enable Auto Sync</string>
+    <string name="backup_toast_auto_sync_requirements">Choose where backups are saved and set a backup password under Scheduled Backups to enable Auto Sync</string>
 
     <!-- Scheduled backups -->
     <string name="backup_row_scheduled">Scheduled Backups</string>
@@ -32,6 +32,21 @@
     <string name="scheduled_backup_label_time">Time</string>
     <string name="scheduled_backup_desc_time">Approximate: Android runs backups when the phone is idle.</string>
     <string name="scheduled_backup_section_destination">Destination</string>
+    <string name="scheduled_backup_label_destination">Save to</string>
+    <string-array name="scheduled_backup_destination_names">
+        <item>A folder on this phone</item>
+        <item>Google Drive</item>
+    </string-array>
+    <string name="scheduled_backup_label_drive_account">Google account</string>
+    <string name="scheduled_backup_drive_not_connected">Not connected. Tap to connect.</string>
+    <string name="scheduled_backup_label_drive_folder">Drive folder</string>
+    <string name="scheduled_backup_desc_drive_folder">%1$s (CometOTP can only see folders it created)</string>
+    <string name="scheduled_backup_dialog_folder_title">Drive folder name</string>
+    <string name="scheduled_backup_dialog_disconnect_title">Disconnect Google Drive?</string>
+    <string name="scheduled_backup_dialog_disconnect_msg">CometOTP will stop backing up to %1$s. Backups already in Drive stay there.</string>
+    <string name="scheduled_backup_button_disconnect">Disconnect</string>
+    <string name="scheduled_backup_toast_drive_disconnected">Google Drive disconnected</string>
+    <string name="scheduled_backup_label_unmetered">Only on Wi-Fi</string>
     <string name="scheduled_backup_label_folder">Backup folder</string>
     <string name="scheduled_backup_folder_not_set">Not chosen yet</string>
     <string name="scheduled_backup_folder_unnamed">Chosen folder</string>
@@ -52,7 +67,7 @@
     <string name="scheduled_backup_status_waiting">Next backup: waiting for the conditions above</string>
     <string name="scheduled_backup_status_password_mode">Your services are encrypted with your password, so backups run the next time you unlock CometOTP after one is due.</string>
     <string name="scheduled_backup_button_now">Back Up Now</string>
-    <string name="scheduled_backup_toast_requirements">Choose a backup folder and set a backup password first</string>
+    <string name="scheduled_backup_toast_requirements">Choose where backups are saved and set a backup password first</string>
     <string name="scheduled_backup_toast_password_failed">The backup password could not be saved</string>
 
     <string-array name="scheduled_backup_frequency_names">
@@ -82,6 +97,10 @@
     <string name="backup_error_prune_failed">Old backups could not be removed.</string>
     <string name="backup_error_database_unreadable">Your services could not be read, so no backup was made.</string>
     <string name="backup_error_nothing_to_back_up">There are no services to back up yet.</string>
+    <string name="backup_error_drive_unreachable">Google Drive could not be reached. The backup will be tried again.</string>
+    <string name="backup_error_drive_reconnect">CometOTP no longer has access to Google Drive. Connect it again under Scheduled Backups.</string>
+    <string name="backup_error_drive_not_configured">Google Drive backups are not set up for this build of CometOTP.</string>
+    <string name="backup_error_drive_failed">Google Drive did not accept the backup.</string>
 
     <string-array name="backup_encryption_names">
         <item>Text</item>

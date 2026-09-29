@@ -11,6 +11,9 @@
          runtime permission. It is requested when backup broadcasts are enabled in the settings. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Backups to Google Drive. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:backupAgent="com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupAgent"

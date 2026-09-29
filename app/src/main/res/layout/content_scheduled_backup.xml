@@ -103,11 +103,72 @@
             style="@style/Widget.Comet.SectionHeader"
             android:text="@string/scheduled_backup_section_destination" />
 
-        <include
-            android:id="@+id/row_folder"
-            layout="@layout/item_setting_row" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/space_sm"
+            android:paddingEnd="@dimen/space_sm"
+            android:text="@string/scheduled_backup_label_destination"
+            android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
+            android:textColor="?attr/colorOnSurface" />
 
-        <View style="@style/Widget.Comet.Divider" />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Comet.TextInput.Dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sheet_label_gap"
+            android:layout_marginBottom="@dimen/space_sm"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/sched_destination"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
+                android:textSize="15sp"
+                tools:text="Google Drive" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- A folder on this phone -->
+        <LinearLayout
+            android:id="@+id/group_local"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/row_folder"
+                layout="@layout/item_setting_row" />
+
+            <View style="@style/Widget.Comet.Divider" />
+
+        </LinearLayout>
+
+        <!-- Google Drive -->
+        <LinearLayout
+            android:id="@+id/group_drive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <include
+                android:id="@+id/row_drive_account"
+                layout="@layout/item_setting_row" />
+
+            <View style="@style/Widget.Comet.Divider" />
+
+            <include
+                android:id="@+id/row_drive_folder"
+                layout="@layout/item_setting_row" />
+
+            <View style="@style/Widget.Comet.Divider" />
+
+        </LinearLayout>
 
         <include
             android:id="@+id/row_password"
@@ -168,6 +229,19 @@
             android:text="@string/scheduled_backup_label_charging"
             android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
             android:textColor="?attr/colorOnSurface" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sched_unmetered"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:paddingStart="@dimen/space_sm"
+            android:paddingEnd="@dimen/space_sm"
+            android:text="@string/scheduled_backup_label_unmetered"
+            android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
+            android:textColor="?attr/colorOnSurface"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/sched_notify_success"

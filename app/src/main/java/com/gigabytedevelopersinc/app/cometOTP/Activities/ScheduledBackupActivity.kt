@@ -19,6 +19,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -31,13 +32,18 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupNotifications
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupRunner
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupScheduler
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.DriveAuth
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.LocalFolderDestination
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
+import com.google.android.gms.auth.api.identity.AuthorizationResult
+import com.google.android.gms.common.api.ApiException
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.util.Calendar
@@ -56,10 +62,16 @@ class ScheduledBackupActivity : BaseActivity() {
     private lateinit var enabledSwitch: MaterialSwitch
     private lateinit var frequency: MaterialAutoCompleteTextView
     private lateinit var keep: MaterialAutoCompleteTextView
+    private lateinit var destination: MaterialAutoCompleteTextView
     private lateinit var rowTime: View
+    private lateinit var groupLocal: View
+    private lateinit var groupDrive: View
     private lateinit var rowFolder: View
+    private lateinit var rowDriveAccount: View
+    private lateinit var rowDriveFolder: View
     private lateinit var rowPassword: View
     private lateinit var chargingSwitch: MaterialSwitch
+    private lateinit var unmeteredSwitch: MaterialSwitch
     private lateinit var notifySwitch: MaterialSwitch
     private lateinit var status: TextView
     private lateinit var backupNowButton: MaterialButton
@@ -78,6 +90,19 @@ class ScheduledBackupActivity : BaseActivity() {
             settings.backupLocation = treeUri
             settings.backupDestination = Constants.BackupDestinationType.LOCAL
             scheduleChanged()
+        }
+    }
+
+    // The account picker and consent screen of Google Play services.
+    private val driveAuthLauncher: ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode != RESULT_OK)
+            return@registerForActivityResult
+        try {
+            onDriveAuthorized(DriveAuth.resultFromIntent(this, result.data))
+        } catch (e: ApiException) {
+            Toast.makeText(this, DriveAuth.messageFor(e), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -109,10 +134,16 @@ class ScheduledBackupActivity : BaseActivity() {
         enabledSwitch = v.findViewById(R.id.sched_enabled)
         frequency = v.findViewById(R.id.sched_frequency)
         keep = v.findViewById(R.id.sched_keep)
+        destination = v.findViewById(R.id.sched_destination)
         rowTime = v.findViewById(R.id.row_time)
+        groupLocal = v.findViewById(R.id.group_local)
+        groupDrive = v.findViewById(R.id.group_drive)
         rowFolder = v.findViewById(R.id.row_folder)
+        rowDriveAccount = v.findViewById(R.id.row_drive_account)
+        rowDriveFolder = v.findViewById(R.id.row_drive_folder)
         rowPassword = v.findViewById(R.id.row_password)
         chargingSwitch = v.findViewById(R.id.sched_charging)
+        unmeteredSwitch = v.findViewById(R.id.sched_unmetered)
         notifySwitch = v.findViewById(R.id.sched_notify_success)
         status = v.findViewById(R.id.sched_status)
         backupNowButton = v.findViewById(R.id.sched_backup_now)
@@ -120,9 +151,14 @@ class ScheduledBackupActivity : BaseActivity() {
 
         bindRow(rowTime, R.drawable.ic_schedule, R.string.scheduled_backup_label_time) { chooseTime() }
         bindRow(rowFolder, R.drawable.ic_backup, R.string.scheduled_backup_label_folder) { chooseFolder() }
+        bindRow(rowDriveAccount, R.drawable.ic_account_circle_gray, R.string.scheduled_backup_label_drive_account) {
+            if (settings.driveAccount.isEmpty()) connectDrive() else confirmDisconnectDrive()
+        }
+        bindRow(rowDriveFolder, R.drawable.ic_backup_cloud, R.string.scheduled_backup_label_drive_folder) { chooseDriveFolder() }
         bindRow(rowPassword, R.drawable.ic_key, R.string.scheduled_backup_label_password) { choosePassword() }
 
         bindFrequency()
+        bindDestination()
         bindKeep()
 
         enabledSwitch.isChecked = settings.scheduledBackupEnabled
@@ -144,6 +180,12 @@ class ScheduledBackupActivity : BaseActivity() {
         chargingSwitch.isChecked = settings.scheduledBackupOnlyCharging
         chargingSwitch.setOnCheckedChangeListener { _, checked ->
             settings.scheduledBackupOnlyCharging = checked
+            scheduleChanged()
+        }
+
+        unmeteredSwitch.isChecked = settings.scheduledBackupOnlyUnmetered
+        unmeteredSwitch.setOnCheckedChangeListener { _, checked ->
+            settings.scheduledBackupOnlyUnmetered = checked
             scheduleChanged()
         }
 
@@ -218,6 +260,17 @@ class ScheduledBackupActivity : BaseActivity() {
         }
     }
 
+    private fun bindDestination() {
+        val names = resources.getStringArray(R.array.scheduled_backup_destination_names)
+        val types = Constants.BackupDestinationType.values()
+        destination.setAdapter(ArrayAdapter(this, R.layout.item_dropdown, names))
+        destination.setText(names[settings.backupDestination.ordinal], false)
+        destination.setOnItemClickListener { _, _, position, _ ->
+            settings.backupDestination = types[position]
+            scheduleChanged()
+        }
+    }
+
     private fun bindKeep() {
         val names = resources.getStringArray(R.array.scheduled_backup_keep_names)
         keep.setAdapter(ArrayAdapter(this, R.layout.item_dropdown, names))
@@ -250,6 +303,13 @@ class ScheduledBackupActivity : BaseActivity() {
             getString(R.string.scheduled_backup_folder_not_set)
         setRowSubtitle(rowFolder, folderName)
 
+        val drive = settings.backupDestination == Constants.BackupDestinationType.DRIVE
+        groupLocal.visibility = if (drive) View.GONE else View.VISIBLE
+        groupDrive.visibility = if (drive) View.VISIBLE else View.GONE
+        unmeteredSwitch.visibility = if (drive) View.VISIBLE else View.GONE
+        setRowSubtitle(rowDriveAccount, settings.driveAccount.ifEmpty { getString(R.string.scheduled_backup_drive_not_connected) })
+        setRowSubtitle(rowDriveFolder, getString(R.string.scheduled_backup_desc_drive_folder, settings.driveFolderName))
+
         setRowSubtitle(rowPassword, getString(if (settings.isBackupPasswordSet)
             R.string.scheduled_backup_password_set else R.string.scheduled_backup_password_not_set))
 
@@ -281,7 +341,9 @@ class ScheduledBackupActivity : BaseActivity() {
             lines.add(getString(R.string.scheduled_backup_status_error, formatDateTime(lastAttempt), settings.lastBackupError))
 
         if (settings.scheduledBackupEnabled) {
-            if (settings.encryption == Constants.EncryptionType.PASSWORD)
+            if (!BackupScheduler.isSetUp(this, settings))
+                lines.add(getString(R.string.scheduled_backup_toast_requirements))
+            else if (settings.encryption == Constants.EncryptionType.PASSWORD)
                 lines.add(getString(R.string.scheduled_backup_status_password_mode))
             else if (nextRun > 0)
                 lines.add(getString(R.string.scheduled_backup_status_next, formatDateTime(nextRun)))
@@ -340,12 +402,87 @@ class ScheduledBackupActivity : BaseActivity() {
         }
     }
 
+    private fun connectDrive() {
+        DriveAuth.authorize(this)
+            .addOnSuccessListener(this) { result ->
+                val pendingIntent = result.pendingIntent
+                if (result.hasResolution() && pendingIntent != null)
+                    driveAuthLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+                else
+                    onDriveAuthorized(result)
+            }
+            .addOnFailureListener(this) { e ->
+                Toast.makeText(this, DriveAuth.messageFor(e), Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun onDriveAuthorized(result: AuthorizationResult) {
+        val email = DriveAuth.accountEmail(result)
+        if (email.isNullOrEmpty()) {
+            Toast.makeText(this, R.string.backup_error_drive_reconnect, Toast.LENGTH_LONG).show()
+            return
+        }
+
+        // Another account has other folders: look the folder up again on the next backup.
+        if (email != settings.driveAccount)
+            settings.driveFolderId = ""
+        settings.driveAccount = email
+        settings.backupDestination = Constants.BackupDestinationType.DRIVE
+        scheduleChanged()
+    }
+
+    private fun confirmDisconnectDrive() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.scheduled_backup_dialog_disconnect_title)
+            .setMessage(getString(R.string.scheduled_backup_dialog_disconnect_msg, settings.driveAccount))
+            .setPositiveButton(R.string.scheduled_backup_button_disconnect) { _, _ -> disconnectDrive() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun disconnectDrive() {
+        // Withdrawing the grant can fail offline; the app forgets the account either way.
+        DriveAuth.revoke(applicationContext, settings.driveAccount)
+
+        settings.driveAccount = ""
+        settings.driveFolderId = ""
+        // Nowhere left to back up to: stop the schedule rather than fail on every run.
+        if (settings.backupDestination == Constants.BackupDestinationType.DRIVE)
+            settings.scheduledBackupEnabled = false
+
+        Toast.makeText(this, R.string.scheduled_backup_toast_drive_disconnected, Toast.LENGTH_LONG).show()
+        scheduleChanged()
+    }
+
+    private fun chooseDriveFolder() {
+        val view = layoutInflater.inflate(R.layout.dialog_drive_folder, null)
+        val input = view.findViewById<TextInputEditText>(R.id.drive_folder_name)
+        input.setText(settings.driveFolderName)
+        input.setSelection(input.text?.length ?: 0)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.scheduled_backup_dialog_folder_title)
+            .setView(view)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val name = input.text?.toString()?.trim().orEmpty()
+                if (name.isNotEmpty() && name != settings.driveFolderName) {
+                    settings.driveFolderName = name
+                    // Found or created under the new name on the next backup.
+                    settings.driveFolderId = ""
+                    refresh()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     private fun choosePassword() {
         PasswordEntryDialog(this, PasswordEntryDialog.Mode.UPDATE, settings.blockAccessibility, settings.blockAutofill,
             PasswordEntryDialog.PasswordEnteredCallback { password ->
                 if (!settings.setBackupPassword(password))
                     Toast.makeText(this, R.string.scheduled_backup_toast_password_failed, Toast.LENGTH_LONG).show()
-                refresh()
+                // May be what was missing for the schedule to start.
+                scheduleChanged()
             }).show()
     }
 
