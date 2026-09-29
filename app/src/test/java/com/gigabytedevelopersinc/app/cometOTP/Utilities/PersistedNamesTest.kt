@@ -4,6 +4,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Utilities
 import android.util.DisplayMetrics
 import android.view.inputmethod.EditorInfo
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
+import com.gigabytedevelopersinc.app.cometOTP.Tasks.ScheduledBackupWorker
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -28,7 +29,8 @@ class PersistedNamesTest {
         assertEquals(listOf("UNSORTED", "ISSUER", "LABEL", "LAST_USED", "MOST_USED"), names(Constants.SortMode.values()))
         assertEquals(listOf("PLAIN_TEXT", "ENCRYPTED", "OPEN_PGP", "UNAVAILABLE"), names(Constants.BackupType.values()))
         assertEquals(listOf("OR", "AND", "SINGLE"), names(Constants.TagFunctionality.values()))
-        assertEquals(listOf("BACKUP_FAILED", "BACKUP_SUCCESS"), names(Constants.NotificationChannel.values()))
+        assertEquals(listOf("BACKUP_FAILED", "BACKUP_SUCCESS", "BACKUP_REMINDER"), names(Constants.NotificationChannel.values()))
+        assertEquals(listOf("LOCAL", "DRIVE"), names(Constants.BackupDestinationType.values()))
         assertEquals(listOf("LABEL", "ISSUER", "TAGS"), names(Constants.SearchIncludes.values()))
         assertEquals(listOf("OFF", "NEW_ENTRIES", "ALL_EDITS"), names(Constants.AutoBackup.values()))
         assertEquals(listOf("NOTHING", "REVEAL", "COPY", "COPY_BACKGROUND", "SEND_KEYSTROKES"), names(Constants.TapMode.values()))
@@ -62,6 +64,9 @@ class PersistedNamesTest {
         assertEquals("application/json", Constants.BACKUP_MIMETYPE_PLAIN)
         assertEquals("binary/aes", Constants.BACKUP_MIMETYPE_CRYPT)
         assertEquals("application/pgp-encrypted", Constants.BACKUP_MIMETYPE_PGP)
+        assertEquals("otp_accounts_auto.json.aes", Constants.BACKUP_FILENAME_AUTO)
+        assertEquals("otp_accounts_auto_%s.json.aes", Constants.BACKUP_FILENAME_AUTO_FORMAT)
+        assertEquals("com.gigabytedevelopersinc.app.cometOTP.intent.OPEN_SCHEDULED_BACKUP", Constants.INTENT_OPEN_SCHEDULED_BACKUP)
         assertEquals(1, Entry.COLOR_RED)
     }
 
@@ -75,6 +80,17 @@ class PersistedNamesTest {
         assertEquals("white", LauncherIcon.WHITE)
         assertEquals("classic", LauncherIcon.CLASSIC)
         assertEquals("blue", LauncherIcon.DEFAULT)
+    }
+
+    /** WorkManager keeps these in its database; renaming one would orphan the scheduled job. */
+    @Test
+    fun scheduledBackupWork() {
+        assertEquals("scheduled-backup", BackupScheduler.WORK_SCHEDULED)
+        assertEquals("auto-sync-backup", BackupScheduler.WORK_AUTO_SYNC)
+        assertEquals("trigger", ScheduledBackupWorker.KEY_TRIGGER)
+        assertEquals("schedule", ScheduledBackupWorker.TRIGGER_SCHEDULE)
+        assertEquals("auto_sync", ScheduledBackupWorker.TRIGGER_AUTO_SYNC)
+        assertEquals(1, NotificationHelper.NOTIFICATION_ID_BROADCAST_BACKUP)
     }
 
     @Test

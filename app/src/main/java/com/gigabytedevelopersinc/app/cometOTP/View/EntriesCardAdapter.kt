@@ -33,10 +33,12 @@ import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ManualEntryDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ThumbnailPickerSheet
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupNotifications
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupRunner
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupScheduler
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
@@ -47,6 +49,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import java.util.Locale
+import java.util.concurrent.Executors
 import javax.crypto.SecretKey
 
 class EntriesCardAdapter(private val context: Context, private val tagsFilterAdapter: TagsAdapter) :
@@ -189,44 +192,91 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
         DatabaseHelper.saveDatabase(context, entryList.entries, sharedEncryptionKey)
 
-        if (auto_backup) {
-            val backupType = BackupHelper.autoBackupType(context)
-            val keyMaterial = sharedEncryptionKey?.encoded
-            if (backupType == Constants.BackupType.ENCRYPTED && keyMaterial == null) {
-                // Without the key the database cannot be read back for the backup; an existing
-                // backup file must not be looked up (and overwritten with nothing), so the
-                // auto-backup is skipped and reported as failed.
-                Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
-                        R.string.backup_toast_export_failed,
-                        Snackbar.LENGTH_LONG)
-                        .show()
-            } else if (backupType == Constants.BackupType.ENCRYPTED && keyMaterial != null) {
-                val cryptBackupFile = BackupHelper.backupFile(context, settings.backupLocation, Constants.BackupType.ENCRYPTED)
-                val file = cryptBackupFile.file
+        if (auto_backup)
+            autoSync()
+    }
 
-                if (file != null) {
-                    val encryptionKey = EncryptionHelper.generateSymmetricKey(keyMaterial)
+    /**
+     * Auto Sync: backs up shortly after an edit, never on the main thread. Waiting a moment makes
+     * one backup of a burst of edits instead of one per edit.
+     */
+    private fun autoSync() {
+        if (BackupHelper.autoBackupType(context) != Constants.BackupType.ENCRYPTED)
+            return
 
-                    val success = BackupHelper.backupToFile(context, file.uri, settings.backupPasswordEnc, encryptionKey)
-                    if (success) {
-                        Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
-                                R.string.backup_toast_export_success,
-                                Snackbar.LENGTH_LONG)
-                                .show()
-                    } else {
-                        Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
-                                R.string.backup_toast_export_failed,
-                                Snackbar.LENGTH_LONG)
-                                .show()
-                    }
-                } else {
-                    Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
-                            cryptBackupFile.errorMessage,
-                            Snackbar.LENGTH_LONG)
-                            .show()
-                }
+        if (settings.encryption == Constants.EncryptionType.KEYSTORE) {
+            // The background job loads the key itself, and still runs if the app is closed
+            // straight after the edit.
+            BackupScheduler.autoSync(context)
+        } else {
+            // With password encryption only this process has the key.
+            taskHandler.removeCallbacks(autoSyncRunnable)
+            taskHandler.postDelayed(autoSyncRunnable, AUTO_SYNC_DELAY_MS)
+        }
+    }
+
+    private val autoSyncRunnable = object : Runnable {
+        override fun run() {
+            // A backup still running may have read the database before this edit; go again after it.
+            if (backupRunning)
+                taskHandler.postDelayed(this, AUTO_SYNC_DELAY_MS)
+            else
+                backUpInBackground()
+        }
+    }
+
+    /**
+     * Makes the scheduled backup once the database is open, if one is due. With password
+     * encryption this is the only way a scheduled backup gets made; with KeyStore encryption it
+     * catches up on a backup the background job could not make (the phone never idle, the app
+     * restricted by the system). A failed attempt is not repeated on every resume.
+     */
+    private fun backUpIfDue() {
+        if (!settings.scheduledBackupEnabled || backupRunning)
+            return
+
+        val now = System.currentTimeMillis()
+        if (!BackupScheduler.isOverdue(settings.lastBackupSuccess, settings.scheduledBackupInterval, now))
+            return
+        val sinceAttempt = now - settings.lastBackupAttempt
+        if (sinceAttempt in 0 until RETRY_AFTER_FAILURE_MS)
+            return
+        if (BackupHelper.autoBackupType(context) != Constants.BackupType.ENCRYPTED)
+            return
+
+        backUpInBackground()
+    }
+
+    private fun backUpInBackground() {
+        val key = sharedEncryptionKey ?: return
+        val appContext = context.applicationContext
+
+        backupRunning = true
+        backupExecutor.execute {
+            val outcome = BackupRunner.run(appContext, key)
+            taskHandler.post {
+                backupRunning = false
+                showBackupOutcome(appContext, outcome)
             }
         }
+    }
+
+    private fun showBackupOutcome(appContext: Context, outcome: BackupRunner.Outcome) {
+        val message = when (outcome) {
+            is BackupRunner.Outcome.Success -> {
+                BackupNotifications.clear(appContext)
+                R.string.backup_snackbar_auto_success
+            }
+            is BackupRunner.Outcome.Retry -> outcome.messageId
+            is BackupRunner.Outcome.Failed -> outcome.messageId
+            is BackupRunner.Outcome.Skipped -> return
+        }
+
+        val activity = context as MainActivity
+        if (activity.isFinishing || activity.isDestroyed)
+            return
+
+        Snackbar.make(activity.findViewById<View>(R.id.main_content), message, Snackbar.LENGTH_LONG).show()
     }
 
     fun loadEntries() {
@@ -236,6 +286,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             if (newEntries != null) {
                 databaseLoaded = true
                 entryList.updateEntries(newEntries, true)
+                backUpIfDue()
             } else {
                 // Whatever is on screen stays, but nothing is saved until a load succeeds.
                 databaseLoaded = false
@@ -807,5 +858,13 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         private const val CARD_OPTION_FEEDBACK_MS = 180L
 
         private var sharedEncryptionKey: SecretKey? = null
+
+        private const val AUTO_SYNC_DELAY_MS = 3_000L
+        private const val RETRY_AFTER_FAILURE_MS = 30 * 60 * 1000L
+
+        // Shared like the key: a backup started by one adapter instance must stop the next
+        // instance (after the activity is recreated) from starting a second one.
+        private val backupExecutor = Executors.newSingleThreadExecutor()
+        private var backupRunning = false
     }
 }

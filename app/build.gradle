@@ -235,6 +235,11 @@ dependencies {
     def lifecycle_version = "2.11.0"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+
+    // Background work (scheduled backups). 2.11 is the last line that supports minSdk 23;
+    // 2.12 needs 24.
+    implementation 'androidx.work:work-runtime:2.11.2'
 
     // Utilities
     implementation 'commons-codec:commons-codec:1.22.1'
