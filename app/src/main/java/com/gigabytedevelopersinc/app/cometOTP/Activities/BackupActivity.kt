@@ -161,8 +161,15 @@ class BackupActivity : BaseActivity() {
 
         bindRow(v.findViewById(R.id.row_backup), R.drawable.ic_backup_cloud, R.string.backup_row_backup, ::showBackupSheet)
         bindRow(v.findViewById(R.id.row_restore), R.drawable.ic_restore_cloud, R.string.backup_row_restore, ::showRestoreSheet)
+        bindRow(v.findViewById(R.id.row_scheduled), R.drawable.ic_schedule, R.string.backup_row_scheduled, ::openScheduledBackup)
 
         backupType = settings.defaultBackupType
+    }
+
+    private fun openScheduledBackup() {
+        val intent = Intent(this, ScheduledBackupActivity::class.java)
+        encryptionKey?.let { intent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, it.encoded) }
+        startActivity(intent)
     }
 
     private fun bindRow(row: View, icon: Int, title: Int, action: () -> Unit) {

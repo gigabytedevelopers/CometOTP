@@ -145,6 +145,10 @@
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Activities.ScheduledBackupActivity"
+            android:parentActivityName=".Activities.BackupActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Activities.CacheActivity"
             android:parentActivityName=".Activities.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
