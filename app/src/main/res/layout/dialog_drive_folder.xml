@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The name of the Drive folder backups go to, see ScheduledBackupActivity.chooseDriveFolder().
+     The theme's outlined field, like the password dialog: the filled pill style has the same colour
+     as the dialog in the dark themes, so the field could not be seen. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/sheet_side_padding"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingEnd="@dimen/sheet_side_padding">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/scheduled_backup_hint_folder_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/drive_folder_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLength="100"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</FrameLayout>

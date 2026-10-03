@@ -38,7 +38,9 @@ object BackupScheduler {
         val settings = Settings(context)
         val workManager = WorkManager.getInstance(context)
 
-        if (!settings.scheduledBackupEnabled) {
+        // Not set up (e.g. Drive picked but not connected yet): a run could only fail and notify.
+        // The next change on the scheduled backups screen schedules it once it is set up.
+        if (!settings.scheduledBackupEnabled || !isSetUp(context, settings)) {
             workManager.cancelUniqueWork(WORK_SCHEDULED)
             settings.scheduledBackupSignature = ""
             return
@@ -64,6 +66,11 @@ object BackupScheduler {
 
         workManager.enqueueUniquePeriodicWork(WORK_SCHEDULED, policy, request)
         settings.scheduledBackupSignature = signature
+    }
+
+    /** A destination and a backup password: what an automatic backup needs before it can run. */
+    fun isSetUp(context: Context, settings: Settings): Boolean {
+        return settings.isBackupPasswordSet && BackupDestination.isConfigured(context, settings)
     }
 
     /** Backs up shortly after an edit, from the background (KeyStore encryption only). */
@@ -101,7 +108,8 @@ object BackupScheduler {
     private fun networkType(settings: Settings): NetworkType {
         return when (settings.backupDestination) {
             Constants.BackupDestinationType.LOCAL -> NetworkType.NOT_REQUIRED
-            Constants.BackupDestinationType.DRIVE -> NetworkType.CONNECTED
+            Constants.BackupDestinationType.DRIVE ->
+                if (settings.scheduledBackupOnlyUnmetered) NetworkType.UNMETERED else NetworkType.CONNECTED
         }
     }
 
