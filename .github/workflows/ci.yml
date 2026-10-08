@@ -32,6 +32,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Check release identity and signature gates
+        run: python3 -m unittest discover -s .github/scripts/tests -v
+
       - name: Set up JDK 17
         uses: actions/setup-java@v6
         with:
