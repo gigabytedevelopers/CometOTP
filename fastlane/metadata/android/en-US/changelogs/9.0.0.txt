@@ -1,0 +1,5 @@
+CometOTP 9.0.0 introduces more ways to protect and import your accounts.
+
+New: Auto Sync backs up your changes automatically, and scheduled backups can save encrypted backups to Google Drive.
+
+New: Import accounts from Google Authenticator export QR codes, using the camera or saved images.
