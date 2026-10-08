@@ -1,0 +1,41 @@
+default_platform(:ios)
+
+platform :ios do
+  private_lane :release_credentials do
+    app_store_connect_api_key(
+      key_id: ENV.fetch("APPSTORE_KEY_ID"),
+      issuer_id: ENV.fetch("APPSTORE_ISSUER_ID"),
+      key_filepath: ENV.fetch("APPSTORE_KEY_FILE"),
+      in_house: false
+    )
+  end
+
+  desc "Submit directly to App Review and release to all users after approval"
+  lane :appstore do
+    upload_to_app_store(
+      api_key: release_credentials,
+      app_identifier: ENV.fetch("IOS_BUNDLE_ID"),
+      ipa: ENV.fetch("IOS_IPA_PATH"),
+      app_version: ENV.fetch("IOS_VERSION"),
+      build_number: ENV.fetch("IOS_BUILD_NUMBER"),
+      submit_for_review: true,
+      automatic_release: true,
+      phased_release: false,
+      skip_metadata: true,
+      skip_screenshots: true,
+      precheck_include_in_app_purchases: false,
+      force: true
+    )
+  end
+
+  desc "Upload to TestFlight only when explicitly selected"
+  lane :testflight do
+    upload_to_testflight(
+      api_key: release_credentials,
+      app_identifier: ENV.fetch("IOS_BUNDLE_ID"),
+      ipa: ENV.fetch("IOS_IPA_PATH"),
+      skip_waiting_for_build_processing: true,
+      distribute_external: false
+    )
+  end
+end
