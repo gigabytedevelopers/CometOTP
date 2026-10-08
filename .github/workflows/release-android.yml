@@ -220,7 +220,7 @@ jobs:
         env:
           OUTPUT: NEW_SECTION.md
 
-      # Import the dedicated Git signing key only after the app has been built and published.
+      # Load the existing Git signing key only after the app has been built and published.
       - name: Configure enwokoma's changelog signing identity
         id: changelog_identity
         if: steps.changelog_section.outcome == 'success'
@@ -228,6 +228,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          RELEASE_SIGNING_PASSPHRASE: ${{ secrets.RELEASE_SIGNING_PASSPHRASE }}
         run: bash .github/scripts/configure_release_identity.sh
 
       # A local signed commit preserves the user's own signature. GitHub API signing uses
@@ -256,4 +257,4 @@ jobs:
 
       - name: Remove the Git signing key
         if: always()
-        run: rm -rf "$RUNNER_TEMP/enwokoma-release-signing"
+        run: bash .github/scripts/cleanup_release_identity.sh

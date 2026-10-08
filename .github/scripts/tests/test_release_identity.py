@@ -51,6 +51,7 @@ else:
             'GH_TOKEN': 'offline-fixture-token',
             'RELEASE_SIGNING_KEY': self.key.read_text(),
             'RUNNER_TEMP': str(self.runner),
+            'GITHUB_ENV': str(self.directory / 'github-env'),
             'FIXTURE_LOGIN': 'enwokoma',
             'FIXTURE_KEYS': json.dumps([{'key': self.public}]),
             'GITHUB_REF_TYPE': 'tag',
@@ -60,6 +61,11 @@ else:
         # Actions checkout is shallow; preserve its boundary when importing the existing commit.
         self.git('fetch', '-q', '--depth=1', str(ROOT), 'HEAD')
         self.git('checkout', '-q', '--detach', 'FETCH_HEAD')
+        (self.repo / '.github').mkdir(exist_ok=True)
+        (self.repo / '.github/release-signing.pub').write_text(self.public + '\n')
+        (self.repo / '.github/scripts/cleanup_release_identity.sh').write_text(
+            (SCRIPTS / 'cleanup_release_identity.sh').read_text())
+        self.addCleanup(self.run_script, 'cleanup_release_identity.sh')
 
     def git(self, *args):
         return subprocess.run(['git', *args], cwd=self.repo, env=self.env,
@@ -67,11 +73,14 @@ else:
 
     def run_script(self, name):
         return subprocess.run(['bash', str(SCRIPTS / name)], cwd=self.repo,
-                              env=self.env, text=True, capture_output=True)
+                              env=self.env, text=True, capture_output=True, timeout=30)
 
     def configure(self):
         result = self.run_script('configure_release_identity.sh')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for line in Path(self.env['GITHUB_ENV']).read_text().splitlines():
+            name, value = line.split('=', 1)
+            self.env[name] = value
 
     def test_missing_token_does_not_restore_key(self):
         self.env['GH_TOKEN'] = ''
@@ -87,6 +96,7 @@ else:
 
     def test_missing_signing_key_fails(self):
         self.env['RELEASE_SIGNING_KEY'] = ''
+        self.env.pop('SSH_AUTH_SOCK', None)
         result = self.run_script('configure_release_identity.sh')
         self.assertNotEqual(result.returncode, 0)
 
@@ -102,6 +112,60 @@ else:
         self.git('tag', '-s', 'v99.0.0', '-m', 'Offline signature fixture')
         result = self.run_script('verify_release_tag.sh')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_encrypted_existing_key_can_sign(self):
+        subprocess.run(['ssh-keygen', '-q', '-p', '-P', '', '-N', 'offline-fixture-passphrase',
+                        '-f', str(self.key)], check=True, capture_output=True)
+        self.env['RELEASE_SIGNING_KEY'] = self.key.read_text()
+        self.env['RELEASE_SIGNING_PASSPHRASE'] = 'offline-fixture-passphrase'
+        self.configure()
+        self.git('tag', '-s', 'v99.0.0', '-m', 'Encrypted signature fixture')
+        self.assertEqual(self.run_script('verify_release_tag.sh').returncode, 0)
+        self.assertFalse((self.runner / 'enwokoma-release-signing/key').exists())
+        self.assertFalse((self.runner / 'enwokoma-release-signing/askpass').exists())
+        self.assertNotIn('offline-fixture-passphrase', Path(self.env['GITHUB_ENV']).read_text())
+
+    def test_wrong_passphrase_cleans_up_owned_agent_and_key(self):
+        subprocess.run(['ssh-keygen', '-q', '-p', '-P', '', '-N', 'offline-fixture-passphrase',
+                        '-f', str(self.key)], check=True, capture_output=True)
+        self.env['RELEASE_SIGNING_KEY'] = self.key.read_text()
+        self.env['RELEASE_SIGNING_PASSPHRASE'] = 'wrong-fixture-passphrase'
+        result = self.run_script('configure_release_identity.sh')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.runner / 'enwokoma-release-signing').exists())
+
+    def test_existing_agent_needs_no_key_secret_and_is_not_stopped(self):
+        self.configure()
+        original_runner = self.env['RUNNER_TEMP']
+        self.env['RELEASE_SIGNING_KEY'] = ''
+        self.env['RUNNER_TEMP'] = str(self.directory / 'external-agent-runner')
+        self.configure()
+        self.assertEqual(self.run_script('cleanup_release_identity.sh').returncode, 0)
+        self.git('tag', '-s', 'v99.0.0', '-m', 'Existing agent fixture')
+        self.env['RUNNER_TEMP'] = original_runner
+
+    def test_different_registered_key_is_rejected(self):
+        other_key = self.directory / 'other-key'
+        subprocess.run(['ssh-keygen', '-q', '-t', 'ed25519', '-N', '', '-f', str(other_key)], check=True)
+        self.env['FIXTURE_KEYS'] = json.dumps([{'key': self.public},
+                                              {'key': other_key.with_suffix('.pub').read_text()}])
+        self.env['RELEASE_SIGNING_KEY'] = other_key.read_text()
+        self.assertNotEqual(self.run_script('configure_release_identity.sh').returncode, 0)
+
+    def test_cleanup_stops_the_owned_agent(self):
+        self.configure()
+        self.assertEqual(self.run_script('cleanup_release_identity.sh').returncode, 0)
+        result = subprocess.run(['ssh-add', '-l'], env=self.env, capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+
+    def test_tag_from_different_registered_key_is_rejected(self):
+        self.configure()
+        other_key = self.directory / 'other-key'
+        subprocess.run(['ssh-keygen', '-q', '-t', 'ed25519', '-N', '', '-f', str(other_key)], check=True)
+        self.env['FIXTURE_KEYS'] = json.dumps([{'key': self.public},
+                                              {'key': other_key.with_suffix('.pub').read_text()}])
+        self.git('-c', 'user.signingkey=' + str(other_key), 'tag', '-s', 'v99.0.0', '-m', 'Other key fixture')
+        self.assertNotEqual(self.run_script('verify_release_tag.sh').returncode, 0)
 
     def test_lightweight_tag_is_rejected(self):
         self.configure()

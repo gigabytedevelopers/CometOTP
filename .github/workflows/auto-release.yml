@@ -70,6 +70,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          RELEASE_SIGNING_PASSPHRASE: ${{ secrets.RELEASE_SIGNING_PASSPHRASE }}
         run: bash .github/scripts/configure_release_identity.sh
 
       - name: Sign and push the tag
@@ -112,4 +113,4 @@ jobs:
 
       - name: Remove the Git signing key
         if: always()
-        run: rm -rf "$RUNNER_TEMP/enwokoma-release-signing"
+        run: bash .github/scripts/cleanup_release_identity.sh

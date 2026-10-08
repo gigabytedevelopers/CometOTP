@@ -15,6 +15,10 @@ test "$(git cat-file -t "$GITHUB_REF_NAME^{}")" = commit
 allowed="$RUNNER_TEMP/enwokoma-tag-signers"
 gh api users/enwokoma/ssh_signing_keys --paginate --slurp \
   --jq '.[][] | "enwokoma " + .key' > "$allowed"
+# Only the existing key is eligible, even if another key is registered later.
+expected="enwokoma $(awk '{print $1 " " $2}' "$(git rev-parse --show-toplevel)/.github/release-signing.pub")"
+awk '{print $1 " " $2 " " $3}' "$allowed" | grep -Fx -- "$expected" > "$allowed.existing"
+mv "$allowed.existing" "$allowed"
 git -c gpg.format=ssh -c gpg.ssh.allowedSignersFile="$allowed" verify-tag "$GITHUB_REF_NAME"
 # A public key identifies the signer; the tagger must also use the user's commit identity.
 test "$(git for-each-ref --format='%(taggeremail:trim)' "refs/tags/$GITHUB_REF_NAME")" = 'emmanuel.nwokoma@payinvert.com'

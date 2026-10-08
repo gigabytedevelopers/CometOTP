@@ -155,29 +155,35 @@ Android → Run workflow** on the tag and choose `production`.
 ### Release identity
 
 Every future automated tag, GitHub release, release asset upload, and changelog PR uses
-`@enwokoma`. Tags and changelog commits carry an SSH signature made with a key registered to
-that account, rather than GitHub's web-flow signature. Missing, expired, wrong-account, or
+`@enwokoma`. Tags and changelog commits carry an SSH signature made with the existing key
+`~/.ssh/id_ed25519_github_signing`, already registered to that account. Missing, expired, wrong-account, or
 unregistered credentials stop the corresponding operation; there is no bot fallback.
 
-Set these **repository secrets** once, while signed in as `@enwokoma`:
+The public key is pinned in `.github/release-signing.pub`, with fingerprint
+`SHA256:unTULP6nScRb/MZELL6qtqy+UFP7T05TNlmIkv8OgPY`. No new signing key is created or
+registered. Local commits and tags keep using this key through the Mac's existing SSH agent.
+The setup script also accepts this already-loaded agent without a private-key secret.
+
+GitHub-hosted runners cannot access the Mac's SSH agent. Fully automatic tag and changelog
+signing on those runners requires access to the **same existing key**, using these repository
+secrets; this PR does not upload private material or provision credentials:
 
 | Secret | Setup |
 | --- | --- |
 | `RELEASE_OWNER_TOKEN` | A fine-grained personal access token owned by `@enwokoma`, resource owner `gigabytedevelopers`, repository access restricted to `CometOTP`. Grant **Contents: Read and write**, **Actions: Read and write**, **Pull requests: Read and write**, and **Workflows: Read and write**. Approve it in the organisation if required. |
-| `RELEASE_SIGNING_KEY` | The complete private half of a dedicated, unencrypted Ed25519 SSH signing key. Register its public half under **enwokoma → Settings → SSH and GPG keys → New SSH key → Signing Key** first. This does not need SSH authentication access. |
+| `RELEASE_SIGNING_KEY` | The complete private half of the existing `~/.ssh/id_ed25519_github_signing` key, retaining its passphrase protection. A different key is rejected even if registered to the same account. |
+| `RELEASE_SIGNING_PASSPHRASE` | The existing key's passphrase, required when restoring the encrypted key on a hosted runner. It is not needed with an already-loaded agent. |
 
-Use a dedicated signing key, keeping your existing personal authentication/signing key on your
-computer. For example, create the automation key locally with:
+No key generation or GitHub key registration is needed. Without hosted-runner access, sign and
+push release tags locally using the existing key (see "Releasing by hand") and prepare signed
+changelog changes locally. Automatic signing stops if the key is unavailable; it never creates
+a replacement key or falls back to a bot.
 
-```bash
-ssh-keygen -t ed25519 -C 'CometOTP release signing (enwokoma)' -f ~/.ssh/cometotp_release_signing -N ''
-```
-
-Add the `.pub` file to your GitHub account as a **Signing Key**. Add the private file to the
-repository's `RELEASE_SIGNING_KEY` secret; never commit either secret. Configure the token under
-**Settings → Secrets and variables → Actions**. Renew the token before expiry. The workflows
-verify its account with GitHub and check that the signing key belongs to `@enwokoma` before use.
-The private key is restored into the runner's temporary directory and removed when the job ends.
+The runner checks the pinned public key's GitHub registration, restores the encrypted private
+key into a restricted temporary directory, and unlocks it in an isolated SSH agent. It then
+removes the private file and passphrase helper. Only the agent socket and PID are passed to
+later steps; cleanup stops that isolated agent. An existing local agent is left running.
+Never commit private keys, passphrases, or tokens. Renew the owner token before expiry.
 
 `RELEASE_DISPATCH_TOKEN`, `RELEASE_BOT_PRIVATE_KEY`, and `RELEASE_BOT_CLIENT_ID` are no longer
 used. Once the new setup works, their old configuration can be removed.
