@@ -13,7 +13,7 @@ on:
       track:
         description: Play track to publish to
         type: choice
-        default: internal
+        default: production
         options: [internal, alpha, beta, production]
       status:
         description: Release status on that track
@@ -180,15 +180,15 @@ jobs:
           cat "$out/whatsnew-en-US"
 
       # `tracks` replaced the deprecated `track` input and takes a comma-separated list; this passes
-      # the one track. The fallback is not optional: a tag push has no inputs, and an empty `tracks`
-      # makes the action publish straight to production.
+      # the one track. Tag pushes have no inputs and target production directly; testing tracks
+      # remain available as an explicit choice when dispatching a workflow by hand.
       - name: Publish to Google Play
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.gigabytedevelopersinc.app.CometOTP
           releaseFiles: app/build/outputs/bundle/release/*.aab
-          tracks: ${{ inputs.track || 'internal' }}
+          tracks: ${{ inputs.track || 'production' }}
           status: ${{ inputs.status || 'completed' }}
           whatsNewDirectory: ${{ env.WHATSNEW_DIR }}
           mappingFile: app/build/outputs/mapping/release/mapping.txt

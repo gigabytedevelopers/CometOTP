@@ -32,7 +32,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Check release identity and signature gates
+      - name: Set up Ruby for release configuration checks
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Check release identity and publishing behavior
         run: python3 -m unittest discover -s .github/scripts/tests -v
 
       - name: Set up JDK 17

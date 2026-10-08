@@ -7,8 +7,8 @@ Five workflows live in `.github/workflows`:
 | CI | `ci.yml` | Every pull request, and every push to `master` |
 | Request review | `request-review.yml` | Every pull request that is not a draft; asks `@princesseke` to review |
 | Auto release | `auto-release.yml` | After CI passes on `master`; signs and pushes a new version tag as `@enwokoma` |
-| Release Android | `release-android.yml` | Started by a signed `v*` tag pushed by `@enwokoma`, or dispatched by `@enwokoma` on that tag |
-| Release iOS | `release-ios.yml` | Same as Android, but **switched off** until enabled |
+| Release Android | `release-android.yml` | Publishes directly to Play production on a signed `v*` tag pushed by `@enwokoma`, or dispatched by `@enwokoma` on that tag |
+| Release iOS | `release-ios.yml` | Submits directly to App Review and releases after approval, but **switched off** until an iOS target and credentials are available |
 
 ## Protecting master
 
@@ -106,8 +106,9 @@ approve each deployment by hand.
 | `ANDROID_KEY_PASSWORD` | Key password |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Google Play service account JSON, pasted whole |
 
-Two GitHub identity secrets sit on the repository instead: `RELEASE_OWNER_TOKEN` and
-`RELEASE_SIGNING_KEY`. Auto release needs them before the Android deployment begins. See
+GitHub identity secrets sit on the repository instead: `RELEASE_OWNER_TOKEN`,
+`RELEASE_SIGNING_KEY`, and `RELEASE_SIGNING_PASSPHRASE` for the encrypted existing key.
+Auto release needs them before the Android deployment begins. See
 [Release identity](#release-identity). Android signing secrets above stay on `production`.
 
 To encode the keystore:
@@ -149,8 +150,17 @@ out from the time of the build (minutes since 2026-01-01 on top of 10,000,000), 
 build gets a higher code and nothing has to be written back to the repository. See "Versioning" in
 `app/build.gradle`.
 
-Auto release publishes to `internal`; promote from the Play Console, or run **Actions → Release
-Android → Run workflow** on the tag and choose `production`.
+Android tag releases publish directly to `production` with status `completed`, targeting all
+users after Google approves the release. The manual workflow also defaults to production;
+choose `internal`, `alpha`, or `beta` explicitly for a testing release. Google Play review still
+applies. With managed publishing enabled in Play Console, approved changes wait for you to
+publish them; disable managed publishing there if approved releases should go live automatically.
+
+Enabled iOS tag releases submit directly to App Review and request automatic release to all
+users after Apple's approval, without a TestFlight testing stage. A manual run defaults to
+`appstore`; choose `testflight` explicitly to upload a testing build without App Store submission.
+The workflow summary reports submission, not public availability. Store review is separate
+from GitHub environment approvals and the required PR review and CI checks.
 
 ### Release identity
 
@@ -197,6 +207,13 @@ on a signed tag instead.
 The request-review workflow also uses your token. CI needs no personal token or signing key;
 its actor remains whoever performed the real push or PR event. GitHub Actions still provides
 and identifies the check runs. Contributions by other people retain their own attribution.
+
+Review requests use `pull_request_target`, which runs the workflow on `master`. A workflow fix
+inside an open PR therefore does not change the actor of its own automatic review requests.
+After this change is reviewed and merged, the workflow validates `RELEASE_OWNER_TOKEN` as
+`enwokoma` and requests Princess under that account. Until then, request review directly while
+authenticated as `enwokoma`. Rerunning an old bot workflow does not switch its credentials.
+Existing bot-authored timeline events remain part of the PR history.
 
 Existing Actions runs and deployment records retain their original actor. A release's author
 cannot be edited through the release update API. Published tags and commit history are not
@@ -271,13 +288,21 @@ its wrapping as line breaks in the middle of sentences.
 
 ## Enabling iOS later
 
-The iOS workflow is complete but gated. Every run currently stops at a job that prints a notice and
-does nothing, so it cannot fail or publish by accident.
+The iOS publishing pipeline is configured but gated. This repository currently has only the
+Android `:app` module; the referenced iOS project and shared Kotlin framework are not present.
+Keep `IOS_DEPLOY_ENABLED` unset or `false` until these targets and the Apple account are ready.
+Disabled runs stop at a notice and do not access signing credentials.
 
 When you have an Apple Developer account and a Kotlin Multiplatform iOS target:
 
-1. Settings → Secrets and variables → Actions → **Variables** → set `IOS_DEPLOY_ENABLED` to `true`.
-2. Add these to a **`production-ios`** environment:
+1. Add the real iOS Xcode project, a working `:shared:assembleXCFramework` Gradle target, and an
+   App Store export-options plist. Configure the target to use `MARKETING_VERSION` and
+   `CURRENT_PROJECT_VERSION` for its Info.plist version fields; the archive receives the version
+   from `app/version.properties` and the workflow's `<run_number>.<run_attempt>` build number.
+2. Configure repository **Variables**: `IOS_BUNDLE_ID` (required, matching App Store Connect),
+   `IOS_SCHEME` (default `CometOTP`), `IOS_PROJECT` (default `iosApp/iosApp.xcodeproj`), and
+   `IOS_EXPORT_OPTIONS` (default `iosApp/ExportOptions.plist`).
+3. Add these to a **`production-ios`** environment:
 
    | Secret | What it is |
    | --- | --- |
@@ -289,8 +314,17 @@ When you have an Apple Developer account and a Kotlin Multiplatform iOS target:
    | `APPSTORE_ISSUER_ID` | App Store Connect issuer id |
    | `APPSTORE_PRIVATE_KEY` | The `.p8` private key, pasted whole |
 
-3. Set `IOS_SCHEME` and `IOS_PROJECT` at the top of the workflow to match the real target, and add
-   `iosApp/ExportOptions.plist`.
+4. Create the app in App Store Connect and complete its required listing, screenshots, privacy,
+   App Review contact details, agreements, and accurate export-compliance declarations. The
+   Fastlane `appstore` lane uses this existing metadata and screenshots; it does not invent or
+   replace them. The App Store Connect API key must have permission to submit the app for review.
+5. Set `IOS_DEPLOY_ENABLED` to `true` only after these prerequisites are complete. Configure any
+   desired deployment reviewers on the `production-ios` environment.
+
+`Gemfile.lock` pins Fastlane and its dependencies. Tag pushes run `bundle exec fastlane ios
+appstore`; that lane uploads the exact exported IPA/build, submits it for review, and sets
+automatic release with phased release disabled. The explicit `testflight` lane uploads only
+to TestFlight. Submission failures fail the job; neither lane falls back to the other.
 
 To switch it off again, set the variable back to `false`. Nothing else needs changing.
 
