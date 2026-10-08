@@ -39,6 +39,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupScheduler
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.InProcessBackupQueue
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
@@ -48,6 +49,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
+import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.Executors
 import javax.crypto.SecretKey
@@ -210,18 +212,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             BackupScheduler.autoSync(context)
         } else {
             // With password encryption only this process has the key.
-            taskHandler.removeCallbacks(autoSyncRunnable)
-            taskHandler.postDelayed(autoSyncRunnable, AUTO_SYNC_DELAY_MS)
-        }
-    }
-
-    private val autoSyncRunnable = object : Runnable {
-        override fun run() {
-            // A backup still running may have read the database before this edit; go again after it.
-            if (backupRunning)
-                taskHandler.postDelayed(this, AUTO_SYNC_DELAY_MS)
-            else
-                backUpInBackground()
+            backUpInBackground(scheduled = false, delayMs = AUTO_SYNC_DELAY_MS)
         }
     }
 
@@ -232,7 +223,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
      * restricted by the system). A failed attempt is not repeated on every resume.
      */
     private fun backUpIfDue() {
-        if (!settings.scheduledBackupEnabled || backupRunning)
+        if (!settings.scheduledBackupEnabled || backupQueue.isBusy)
             return
 
         val now = System.currentTimeMillis()
@@ -244,20 +235,28 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         if (BackupHelper.autoBackupType(context) != Constants.BackupType.ENCRYPTED)
             return
 
-        backUpInBackground()
+        backUpInBackground(scheduled = true)
     }
 
-    private fun backUpInBackground() {
+    private fun backUpInBackground(scheduled: Boolean, delayMs: Long = 0) {
         val key = sharedEncryptionKey ?: return
         val appContext = context.applicationContext
 
-        backupRunning = true
-        backupExecutor.execute {
+        // Capture only the application context and key. A destroyed adapter must neither cancel
+        // the backup nor be kept alive while charging/network constraints delay it.
+        val owner = WeakReference(this)
+        backupQueue.submit(delayMs) {
+            val current = Settings(appContext)
+            if (scheduled && (!current.scheduledBackupEnabled ||
+                    !BackupScheduler.isOverdue(current.lastBackupSuccess, current.scheduledBackupInterval, System.currentTimeMillis())))
+                return@submit true
+            if (!BackupScheduler.foregroundConstraintsMet(appContext, current, scheduled))
+                return@submit false
             val outcome = BackupRunner.run(appContext, key)
-            taskHandler.post {
-                backupRunning = false
-                showBackupOutcome(appContext, outcome)
+            backupResultHandler.post {
+                owner.get()?.showBackupOutcome(appContext, outcome)
             }
+            true
         }
     }
 
@@ -864,7 +863,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
         // Shared like the key: a backup started by one adapter instance must stop the next
         // instance (after the activity is recreated) from starting a second one.
-        private val backupExecutor = Executors.newSingleThreadExecutor()
-        private var backupRunning = false
+        private val backupQueue = InProcessBackupQueue(Executors.newSingleThreadScheduledExecutor())
+        private val backupResultHandler = Handler(Looper.getMainLooper())
     }
 }
