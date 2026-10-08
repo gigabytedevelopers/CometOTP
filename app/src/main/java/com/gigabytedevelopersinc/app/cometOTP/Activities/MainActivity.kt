@@ -60,6 +60,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ManualEntryDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ResultDialog
 import com.gigabytedevelopersinc.app.cometOTP.R
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupScheduler
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AppStart
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
@@ -465,6 +466,10 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         touchHelper.attachToRecyclerView(recList)
 
         NotificationHelper.initializeNotificationChannels(this)
+
+        // Puts the scheduled backup job back if it is missing, e.g. after the settings were
+        // restored onto another device.
+        BackupScheduler.reconcile(this)
         restoreSortMode()
 
         var durationScale = Settings.Global.getFloat(this.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
@@ -822,6 +827,14 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         backupLauncher.launch(backupIntent)
     }
 
+    private fun openScheduledBackup() {
+        val intent = Intent(this, ScheduledBackupActivity::class.java)
+        val key = adapter.encryptionKey
+        if (key != null)
+            intent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, key.encoded)
+        startActivity(intent)
+    }
+
     private fun openTags() {
         val tagsIntent = Intent(this, TagsActivity::class.java)
         val key = adapter.encryptionKey
@@ -864,6 +877,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                     showOpenFileSelector()
                 INTENT_ENTER_DETAILS ->
                     ManualEntryDialog.show(this@MainActivity, settings, adapter)
+                Constants.INTENT_OPEN_SCHEDULED_BACKUP ->
+                    openScheduledBackup()
                 Intent.ACTION_VIEW ->
                     try {
                         // A missing data string throws here, as it did in Java, and is reported below.

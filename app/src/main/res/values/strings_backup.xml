@@ -20,7 +20,68 @@
     <string name="backup_result_created_msg">Backup has been saved successfully.</string>
     <string name="backup_result_restored_title">Restore Successful</string>
     <string name="backup_result_restored_msg">Your services were successfully recovered.</string>
-    <string name="backup_toast_auto_sync_requirements">Set a default backup location and a backup password in the settings to enable Auto Sync</string>
+    <string name="backup_toast_auto_sync_requirements">Choose a backup folder and set a backup password under Scheduled Backups to enable Auto Sync</string>
+
+    <!-- Scheduled backups -->
+    <string name="backup_row_scheduled">Scheduled Backups</string>
+    <string name="scheduled_backup_title">Scheduled Backups</string>
+    <string name="scheduled_backup_label_enabled">Back up automatically</string>
+    <string name="scheduled_backup_desc_enabled">Save an encrypted backup of your services on a schedule.</string>
+    <string name="scheduled_backup_section_schedule">Schedule</string>
+    <string name="scheduled_backup_label_frequency">Frequency</string>
+    <string name="scheduled_backup_label_time">Time</string>
+    <string name="scheduled_backup_desc_time">Approximate: Android runs backups when the phone is idle.</string>
+    <string name="scheduled_backup_section_destination">Destination</string>
+    <string name="scheduled_backup_label_folder">Backup folder</string>
+    <string name="scheduled_backup_folder_not_set">Not chosen yet</string>
+    <string name="scheduled_backup_folder_unnamed">Chosen folder</string>
+    <string name="scheduled_backup_label_password">Backup password</string>
+    <string name="scheduled_backup_password_set">Set. Backups are encrypted with it.</string>
+    <string name="scheduled_backup_password_not_set">Not set. Required to back up automatically.</string>
+    <string name="scheduled_backup_section_options">Options</string>
+    <string name="scheduled_backup_label_keep">Backups to keep</string>
+    <string name="scheduled_backup_desc_keep">Older automatic backups are removed. Backups you make yourself are never touched.</string>
+    <string name="scheduled_backup_label_charging">Only while charging</string>
+    <string name="scheduled_backup_label_notify_success">Notify after each backup</string>
+    <string name="scheduled_backup_section_status">Status</string>
+    <string name="scheduled_backup_status_never">No automatic backup yet</string>
+    <string name="scheduled_backup_status_last">Last backup: %1$s</string>
+    <string name="scheduled_backup_status_file">%1$s</string>
+    <string name="scheduled_backup_status_error">Last attempt %1$s: %2$s</string>
+    <string name="scheduled_backup_status_next">Next backup: around %1$s</string>
+    <string name="scheduled_backup_status_waiting">Next backup: waiting for the conditions above</string>
+    <string name="scheduled_backup_status_password_mode">Your services are encrypted with your password, so backups run the next time you unlock CometOTP after one is due.</string>
+    <string name="scheduled_backup_button_now">Back Up Now</string>
+    <string name="scheduled_backup_toast_requirements">Choose a backup folder and set a backup password first</string>
+    <string name="scheduled_backup_toast_password_failed">The backup password could not be saved</string>
+
+    <string-array name="scheduled_backup_frequency_names">
+        <item>Every 6 hours</item>
+        <item>Every 12 hours</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+    </string-array>
+    <string name="scheduled_backup_frequency_debug">Every 15 minutes (debug)</string>
+
+    <string-array name="scheduled_backup_keep_names">
+        <item>1 (overwrite one file)</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+    </string-array>
+
+    <!-- Automatic backup results -->
+    <string name="backup_notification_title_failed">Automatic backup failed</string>
+    <string name="backup_notification_title_due">Backup due</string>
+    <string name="backup_notification_msg_due">Unlock CometOTP to make your scheduled backup.</string>
+    <string name="backup_snackbar_auto_success">Backup saved</string>
+    <string name="backup_error_no_password">Set a backup password to make automatic backups.</string>
+    <string name="backup_error_no_destination">Choose where automatic backups are saved.</string>
+    <string name="backup_error_folder_access_lost">CometOTP can no longer write to the backup folder. Choose it again under Scheduled Backups.</string>
+    <string name="backup_error_prune_failed">Old backups could not be removed.</string>
+    <string name="backup_error_database_unreadable">Your services could not be read, so no backup was made.</string>
+    <string name="backup_error_nothing_to_back_up">There are no services to back up yet.</string>
 
     <string-array name="backup_encryption_names">
         <item>Text</item>
@@ -69,6 +130,9 @@
         automatic backup has failed for some reason</string>
     <string name="notification_channel_desc_backup_success">These notifications are shown when an
         automatic backup was successful</string>
+    <string name="notification_channel_name_backup_reminder">Backup reminders</string>
+    <string name="notification_channel_desc_backup_reminder">These notifications are shown when a
+        scheduled backup is waiting for you to unlock CometOTP</string>
 
     <!-- Toast messages -->
     <string name="backup_toast_no_location">Please set a default backup location in the settings!</string>

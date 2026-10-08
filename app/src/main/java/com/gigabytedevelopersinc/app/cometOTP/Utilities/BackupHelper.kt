@@ -43,16 +43,20 @@ object BackupHelper {
     }
 
     fun backupFile(context: Context, backupLocationUri: Uri, type: Constants.BackupType): BackupFile {
+        return backupFile(context, backupLocationUri, backupFilename(context, type), backupMimeType(type))
+    }
+
+    fun backupFile(context: Context, backupLocationUri: Uri, name: String, mimeType: String): BackupFile {
         val backupFile = BackupFile()
         val backupLocation = DocumentFile.fromTreeUri(context, backupLocationUri)
 
         if (backupLocation != null) {
             // Try to find an existing file to overwrite
-            backupFile.file = backupLocation.findFile(backupFilename(context, type))
+            backupFile.file = backupLocation.findFile(name)
 
             // Try to create a new file
             if (backupFile.file == null) {
-                backupFile.file = backupLocation.createFile(backupMimeType(type), backupFilename(context, type))
+                backupFile.file = backupLocation.createFile(mimeType, name)
             }
 
             // Both failed
@@ -95,10 +99,14 @@ object BackupHelper {
         return Constants.BACKUP_FILENAME_PLAIN
     }
 
+    /**
+     * The type Auto Sync and scheduled backups write, or UNAVAILABLE until a destination and a
+     * backup password have been set up. Only password-encrypted backups can be made unattended.
+     */
     fun autoBackupType(context: Context): Constants.BackupType {
         val settings = Settings(context)
 
-        if (!settings.isBackupLocationSet) {
+        if (!BackupDestination.isConfigured(context, settings)) {
             return Constants.BackupType.UNAVAILABLE
         }
 
@@ -117,22 +125,32 @@ object BackupHelper {
         return backupToFile(context, uri, password, plain)
     }
 
+    /**
+     * The contents of an encrypted (.aes) backup: the PBKDF2 iteration count, the salt, then
+     * [plain] encrypted with the key derived from [password]. EncryptedRestoreTask reads it back.
+     */
+    fun encryptBackup(password: String, plain: String): ByteArray {
+        val iter = EncryptionHelper.generateRandomIterations()
+        val salt = EncryptionHelper.generateRandom(Constants.ENCRYPTION_IV_LENGTH)
+
+        val key = EncryptionHelper.generateSymmetricKeyPBKDF2(password, iter, salt)
+        val encrypted = EncryptionHelper.encrypt(key, plain.toByteArray(StandardCharsets.UTF_8))
+
+        val iterBytes = ByteBuffer.allocate(Constants.INT_LENGTH).putInt(iter).array()
+        val data = ByteArray(Constants.INT_LENGTH + Constants.ENCRYPTION_IV_LENGTH + encrypted.size)
+
+        System.arraycopy(iterBytes, 0, data, 0, Constants.INT_LENGTH)
+        System.arraycopy(salt, 0, data, Constants.INT_LENGTH, Constants.ENCRYPTION_IV_LENGTH)
+        System.arraycopy(encrypted, 0, data, Constants.INT_LENGTH + Constants.ENCRYPTION_IV_LENGTH, encrypted.size)
+
+        return data
+    }
+
     fun backupToFile(context: Context, uri: Uri?, password: String?, plain: String?): Boolean {
         var success = true
 
         try {
-            val iter = EncryptionHelper.generateRandomIterations()
-            val salt = EncryptionHelper.generateRandom(Constants.ENCRYPTION_IV_LENGTH)
-
-            val key = EncryptionHelper.generateSymmetricKeyPBKDF2(password!!, iter, salt)
-            val encrypted = EncryptionHelper.encrypt(key, plain!!.toByteArray(StandardCharsets.UTF_8))
-
-            val iterBytes = ByteBuffer.allocate(Constants.INT_LENGTH).putInt(iter).array()
-            val data = ByteArray(Constants.INT_LENGTH + Constants.ENCRYPTION_IV_LENGTH + encrypted.size)
-
-            System.arraycopy(iterBytes, 0, data, 0, Constants.INT_LENGTH)
-            System.arraycopy(salt, 0, data, Constants.INT_LENGTH, Constants.ENCRYPTION_IV_LENGTH)
-            System.arraycopy(encrypted, 0, data, Constants.INT_LENGTH + Constants.ENCRYPTION_IV_LENGTH, encrypted.size)
+            val data = encryptBackup(password!!, plain!!)
 
             success = StorageAccessHelper.saveFile(context, uri!!, data)
         } catch (e: Exception) {

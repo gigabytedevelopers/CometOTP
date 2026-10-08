@@ -4,6 +4,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Utilities
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.pm.PackageManager
@@ -35,6 +36,11 @@ object NotificationHelper {
                 Constants.NotificationChannel.BACKUP_SUCCESS -> {
                     notificationChannel.name = context.getString(R.string.notification_channel_name_backup_success)
                     notificationChannel.description = context.getString(R.string.notification_channel_desc_backup_success)
+                    notificationChannel.importance = NotificationManager.IMPORTANCE_LOW
+                }
+                Constants.NotificationChannel.BACKUP_REMINDER -> {
+                    notificationChannel.name = context.getString(R.string.notification_channel_name_backup_reminder)
+                    notificationChannel.description = context.getString(R.string.notification_channel_desc_backup_reminder)
                     notificationChannel.importance = NotificationManager.IMPORTANCE_LOW
                 }
             }
@@ -70,7 +76,12 @@ object NotificationHelper {
         notify(context, channel, resIdTitle, context.getText(resIdBody).toString())
     }
 
-    fun notify(context: Context, channel: Constants.NotificationChannel, resIdTitle: Int, resBody: String?) {
+    /**
+     * @param notificationId a notification with the same id replaces this one
+     * @param contentIntent  what tapping the notification opens; nothing when null
+     */
+    fun notify(context: Context, channel: Constants.NotificationChannel, resIdTitle: Int, resBody: String?,
+               notificationId: Int = NOTIFICATION_ID_BROADCAST_BACKUP, contentIntent: PendingIntent? = null) {
         if (!canPostNotifications(context)) {
             // The system would silently drop the notification anyway; log it so the outcome of a
             // broadcast-triggered backup is at least visible in logcat.
@@ -88,10 +99,13 @@ object NotificationHelper {
             builder.setPriority(NotificationCompat.PRIORITY_HIGH)
         }
 
+        if (contentIntent != null) {
+            builder.setContentIntent(contentIntent)
+                .setAutoCancel(true)
+        }
+
         createNotificationChannel(context, channel)
         builder.setChannelId(channelId(channel))
-
-        val notificationId = 1
 
         try {
             NotificationManagerCompat.from(context).notify(notificationId, builder.build())
@@ -99,4 +113,15 @@ object NotificationHelper {
             Log.w(TAG, "Failed to post notification", e)
         }
     }
+
+    fun cancel(context: Context, notificationId: Int) {
+        NotificationManagerCompat.from(context).cancel(notificationId)
+    }
+
+    /** Results of broadcast-triggered backups. */
+    const val NOTIFICATION_ID_BROADCAST_BACKUP = 1
+    /** The result of the last automatic backup; a success replaces a failure. */
+    const val NOTIFICATION_ID_AUTO_BACKUP = 2
+    /** Password encryption: a scheduled backup is waiting for the app to be unlocked. */
+    const val NOTIFICATION_ID_BACKUP_DUE = 3
 }
