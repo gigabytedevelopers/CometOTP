@@ -60,6 +60,20 @@
     <string name="settings_key_openpgp_verify" translatable="false">pref_openpgp_verify</string>
     <string name="settings_key_new_backup_format_dialog_shown" translatable="false">pref_new_backup_dialog_shown</string>    <!-- Deprecated -->
     <string name="settings_key_backup_default_type" translatable="false">pref_backup_default_type</string>
+    <string name="settings_key_backup_destination" translatable="false">pref_backup_destination</string>
+
+    <!-- Scheduled backups -->
+    <string name="settings_key_sched_backup_enabled" translatable="false">pref_sched_backup_enabled</string>
+    <string name="settings_key_sched_backup_interval" translatable="false">pref_sched_backup_interval_minutes</string>
+    <string name="settings_key_sched_backup_time" translatable="false">pref_sched_backup_time</string>
+    <string name="settings_key_sched_backup_keep" translatable="false">pref_sched_backup_keep</string>
+    <string name="settings_key_sched_backup_charging" translatable="false">pref_sched_backup_charging</string>
+    <string name="settings_key_sched_backup_notify_success" translatable="false">pref_sched_backup_notify_success</string>
+    <string name="settings_key_sched_backup_signature" translatable="false">pref_sched_backup_signature</string>
+    <string name="settings_key_sched_backup_last_success" translatable="false">pref_sched_backup_last_success</string>
+    <string name="settings_key_sched_backup_last_file" translatable="false">pref_sched_backup_last_file</string>
+    <string name="settings_key_sched_backup_last_attempt" translatable="false">pref_sched_backup_last_attempt</string>
+    <string name="settings_key_sched_backup_last_error" translatable="false">pref_sched_backup_last_error</string>
 
     <string name="settings_key_security_backup_warning" translatable="false">pref_security_backup_warning_shown</string>
     <string name="settings_key_sort_mode" translatable="false">pref_sort_mode</string>
@@ -94,6 +108,9 @@
     <string name="settings_default_split_group_size" translatable="false">3</string>
     <string name="settings_default_tag_functionality" translatable="false">or</string>
     <string name="settings_default_auto_backup_password_enc" translatable="false">off</string>
+    <integer name="settings_default_sched_backup_interval">1440</integer>  <!-- minutes, daily -->
+    <integer name="settings_default_sched_backup_time">120</integer>       <!-- minute of the day, 02:00 -->
+    <integer name="settings_default_sched_backup_keep">5</integer>
 
     <string-array name="settings_values_tap" translatable="false">
         <item>nothing</item>

@@ -105,7 +105,6 @@ class Settings(private val context: Context) {
         return settings.getInt(getResString(keyId), defaultValue)
     }
 
-    @Suppress("SameParameterValue")
     private fun getLong(keyId: Int, defaultValue: Long): Long {
         return settings.getLong(getResString(keyId), defaultValue)
     }
@@ -121,10 +120,15 @@ class Settings(private val context: Context) {
             .apply()
     }
 
-    @Suppress("SameParameterValue")
     private fun setInt(keyId: Int, value: Int) {
         settings.edit()
             .putInt(getResString(keyId), value)
+            .apply()
+    }
+
+    private fun setLong(keyId: Int, value: Long) {
+        settings.edit()
+            .putLong(getResString(keyId), value)
             .apply()
     }
 
@@ -616,6 +620,106 @@ class Settings(private val context: Context) {
 
     val isBackupLocationSet: Boolean
         get() = getString(R.string.settings_key_backup_location, "").isNotEmpty()
+
+    /** Encrypts [password] with the KeyStore key the backup password is kept under and stores it. */
+    fun setBackupPassword(password: String): Boolean {
+        return try {
+            val key = KeyStoreHelper.loadOrGenerateAsymmetricKeyPair(context, Constants.KEYSTORE_ALIAS_PASSWORD)
+            val encPassword = EncryptionHelper.encrypt(key!!.public, password.toByteArray(StandardCharsets.UTF_8))
+            setString(R.string.settings_key_backup_password_enc, Base64.encodeToString(encPassword, Base64.URL_SAFE))
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    val isBackupPasswordSet: Boolean
+        get() = getString(R.string.settings_key_backup_password_enc, "").isNotEmpty()
+
+    var backupDestination: Constants.BackupDestinationType
+        get() {
+            val value = getString(R.string.settings_key_backup_destination, Constants.BackupDestinationType.LOCAL.name)
+            return try {
+                Constants.BackupDestinationType.valueOf(value.uppercase(Locale.ENGLISH))
+            } catch (e: IllegalArgumentException) {
+                Constants.BackupDestinationType.LOCAL
+            }
+        }
+        set(value) {
+            setString(R.string.settings_key_backup_destination, value.name.lowercase(Locale.ENGLISH))
+        }
+
+    var scheduledBackupEnabled: Boolean
+        get() = getBoolean(R.string.settings_key_sched_backup_enabled, false)
+        set(value) {
+            setBoolean(R.string.settings_key_sched_backup_enabled, value)
+        }
+
+    /** Minutes between scheduled backups. */
+    var scheduledBackupInterval: Int
+        get() = getInt(R.string.settings_key_sched_backup_interval, R.integer.settings_default_sched_backup_interval)
+        set(value) {
+            setInt(R.string.settings_key_sched_backup_interval, value)
+        }
+
+    /** Preferred time of day for daily and weekly backups, in minutes after midnight. */
+    var scheduledBackupTime: Int
+        get() = getInt(R.string.settings_key_sched_backup_time, R.integer.settings_default_sched_backup_time)
+        set(value) {
+            setInt(R.string.settings_key_sched_backup_time, value)
+        }
+
+    /** How many automatic backups are kept; 1 overwrites a single file. */
+    var scheduledBackupKeep: Int
+        get() = getInt(R.string.settings_key_sched_backup_keep, R.integer.settings_default_sched_backup_keep).coerceAtLeast(1)
+        set(value) {
+            setInt(R.string.settings_key_sched_backup_keep, value)
+        }
+
+    var scheduledBackupOnlyCharging: Boolean
+        get() = getBoolean(R.string.settings_key_sched_backup_charging, false)
+        set(value) {
+            setBoolean(R.string.settings_key_sched_backup_charging, value)
+        }
+
+    var scheduledBackupNotifySuccess: Boolean
+        get() = getBoolean(R.string.settings_key_sched_backup_notify_success, false)
+        set(value) {
+            setBoolean(R.string.settings_key_sched_backup_notify_success, value)
+        }
+
+    /** The schedule the periodic work was last enqueued with, see BackupScheduler.reconcile. */
+    var scheduledBackupSignature: String
+        get() = getString(R.string.settings_key_sched_backup_signature, "")
+        set(value) {
+            setString(R.string.settings_key_sched_backup_signature, value)
+        }
+
+    var lastBackupSuccess: Long
+        get() = getLong(R.string.settings_key_sched_backup_last_success, 0)
+        set(value) {
+            setLong(R.string.settings_key_sched_backup_last_success, value)
+        }
+
+    var lastBackupFile: String
+        get() = getString(R.string.settings_key_sched_backup_last_file, "")
+        set(value) {
+            setString(R.string.settings_key_sched_backup_last_file, value)
+        }
+
+    var lastBackupAttempt: Long
+        get() = getLong(R.string.settings_key_sched_backup_last_attempt, 0)
+        set(value) {
+            setLong(R.string.settings_key_sched_backup_last_attempt, value)
+        }
+
+    /** Why the last automatic backup failed, empty when it succeeded. */
+    var lastBackupError: String
+        get() = getString(R.string.settings_key_sched_backup_last_error, "")
+        set(value) {
+            setString(R.string.settings_key_sched_backup_last_error, value)
+        }
 
     val blockAutofill: Boolean
         get() = getBoolean(R.string.settings_key_block_autofill, false)

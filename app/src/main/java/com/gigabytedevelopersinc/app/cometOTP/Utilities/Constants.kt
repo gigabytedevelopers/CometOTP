@@ -28,7 +28,7 @@ object Constants {
     }
 
     enum class NotificationChannel {
-        BACKUP_FAILED, BACKUP_SUCCESS
+        BACKUP_FAILED, BACKUP_SUCCESS, BACKUP_REMINDER
     }
 
     enum class SearchIncludes {
@@ -37,6 +37,11 @@ object Constants {
 
     enum class AutoBackup {
         OFF, NEW_ENTRIES, ALL_EDITS
+    }
+
+    /** Where scheduled backups and Auto Sync write to. */
+    enum class BackupDestinationType {
+        LOCAL, DRIVE
     }
 
     enum class TapMode {
@@ -53,6 +58,10 @@ object Constants {
     const val EXTRA_AUTH_MESSAGE                   = "message"
 
     const val EXTRA_BACKUP_ENCRYPTION_KEY          = "encryption_key"
+
+    // Explicit intent to MainActivity (from a backup notification): open the scheduled backups
+    // screen once the app has been unlocked.
+    const val INTENT_OPEN_SCHEDULED_BACKUP         = "com.gigabytedevelopersinc.app.cometOTP.intent.OPEN_SCHEDULED_BACKUP"
 
     const val EXTRA_INTRO_FINISHED                 = "setup_finished"
 
@@ -97,6 +106,11 @@ object Constants {
     const val BACKUP_FILENAME_PLAIN_FORMAT    = "otp_accounts_%s.json"
     const val BACKUP_FILENAME_CRYPT_FORMAT    = "otp_accounts_%s.json.aes"
     const val BACKUP_FILENAME_PGP_FORMAT      = "otp_accounts_%s.json.gpg"
+
+    // Scheduled backups and Auto Sync. Old ones are pruned by this name only, so manual backups
+    // (named above) are never deleted.
+    const val BACKUP_FILENAME_AUTO           = "otp_accounts_auto.json.aes"
+    const val BACKUP_FILENAME_AUTO_FORMAT    = "otp_accounts_auto_%s.json.aes"
 
     const val BACKUP_MIMETYPE_PLAIN    = "application/json"
     const val BACKUP_MIMETYPE_CRYPT    = "binary/aes"

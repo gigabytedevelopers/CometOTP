@@ -26,6 +26,12 @@
 
         <View style="@style/Widget.Comet.Divider" />
 
+        <include
+            android:id="@+id/row_scheduled"
+            layout="@layout/item_setting_row" />
+
+        <View style="@style/Widget.Comet.Divider" />
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
