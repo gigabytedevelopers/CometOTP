@@ -57,7 +57,8 @@ else:
             'GITHUB_REF_NAME': 'v99.0.0',
         }
         self.git('init', '-q')
-        self.git('fetch', '-q', str(ROOT), 'HEAD')
+        # Actions checkout is shallow; preserve its boundary when importing the existing commit.
+        self.git('fetch', '-q', '--depth=1', str(ROOT), 'HEAD')
         self.git('checkout', '-q', '--detach', 'FETCH_HEAD')
 
     def git(self, *args):
