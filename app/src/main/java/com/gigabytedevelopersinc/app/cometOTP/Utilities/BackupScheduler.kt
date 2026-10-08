@@ -2,6 +2,9 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import android.content.Context
+import android.os.BatteryManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.lifecycle.LiveData
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -111,6 +114,28 @@ object BackupScheduler {
             Constants.BackupDestinationType.DRIVE ->
                 if (settings.scheduledBackupOnlyUnmetered) NetworkType.UNMETERED else NetworkType.CONNECTED
         }
+    }
+
+    /** The same user-selected constraints for backups made with an unlocked in-process key. */
+    fun foregroundConstraintsMet(context: Context, settings: Settings, scheduled: Boolean): Boolean {
+        val charging = context.getSystemService(BatteryManager::class.java)?.isCharging == true
+        if (!foregroundConstraintsMet(settings.scheduledBackupOnlyCharging, scheduled, charging))
+            return false
+        if (settings.backupDestination != Constants.BackupDestinationType.DRIVE)
+            return true
+        val connectivity = context.getSystemService(ConnectivityManager::class.java)
+        val network = connectivity?.getNetworkCapabilities(connectivity.activeNetwork)
+        return foregroundNetworkMet(settings.scheduledBackupOnlyUnmetered,
+            network?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true,
+            network?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED) == true)
+    }
+
+    internal fun foregroundConstraintsMet(onlyCharging: Boolean, scheduled: Boolean, charging: Boolean): Boolean {
+        return !scheduled || !onlyCharging || charging
+    }
+
+    internal fun foregroundNetworkMet(onlyUnmetered: Boolean, connected: Boolean, unmetered: Boolean): Boolean {
+        return connected && (!onlyUnmetered || unmetered)
     }
 
     /** Everything that goes into the periodic job; a change means it has to be replaced. */

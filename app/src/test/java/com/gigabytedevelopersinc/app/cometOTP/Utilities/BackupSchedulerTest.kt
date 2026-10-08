@@ -55,6 +55,23 @@ class BackupSchedulerTest {
         assertTrue(BackupScheduler.isOverdue(now + hours(1), 1440, now))
     }
 
+    @Test
+    fun catchUpHonorsChargingButAutoSyncDoesNotWaitForIt() {
+        assertFalse(BackupScheduler.foregroundConstraintsMet(onlyCharging = true, scheduled = true, charging = false))
+        assertTrue(BackupScheduler.foregroundConstraintsMet(onlyCharging = true, scheduled = true, charging = true))
+        assertTrue(BackupScheduler.foregroundConstraintsMet(onlyCharging = false, scheduled = true, charging = false))
+        assertTrue(BackupScheduler.foregroundConstraintsMet(onlyCharging = true, scheduled = false, charging = false))
+    }
+
+    @Test
+    fun foregroundDriveBackupsWaitForAnAllowedNetwork() {
+        assertFalse(BackupScheduler.foregroundNetworkMet(onlyUnmetered = true, connected = true, unmetered = false))
+        assertFalse(BackupScheduler.foregroundNetworkMet(onlyUnmetered = true, connected = false, unmetered = true))
+        assertFalse(BackupScheduler.foregroundNetworkMet(onlyUnmetered = false, connected = false, unmetered = false))
+        assertTrue(BackupScheduler.foregroundNetworkMet(onlyUnmetered = true, connected = true, unmetered = true))
+        assertTrue(BackupScheduler.foregroundNetworkMet(onlyUnmetered = false, connected = true, unmetered = false))
+    }
+
     companion object {
         /** Monday 28 September 2026, 10:00 UTC. */
         private const val T_2026_09_28_1000_UTC = 1790589600000L
