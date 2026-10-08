@@ -35,6 +35,8 @@ env:
 jobs:
   release:
     name: Build and publish
+    # The deployment actor is set when the run starts; a token inside a bot-started run cannot fix it.
+    if: github.actor == 'enwokoma'
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -44,15 +46,17 @@ jobs:
       name: production
       url: https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP
 
-    permissions:
-      contents: write        # create the GitHub release
-      pull-requests: write   # open the changelog pull request
-
     steps:
       - uses: actions/checkout@v7
         with:
           # git-cliff needs the history and tags to work out what changed.
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify enwokoma's token and signed release tag
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
+        run: bash .github/scripts/verify_release_tag.sh
 
       # The GitHub release is named after version.properties, not the tag, so a tag pushed before
       # the version was bumped would publish the old version under a new tag. Checked first so a
@@ -192,6 +196,7 @@ jobs:
       - name: Create the GitHub release
         uses: softprops/action-gh-release@v3
         with:
+          token: ${{ secrets.RELEASE_OWNER_TOKEN }}
           tag_name: v${{ steps.version.outputs.name }}
           name: CometOTP ${{ steps.version.outputs.name }}
           body_path: RELEASE_NOTES.md
@@ -206,6 +211,7 @@ jobs:
       # Generated into its own file, then inserted under the heading, so every earlier entry,
       # including the hand-written ones, is left exactly as it is.
       - name: Generate the new changelog section
+        id: changelog_section
         continue-on-error: true
         uses: orhun/git-cliff-action@v4
         with:
@@ -214,64 +220,27 @@ jobs:
         env:
           OUTPUT: NEW_SECTION.md
 
-      # A release runs from a tag, so the checkout is on a commit rather than a branch. Move onto
-      # master before touching CHANGELOG.md: the pull request has to be built from the branch it
-      # will merge into, or it would propose undoing whatever landed since the tag.
-      - name: Move onto master for the changelog
+      # Import the dedicated Git signing key only after the app has been built and published.
+      - name: Configure enwokoma's changelog signing identity
+        id: changelog_identity
+        if: steps.changelog_section.outcome == 'success'
         continue-on-error: true
-        run: |
-          git fetch origin master
-          git checkout -B master origin/master
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+        run: bash .github/scripts/configure_release_identity.sh
 
-      - name: Add the new section to CHANGELOG.md
-        continue-on-error: true
-        run: python3 .github/scripts/insert_changelog.py CHANGELOG.md NEW_SECTION.md
-
-      # A pull request opened with GITHUB_TOKEN does not run CI without someone approving it first,
-      # and the required checks never report until then. A GitHub App's token has no such limit,
-      # and its pull request is authored by the app, so you can approve it as code owner.
-      #
-      # Set up once: create a GitHub App with Contents and Pull requests read/write, install it on
-      # this repository, then add its client ID as the RELEASE_BOT_CLIENT_ID variable and its
-      # private key as the RELEASE_BOT_PRIVATE_KEY secret on the production environment. Until
-      # then this step is skipped and the pull request falls back to GITHUB_TOKEN.
-      - name: Get the release bot's token
-        id: bot_token
-        if: vars.RELEASE_BOT_CLIENT_ID != ''
-        continue-on-error: true
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-          permission-contents: write
-          permission-pull-requests: write
-
-      - name: Say so if the changelog falls back to GITHUB_TOKEN
-        if: steps.bot_token.outputs.token == ''
-        run: |
-          echo "::warning::No release bot token, so the changelog pull request is opened with GITHUB_TOKEN."
-          echo "::warning::Its CI will wait for you to approve the run on the pull request. See the comment on the 'Get the release bot's token' step."
-
-      # master is protected, so the changelog arrives as a pull request rather than a direct push.
-      # sign-commits has the commit made through the API, so GitHub signs it as the bot, which the
-      # ruleset's signed-commits rule requires; a plain git push from the runner is unsigned.
-      # The chore: prefix keeps the commit, and the squash commit named after the title, out of the
-      # next release's notes.
-      - name: Open the changelog pull request
+      # A local signed commit preserves the user's own signature. GitHub API signing uses
+      # GitHub's web-flow key instead. No action is allowed to rewrite or squash this commit.
+      - name: Open the signed changelog pull request as enwokoma
         id: changelog_pr
+        if: steps.changelog_identity.outcome == 'success'
         continue-on-error: true
-        uses: peter-evans/create-pull-request@v8
-        with:
-          token: ${{ steps.bot_token.outputs.token || github.token }}
-          sign-commits: true
-          branch: chore/changelog-${{ steps.version.outputs.name }}
-          title: "chore: Add the ${{ steps.version.outputs.name }} changelog entry"
-          body: |
-            Generated by the Android release workflow after publishing
-            ${{ steps.version.outputs.name }} (versionCode ${{ steps.version.outputs.code }}).
-          commit-message: "chore: Add the ${{ steps.version.outputs.name }} changelog entry"
-          base: master
-          add-paths: CHANGELOG.md
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
+          VERSION: ${{ steps.version.outputs.name }}
+          VERSION_CODE: ${{ steps.version.outputs.code }}
+        run: bash .github/scripts/open_signed_changelog_pr.sh
 
       # Not silent: a swallowed failure that nobody sees is worse than a red tick.
       - name: Say so if the changelog was not opened
@@ -284,3 +253,7 @@ jobs:
       - name: Remove the keystore
         if: always()
         run: rm -f "$RUNNER_TEMP/release.keystore"
+
+      - name: Remove the Git signing key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/enwokoma-release-signing"

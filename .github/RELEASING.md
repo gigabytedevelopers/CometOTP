@@ -6,8 +6,8 @@ Five workflows live in `.github/workflows`:
 | --- | --- | --- |
 | CI | `ci.yml` | Every pull request, and every push to `master` |
 | Request review | `request-review.yml` | Every pull request that is not a draft; asks `@princesseke` to review |
-| Auto release | `auto-release.yml` | After CI passes on `master`; starts both releases when the version is new |
-| Release Android | `release-android.yml` | Started by Auto release, a `v*` tag, or run by hand |
+| Auto release | `auto-release.yml` | After CI passes on `master`; signs and pushes a new version tag as `@enwokoma` |
+| Release Android | `release-android.yml` | Started by a signed `v*` tag pushed by `@enwokoma`, or dispatched by `@enwokoma` on that tag |
 | Release iOS | `release-ios.yml` | Same as Android, but **switched off** until enabled |
 
 ## Protecting master
@@ -105,11 +105,10 @@ approve each deployment by hand.
 | `ANDROID_KEY_ALIAS` | Key alias inside the keystore |
 | `ANDROID_KEY_PASSWORD` | Key password |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Google Play service account JSON, pasted whole |
-| `RELEASE_BOT_PRIVATE_KEY` | The release bot GitHub App's private key (`.pem`), pasted whole. Goes with the `RELEASE_BOT_CLIENT_ID` **variable**; see below |
 
-One secret is the exception and sits on the repository instead: `RELEASE_DISPATCH_TOKEN`, a token of
-yours that Auto release starts the releases with, so they are deployed by you. See [Who a release
-is deployed by](#who-a-release-is-deployed-by).
+Two GitHub identity secrets sit on the repository instead: `RELEASE_OWNER_TOKEN` and
+`RELEASE_SIGNING_KEY`. Auto release needs them before the Android deployment begins. See
+[Release identity](#release-identity). Android signing secrets above stay on `production`.
 
 To encode the keystore:
 
@@ -137,7 +136,8 @@ A release is a version bump. There is nothing to tag by hand:
    adds the Play "What's new" text as `fastlane/metadata/android/en-US/changelogs/<version>.txt`
    (see [Play release notes](#play-release-notes)), and merge it.
 3. When CI passes on that commit on `master`, **Auto release** sees there is no tag for the new
-   version yet, tags the commit `v<version>`, and starts Release Android and Release iOS on it. The
+   version yet, signs the commit's `v<version>` tag as `@enwokoma` and pushes it using your token.
+   That tag push starts Release Android and Release iOS once each, with you as the run actor. The
    Android job then waits for the `production` environment's approval, if you set one.
 
 Merges that leave the version alone release nothing. If CI fails on the bump, nothing is tagged,
@@ -152,33 +152,53 @@ build gets a higher code and nothing has to be written back to the repository. S
 Auto release publishes to `internal`; promote from the Play Console, or run **Actions → Release
 Android → Run workflow** on the tag and choose `production`.
 
-### Who a release is deployed by
+### Release identity
 
-The Deployments page names whoever started the release run: "Deployed to production by …". A run
-Auto release starts with the workflow's own token shows **github-actions**, as 8.1.0 and 8.1.1 do.
-To have it show **@enwokoma**, as a release started by hand does, Auto release starts the releases
-with a token of yours, the repository secret `RELEASE_DISPATCH_TOKEN`. Until it is set the
-releases still go out, as github-actions, with a warning in the Auto release run.
+Every future automated tag, GitHub release, release asset upload, and changelog PR uses
+`@enwokoma`. Tags and changelog commits carry an SSH signature made with a key registered to
+that account, rather than GitHub's web-flow signature. Missing, expired, wrong-account, or
+unregistered credentials stop the corresponding operation; there is no bot fallback.
 
-Set it up once, signed in as @enwokoma:
+Set these **repository secrets** once, while signed in as `@enwokoma`:
 
-1. **Settings (your account) → Developer settings → Personal access tokens → Fine-grained tokens
-   → Generate new token.** Resource owner: **gigabytedevelopers**. Repository access: **Only select
-   repositories → CometOTP**. Repository permissions: **Actions: Read and write**, nothing else
-   (Metadata: Read is added automatically). Pick an expiry you will remember; see below.
-2. If the organisation requires approval for fine-grained tokens, approve it under the
-   organisation's **Settings → Personal access tokens → Pending requests**.
-3. In this repository, **Settings → Secrets and variables → Actions → Repository secrets**: add
-   `RELEASE_DISPATCH_TOKEN` with the token. It is a repository secret rather than a `production`
-   environment one, because Auto release is not a deployment and must not appear as one.
+| Secret | Setup |
+| --- | --- |
+| `RELEASE_OWNER_TOKEN` | A fine-grained personal access token owned by `@enwokoma`, resource owner `gigabytedevelopers`, repository access restricted to `CometOTP`. Grant **Contents: Read and write**, **Actions: Read and write**, **Pull requests: Read and write**, and **Workflows: Read and write**. Approve it in the organisation if required. |
+| `RELEASE_SIGNING_KEY` | The complete private half of a dedicated, unencrypted Ed25519 SSH signing key. Register its public half under **enwokoma → Settings → SSH and GPG keys → New SSH key → Signing Key** first. This does not need SSH authentication access. |
 
-The token can do nothing but start and read workflow runs in this repository; it cannot read code,
-push, or reach the signing secrets, which stay on the `production` environment. When it expires,
-releases quietly go back to being deployed by github-actions (the warning says so), so renew it
-before then and replace the secret.
+Use a dedicated signing key, keeping your existing personal authentication/signing key on your
+computer. For example, create the automation key locally with:
 
-Only the deployments made after the token is in place change. The existing ones keep the name they
-were recorded with.
+```bash
+ssh-keygen -t ed25519 -C 'CometOTP release signing (enwokoma)' -f ~/.ssh/cometotp_release_signing -N ''
+```
+
+Add the `.pub` file to your GitHub account as a **Signing Key**. Add the private file to the
+repository's `RELEASE_SIGNING_KEY` secret; never commit either secret. Configure the token under
+**Settings → Secrets and variables → Actions**. Renew the token before expiry. The workflows
+verify its account with GitHub and check that the signing key belongs to `@enwokoma` before use.
+The private key is restored into the runner's temporary directory and removed when the job ends.
+
+`RELEASE_DISPATCH_TOKEN`, `RELEASE_BOT_PRIVATE_KEY`, and `RELEASE_BOT_CLIENT_ID` are no longer
+used. Once the new setup works, their old configuration can be removed.
+
+A tag push authenticated with your token starts the release workflows; Auto release must not
+also dispatch them or it would publish twice. Android and enabled iOS deployment jobs run only
+when the original workflow actor is `@enwokoma`. A rerun retains the original actor, so rerunning
+an old bot-started release does not repair its attribution. Start a new manual run as yourself
+on a signed tag instead.
+
+The request-review workflow also uses your token. CI needs no personal token or signing key;
+its actor remains whoever performed the real push or PR event. GitHub Actions still provides
+and identifies the check runs. Contributions by other people retain their own attribution.
+
+Existing Actions runs and deployment records retain their original actor. A release's author
+cannot be edited through the release update API. Published tags and commit history are not
+rewritten by this change. Changing an old release author would require recreating the release,
+and replacing a published unsigned tag changes its tag object; neither is done automatically.
+Releases, tags, deployments, and workflow runs do not themselves add squares to the contribution
+graph. Your own commits count there when their email belongs to your account and they reach the
+default branch, under GitHub's contribution rules.
 
 ### Releasing by hand
 
@@ -191,11 +211,11 @@ git push origin v8.0.0
 ```
 
 The tag has to match `version.properties` exactly (`v` + `MAJOR.MINOR.PATCH`), or the workflow
-fails before building anything. If it does, delete the tag, fix the version on master, and tag
-again.
+fails before building anything. Fix the version and use a new matching signed tag; do not
+rewrite a published tag as part of a normal release.
 
-If Auto release created the tag but a release workflow failed to start, re-running Auto release
-will not help, because the tag now exists. Start it by hand instead: **Actions → Release Android
+If a tag-triggered release fails, re-running Auto release will not help, because the tag now
+exists. Check the existing release runs first, then retry the failed release by hand: **Actions → Release Android
 → Run workflow → Use workflow from: Tags → v&lt;version&gt;**.
 
 The job builds a signed App Bundle, uploads it with the ProGuard mapping so crash reports
@@ -203,32 +223,18 @@ deobfuscate, attaches the bundle to a GitHub release, and opens a pull request a
 section to `CHANGELOG.md`. That last step is a pull request rather than a push because `master` is
 protected, and the rules apply to the workflow too.
 
-### The changelog pull request and the release bot
+### Signed changelog pull requests
 
-The changelog pull request is opened by a GitHub App, the release bot, rather than the workflow's
-own `GITHUB_TOKEN`. A pull request opened with `GITHUB_TOKEN` gets its CI run held at "action
-required" until someone approves it, so the required checks never report, as happened to 8.1.0.
-The app's pull request runs CI like anyone else's, and because the app is the author, you can
-approve it as code owner. Either way the commit is made through the API (`sign-commits`), so GitHub
-signs it and it passes the signed-commits rule.
+After publishing, the Android workflow creates a branch from the latest `master`, inserts the
+new changelog section, and makes a locally signed commit as `@enwokoma`. It verifies the signature
+locally and on GitHub, pushes with your token, then opens the PR as you. The token starts CI
+normally; no bot PR or GitHub web-flow signing is used.
 
-Set it up once:
-
-1. **Settings → Developer settings → GitHub Apps → New GitHub App** (on the organisation that owns
-   the repository). Name it something like "CometOTP release bot", untick **Webhook → Active**,
-   and under **Repository permissions** give it **Contents: Read and write** and **Pull requests:
-   Read and write**. Nothing else.
-2. Create it, note its **Client ID**, and under **Private keys** generate a key. A `.pem` file
-   downloads.
-3. **Install App** → install it on this repository only.
-4. In this repository, **Settings → Secrets and variables → Actions → Variables**: add
-   `RELEASE_BOT_CLIENT_ID` with the client ID.
-5. **Settings → Environments → production**: add the secret `RELEASE_BOT_PRIVATE_KEY` with the
-   whole contents of the `.pem` file, then delete the file.
-
-Until that is done the workflow falls back to `GITHUB_TOKEN` and warns: the pull request still
-opens with a signed commit, but you have to press **Approve and run** on it before its CI runs.
-Squash-merging it with the green button is fine, since the commit is the bot's, not yours.
+Princess or another eligible reviewer must approve the current PR head, all required checks must
+pass, and review threads must be resolved. Integrate it using the same signature-preserving
+local fast-forward procedure as your other PRs. You cannot approve your own generated PR.
+The workflow does not auto-merge it or force-update an existing changelog branch. A bookkeeping
+failure after publishing is reported as a warning; it does not undo the Play release.
 
 ### Play release notes
 

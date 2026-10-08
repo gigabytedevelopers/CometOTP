@@ -1,24 +1,9 @@
 name: Auto release
 
-# Releases a version bump once it is on master and CI has passed on it.
-#
-# Every CI run that passes on a push to master ends up here. The version in app/version.properties
-# is compared with the tags: if v<version> already exists, the commit is not a release and the run
-# stops. If it does not, the commit is tagged and Release Android and Release iOS are started on
-# that tag, exactly as if the tag had been pushed by hand. So a pull request that bumps the version
-# is a release, and every other merge is not.
-#
-# A tag created with GITHUB_TOKEN does not start other workflows (GitHub's guard against runaway
-# loops), so the release workflows are started with workflow_dispatch. The production
-# environment's reviewers still have to approve the Android job.
-#
-# They are started with the owner's token (RELEASE_DISPATCH_TOKEN), so each release run, and the
-# production deployment it records, is by the owner rather than github-actions, exactly as when
-# the owner releases by hand. The tag itself stays on GITHUB_TOKEN: a tag pushed with the owner's
-# token would also fire the release workflows' own tag trigger and every release would run twice.
-#
-# workflow_run only fires for workflows on the default branch, so none of this happens for a pull
-# request; a fork cannot reach it at all.
+# After successful master CI, sign the new version tag with enwokoma's registered SSH key
+# and push it using enwokoma's token. That push starts both release workflows as enwokoma.
+# Do not also dispatch them: that would publish twice. Missing credentials never fall back to a bot.
+# A fork/PR CI run cannot reach this job; its privileged code comes from the tested master commit.
 on:
   workflow_run:
     workflows: [CI]
@@ -35,7 +20,7 @@ concurrency:
 
 jobs:
   release:
-    name: Tag and start the releases
+    name: Sign and push the release tag
     # Only a passing CI run for a push to master in this repository. The branch filter alone would
     # also match a pull request from a fork whose own branch is called master.
     if: >-
@@ -45,12 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
-    permissions:
-      contents: write   # create the tag
-      actions: write    # start the release workflows
-
     env:
-      GH_TOKEN: ${{ github.token }}
       SHA: ${{ github.event.workflow_run.head_sha }}
 
     steps:
@@ -59,6 +39,7 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0   # all the tags, to compare against
+          persist-credentials: false
 
       - name: Work out whether this version is new
         id: version
@@ -84,51 +65,36 @@ jobs:
           echo "$tag is new; releasing $SHA."
           echo "new=true" >> "$GITHUB_OUTPUT"
 
-      # Through the API rather than git push: no git identity needed on the runner, and it fails
-      # outright rather than overwriting if the tag appeared in the meantime.
-      - name: Create the tag
+      - name: Configure enwokoma's release identity
         if: steps.version.outputs.new == 'true'
         env:
-          TAG: ${{ steps.version.outputs.tag }}
-        run: gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$TAG" -f sha="$SHA" --silent
+          GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+        run: bash .github/scripts/configure_release_identity.sh
 
-      # Without the owner's token the releases still start, as github-actions; see the comment at
-      # the top and "Who a release is deployed by" in .github/RELEASING.md.
-      - name: Say so if the releases start as github-actions
+      - name: Sign and push the tag
+        id: tag
         if: steps.version.outputs.new == 'true'
         env:
-          DISPATCH_TOKEN: ${{ secrets.RELEASE_DISPATCH_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
-          if [ -z "$DISPATCH_TOKEN" ]; then
-            echo "::warning::RELEASE_DISPATCH_TOKEN is not set, so the releases start as github-actions and the production deployment is recorded as theirs."
-          fi
+          git tag -s "$TAG" "$SHA" -m "CometOTP ${TAG#v}"
+          git verify-tag "$TAG"
+          git push origin "refs/tags/$TAG"
+          object=$(git rev-parse "$TAG")
+          verified=$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$object" --jq '.verification.verified')
+          test "$verified" = true || { echo '::error::GitHub did not verify the release tag.'; exit 1; }
 
-      # Started on the tag, so each runs its own workflow file as it was at that commit, and the
-      # Android tag check sees the tag it expects.
-      - name: Start Release Android
-        if: steps.version.outputs.new == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_DISPATCH_TOKEN || github.token }}
-          TAG: ${{ steps.version.outputs.tag }}
-        run: gh workflow run release-android.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
-
-      # Still gated on IOS_DEPLOY_ENABLED, so until that is set this run only reports "skipped".
-      - name: Start Release iOS
-        if: steps.version.outputs.new == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_DISPATCH_TOKEN || github.token }}
-          TAG: ${{ steps.version.outputs.tag }}
-        run: gh workflow run release-ios.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
-
-      # Once the tag exists, re-running this job finds it and stops, so a release that failed to
-      # start has to be started by hand. Say exactly how.
+      # Once a pushed tag exists, retries skip it. Check the tag-triggered runs before retrying
+      # a failed release manually, so a bookkeeping failure does not cause another upload.
       - name: Say how to recover if a release did not start
         if: failure() && steps.version.outputs.new == 'true'
         env:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
-            echo "::error::$TAG was tagged, but a release workflow did not start. Re-running this job will not help, because the tag now exists."
+            echo "::error::$TAG exists. Check the Release Android/iOS runs triggered by its push before starting another release."
             echo "::error::Start it by hand: Actions -> Release Android (or iOS) -> Run workflow -> Use workflow from: Tags -> $TAG."
           fi
 
@@ -138,8 +104,12 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
           NEW: ${{ steps.version.outputs.new }}
         run: |
-          if [ "$NEW" = true ]; then
-            echo "Tagged \`$SHA\` as **$TAG** and started Release Android and Release iOS." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$NEW" = true ] && [ "${{ steps.tag.outcome }}" = success ]; then
+            echo "Signed **$TAG** as enwokoma and pushed it to start the release workflows." >> "$GITHUB_STEP_SUMMARY"
           elif [ "$NEW" = false ]; then
             echo "$TAG is already released; nothing to do." >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Remove the Git signing key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/enwokoma-release-signing"
