@@ -2,6 +2,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import android.content.Context
+import android.os.BatteryManager
 import androidx.lifecycle.LiveData
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -103,6 +104,16 @@ object BackupScheduler {
             Constants.BackupDestinationType.LOCAL -> NetworkType.NOT_REQUIRED
             Constants.BackupDestinationType.DRIVE -> NetworkType.CONNECTED
         }
+    }
+
+    /** The same user-selected constraints for backups made with an unlocked in-process key. */
+    fun foregroundConstraintsMet(context: Context, settings: Settings, scheduled: Boolean): Boolean {
+        val charging = context.getSystemService(BatteryManager::class.java)?.isCharging == true
+        return foregroundConstraintsMet(settings.scheduledBackupOnlyCharging, scheduled, charging)
+    }
+
+    internal fun foregroundConstraintsMet(onlyCharging: Boolean, scheduled: Boolean, charging: Boolean): Boolean {
+        return !scheduled || !onlyCharging || charging
     }
 
     /** Everything that goes into the periodic job; a change means it has to be replaced. */
