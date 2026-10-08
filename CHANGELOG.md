@@ -5,6 +5,35 @@ All notable changes to CometOTP are recorded here.
 Entries from 8.0.0 onwards are generated from the commit history when a release is deployed, so
 the wording follows the commit subjects. See `.github/RELEASING.md` for how that works.
 
+## 9.0.0 (2026-10-08)
+
+
+### Fix
+
+- Space the bottom sheets the Material 3 way
+- Build the special features and clear-cache sheets like the others
+- Rebuild the Clear Cache screen on the design system
+- Read QR codes ZXing's usual two attempts miss
+- Keep a card's text centred when it has no label or no issuer
+- Make short cards as tall as a card with an issuer and a label
+- Let links open in a browser tab instead of the bare WebView
+- Ask Drive which account was connected
+- Show the Drive folder name field as a field
+- Preserve queued backups and honor charging during catch-up
+- Integrate scheduled backup fixes and defer Drive uploads on metered networks
+
+### Improvement
+
+- Merge master into feat/scheduled-backups
+- Merge master into feat/drive-backups after scheduled backups
+
+### New
+
+- Read Google Authenticator's export codes
+- Import accounts from Google Authenticator
+- Back up automatically on a schedule to a device folder
+- Back up to a Google Drive folder
+
 ## 8.1.1 (2026-09-27)
 
 
