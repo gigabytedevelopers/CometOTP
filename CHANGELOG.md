@@ -5,6 +5,40 @@ All notable changes to CometOTP are recorded here.
 Entries from 8.0.0 onwards are generated from the commit history when a release is deployed, so
 the wording follows the commit subjects. See `.github/RELEASING.md` for how that works.
 
+## 9.1.0 (2026-10-09)
+
+
+### Fix
+
+- Offer CometOTP on the share sheet for QR code images
+- Outline text fields so they show against any background
+
+### Improvement
+
+- Share the reading of a key as password managers store one
+
+### New
+
+- Put every import behind one Import tokens sheet
+- Import a text file of otpauth links from any app
+- Add the key derivations encrypted exports are protected with
+- Import accounts from an Aegis vault
+- Import accounts from a 2FAS Auth backup
+- Let an imported account carry its tags
+- Import accounts from an andOTP backup
+- Import accounts from a FreeOTP+ export
+- Add Argon2id for exports protected with it
+- Import authenticator keys from a Bitwarden export
+- Import accounts from a Stratum backup
+- Import accounts from a Proton Authenticator export
+- Import accounts from a LastPass Authenticator export
+- Import accounts from a Raivo OTP export
+- Import accounts from an Ente Auth export
+- Say how to move accounts out of Authy
+- Say how to move accounts out of Microsoft Authenticator
+- Import one-time passwords from a 1Password export
+- Import one-time passwords from a KeePass XML export
+
 ## 9.0.0 (2026-10-08)
 
 
