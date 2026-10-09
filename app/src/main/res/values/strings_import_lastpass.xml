@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: LastPass Authenticator -->
+    <string name="import_source_lastpass">LastPass Authenticator</string>
+    <string name="import_lastpass_title">Import from LastPass Authenticator</string>
+    <string-array name="import_lastpass_steps">
+        <item>Open <b>Settings</b>, then <b>Transfer accounts</b>, and tap <b>Export accounts to file</b>.</item>
+        <item>Leave the file unprotected if you are offered a password; a protected export can\'t be opened here. Save the file.</item>
+        <item>Choose the saved file here, then delete it once the import is done: it holds your secrets in the clear.</item>
+    </string-array>
+</resources>

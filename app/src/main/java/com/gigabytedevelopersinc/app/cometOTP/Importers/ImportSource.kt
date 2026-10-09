@@ -46,6 +46,9 @@ enum class ImportSource(
     FREEOTP_PLUS(Kind.FILE, R.string.import_source_freeotp_plus, R.string.import_freeotp_plus_title,
             R.drawable.ic_file_document, R.array.import_freeotp_plus_steps, R.string.import_freeotp_plus_note, JSON_MIME_TYPES, FreeOtpPlusImport),
 
+    LASTPASS(Kind.FILE, R.string.import_source_lastpass, R.string.import_lastpass_title,
+            R.drawable.ic_file_document, R.array.import_lastpass_steps, 0, JSON_MIME_TYPES, LastPassImport),
+
     PROTON(Kind.FILE, R.string.import_source_proton, R.string.import_proton_title,
             R.drawable.ic_file_document, R.array.import_proton_steps, 0, JSON_MIME_TYPES, ProtonImport),
 
