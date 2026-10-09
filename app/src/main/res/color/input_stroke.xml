@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- A text field's outline: the primary colour while it has focus, the theme's outline colour
+     otherwise. The fill alone is a shade or two from the surface behind it, which on a dialog's
+     raised background left the field invisible; the outline is what marks it out. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:color="?attr/colorPrimary" android:state_focused="true" />
-    <item android:color="@android:color/transparent" />
+    <item android:color="?attr/colorOutline" />
 </selector>

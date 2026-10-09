@@ -156,6 +156,8 @@
     <style name="DialogTheme" parent="Theme.Material3Expressive.Light.Dialog.MinWidth">
         <item name="colorInputFill">@color/input_fill_dark</item>
         <item name="colorInputFillAlt">@color/input_fill_alt_dark</item>
+        <!-- A full theme, so the app theme's field style has to be named again here. -->
+        <item name="textInputStyle">@style/Widget.Comet.TextInput</item>
         <item name="colorSheetHandle">@color/sheet_handle_dark</item>
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorAccent">@color/primary_500</item>
@@ -275,6 +277,7 @@
     </style>
 
     <style name="DialogTheme.Dark" parent="Theme.Material3Expressive.Dark.Dialog.MinWidth">
+        <item name="textInputStyle">@style/Widget.Comet.TextInput</item>
         <item name="colorPrimary">@color/primary_300</item>
         <item name="colorAccent">@color/primary_500</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
