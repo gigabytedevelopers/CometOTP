@@ -46,6 +46,9 @@ enum class ImportSource(
     FREEOTP_PLUS(Kind.FILE, R.string.import_source_freeotp_plus, R.string.import_freeotp_plus_title,
             R.drawable.ic_file_document, R.array.import_freeotp_plus_steps, R.string.import_freeotp_plus_note, JSON_MIME_TYPES, FreeOtpPlusImport),
 
+    STRATUM(Kind.FILE, R.string.import_source_stratum, R.string.import_stratum_title,
+            R.drawable.ic_file_document, R.array.import_stratum_steps, R.string.import_stratum_note, JSON_MIME_TYPES, StratumImport),
+
     /** Last: the fallback for any app that can write its accounts out as links. */
     OTPAUTH_LINKS(Kind.FILE, R.string.import_source_links, R.string.import_links_title,
             R.drawable.ic_link, R.array.import_links_steps, R.string.import_links_note, TEXT_MIME_TYPES, OtpauthLinksImport);

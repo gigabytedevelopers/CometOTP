@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: Stratum (Authenticator Pro) -->
+    <string name="import_source_stratum">Stratum (Authenticator Pro)</string>
+    <string name="import_stratum_title">Import from Stratum</string>
+    <string-array name="import_stratum_steps">
+        <item>Open the menu and tap <b>Backup</b>, then <b>Backup to file</b>. Choose a password and save the <b>.stratum</b> file. Or tap <b>Export</b> and choose <b>Unencrypted (JSON)</b> for a file without one.</item>
+        <item>Choose the saved file here. A backup opens with the password you chose.</item>
+    </string-array>
+    <string name="import_stratum_note">Categories come across as tags. A backup made by Authenticator Pro before 2022 opens too.</string>
+</resources>
