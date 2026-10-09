@@ -31,6 +31,9 @@ enum class ImportSource(
     GOOGLE_AUTHENTICATOR(Kind.QR_CODES, R.string.import_source_google_auth, R.string.import_google_auth_title,
             R.drawable.ic_qr_code, 0, 0, emptyArray(), null),
 
+    AEGIS(Kind.FILE, R.string.import_source_aegis, R.string.import_aegis_title,
+            R.drawable.ic_file_document, R.array.import_aegis_steps, R.string.import_aegis_note, JSON_MIME_TYPES, AegisImport),
+
     /** Last: the fallback for any app that can write its accounts out as links. */
     OTPAUTH_LINKS(Kind.FILE, R.string.import_source_links, R.string.import_links_title,
             R.drawable.ic_link, R.array.import_links_steps, R.string.import_links_note, TEXT_MIME_TYPES, OtpauthLinksImport);

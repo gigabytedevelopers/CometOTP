@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: Aegis Authenticator -->
+    <string name="import_source_aegis">Aegis Authenticator</string>
+    <string name="import_aegis_title">Import from Aegis</string>
+    <string-array name="import_aegis_steps">
+        <item>Open <b>Settings</b>, then <b>Import &amp; export</b>, and tap <b>Export</b>.</item>
+        <item>Keep the format on <b>Aegis (JSON)</b> and tap <b>Export</b>. You can leave <b>Encrypt the vault</b> on.</item>
+        <item>Choose the file here. An encrypted vault opens with your Aegis password.</item>
+    </string-array>
+    <string name="import_aegis_note">A vault that only unlocks with biometrics can\'t be opened here. Export it without encryption instead.</string>
+</resources>
