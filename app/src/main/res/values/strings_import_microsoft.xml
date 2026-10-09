@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: Microsoft Authenticator, which has nothing to read -->
+    <string name="import_source_microsoft">Microsoft Authenticator</string>
+    <string name="import_microsoft_title">Moving from Microsoft Authenticator</string>
+    <string-array name="import_microsoft_steps">
+        <item>Microsoft Authenticator can\'t export its accounts: its only backup is to a Microsoft account, in a form that only it can read.</item>
+        <item>Set each account up again instead. Open the site\'s two-factor settings, turn the authenticator off and on, and scan the new QR code with CometOTP.</item>
+        <item>Only remove an account from Microsoft Authenticator once a code from CometOTP has signed you in there.</item>
+    </string-array>
+    <string name="import_microsoft_note">Work or school accounts that use the app\'s own sign-in approval, rather than a code, stay in Microsoft Authenticator.</string>
+</resources>

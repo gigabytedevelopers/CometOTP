@@ -55,6 +55,9 @@ enum class ImportSource(
     LASTPASS(Kind.FILE, R.string.import_source_lastpass, R.string.import_lastpass_title,
             R.drawable.ic_file_document, R.array.import_lastpass_steps, 0, JSON_MIME_TYPES, LastPassImport),
 
+    MICROSOFT(Kind.INFORMATION, R.string.import_source_microsoft, R.string.import_microsoft_title,
+            R.drawable.ic_info_outline, R.array.import_microsoft_steps, R.string.import_microsoft_note, emptyArray(), null),
+
     PROTON(Kind.FILE, R.string.import_source_proton, R.string.import_proton_title,
             R.drawable.ic_file_document, R.array.import_proton_steps, 0, JSON_MIME_TYPES, ProtonImport),
 
