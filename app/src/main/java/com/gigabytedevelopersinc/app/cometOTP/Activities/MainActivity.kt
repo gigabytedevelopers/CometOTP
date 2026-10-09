@@ -42,6 +42,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
@@ -103,6 +104,17 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private var requireAuthentication = false
 
     private var recreateActivity = false
+
+    /**
+     * A screen this one was waiting on came back cancelled, which closes the app. Decided in
+     * [onResume] rather than in the result callback, because the system also cancels those
+     * screens, with the same result, when it clears them to deliver a new intent here (an image
+     * shared from another app); see [onNewIntent].
+     */
+    private var cancelledScreen: CancelledScreen? = null
+    /** [onNewIntent] ran since the last [onResume]. */
+    private var newIntentArrived = false
+
     /** Search mode was entered before the window had focus; see [onWindowFocusChanged]. */
     private var showSearchKeyboardOnFocus = false
     private var coachMarksRequested = false
@@ -198,8 +210,9 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         if (result.resultCode == RESULT_OK && result.data != null)
             setupFinished = result.data!!.getBooleanExtra(Constants.EXTRA_INTRO_FINISHED, false)
 
+        // Closes the app, or shows the wizard again; see cancelledScreen.
         if (!setupFinished)
-            finishAndRemoveTask()
+            cancelledScreen = CancelledScreen.SETUP_WIZARD
     }
 
     private val backupLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
@@ -238,12 +251,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     // Shared by the password/PIN screen and the device-credential prompt: any result other than
-    // RESULT_OK means the user could not be authenticated and the app must not stay open.
+    // RESULT_OK means the user could not be authenticated and the app must not stay open (unless
+    // the system cancelled the screen to deliver a new intent; see cancelledScreen).
     private val authenticateActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != RESULT_OK) {
-            Toast.makeText(baseContext, R.string.toast_auth_failed_fatal, Toast.LENGTH_LONG).show()
-            finishAndRemoveTask()
+            cancelledScreen = CancelledScreen.LOCK
         } else {
             requireAuthentication = false
             var authKey: ByteArray? = null
@@ -879,6 +892,18 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                     ManualEntryDialog.show(this@MainActivity, settings, adapter)
                 Constants.INTENT_OPEN_SCHEDULED_BACKUP ->
                     openScheduledBackup()
+                Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> {
+                    val images = sharedImages(callingIntent, intentAction)
+                    // Like the action: never read twice, e.g. after a rotation.
+                    callingIntent.removeExtra(Intent.EXTRA_STREAM)
+                    callingIntent.clipData = null
+                    when (images.size) {
+                        0 -> Toast.makeText(this, R.string.share_no_image, Toast.LENGTH_LONG).show()
+                        // The same path as an image chosen from inside the app.
+                        1 -> addQRCode(ScanQRCodeFromFile.scanQRImage(this, images[0]))
+                        else -> readSharedImages(images)
+                    }
+                }
                 Intent.ACTION_VIEW ->
                     try {
                         // A missing data string throws here, as it did in Java, and is reported below.
@@ -903,8 +928,43 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         handler.post(handlerTask)
     }
 
+    /**
+     * A new intent for a screen that already exists: images shared from another app, forwarded by
+     * [ShareReceiverActivity] with CLEAR_TOP and SINGLE_TOP. Anything that was open above this
+     * screen has been finished by the system to deliver it, and [checkIntent] handles it on the
+     * resume that follows (after the lock screen, if one is due).
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        newIntentArrived = true
+    }
+
     override fun onResume() {
         super.onResume()
+
+        // Both a cancelled result and a new intent are delivered before onResume, whichever order
+        // they come in, so this is the first point where it is known whether the lock screen or
+        // the setup wizard was dismissed by the user (close the app, as before) or cleared by the
+        // system for the new intent (show it again, and handle the intent once it is passed).
+        val cancelled = cancelledScreen
+        val arrived = newIntentArrived
+        cancelledScreen = null
+        newIntentArrived = false
+        if (cancelled != null) {
+            when (cancelledScreenOutcome(arrived)) {
+                CancelledScreenOutcome.CLOSE -> {
+                    if (cancelled == CancelledScreen.LOCK)
+                        Toast.makeText(baseContext, R.string.toast_auth_failed_fatal, Toast.LENGTH_LONG).show()
+                    finishAndRemoveTask()
+                    return
+                }
+                CancelledScreenOutcome.SHOW_AGAIN -> when (cancelled) {
+                    CancelledScreen.LOCK -> requireAuthentication = true
+                    CancelledScreen.SETUP_WIZARD -> showFirstTimeWarning()
+                }
+            }
+        }
 
         // Images read while the lock screen is up are handed over once it has been passed, so the
         // import is never offered over a locked app or before the database has been opened.
@@ -1372,6 +1432,66 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         }
     }
 
+    /** The images of a share, from the stream extra and the clip data (see [sharedItems]). */
+    private fun sharedImages(intent: Intent, action: String?): List<Uri> {
+        val clip = intent.clipData
+        val clipItems = if (clip == null) emptyList() else (0 until clip.itemCount).map { clip.getItemAt(it).uri }
+        // The extra holds one Uri for SEND and a list for SEND_MULTIPLE; reading it as the other
+        // type only produces a warning and null, but there is no reason to try.
+        val stream = if (action == Intent.ACTION_SEND)
+            IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java) else null
+        val streams = if (action == Intent.ACTION_SEND_MULTIPLE)
+            IntentCompat.getParcelableArrayListExtra(intent, Intent.EXTRA_STREAM, Uri::class.java) else null
+        // A few senders put the one image in the data field instead of, or as well as, the extra.
+        return sharedItems(stream, streams, clipItems + listOf(intent.data))
+    }
+
+    /**
+     * Several images shared at once. Each may hold an account's own code or one code of a Google
+     * Authenticator export, so unlike [readImportImages] this keeps everything it can decode: the
+     * accounts are added, the export codes collected, and the export continued if any came in.
+     */
+    private fun readSharedImages(images: List<Uri>) {
+        if (importImagesJob.isBusy)
+            return
+
+        importImagesProgress = MaterialAlertDialogBuilder(this)
+                .setView(R.layout.dialog_progress)
+                .setCancelable(false)
+                .show()
+
+        val context = applicationContext
+        importImagesJob.start {
+            val codes = images.mapNotNull { ScanQRCodeFromFile.decodeQuietly(context, it) }
+            val result: (MainActivity) -> Unit = { activity -> activity.onSharedImagesRead(codes, images.size) }
+            result
+        }
+    }
+
+    private fun onSharedImagesRead(codes: List<String>, imageCount: Int) {
+        importImagesProgress?.dismiss()
+        importImagesProgress = null
+
+        var unreadable = imageCount - codes.size
+        var exportCodes = 0
+        for (code in codes) {
+            if (GoogleAuthMigration.isMigrationUri(code)) {
+                if (addToPendingImport(code))
+                    exportCodes++
+                else
+                    unreadable++
+            } else {
+                addQRCode(code)
+            }
+        }
+
+        if (unreadable > 0)
+            Toast.makeText(this, resources.getQuantityString(R.plurals.share_images_unreadable, unreadable, unreadable),
+                    Toast.LENGTH_LONG).show()
+        if (exportCodes > 0)
+            continueGoogleAuthImport()
+    }
+
     private fun onImportImagesRead(codes: List<String>, imageCount: Int) {
         importImagesProgress?.dismiss()
         importImagesProgress = null
@@ -1660,4 +1780,36 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
  */
 internal fun requiresAuthenticationOnCreate(authMethod: AuthMethod, savedProcessToken: String?, processToken: String): Boolean {
     return authMethod != AuthMethod.NONE && savedProcessToken != processToken
+}
+
+/** The screens the main screen waits on whose cancellation closes the app. */
+internal enum class CancelledScreen { LOCK, SETUP_WIZARD }
+
+internal enum class CancelledScreenOutcome { CLOSE, SHOW_AGAIN }
+
+/**
+ * What to do when one of those screens comes back cancelled. Dismissed by the user, it closes the
+ * app, as it always has. But the system finishes it with the very same cancelled result when it
+ * clears the task to deliver a new intent to the main screen (an image shared from another app,
+ * forwarded with CLEAR_TOP); the user did nothing then, so the screen is shown again instead, and
+ * the intent is handled once it has been passed. Whether a new intent arrived alongside the
+ * cancellation is the only thing that tells the two apart.
+ */
+internal fun cancelledScreenOutcome(newIntentArrived: Boolean): CancelledScreenOutcome {
+    return if (newIntentArrived) CancelledScreenOutcome.SHOW_AGAIN else CancelledScreenOutcome.CLOSE
+}
+
+/**
+ * The items of a share, in the order they were shared. ACTION_SEND carries one in EXTRA_STREAM,
+ * ACTION_SEND_MULTIPLE a list, and the system copies either into the clip data when it grants
+ * access to them, so the same item usually arrives twice; repeats are dropped. Generic because
+ * the unit tests have no [android.net.Uri] to build.
+ */
+internal fun <T : Any> sharedItems(stream: T?, streams: Collection<T?>?, clipItems: Collection<T?>): List<T> {
+    val items = LinkedHashSet<T>()
+    if (stream != null)
+        items.add(stream)
+    streams?.filterNotNull()?.let(items::addAll)
+    items.addAll(clipItems.filterNotNull())
+    return items.toList()
 }

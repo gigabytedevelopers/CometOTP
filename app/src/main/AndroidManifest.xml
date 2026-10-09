@@ -199,6 +199,28 @@
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.SecureCaptureActivity" />
+
+        <!-- Puts CometOTP on the share sheet for images: a QR code screenshot or a photo of one.
+             The share sheet starts its target in the sharing app's task, so this invisible screen
+             takes the images and forwards them to the main screen in CometOTP's own task (see
+             ShareReceiverActivity), instead of a second main screen appearing over the gallery. -->
+        <activity
+            android:name=".Activities.ShareReceiverActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".Activities.ImportScanActivity"
             android:parentActivityName=".Activities.MainActivity"

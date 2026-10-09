@@ -54,8 +54,15 @@ object StorageAccessHelper {
     @Throws(IOException::class)
     fun loadFile(context: Context, file: Uri): ByteArray {
         // openInputStream returns null when the provider has nothing to give; report that as the
-        // IOException callers already handle instead of a NullPointerException they do not.
-        val stream = context.contentResolver.openInputStream(file) ?: throw IOException("Cannot open $file")
+        // IOException callers already handle instead of a NullPointerException they do not. The
+        // same for a provider that refuses: an image shared from another app arrives with a
+        // temporary read grant, and one the sender never granted (or that has lapsed) is a file
+        // that cannot be opened, not a reason to crash.
+        val stream = try {
+            context.contentResolver.openInputStream(file)
+        } catch (e: SecurityException) {
+            throw IOException("No access to $file", e)
+        } ?: throw IOException("Cannot open $file")
         stream.use { inputStream ->
             val bytes = ByteArrayOutputStream()
 

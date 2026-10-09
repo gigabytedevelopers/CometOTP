@@ -83,6 +83,12 @@
     <string name="toast_intent_creation_failed">Invalid intent-provided code</string>
     <string name="toast_intent_creation_succeeded">Intent-provided code added</string>
     <string name="toast_file_load_error">Could not open the file</string>
+    <!-- Images shared from another app -->
+    <string name="share_no_image">Nothing was shared that CometOTP can read</string>
+    <plurals name="share_images_unreadable">
+        <item quantity="one">%d shared image had no QR code CometOTP could read</item>
+        <item quantity="other">%d shared images had no QR code CometOTP could read</item>
+    </plurals>
     <string name="toast_qr_error">Could not find/confirm QR code</string>
     <string name="toast_qr_checksum_exception">Checksum verification failed while decoding QR code</string>
     <string name="toast_qr_format_error">Format error in QR code</string>
