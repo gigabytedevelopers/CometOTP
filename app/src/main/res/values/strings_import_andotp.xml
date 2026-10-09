@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: andOTP -->
+    <string name="import_source_andotp">andOTP</string>
+    <string name="import_andotp_title">Import from andOTP</string>
+    <string-array name="import_andotp_steps">
+        <item>Open the menu and tap <b>Backup</b>.</item>
+        <item>Tap <b>Backup</b> under <b>Plain-text</b> or, to protect the file with a password, under <b>Password</b>, and save it.</item>
+        <item>Choose the saved <b>.json</b> or <b>.json.aes</b> file here. A protected backup opens with the password you set.</item>
+    </string-array>
+    <string name="import_andotp_note">Tags come across with the accounts. A CometOTP backup reads the same way.</string>
+</resources>

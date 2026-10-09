@@ -37,6 +37,9 @@ enum class ImportSource(
     AEGIS(Kind.FILE, R.string.import_source_aegis, R.string.import_aegis_title,
             R.drawable.ic_file_document, R.array.import_aegis_steps, R.string.import_aegis_note, JSON_MIME_TYPES, AegisImport),
 
+    ANDOTP(Kind.FILE, R.string.import_source_andotp, R.string.import_andotp_title,
+            R.drawable.ic_file_document, R.array.import_andotp_steps, R.string.import_andotp_note, ANDOTP_MIME_TYPES, AndOtpImport),
+
     /** Last: the fallback for any app that can write its accounts out as links. */
     OTPAUTH_LINKS(Kind.FILE, R.string.import_source_links, R.string.import_links_title,
             R.drawable.ic_link, R.array.import_links_steps, R.string.import_links_note, TEXT_MIME_TYPES, OtpauthLinksImport);
@@ -56,3 +59,6 @@ enum class ImportSource(
 internal val JSON_MIME_TYPES = arrayOf("application/json", "text/plain", "text/json", "application/octet-stream")
 
 internal val TEXT_MIME_TYPES = arrayOf("text/plain", "application/octet-stream")
+
+/** andOTP's plain and password-protected backups, the latter written as "binary/aes". */
+internal val ANDOTP_MIME_TYPES = arrayOf("application/json", "binary/aes", "text/plain", "application/octet-stream")
