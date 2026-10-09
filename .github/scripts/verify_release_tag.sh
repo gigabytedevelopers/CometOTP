@@ -13,8 +13,9 @@ fi
 [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo '::error::Expected a vMAJOR.MINOR.PATCH tag.'; exit 1; }
 test "$(git cat-file -t "$GITHUB_REF_NAME^{}")" = commit
 allowed="$RUNNER_TEMP/enwokoma-tag-signers"
+# Current gh refuses --slurp together with --jq, so jq does the filtering.
 gh api users/enwokoma/ssh_signing_keys --paginate --slurp \
-  --jq '.[][] | "enwokoma " + .key' > "$allowed"
+  | jq -r '.[][] | "enwokoma " + .key' > "$allowed"
 # Only the existing key is eligible, even if another key is registered later.
 expected="enwokoma $(awk '{print $1 " " $2}' "$(git rev-parse --show-toplevel)/.github/release-signing.pub")"
 awk '{print $1 " " $2 " " $3}' "$allowed" | grep -Fx -- "$expected" > "$allowed.existing"
