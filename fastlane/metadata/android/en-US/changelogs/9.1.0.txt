@@ -1,0 +1,5 @@
+CometOTP 9.1.0 brings your accounts across from other apps.
+
+New: Import tokens from 2FAS, Aegis, andOTP, Bitwarden, Ente, FreeOTP+, KeePass, LastPass, 1Password, Proton Authenticator, Raivo and Stratum using their export files. Password-protected exports open in the app, and a text file of otpauth links works for any other app.
+
+Fixed: Text fields now have a visible outline in light and dark mode, including the unlock screen.
