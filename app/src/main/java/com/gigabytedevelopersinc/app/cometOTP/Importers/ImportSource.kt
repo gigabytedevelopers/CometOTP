@@ -40,6 +40,9 @@ enum class ImportSource(
     ANDOTP(Kind.FILE, R.string.import_source_andotp, R.string.import_andotp_title,
             R.drawable.ic_file_document, R.array.import_andotp_steps, R.string.import_andotp_note, ANDOTP_MIME_TYPES, AndOtpImport),
 
+    BITWARDEN(Kind.FILE, R.string.import_source_bitwarden, R.string.import_bitwarden_title,
+            R.drawable.ic_file_document, R.array.import_bitwarden_steps, R.string.import_bitwarden_note, BITWARDEN_MIME_TYPES, BitwardenImport),
+
     FREEOTP_PLUS(Kind.FILE, R.string.import_source_freeotp_plus, R.string.import_freeotp_plus_title,
             R.drawable.ic_file_document, R.array.import_freeotp_plus_steps, R.string.import_freeotp_plus_note, JSON_MIME_TYPES, FreeOtpPlusImport),
 
@@ -62,6 +65,9 @@ enum class ImportSource(
 internal val JSON_MIME_TYPES = arrayOf("application/json", "text/plain", "text/json", "application/octet-stream")
 
 internal val TEXT_MIME_TYPES = arrayOf("text/plain", "application/octet-stream")
+
+/** Bitwarden exports as JSON or CSV. */
+internal val BITWARDEN_MIME_TYPES = arrayOf("application/json", "text/csv", "text/comma-separated-values", "text/plain", "application/octet-stream")
 
 /** andOTP's plain and password-protected backups, the latter written as "binary/aes". */
 internal val ANDOTP_MIME_TYPES = arrayOf("application/json", "binary/aes", "text/plain", "application/octet-stream")

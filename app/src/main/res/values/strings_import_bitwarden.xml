@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: Bitwarden -->
+    <string name="import_source_bitwarden">Bitwarden</string>
+    <string name="import_bitwarden_title">Import from Bitwarden</string>
+    <string-array name="import_bitwarden_steps">
+        <item>In the Bitwarden app or web vault, open <b>Settings</b>, then <b>Vault</b>, then <b>Export vault</b>.</item>
+        <item>Choose the <b>.json</b> format, or <b>.json (Password protected)</b> to protect the file with a password of your choosing, and confirm the export.</item>
+        <item>Choose the exported file here. Logins that have an authenticator key are brought across.</item>
+    </string-array>
+    <string name="import_bitwarden_note">An export protected with your account\'s encryption key can\'t be opened here; choose a file password instead. The Bitwarden Authenticator app\'s own export (Settings, then Export) reads here too.</string>
+</resources>
