@@ -29,7 +29,11 @@ enum class ImportSource(
     val format: ImportFormat?
 ) {
     GOOGLE_AUTHENTICATOR(Kind.QR_CODES, R.string.import_source_google_auth, R.string.import_google_auth_title,
-            R.drawable.ic_qr_code, 0, 0, emptyArray(), null);
+            R.drawable.ic_qr_code, 0, 0, emptyArray(), null),
+
+    /** Last: the fallback for any app that can write its accounts out as links. */
+    OTPAUTH_LINKS(Kind.FILE, R.string.import_source_links, R.string.import_links_title,
+            R.drawable.ic_link, R.array.import_links_steps, R.string.import_links_note, TEXT_MIME_TYPES, OtpauthLinksImport);
 
     enum class Kind {
         /** Read from the QR codes the app shows; the source has a flow of its own. */

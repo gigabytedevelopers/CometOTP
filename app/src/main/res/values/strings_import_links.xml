@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: a text file of otpauth links, from any app that exports one -->
+    <string name="import_source_links">Other apps (otpauth links)</string>
+    <string name="import_links_title">Import otpauth links</string>
+    <string-array name="import_links_steps">
+        <item>In the app your accounts are in, look for an export as <b>plain text</b>, <b>URI list</b> or <b>otpauth links</b>. Most apps keep it under Settings, Backup or Export.</item>
+        <item>Save the file it makes. It holds one link per line, each starting with <b>otpauth://</b>.</item>
+        <item>Choose that file here. Lines that aren\'t links are ignored.</item>
+    </string-array>
+    <string name="import_links_note">The links hold your secrets in the clear. Delete the file once the import is done.</string>
+</resources>
