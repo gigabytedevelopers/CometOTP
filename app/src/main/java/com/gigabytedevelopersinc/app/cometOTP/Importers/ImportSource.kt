@@ -52,6 +52,9 @@ enum class ImportSource(
     PROTON(Kind.FILE, R.string.import_source_proton, R.string.import_proton_title,
             R.drawable.ic_file_document, R.array.import_proton_steps, 0, JSON_MIME_TYPES, ProtonImport),
 
+    RAIVO(Kind.FILE, R.string.import_source_raivo, R.string.import_raivo_title,
+            R.drawable.ic_file_document, R.array.import_raivo_steps, 0, RAIVO_MIME_TYPES, RaivoImport),
+
     STRATUM(Kind.FILE, R.string.import_source_stratum, R.string.import_stratum_title,
             R.drawable.ic_file_document, R.array.import_stratum_steps, R.string.import_stratum_note, JSON_MIME_TYPES, StratumImport),
 
@@ -74,6 +77,9 @@ enum class ImportSource(
 internal val JSON_MIME_TYPES = arrayOf("application/json", "text/plain", "text/json", "application/octet-stream")
 
 internal val TEXT_MIME_TYPES = arrayOf("text/plain", "application/octet-stream")
+
+/** Raivo's encrypted archive, or the JSON taken out of it. */
+internal val RAIVO_MIME_TYPES = arrayOf("application/zip", "application/x-zip-compressed", "application/json", "application/octet-stream")
 
 /** Bitwarden exports as JSON or CSV. */
 internal val BITWARDEN_MIME_TYPES = arrayOf("application/json", "text/csv", "text/comma-separated-values", "text/plain", "application/octet-stream")

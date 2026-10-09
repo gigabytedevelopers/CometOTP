@@ -247,6 +247,8 @@ dependencies {
     // Utilities
     implementation 'commons-codec:commons-codec:1.22.1'
     implementation "com.journeyapps:zxing-android-embedded:4.3.0"
+    // Raivo OTP exports are AES-encrypted ZIP archives, which java.util.zip cannot open
+    implementation 'net.lingala.zip4j:zip4j:2.11.5'
     implementation "com.github.open-keychain.open-keychain:openpgp-api:v5.7.1"
     implementation 'de.peilicke.sascha:android-customtabs:3.1.1'
     implementation fileTree(dir: 'libs', include: ['*.jar'])

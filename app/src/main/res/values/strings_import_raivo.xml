@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: Raivo OTP -->
+    <string name="import_source_raivo">Raivo OTP</string>
+    <string name="import_raivo_title">Import from Raivo OTP</string>
+    <string-array name="import_raivo_steps">
+        <item>Open <b>Settings</b> and tap <b>Export OTPs</b>.</item>
+        <item>Choose a password for the archive and save or share the <b>.zip</b> file to this phone.</item>
+        <item>Choose the archive here. It opens with the password you chose.</item>
+    </string-array>
+</resources>
