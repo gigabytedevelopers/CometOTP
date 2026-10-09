@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: Authy -->
+    <string name="import_source_authy">Authy</string>
+    <string name="import_authy_title">Import from Authy</string>
+    <string-array name="import_authy_steps">
+        <item>Authy has no export of its own, and its desktop app, which used to be the way around that, has been retired.</item>
+        <item>The sure way across is to set each account up again: open the site\'s two-factor settings, turn the authenticator off and on, and scan the new QR code with CometOTP. Only remove the account from Authy once a code from CometOTP has signed you in.</item>
+        <item>If you have a file of <b>otpauth://</b> links made from Authy with another tool, choose it here instead.</item>
+    </string-array>
+    <string name="import_authy_note">Authy\'s own 7-digit, 10-second codes for its partner services come across when the file carries their digits and period.</string>
+</resources>

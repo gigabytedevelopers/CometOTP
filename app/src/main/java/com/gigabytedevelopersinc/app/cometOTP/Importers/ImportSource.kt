@@ -40,6 +40,9 @@ enum class ImportSource(
     ANDOTP(Kind.FILE, R.string.import_source_andotp, R.string.import_andotp_title,
             R.drawable.ic_file_document, R.array.import_andotp_steps, R.string.import_andotp_note, ANDOTP_MIME_TYPES, AndOtpImport),
 
+    AUTHY(Kind.FILE, R.string.import_source_authy, R.string.import_authy_title,
+            R.drawable.ic_link, R.array.import_authy_steps, R.string.import_authy_note, TEXT_MIME_TYPES, OtpauthLinksImport),
+
     BITWARDEN(Kind.FILE, R.string.import_source_bitwarden, R.string.import_bitwarden_title,
             R.drawable.ic_file_document, R.array.import_bitwarden_steps, R.string.import_bitwarden_note, BITWARDEN_MIME_TYPES, BitwardenImport),
 
