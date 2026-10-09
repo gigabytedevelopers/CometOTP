@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: Proton Authenticator -->
+    <string name="import_source_proton">Proton Authenticator</string>
+    <string name="import_proton_title">Import from Proton Authenticator</string>
+    <string-array name="import_proton_steps">
+        <item>Open <b>Settings</b> and tap <b>Export</b>.</item>
+        <item>Choose to export <b>without a password</b> and save the file. A password-protected export can\'t be opened here.</item>
+        <item>Choose the saved file here, then delete it once the import is done: it holds your secrets in the clear.</item>
+    </string-array>
+</resources>
