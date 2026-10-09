@@ -31,6 +31,9 @@ enum class ImportSource(
     GOOGLE_AUTHENTICATOR(Kind.QR_CODES, R.string.import_source_google_auth, R.string.import_google_auth_title,
             R.drawable.ic_qr_code, 0, 0, emptyArray(), null),
 
+    ONE_PASSWORD(Kind.FILE, R.string.import_source_1password, R.string.import_1password_title,
+            R.drawable.ic_file_document, R.array.import_1password_steps, R.string.import_1password_note, ONE_PASSWORD_MIME_TYPES, OnePasswordImport),
+
     TWO_FAS(Kind.FILE, R.string.import_source_2fas, R.string.import_2fas_title,
             R.drawable.ic_file_document, R.array.import_2fas_steps, 0, JSON_MIME_TYPES, TwoFasImport),
 
@@ -86,6 +89,9 @@ enum class ImportSource(
 internal val JSON_MIME_TYPES = arrayOf("application/json", "text/plain", "text/json", "application/octet-stream")
 
 internal val TEXT_MIME_TYPES = arrayOf("text/plain", "application/octet-stream")
+
+/** 1Password's 1PUX archive or CSV. */
+internal val ONE_PASSWORD_MIME_TYPES = arrayOf("application/zip", "application/x-zip-compressed", "text/csv", "text/comma-separated-values", "text/plain", "application/octet-stream")
 
 /** Raivo's encrypted archive, or the JSON taken out of it. */
 internal val RAIVO_MIME_TYPES = arrayOf("application/zip", "application/x-zip-compressed", "application/json", "application/octet-stream")
