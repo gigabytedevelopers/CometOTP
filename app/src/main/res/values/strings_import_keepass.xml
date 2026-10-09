@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: KeePass -->
+    <string name="import_source_keepass">KeePass / KeePassXC</string>
+    <string name="import_keepass_title">Import from KeePass</string>
+    <string-array name="import_keepass_steps">
+        <item>In KeePassXC, open <b>Database</b>, then <b>Export</b>, and choose <b>XML file</b>. In KeePass 2, open <b>File</b>, then <b>Export</b>, and choose <b>KeePass XML (2.x)</b>.</item>
+        <item>Save the file. It isn\'t protected, so keep it somewhere private.</item>
+        <item>Choose the file here. Entries that have a one-time password are brought across.</item>
+    </string-array>
+    <string name="import_keepass_note">Delete the export once the import is done: it holds every password in the database in the clear. The database file itself (.kdbx) can\'t be read here.</string>
+</resources>

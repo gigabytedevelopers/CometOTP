@@ -55,6 +55,9 @@ enum class ImportSource(
     FREEOTP_PLUS(Kind.FILE, R.string.import_source_freeotp_plus, R.string.import_freeotp_plus_title,
             R.drawable.ic_file_document, R.array.import_freeotp_plus_steps, R.string.import_freeotp_plus_note, JSON_MIME_TYPES, FreeOtpPlusImport),
 
+    KEEPASS(Kind.FILE, R.string.import_source_keepass, R.string.import_keepass_title,
+            R.drawable.ic_file_document, R.array.import_keepass_steps, R.string.import_keepass_note, KEEPASS_MIME_TYPES, KeePassImport),
+
     LASTPASS(Kind.FILE, R.string.import_source_lastpass, R.string.import_lastpass_title,
             R.drawable.ic_file_document, R.array.import_lastpass_steps, 0, JSON_MIME_TYPES, LastPassImport),
 
@@ -89,6 +92,9 @@ enum class ImportSource(
 internal val JSON_MIME_TYPES = arrayOf("application/json", "text/plain", "text/json", "application/octet-stream")
 
 internal val TEXT_MIME_TYPES = arrayOf("text/plain", "application/octet-stream")
+
+/** KeePass's XML export. */
+internal val KEEPASS_MIME_TYPES = arrayOf("text/xml", "application/xml", "text/plain", "application/octet-stream")
 
 /** 1Password's 1PUX archive or CSV. */
 internal val ONE_PASSWORD_MIME_TYPES = arrayOf("application/zip", "application/x-zip-compressed", "text/csv", "text/comma-separated-values", "text/plain", "application/octet-stream")
