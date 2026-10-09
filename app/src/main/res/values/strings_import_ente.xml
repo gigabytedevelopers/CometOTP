@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: Ente Auth -->
+    <string name="import_source_ente">Ente Auth</string>
+    <string name="import_ente_title">Import from Ente Auth</string>
+    <string-array name="import_ente_steps">
+        <item>Open <b>Settings</b>, then <b>Data</b>, and tap <b>Export codes</b>.</item>
+        <item>Choose <b>Plain text</b> and save the file. Ente\'s encrypted export can\'t be opened here.</item>
+        <item>Choose the saved file here, then delete it once the import is done: it holds your secrets in the clear.</item>
+    </string-array>
+</resources>

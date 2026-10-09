@@ -43,6 +43,9 @@ enum class ImportSource(
     BITWARDEN(Kind.FILE, R.string.import_source_bitwarden, R.string.import_bitwarden_title,
             R.drawable.ic_file_document, R.array.import_bitwarden_steps, R.string.import_bitwarden_note, BITWARDEN_MIME_TYPES, BitwardenImport),
 
+    ENTE(Kind.FILE, R.string.import_source_ente, R.string.import_ente_title,
+            R.drawable.ic_file_document, R.array.import_ente_steps, 0, TEXT_MIME_TYPES, EnteImport),
+
     FREEOTP_PLUS(Kind.FILE, R.string.import_source_freeotp_plus, R.string.import_freeotp_plus_title,
             R.drawable.ic_file_document, R.array.import_freeotp_plus_steps, R.string.import_freeotp_plus_note, JSON_MIME_TYPES, FreeOtpPlusImport),
 
