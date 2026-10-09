@@ -40,6 +40,9 @@ enum class ImportSource(
     ANDOTP(Kind.FILE, R.string.import_source_andotp, R.string.import_andotp_title,
             R.drawable.ic_file_document, R.array.import_andotp_steps, R.string.import_andotp_note, ANDOTP_MIME_TYPES, AndOtpImport),
 
+    FREEOTP_PLUS(Kind.FILE, R.string.import_source_freeotp_plus, R.string.import_freeotp_plus_title,
+            R.drawable.ic_file_document, R.array.import_freeotp_plus_steps, R.string.import_freeotp_plus_note, JSON_MIME_TYPES, FreeOtpPlusImport),
+
     /** Last: the fallback for any app that can write its accounts out as links. */
     OTPAUTH_LINKS(Kind.FILE, R.string.import_source_links, R.string.import_links_title,
             R.drawable.ic_link, R.array.import_links_steps, R.string.import_links_note, TEXT_MIME_TYPES, OtpauthLinksImport);

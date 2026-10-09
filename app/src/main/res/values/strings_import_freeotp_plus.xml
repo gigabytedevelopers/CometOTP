@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: FreeOTP+ -->
+    <string name="import_source_freeotp_plus">FreeOTP+</string>
+    <string name="import_freeotp_plus_title">Import from FreeOTP+</string>
+    <string-array name="import_freeotp_plus_steps">
+        <item>Open the menu in the top corner and tap <b>Export</b>.</item>
+        <item>Choose <b>JSON</b> and save the file. FreeOTP+ can\'t protect it with a password, so keep it somewhere private.</item>
+        <item>Choose the saved file here.</item>
+    </string-array>
+    <string name="import_freeotp_plus_note">The original FreeOTP has no export of its own; its backup file can\'t be read here.</string>
+</resources>
