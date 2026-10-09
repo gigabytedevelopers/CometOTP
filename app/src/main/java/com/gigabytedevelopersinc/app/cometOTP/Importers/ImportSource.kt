@@ -31,6 +31,9 @@ enum class ImportSource(
     GOOGLE_AUTHENTICATOR(Kind.QR_CODES, R.string.import_source_google_auth, R.string.import_google_auth_title,
             R.drawable.ic_qr_code, 0, 0, emptyArray(), null),
 
+    TWO_FAS(Kind.FILE, R.string.import_source_2fas, R.string.import_2fas_title,
+            R.drawable.ic_file_document, R.array.import_2fas_steps, 0, JSON_MIME_TYPES, TwoFasImport),
+
     AEGIS(Kind.FILE, R.string.import_source_aegis, R.string.import_aegis_title,
             R.drawable.ic_file_document, R.array.import_aegis_steps, R.string.import_aegis_note, JSON_MIME_TYPES, AegisImport),
 

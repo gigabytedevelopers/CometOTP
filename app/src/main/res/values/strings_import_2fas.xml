@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Import tokens: 2FAS Auth -->
+    <string name="import_source_2fas">2FAS Auth</string>
+    <string name="import_2fas_title">Import from 2FAS Auth</string>
+    <string-array name="import_2fas_steps">
+        <item>Open <b>Settings</b>, then <b>Backup</b>.</item>
+        <item>Tap <b>Export backup</b>. You can set a password for the file or leave it off, then save it.</item>
+        <item>Choose the saved <b>.2fas</b> file here. If you set a password, you\'ll be asked for it.</item>
+    </string-array>
+</resources>
