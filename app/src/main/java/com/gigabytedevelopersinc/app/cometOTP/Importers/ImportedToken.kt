@@ -15,6 +15,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator
  * @param secret the key bytes, as the token calculator uses them: the decoded base32 secret, or
  *        for MOTP the characters of the secret itself. Null when the export's secret could not be
  *        decoded, empty when it had none.
+ * @param tags the tags the account carried, for the few exports that have them
  */
 class ImportedToken(
     val type: Entry.OTPType?,
@@ -24,7 +25,8 @@ class ImportedToken(
     val algorithm: TokenCalculator.HashAlgorithm? = TokenCalculator.HashAlgorithm.SHA1,
     val digits: Int = TokenCalculator.TOTP_DEFAULT_DIGITS,
     val period: Int = TokenCalculator.TOTP_DEFAULT_PERIOD,
-    val counter: Long = 0
+    val counter: Long = 0,
+    val tags: List<String> = emptyList()
 ) {
     /** How the account is named in messages: issuer and label, whichever are present. */
     val displayName: String

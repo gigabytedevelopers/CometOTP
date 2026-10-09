@@ -66,15 +66,16 @@ object TokenImport {
 
     private fun toEntry(token: ImportedToken): Entry {
         val secret = token.secret!!
+        val tags = ArrayList(token.tags.map { it.trim() }.filter { it.isNotEmpty() }.distinct())
         return when (token.type!!) {
             Entry.OTPType.HOTP ->
                 Entry(Entry.OTPType.HOTP, Base32().encodeAsString(secret), token.counter, token.digits,
-                        token.issuer, token.label, token.algorithm!!, ArrayList())
+                        token.issuer, token.label, token.algorithm!!, tags)
             Entry.OTPType.TOTP, Entry.OTPType.STEAM ->
                 Entry(token.type, Base32().encodeAsString(secret), token.period, token.digits,
-                        token.issuer, token.label, token.algorithm!!, ArrayList())
+                        token.issuer, token.label, token.algorithm!!, tags)
             Entry.OTPType.MOTP ->
-                Entry(Entry.OTPType.MOTP, String(secret, Charsets.UTF_8), token.issuer, token.label, ArrayList())
+                Entry(Entry.OTPType.MOTP, String(secret, Charsets.UTF_8), token.issuer, token.label, tags)
         }
     }
 

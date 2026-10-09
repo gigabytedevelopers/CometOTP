@@ -49,6 +49,13 @@ class TokenImportTest {
     }
 
     @Test
+    fun keepsTagsTidy() {
+        val e = TokenImport.convert(listOf(ImportedToken(Entry.OTPType.TOTP, key, "I", "l",
+                tags = listOf(" work ", "", "work", "home")))).entries.single()
+        assertEquals(listOf("work", "home"), e.tags)
+    }
+
+    @Test
     fun keepsAlgorithmDigitsAndPeriod() {
         val e = TokenImport.convert(listOf(token(algorithm = HashAlgorithm.SHA512, digits = 8, period = 60))).entries.single()
         assertEquals(HashAlgorithm.SHA512, e.algorithm)
