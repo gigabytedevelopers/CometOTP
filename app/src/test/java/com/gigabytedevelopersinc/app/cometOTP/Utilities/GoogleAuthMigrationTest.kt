@@ -2,6 +2,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
+import com.gigabytedevelopersinc.app.cometOTP.Importers.TokenImport
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail.EntryThumbnails
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator.HashAlgorithm
 import org.apache.commons.codec.binary.Base64
@@ -154,7 +155,7 @@ class GoogleAuthMigrationTest {
 
         assertEquals(1, converted.skipped.size)
         val s = converted.skipped[0]
-        assertEquals(GoogleAuthMigration.SkipReason.UNSUPPORTED_ALGORITHM, s.reason)
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_ALGORITHM, s.reason)
         assertEquals("OldCorp (legacy)", s.displayName)
     }
 
@@ -165,11 +166,11 @@ class GoogleAuthMigrationTest {
                 .skipped.singleOrNull()?.reason
 
         assertEquals(null, reasonFor())
-        assertEquals(GoogleAuthMigration.SkipReason.UNSUPPORTED_ALGORITHM, reasonFor(algorithm = 4))
-        assertEquals(GoogleAuthMigration.SkipReason.UNSUPPORTED_ALGORITHM, reasonFor(algorithm = 9))
-        assertEquals(GoogleAuthMigration.SkipReason.UNSUPPORTED_DIGITS, reasonFor(digits = 3))
-        assertEquals(GoogleAuthMigration.SkipReason.UNSUPPORTED_TYPE, reasonFor(type = 3))
-        assertEquals(GoogleAuthMigration.SkipReason.EMPTY_SECRET, reasonFor(secret = ByteArray(0)))
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_ALGORITHM, reasonFor(algorithm = 4))
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_ALGORITHM, reasonFor(algorithm = 9))
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(digits = 3))
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_TYPE, reasonFor(type = 3))
+        assertEquals(TokenImport.SkipReason.EMPTY_SECRET, reasonFor(secret = ByteArray(0)))
     }
 
     @Test
@@ -185,7 +186,7 @@ class GoogleAuthMigrationTest {
 
     @Test
     fun splitsNamesTheWayKeyUrisDo() {
-        fun split(name: String, issuer: String) = GoogleAuthMigration.splitName(name, issuer)
+        fun split(name: String, issuer: String) = TokenImport.splitName(name, issuer)
 
         assertEquals("Example" to "alice", split("Example:alice", "Example"))
         assertEquals("Example" to "alice", split(" Example: alice ", " Example "))

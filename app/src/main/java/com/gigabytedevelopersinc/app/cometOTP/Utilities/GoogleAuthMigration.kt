@@ -2,7 +2,8 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
-import org.apache.commons.codec.binary.Base32
+import com.gigabytedevelopersinc.app.cometOTP.Importers.ImportedToken
+import com.gigabytedevelopersinc.app.cometOTP.Importers.TokenImport
 import org.apache.commons.codec.binary.Base64
 import java.io.ByteArrayOutputStream
 
@@ -59,23 +60,6 @@ object GoogleAuthMigration {
         val batchId: Int
     )
 
-    /** Why an exported account could not be brought across. */
-    enum class SkipReason {
-        /** Google Authenticator allows MD5; CometOTP cannot generate codes with it. */
-        UNSUPPORTED_ALGORITHM,
-        UNSUPPORTED_DIGITS,
-        UNSUPPORTED_TYPE,
-        EMPTY_SECRET
-    }
-
-    class Skipped(val account: Account, val reason: SkipReason) {
-        /** How the account is named in messages: issuer and label, whichever are present. */
-        val displayName: String
-            get() = displayName(account)
-    }
-
-    class Converted(val entries: List<Entry>, val skipped: List<Skipped>)
-
     fun isMigrationUri(text: String?): Boolean =
         text != null && text.trimStart().startsWith("$SCHEME://", ignoreCase = true)
 
@@ -101,66 +85,27 @@ object GoogleAuthMigration {
 
     /**
      * Maps exported accounts onto entries, keeping their order. Accounts that CometOTP cannot
-     * generate codes for are returned in [Converted.skipped] instead of being dropped silently.
+     * generate codes for are returned in [TokenImport.Converted.skipped] instead of being dropped
+     * silently.
      */
-    fun convert(accounts: List<Account>): Converted {
-        val entries = ArrayList<Entry>()
-        val skipped = ArrayList<Skipped>()
+    fun convert(accounts: List<Account>): TokenImport.Converted =
+        TokenImport.convert(accounts.map { toToken(it) })
 
-        for (account in accounts) {
-            val reason = unsupportedReason(account)
-            if (reason != null) {
-                skipped.add(Skipped(account, reason))
-                continue
-            }
-
-            val (issuer, label) = splitName(account.name, account.issuer)
-            val secret = Base32().encodeAsString(account.secret)
-            val algorithm = algorithm(account.algorithm)!!
-            val digits = digits(account.digits)!!
-
-            entries.add(if (account.type == TYPE_HOTP) {
-                Entry(Entry.OTPType.HOTP, secret, account.counter, digits, issuer, label, algorithm, ArrayList())
-            } else {
-                // The export has no period: Google Authenticator only supports 30 seconds.
-                Entry(Entry.OTPType.TOTP, secret, TokenCalculator.TOTP_DEFAULT_PERIOD, digits, issuer, label, algorithm, ArrayList())
-            })
+    /** Google Authenticator's enum values, read into the shape every import shares. */
+    internal fun toToken(account: Account): ImportedToken {
+        val (issuer, label) = TokenImport.splitName(account.name, account.issuer)
+        val type = when (account.type) {
+            TYPE_UNSPECIFIED, TYPE_TOTP -> Entry.OTPType.TOTP
+            TYPE_HOTP -> Entry.OTPType.HOTP
+            else -> null
         }
+        // Digits outside the enum are passed on as a value CometOTP cannot use, so they are
+        // reported as unsupported digits rather than silently read as six.
+        val digits = digits(account.digits) ?: -1
 
-        return Converted(entries, skipped)
-    }
-
-    /**
-     * Separates issuer and label the way the Key URI format does. Google Authenticator keeps the
-     * name it was given, which is often "Issuer:account" even when the issuer is also stored on
-     * its own, so a matching prefix is removed; with no issuer stored, the prefix becomes it.
-     */
-    internal fun splitName(name: String, issuer: String): Pair<String, String> {
-        val n = name.trim()
-        val i = issuer.trim()
-
-        if (i.isNotEmpty()) {
-            val label = if (n.startsWith("$i:")) n.substring(i.length + 1).trim() else n
-            return i to label
-        }
-
-        val colon = n.indexOf(':')
-        if (colon > 0)
-            return n.substring(0, colon).trim() to n.substring(colon + 1).trim()
-
-        return "" to n
-    }
-
-    internal fun displayName(account: Account): String {
-        val (issuer, label) = splitName(account.name, account.issuer)
-        return displayName(issuer, label)
-    }
-
-    /** "Issuer (label)", or whichever of the two is present. */
-    fun displayName(issuer: String, label: String): String = when {
-        issuer.isNotEmpty() && label.isNotEmpty() -> "$issuer ($label)"
-        issuer.isNotEmpty() -> issuer
-        else -> label
+        // The export has no period: Google Authenticator only supports 30 seconds.
+        return ImportedToken(type, account.secret, issuer, label, algorithm(account.algorithm), digits,
+                TokenCalculator.TOTP_DEFAULT_PERIOD, account.counter)
     }
 
     /* ------------------------------------------------------------------------------------------
@@ -170,15 +115,6 @@ object GoogleAuthMigration {
     private const val TYPE_UNSPECIFIED = 0
     private const val TYPE_HOTP = 1
     private const val TYPE_TOTP = 2
-
-    private fun unsupportedReason(account: Account): SkipReason? = when {
-        account.secret.isEmpty() -> SkipReason.EMPTY_SECRET
-        algorithm(account.algorithm) == null -> SkipReason.UNSUPPORTED_ALGORITHM
-        digits(account.digits) == null -> SkipReason.UNSUPPORTED_DIGITS
-        account.type != TYPE_UNSPECIFIED && account.type != TYPE_HOTP && account.type != TYPE_TOTP ->
-            SkipReason.UNSUPPORTED_TYPE
-        else -> null
-    }
 
     /** Unspecified means SHA1, as it does in the Key URI format. MD5 (4) has no equivalent. */
     private fun algorithm(value: Int): TokenCalculator.HashAlgorithm? = when (value) {

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One numbered step on an import sheet. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Comet.ImportStep">
+
+    <TextView
+        android:id="@+id/importStepNumber"
+        style="@style/Widget.Comet.ImportStepNumber"
+        tools:text="1" />
+
+    <TextView
+        android:id="@+id/importStepText"
+        style="@style/Widget.Comet.ImportStepText"
+        tools:text="Open Settings and tap Export." />
+
+</LinearLayout>

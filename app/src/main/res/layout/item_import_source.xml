@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One app on the Import tokens sheet; the text and icon come from ImportSource. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Comet.NavRow"
+    tools:drawableStart="@drawable/ic_qr_code"
+    tools:text="Google Authenticator" />

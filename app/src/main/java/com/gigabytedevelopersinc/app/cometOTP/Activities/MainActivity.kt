@@ -22,6 +22,7 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -48,6 +49,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -58,8 +60,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog
+import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ImportPasswordDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ManualEntryDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ResultDialog
+import com.gigabytedevelopersinc.app.cometOTP.Importers.ImportException
+import com.gigabytedevelopersinc.app.cometOTP.Importers.ImportSource
+import com.gigabytedevelopersinc.app.cometOTP.Importers.TokenImport
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupScheduler
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
@@ -74,6 +80,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.LauncherIcon
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.NotificationHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScanQRCodeFromFile
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.StorageAccessHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
@@ -270,6 +277,17 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private val importScanLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
         continueGoogleAuthImport()
+    }
+
+    // The file of another app's export; which app is in importFileSource, set when it was chosen.
+    private val importFileLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { result ->
+        val file = result.data?.data
+        val source = importFileSource
+        if (result.resultCode == RESULT_OK && file != null && source != null) {
+            importFileUri = file
+            readImportFile(source, file, null)
+        }
     }
 
     private val importImagesLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
@@ -516,6 +534,11 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         setupDrawer()
 
         if (savedInstanceState != null) {
+            importFileSource = savedInstanceState.getString(STATE_IMPORT_SOURCE)?.let { name ->
+                ImportSource.entries.firstOrNull { it.name == name }
+            }
+            importFileUri = savedInstanceState.getString(STATE_IMPORT_FILE)?.let { Uri.parse(it) }
+
             val savedFilter = savedInstanceState.getString("filterString", "")
             if (!TextUtils.isEmpty(savedFilter)) {
                 enterSearchMode(false)
@@ -751,7 +774,10 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
      */
     private fun bindSheetAction(sheet: BottomSheetDialog, @IdRes id: Int, action: () -> Unit) {
         val v = sheet.findViewById<View>(id) ?: return
+        bindSheetRow(sheet, v, action)
+    }
 
+    private fun bindSheetRow(sheet: BottomSheetDialog, v: View, action: () -> Unit) {
         v.setOnClickListener { view ->
             if (!view.isEnabled)
                 return@setOnClickListener
@@ -776,7 +802,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         bindSheetAction(sheet, R.id.add_scan_qr, ::scanQRCode)
         bindSheetAction(sheet, R.id.add_qr_from_image, ::showOpenFileSelector)
         bindSheetAction(sheet, R.id.add_setup_key) { ManualEntryDialog.show(this@MainActivity, settings, adapter) }
-        bindSheetAction(sheet, R.id.add_import_google_auth, ::showGoogleAuthImportSheet)
+        bindSheetAction(sheet, R.id.add_import_tokens, ::showImportSourcesSheet)
     }
 
     private fun showNavigationSheet() {
@@ -969,8 +995,10 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         // Images read while the lock screen is up are handed over once it has been passed, so the
         // import is never offered over a locked app or before the database has been opened.
         val lockScreenNext = requireAuthentication && settings.authMethod != AuthMethod.NONE
-        if (!lockScreenNext)
+        if (!lockScreenNext) {
             importImagesJob.onResume(this)
+            importFileJob.onResume(this)
+        }
 
         if (requireAuthentication) {
             if (settings.authMethod != AuthMethod.NONE) {
@@ -1038,6 +1066,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     public override fun onPause() {
         importImagesJob.onPause(this)
+        importFileJob.onPause(this)
         if (settings.authMethod == AuthMethod.DEVICE)
             runOnUiThread { findViewById<View>(R.id.cardList).visibility = View.INVISIBLE }
         super.onPause()
@@ -1050,6 +1079,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         super.onSaveInstanceState(outState)
         outState.putString("filterString", filterString)
         outState.putString(STATE_PROCESS_TOKEN, PROCESS_TOKEN)
+        outState.putString(STATE_IMPORT_SOURCE, importFileSource?.name)
+        outState.putString(STATE_IMPORT_FILE, importFileUri?.toString())
     }
 
     /**
@@ -1341,6 +1372,266 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     /* ------------------------------------------------------------------------------------------
+     * Import tokens
+     *
+     * The Import tokens sheet lists the apps accounts can come from (ImportSource). Most are read
+     * from a file the app exports: the source's sheet says how to export, the file is read and
+     * decoded off the main thread, a password is asked for when the file turns out to need one,
+     * and the accounts are listed for confirmation before anything is added.
+     * ------------------------------------------------------------------------------------------ */
+
+    /** The source whose export file is being chosen or read; survives recreation. */
+    private var importFileSource: ImportSource? = null
+
+    /** The chosen file, kept so that it can be read again with a password. */
+    private var importFileUri: Uri? = null
+
+    private var importFileProgress: AlertDialog? = null
+
+    private fun showImportSourcesSheet() {
+        val sheet = openSheet(R.layout.sheet_import_sources)
+        sheet.findViewById<View>(R.id.sheetClose)?.setOnClickListener { sheet.dismiss() }
+
+        val list = sheet.findViewById<ViewGroup>(R.id.importSourceList) ?: return
+        val inflater = LayoutInflater.from(this)
+        for (source in ImportSource.entries) {
+            val row = inflater.inflate(R.layout.item_import_source, list, false) as TextView
+            row.setText(source.label)
+            TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(row, source.icon, 0, 0, 0)
+            list.addView(row)
+            bindSheetRow(sheet, row) { openImportSource(source) }
+        }
+
+        sheet.behavior.skipCollapsed = true
+        sheet.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    private fun openImportSource(source: ImportSource) {
+        when (source.kind) {
+            ImportSource.Kind.QR_CODES -> showGoogleAuthImportSheet()
+            ImportSource.Kind.FILE, ImportSource.Kind.INFORMATION -> showImportFileSheet(source)
+        }
+    }
+
+    /** The steps to export from the app and, for a source read from a file, the button to choose it. */
+    private fun showImportFileSheet(source: ImportSource) {
+        val sheet = openSheet(R.layout.sheet_import_file)
+        sheet.findViewById<View>(R.id.sheetClose)?.setOnClickListener { sheet.dismiss() }
+        sheet.findViewById<TextView>(R.id.importTitle)?.setText(source.title)
+
+        val steps = sheet.findViewById<ViewGroup>(R.id.importSteps)
+        if (steps != null) {
+            sheet.findViewById<TextView>(R.id.importStepsHeading)?.text =
+                    getString(R.string.import_file_steps_heading, getString(source.label))
+            val inflater = LayoutInflater.from(this)
+            resources.getTextArray(source.steps).forEachIndexed { index, text ->
+                val step = inflater.inflate(R.layout.item_import_step, steps, false)
+                step.findViewById<TextView>(R.id.importStepNumber).text = (index + 1).toString()
+                step.findViewById<TextView>(R.id.importStepText).text = text
+                steps.addView(step)
+            }
+        }
+
+        val note = sheet.findViewById<TextView>(R.id.importNote)
+        if (note != null && source.note != 0) {
+            note.setText(source.note)
+            note.visibility = View.VISIBLE
+        }
+
+        val choose = sheet.findViewById<View>(R.id.importChooseFile)
+        if (source.kind == ImportSource.Kind.FILE) {
+            choose?.setOnClickListener {
+                sheet.dismiss()
+                importFileSource = source
+                val picker = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE)
+                        .setType("*/*")
+                        .putExtra(Intent.EXTRA_MIME_TYPES, source.mimeTypes)
+                importFileLauncher.launch(picker)
+            }
+        } else {
+            choose?.visibility = View.GONE
+        }
+
+        sheet.behavior.skipCollapsed = true
+        sheet.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    /** What reading an export file came to; delivered to whichever instance of the screen is up. */
+    private sealed class ImportFileOutcome {
+        class Read(val converted: TokenImport.Converted) : ImportFileOutcome()
+        class Failed(val kind: ImportException.Kind?) : ImportFileOutcome()
+    }
+
+    /**
+     * Reads and decodes the file in the background. The whole file is read again for each
+     * password attempt rather than kept in memory between them.
+     */
+    private fun readImportFile(source: ImportSource, file: Uri, password: String?) {
+        val format = source.format ?: return
+        if (importFileJob.isBusy)
+            return
+
+        importFileProgress = MaterialAlertDialogBuilder(this)
+                .setView(R.layout.dialog_progress)
+                .setCancelable(false)
+                .show()
+
+        val context = applicationContext
+        importFileJob.start {
+            val outcome: ImportFileOutcome = try {
+                val data = StorageAccessHelper.loadFile(context, file)
+                ImportFileOutcome.Read(TokenImport.convert(format.read(data, password)))
+            } catch (e: ImportException) {
+                ImportFileOutcome.Failed(e.kind)
+            } catch (e: Exception) {
+                // The file could not be opened or read at all.
+                ImportFileOutcome.Failed(null)
+            }
+            val result: (MainActivity) -> Unit = { activity -> activity.onImportFileRead(source, outcome) }
+            result
+        }
+    }
+
+    private fun onImportFileRead(source: ImportSource, outcome: ImportFileOutcome) {
+        importFileProgress?.dismiss()
+        importFileProgress = null
+
+        val file = importFileUri
+        when (outcome) {
+            is ImportFileOutcome.Read -> {
+                finishImportFile()
+                showImportReview(outcome.converted) {}
+            }
+            is ImportFileOutcome.Failed -> when (outcome.kind) {
+                ImportException.Kind.PASSWORD_REQUIRED, ImportException.Kind.WRONG_PASSWORD -> {
+                    if (file == null) {
+                        finishImportFile()
+                        return
+                    }
+                    ImportPasswordDialog.show(this, outcome.kind == ImportException.Kind.WRONG_PASSWORD,
+                            { password -> readImportFile(source, file, password) },
+                            ::finishImportFile)
+                }
+                else -> {
+                    finishImportFile()
+                    showImportFileError(source, outcome.kind)
+                }
+            }
+        }
+    }
+
+    private fun finishImportFile() {
+        importFileSource = null
+        importFileUri = null
+    }
+
+    private fun showImportFileError(source: ImportSource, kind: ImportException.Kind?) {
+        val app = getString(source.label)
+        val message = when (kind) {
+            ImportException.Kind.NOT_THIS_FORMAT -> getString(R.string.import_file_error_not_format, app)
+            ImportException.Kind.DAMAGED -> getString(R.string.import_file_error_damaged, app)
+            ImportException.Kind.ENCRYPTION_UNSUPPORTED -> getString(R.string.import_file_error_encryption, app)
+            ImportException.Kind.EMPTY -> getString(R.string.import_file_error_empty)
+            else -> getString(R.string.import_file_error_unreadable)
+        }
+
+        MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.import_file_error_title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+    }
+
+    /**
+     * Lists what an import would add before anything is added. Accounts already in CometOTP are
+     * listed apart and not counted, so importing the same export a second time does not ask to
+     * "import" accounts that would be left exactly as they are.
+     *
+     * @param onFinished called once the import is done, declined or cancelled
+     */
+    private fun showImportReview(converted: TokenImport.Converted, onFinished: () -> Unit) {
+        val (present, fresh) = converted.entries.partition { adapter.entries.contains(it) }
+
+        val message = StringBuilder()
+        fun section(@StringRes heading: Int, lines: List<String>) {
+            if (lines.isEmpty())
+                return
+            if (message.isNotEmpty())
+                message.append('\n')
+            if (heading != 0)
+                message.append(getString(heading)).append('\n')
+            for (line in lines)
+                message.append("• ").append(line).append('\n')
+        }
+
+        section(0, fresh.map { TokenImport.displayName(it.issuer, it.label ?: "") })
+        // With nothing new the title already says it, so the list needs no heading of its own.
+        section(if (fresh.isEmpty()) 0 else R.string.import_review_present_heading,
+                present.map { TokenImport.displayName(it.issuer, it.label ?: "") })
+        section(if (converted.entries.isEmpty()) R.string.import_review_none_message else R.string.import_review_skipped_heading,
+                converted.skipped.map { it.displayName + " " + getString(skipReasonText(it.reason)) })
+
+        val builder = MaterialAlertDialogBuilder(this)
+                .setMessage(message.toString().trimEnd())
+                .setOnCancelListener { onFinished() }
+
+        when {
+            fresh.isNotEmpty() ->
+                builder.setTitle(resources.getQuantityString(R.plurals.import_review_title, fresh.size, fresh.size))
+                        .setPositiveButton(R.string.import_review_confirm) { _, _ ->
+                            onFinished()
+                            importEntries(fresh)
+                        }
+                        .setNegativeButton(android.R.string.cancel) { _, _ -> onFinished() }
+            present.isNotEmpty() ->
+                builder.setTitle(R.string.import_nothing_new_title)
+                        .setPositiveButton(android.R.string.ok) { _, _ -> onFinished() }
+            else ->
+                builder.setTitle(R.string.import_review_title_none)
+                        .setPositiveButton(android.R.string.ok) { _, _ -> onFinished() }
+        }
+
+        builder.show()
+    }
+
+    private fun importEntries(entries: List<Entry>) {
+        val now = System.currentTimeMillis()
+        for (e in entries) {
+            e.updateOTP(false)
+            e.lastUsed = now
+        }
+
+        val added = adapter.addEntries(entries)
+        refreshTags()
+
+        if (added == 0) {
+            ResultDialog.showSuccess(this, R.drawable.ic_import_accounts,
+                    getString(R.string.import_nothing_new_title), getString(R.string.import_nothing_new_message),
+                    R.string.continue_on, null)
+            return
+        }
+
+        val duplicates = entries.size - added
+        var message = getString(R.string.import_done_message)
+        if (duplicates > 0)
+            message += " " + resources.getQuantityString(R.plurals.import_done_duplicates, duplicates, duplicates)
+
+        ResultDialog.showSuccess(this, R.drawable.ic_import_accounts,
+                resources.getQuantityString(R.plurals.import_done_title, added, added), message,
+                R.string.continue_on, null)
+    }
+
+    private fun skipReasonText(reason: TokenImport.SkipReason): Int = when (reason) {
+        TokenImport.SkipReason.UNSUPPORTED_TYPE -> R.string.import_skip_type
+        TokenImport.SkipReason.UNSUPPORTED_ALGORITHM -> R.string.import_skip_algorithm
+        TokenImport.SkipReason.UNSUPPORTED_DIGITS -> R.string.import_skip_digits
+        TokenImport.SkipReason.UNSUPPORTED_PERIOD -> R.string.import_skip_period
+        TokenImport.SkipReason.EMPTY_SECRET -> R.string.import_skip_secret
+        TokenImport.SkipReason.INVALID_SECRET -> R.string.import_skip_secret_invalid
+    }
+
+    /* ------------------------------------------------------------------------------------------
      * Import from Google Authenticator
      *
      * The codes collect in GoogleAuthImportSession.pending, from the import scanner, from chosen
@@ -1512,89 +1803,10 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         continueGoogleAuthImport()
     }
 
-    /**
-     * Lists what the export would add before anything is added. Accounts already in CometOTP are
-     * listed apart and not counted, so importing an export a second time does not ask to "import"
-     * accounts that would be left exactly as they are.
-     */
+    /** Every code of the export is in: list the accounts, and forget the codes once it is decided. */
     private fun showGoogleAuthImportReview() {
         val session = GoogleAuthImportSession.pending
-        val converted = GoogleAuthMigration.convert(session.accounts)
-        val (present, fresh) = converted.entries.partition { adapter.entries.contains(it) }
-
-        val message = StringBuilder()
-        fun section(@StringRes heading: Int, lines: List<String>) {
-            if (lines.isEmpty())
-                return
-            if (message.isNotEmpty())
-                message.append('\n')
-            if (heading != 0)
-                message.append(getString(heading)).append('\n')
-            for (line in lines)
-                message.append("• ").append(line).append('\n')
-        }
-
-        section(0, fresh.map { GoogleAuthMigration.displayName(it.issuer, it.label ?: "") })
-        // With nothing new the title already says it, so the list needs no heading of its own.
-        section(if (fresh.isEmpty()) 0 else R.string.import_review_present_heading,
-                present.map { GoogleAuthMigration.displayName(it.issuer, it.label ?: "") })
-        section(if (converted.entries.isEmpty()) R.string.import_review_none_message else R.string.import_review_skipped_heading,
-                converted.skipped.map { it.displayName + " " + getString(skipReasonText(it.reason)) })
-
-        val builder = MaterialAlertDialogBuilder(this)
-                .setMessage(message.toString().trimEnd())
-                .setOnCancelListener { session.clear() }
-
-        when {
-            fresh.isNotEmpty() ->
-                builder.setTitle(resources.getQuantityString(R.plurals.import_review_title, fresh.size, fresh.size))
-                        .setPositiveButton(R.string.import_review_confirm) { _, _ -> importGoogleAuthEntries(fresh) }
-                        .setNegativeButton(android.R.string.cancel) { _, _ -> session.clear() }
-            present.isNotEmpty() ->
-                builder.setTitle(R.string.import_nothing_new_title)
-                        .setPositiveButton(android.R.string.ok) { _, _ -> session.clear() }
-            else ->
-                builder.setTitle(R.string.import_review_title_none)
-                        .setPositiveButton(android.R.string.ok) { _, _ -> session.clear() }
-        }
-
-        builder.show()
-    }
-
-    private fun importGoogleAuthEntries(entries: List<Entry>) {
-        GoogleAuthImportSession.pending.clear()
-
-        val now = System.currentTimeMillis()
-        for (e in entries) {
-            e.updateOTP(false)
-            e.lastUsed = now
-        }
-
-        val added = adapter.addEntries(entries)
-        refreshTags()
-
-        if (added == 0) {
-            ResultDialog.showSuccess(this, R.drawable.ic_import_accounts,
-                    getString(R.string.import_nothing_new_title), getString(R.string.import_nothing_new_message),
-                    R.string.continue_on, null)
-            return
-        }
-
-        val duplicates = entries.size - added
-        var message = getString(R.string.import_done_message)
-        if (duplicates > 0)
-            message += " " + resources.getQuantityString(R.plurals.import_done_duplicates, duplicates, duplicates)
-
-        ResultDialog.showSuccess(this, R.drawable.ic_import_accounts,
-                resources.getQuantityString(R.plurals.import_done_title, added, added), message,
-                R.string.continue_on, null)
-    }
-
-    private fun skipReasonText(reason: GoogleAuthMigration.SkipReason): Int = when (reason) {
-        GoogleAuthMigration.SkipReason.UNSUPPORTED_ALGORITHM -> R.string.import_skip_algorithm
-        GoogleAuthMigration.SkipReason.UNSUPPORTED_DIGITS -> R.string.import_skip_digits
-        GoogleAuthMigration.SkipReason.UNSUPPORTED_TYPE -> R.string.import_skip_type
-        GoogleAuthMigration.SkipReason.EMPTY_SECRET -> R.string.import_skip_secret
+        showImportReview(GoogleAuthMigration.convert(session.accounts)) { session.clear() }
     }
 
     private inner class ProcessLifecycleObserver : DefaultLifecycleObserver {
@@ -1748,6 +1960,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         /** Reads chosen images for a Google Authenticator import; outlives a recreated screen. */
         private val importImagesJob = RetainedJob<MainActivity>()
+
+        /** Reads and decodes another app's export file; outlives a recreated screen. */
+        private val importFileJob = RetainedJob<MainActivity>()
+
+        private const val STATE_IMPORT_SOURCE = "importSource"
+        private const val STATE_IMPORT_FILE = "importFile"
 
         @IdRes
         private fun sortModeToId(mode: SortMode): Int {

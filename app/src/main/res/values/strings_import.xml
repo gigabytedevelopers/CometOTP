@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Add sheet -->
-    <string name="button_import_google_auth">Import from Google Authenticator</string>
+    <string name="button_import_tokens">Import tokens</string>
 
-    <!-- Import sheet -->
+    <!-- Import tokens: the apps accounts can be brought across from -->
+    <string name="import_sources_title">Import tokens</string>
+    <string name="import_sources_subtitle">Choose the app your accounts are in now. Each one explains how to get them out.</string>
+    <string name="import_source_google_auth">Google Authenticator</string>
+
+    <!-- Importing from an app's export file -->
+    <string name="import_file_steps_heading">In %1$s</string>
+    <string name="import_file_choose">Choose the export file</string>
+    <string name="import_file_error_title">Couldn\'t read the file</string>
+    <string name="import_file_error_not_format">That isn\'t an export from %1$s. Follow the steps to export your accounts, then choose the file it made.</string>
+    <string name="import_file_error_damaged">The file is incomplete or damaged. Export it from %1$s again and try once more.</string>
+    <string name="import_file_error_encryption">The file is protected in a way CometOTP can\'t open. Export it from %1$s again without a password.</string>
+    <string name="import_file_error_empty">There are no accounts in that file.</string>
+    <string name="import_file_error_unreadable">The file couldn\'t be opened. Choose it again.</string>
+    <string name="import_password_title">Enter the file\'s password</string>
+    <string name="import_password_message">The file is password-protected. Enter the password you set when you exported it.</string>
+    <string name="import_password_hint">Password</string>
+    <string name="import_password_wrong">That password didn\'t open the file</string>
+    <string name="import_password_open">Open</string>
+
+    <!-- Google Authenticator -->
     <string name="import_google_auth_title">Import from Google Authenticator</string>
     <string name="import_google_auth_steps_heading">In Google Authenticator</string>
     <string name="import_google_auth_step_1">Open the menu and tap <b>Transfer accounts</b>, then <b>Export accounts</b>.</string>
@@ -50,17 +70,19 @@
     <string name="import_review_skipped_heading">These can\'t be used in CometOTP and will be left out:</string>
     <string name="import_review_none_message">None of the accounts in this export can be used in CometOTP:</string>
     <string name="import_review_confirm">Import</string>
-    <string name="import_skip_algorithm">uses MD5</string>
+    <string name="import_skip_algorithm">uses an algorithm CometOTP can\'t generate codes with</string>
     <string name="import_skip_digits">uses an unsupported number of digits</string>
+    <string name="import_skip_period">uses an unsupported period</string>
     <string name="import_skip_type">is an unsupported type</string>
     <string name="import_skip_secret">has no secret</string>
+    <string name="import_skip_secret_invalid">has a secret that isn\'t valid</string>
 
     <!-- Outcome -->
     <plurals name="import_done_title">
         <item quantity="one">%d account imported</item>
         <item quantity="other">%d accounts imported</item>
     </plurals>
-    <string name="import_done_message">Your accounts are ready to use. Keep them in Google Authenticator until you have signed in with a code from CometOTP.</string>
+    <string name="import_done_message">Your accounts are ready to use. Keep them in the app they came from until you have signed in with a code from CometOTP.</string>
     <plurals name="import_done_duplicates">
         <item quantity="one">%d was already in CometOTP and was left as it was.</item>
         <item quantity="other">%d were already in CometOTP and were left as they were.</item>
