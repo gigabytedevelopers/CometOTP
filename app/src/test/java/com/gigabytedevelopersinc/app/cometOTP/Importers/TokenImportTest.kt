@@ -128,6 +128,28 @@ class TokenImportTest {
     }
 
     @Test
+    fun readsAKeyAsPasswordManagersStoreOne() {
+        val link = TokenImport.fromKeyText("otpauth://totp/GitHub:bob?secret=JBSWY3DPEE&issuer=GitHub&digits=8", "Item", "user")
+        assertEquals("GitHub", link.issuer)
+        assertEquals("bob", link.label)
+        assertEquals(8, link.digits)
+
+        val bareLink = TokenImport.fromKeyText("otpauth://totp/?secret=JBSWY3DPEE", "Item", "user")
+        assertEquals("Item", bareLink.issuer)
+        assertEquals("user", bareLink.label)
+
+        val secret = TokenImport.fromKeyText(" jbsw y3dp ee ", "Item", "user")
+        assertEquals(Entry.OTPType.TOTP, secret.type)
+        assertArrayEquals("Hello!".toByteArray(), secret.secret)
+        assertEquals("Item", secret.issuer)
+
+        val steam = TokenImport.fromKeyText("steam://JBSWY3DPEE", "Steam", "gamer")
+        assertEquals(Entry.OTPType.STEAM, steam.type)
+        assertEquals(5, steam.digits)
+        assertArrayEquals("Hello!".toByteArray(), steam.secret)
+    }
+
+    @Test
     fun namesAccountsByWhatIsPresent() {
         assertEquals("Issuer (label)", TokenImport.displayName("Issuer", "label"))
         assertEquals("Issuer", TokenImport.displayName("Issuer", ""))

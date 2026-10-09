@@ -83,6 +83,28 @@ object TokenImport {
      * Helpers for reading export fields
      * ------------------------------------------------------------------------------------------ */
 
+    /**
+     * Reads an authenticator key the way password managers store one: an otpauth link, a bare
+     * base32 secret, or `steam://` and a secret. The item's [name] and [username] stand in for
+     * an issuer and label the key does not carry.
+     */
+    fun fromKeyText(text: String, name: String, username: String): ImportedToken {
+        val key = text.trim()
+        if (OtpauthUri.isOtpauthUri(key)) {
+            val token = OtpauthUri.parse(key)!!
+            return ImportedToken(token.type, token.secret,
+                    token.issuer.ifEmpty { name },
+                    token.label.ifEmpty { username },
+                    token.algorithm, token.digits, token.period, token.counter)
+        }
+
+        if (key.startsWith("steam://", ignoreCase = true))
+            return ImportedToken(Entry.OTPType.STEAM, decodeBase32(key.substring("steam://".length)),
+                    name, username, digits = TokenCalculator.STEAM_DEFAULT_DIGITS)
+
+        return ImportedToken(Entry.OTPType.TOTP, decodeBase32(key), name, username)
+    }
+
     /** "Issuer (label)", or whichever of the two is present. */
     fun displayName(issuer: String, label: String): String = when {
         issuer.isNotEmpty() && label.isNotEmpty() -> "$issuer ($label)"

@@ -1,7 +1,6 @@
 @file:Suppress("PackageName")
 package com.gigabytedevelopersinc.app.cometOTP.Importers
 
-import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import org.json.JSONObject
 import java.security.MessageDigest
 import javax.crypto.Cipher
@@ -48,33 +47,11 @@ object BitwardenImport : ImportFormat {
             val totp = if (login.isNull("totp")) "" else login.optString("totp").trim()
             if (totp.isEmpty())
                 continue
-            tokens.add(readKey(totp, item.optString("name").trim(), login.optString("username").trim()))
+            tokens.add(TokenImport.fromKeyText(totp, item.optString("name").trim(), login.optString("username").trim()))
         }
         if (tokens.isEmpty())
             throw ImportException.empty()
         return tokens
-    }
-
-    /* ------------------------------------------------------------------------------------------
-     * Keys
-     * ------------------------------------------------------------------------------------------ */
-
-    /** A login's authenticator key, in whichever of the three forms Bitwarden accepts. */
-    internal fun readKey(totp: String, name: String, username: String): ImportedToken {
-        if (OtpauthUri.isOtpauthUri(totp)) {
-            val token = OtpauthUri.parse(totp)!!
-            // The link may name nothing useful; the item does.
-            return ImportedToken(token.type, token.secret,
-                    token.issuer.ifEmpty { name },
-                    token.label.ifEmpty { username },
-                    token.algorithm, token.digits, token.period, token.counter)
-        }
-
-        if (totp.startsWith("steam://", ignoreCase = true))
-            return ImportedToken(Entry.OTPType.STEAM, TokenImport.decodeBase32(totp.substring("steam://".length)),
-                    name, username, digits = 5)
-
-        return ImportedToken(Entry.OTPType.TOTP, TokenImport.decodeBase32(totp), name, username)
     }
 
     /* ------------------------------------------------------------------------------------------
@@ -97,7 +74,7 @@ object BitwardenImport : ImportFormat {
             val totp = row.getOrNull(totpColumn)?.trim() ?: ""
             if (totp.isEmpty())
                 continue
-            tokens.add(readKey(totp, row.getOrNull(nameColumn)?.trim() ?: "", row.getOrNull(userColumn)?.trim() ?: ""))
+            tokens.add(TokenImport.fromKeyText(totp, row.getOrNull(nameColumn)?.trim() ?: "", row.getOrNull(userColumn)?.trim() ?: ""))
         }
         if (tokens.isEmpty())
             throw ImportException.empty()
