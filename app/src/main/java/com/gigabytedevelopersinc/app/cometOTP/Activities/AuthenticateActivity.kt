@@ -36,6 +36,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.View.AutoFillable.AutoFillableTextInputEditText
+import com.gigabytedevelopersinc.app.cometOTP.View.PinInput
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import java.io.File
@@ -53,6 +54,11 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     internal lateinit var passwordInput: AutoFillableTextInputEditText
     private lateinit var unlockButton: Button
     private lateinit var unlockProgress: ProgressBar
+
+    /* A PIN is typed on a keypad instead of the password field above. */
+    private lateinit var pinInput: PinInput
+    /** How many digits the PIN being checked has, to store when its length is not known yet. */
+    private var submittedPinLength = 0
 
     /* Setting up a missing credential, see UnlockAction.SET_UP_CREDENTIAL. */
     private var settingUpCredential = false
@@ -124,7 +130,11 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
         ProcessLifecycleOwner.get().lifecycle
             .addObserver(observer)
 
-        window.setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        // The keypad replaces the keyboard for a PIN.
+        window.setSoftInputMode(
+            if (::pinInput.isInitialized) LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+            else LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+        )
 
         // Predictive back: onBackPressed() is no longer invoked when targeting Android 16+.
         // Leaving the screen without authenticating reports a cancelled result to the caller.
@@ -235,14 +245,39 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     }
 
     private fun initPasswordViews() {
+        val isPin = authMethod == AuthMethod.PIN
         val stub = findViewById<ViewStub>(R.id.container_stub)
-        stub.layoutResource = R.layout.content_authenticate
+        stub.layoutResource = if (isPin) R.layout.content_authenticate_pin else R.layout.content_authenticate
         val v = stub.inflate()
 
         initPasswordLabelView(v)
+        if (isPin) {
+            initPinViews(v)
+            return
+        }
         initPasswordLayoutView(v)
         initPasswordInputView(v)
         initUnlockViews(v)
+    }
+
+    private fun initPinViews(v: View) {
+        pinInput = PinInput(v.findViewById(R.id.pinPad), v.findViewById(R.id.pinDots))
+        // Without a stored length (a PIN set up before it was stored) the user confirms with OK.
+        val length = settings.pinLength
+        val minLength = if (length != null) minOf(length, Constants.AUTH_MIN_PIN_LENGTH) else Constants.AUTH_MIN_PIN_LENGTH
+        pinInput.setLength(length, minLength, Constants.AUTH_MAX_ENTERED_PIN_LENGTH)
+        if (settings.blockAccessibility)
+            pinInput.blockAccessibility()
+        pinInput.onSubmit = { pin ->
+            submittedPinLength = pin.length
+            startAuthTask(pin)
+        }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (::pinInput.isInitialized && pinInput.handleKey(keyCode, event))
+            return true
+        return super.onKeyDown(keyCode, event)
     }
 
     private fun initPasswordLabelView(v: View) {
@@ -357,6 +392,10 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     }
 
     private fun resetPasswordInput() {
+        if (::pinInput.isInitialized) {
+            pinInput.clear()
+            return
+        }
         passwordInput.setText("")
         passwordInput.requestFocus()
         val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -368,6 +407,10 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     }
 
     private fun setupUiForTaskState(isTaskRunning: Boolean) {
+        if (::pinInput.isInitialized) {
+            pinInput.setBusy(isTaskRunning)
+            return
+        }
         passwordLayout.isEnabled = !isTaskRunning
         passwordInput.isEnabled = !isTaskRunning
         val text = passwordInput.text
@@ -416,7 +459,11 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
         // upgraded on the next unlock; turning the user away would keep them out for as long as
         // the upgrade keeps failing. Old-style credentials only exist with KeyStore encryption,
         // so no key is needed from them.
-        finishWithResult(result.encryptionKey != null || result.authUpgradeFailed, result.encryptionKey)
+        val success = result.encryptionKey != null || result.authUpgradeFailed
+        // A PIN of unknown length unlocks as soon as it is typed from now on.
+        if (success && ::pinInput.isInitialized && settings.pinLength == null && !result.authUpgradeFailed)
+            settings.pinLength = submittedPinLength
+        finishWithResult(success, result.encryptionKey)
     }
 
     private fun finishWithResult(success: Boolean, encryptionKey: ByteArray?) {

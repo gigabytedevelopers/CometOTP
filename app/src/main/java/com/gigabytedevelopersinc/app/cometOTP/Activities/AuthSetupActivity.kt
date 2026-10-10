@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewStub
 import android.view.WindowManager
@@ -19,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
+import com.gigabytedevelopersinc.app.cometOTP.View.PinInput
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -31,6 +33,10 @@ import com.google.android.material.textfield.TextInputLayout
  * the first entry is kept in memory only ([FirstEntry]), so the confirmation step survives a
  * configuration change (rotation, dark mode, window resize) but starts over at the first step
  * after the process was killed, and the input field does not save its text.
+ *
+ * A PIN is typed on a keypad. The first entry takes [Constants.AUTH_MIN_PIN_LENGTH] to
+ * [Constants.AUTH_MAX_PIN_LENGTH] digits and is confirmed with the keypad's OK key; the second is
+ * checked as soon as it has as many digits as the first.
  */
 class AuthSetupActivity : BaseActivity() {
     private var method = Constants.AuthMethod.PASSWORD
@@ -45,9 +51,15 @@ class AuthSetupActivity : BaseActivity() {
 
     private lateinit var title: TextView
     private lateinit var hint: TextView
+
+    /* Password */
     private lateinit var layout: TextInputLayout
     private lateinit var input: TextInputEditText
     private lateinit var continueButton: MaterialButton
+
+    /* PIN */
+    private lateinit var pinInput: PinInput
+    private lateinit var pinError: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,20 +80,25 @@ class AuthSetupActivity : BaseActivity() {
         setSupportActionBar(toolbar)
 
         val stub = findViewById<ViewStub>(R.id.container_stub)
-        stub.layoutResource = R.layout.content_auth_setup
+        stub.layoutResource = if (isPin) R.layout.content_auth_setup_pin else R.layout.content_auth_setup
         val v = stub.inflate()
 
         title = v.findViewById(R.id.setupTitle)
         hint = v.findViewById(R.id.setupHint)
+        entry = ViewModelProvider(this)[FirstEntry::class.java]
+        initBackNavigation()
+
+        if (isPin) {
+            initPinViews(v)
+            return
+        }
+
         layout = v.findViewById(R.id.setupLayout)
         input = v.findViewById(R.id.setupInput)
         continueButton = v.findViewById(R.id.setupContinue)
 
-        input.inputType = if (isPin)
-            (InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD)
-        else
-            (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
-        input.setHint(if (isPin) R.string.auth_hint_pin else R.string.auth_hint_password)
+        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        input.setHint(R.string.auth_hint_password)
 
         // The field would otherwise save the password typed so far in the instance state.
         input.isSaveEnabled = false
@@ -91,7 +108,6 @@ class AuthSetupActivity : BaseActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && settings.blockAutofill)
             layout.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
 
-        entry = ViewModelProvider(this)[FirstEntry::class.java]
         showStep()
 
         input.addTextChangedListener(object : TextWatcher {
@@ -115,6 +131,29 @@ class AuthSetupActivity : BaseActivity() {
         }
         continueButton.setOnClickListener { onContinue() }
 
+        input.requestFocus()
+        UIHelper.showKeyboard(this, input)
+    }
+
+    private fun initPinViews(v: View) {
+        pinInput = PinInput(v.findViewById(R.id.pinPad), v.findViewById(R.id.pinDots))
+        pinError = v.findViewById(R.id.setupError)
+        if (settings.blockAccessibility)
+            pinInput.blockAccessibility()
+        pinInput.onSubmit = ::onPinEntered
+        // The error stays until the user starts typing the PIN again.
+        pinInput.onChanged = { pinError.text = null }
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        showStep()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (::pinInput.isInitialized && pinInput.handleKey(keyCode, event))
+            return true
+        return super.onKeyDown(keyCode, event)
+    }
+
+    private fun initBackNavigation() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (firstEntry != null) {
@@ -126,9 +165,6 @@ class AuthSetupActivity : BaseActivity() {
                 }
             }
         })
-
-        input.requestFocus()
-        UIHelper.showKeyboard(this, input)
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -146,6 +182,12 @@ class AuthSetupActivity : BaseActivity() {
         } else {
             title.setText(if (isPin) R.string.security_setup_enter_pin else R.string.security_setup_enter_password)
             hint.text = getString(if (isPin) R.string.security_setup_hint_pin else R.string.security_setup_hint_password, minLength)
+        }
+
+        if (isPin) {
+            // The confirmation has as many digits as the first entry and is checked once typed.
+            pinInput.setLength(firstEntry?.length, minLength, Constants.AUTH_MAX_PIN_LENGTH)
+            return
         }
 
         input.setText("")
@@ -174,6 +216,31 @@ class AuthSetupActivity : BaseActivity() {
         }
 
         UIHelper.hideKeyboard(this, input)
+        finishWithCredential(value)
+    }
+
+    private fun onPinEntered(pin: String) {
+        val first = firstEntry
+        if (first == null) {
+            firstEntry = pin
+            showStep()
+            return
+        }
+
+        if (first != pin) {
+            // Shake the confirmation, then start over at the first entry.
+            firstEntry = null
+            pinInput.showError {
+                showStep()
+                pinError.setText(R.string.security_setup_mismatch)
+            }
+            return
+        }
+
+        finishWithCredential(pin)
+    }
+
+    private fun finishWithCredential(value: String) {
         val data = Intent()
         data.putExtra(EXTRA_RESULT_CREDENTIAL, value)
         data.putExtra(EXTRA_METHOD, method.name)

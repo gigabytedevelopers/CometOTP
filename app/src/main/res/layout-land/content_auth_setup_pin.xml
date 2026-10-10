@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Setting up a PIN in landscape: the title and dots beside the keypad. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_lg"
+    android:paddingEnd="@dimen/space_lg"
+    android:paddingBottom="@dimen/space_md">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/setupTitle"
+            android:accessibilityLiveRegion="polite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/security_setup_enter_pin"
+            android:textAppearance="@style/TextAppearance.Comet.TitleMedium"
+            android:textColor="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/setupHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Comet.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <com.gigabytedevelopersinc.app.cometOTP.View.PinDotsView
+            android:id="@+id/pinDots"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl" />
+
+        <!-- Why the PIN has to be entered again; keeps its line so the layout does not jump. -->
+        <TextView
+            android:id="@+id/setupError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:accessibilityLiveRegion="assertive"
+            android:gravity="center"
+            android:minLines="2"
+            android:textAppearance="@style/TextAppearance.Comet.BodySmall"
+            android:textColor="?attr/colorError" />
+
+    </LinearLayout>
+
+    <com.gigabytedevelopersinc.app.cometOTP.View.PinPadView
+        android:id="@+id/pinPad"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+</LinearLayout>
