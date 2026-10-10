@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
+import android.os.SystemClock
 import android.preference.PreferenceManager
 import android.util.Base64
 import com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference
@@ -158,6 +159,8 @@ class Settings(private val context: Context) {
         val authSalt = this.salt
         val authIterations = this.iterations
         val pinLength = getString(R.string.settings_key_auth_pin_length, "")
+        val authFailures = this.authFailures
+        val authLockout = getString(R.string.settings_key_auth_lockout, "")
 
         val warningShown = this.firstTimeWarningShown
 
@@ -174,6 +177,11 @@ class Settings(private val context: Context) {
                 editor.putInt(getResString(R.string.settings_key_auth_iterations), authIterations)
                 if (pinLength.isNotEmpty())
                     editor.putString(getResString(R.string.settings_key_auth_pin_length), pinLength)
+                // Resetting the settings must not reset how long guessing the credentials is locked.
+                if (authFailures > 0)
+                    editor.putInt(getResString(R.string.settings_key_auth_failures), authFailures)
+                if (authLockout.isNotEmpty())
+                    editor.putString(getResString(R.string.settings_key_auth_lockout), authLockout)
 
                 val encodedSalt = Base64.encodeToString(authSalt, Base64.URL_SAFE)
                 editor.putString(getResString(R.string.settings_key_auth_salt), encodedSalt)
@@ -245,6 +253,65 @@ class Settings(private val context: Context) {
             else
                 remove(R.string.settings_key_auth_pin_length)
         }
+
+    /** Wrong passwords or PINs in a row since the last unlock, see [UnlockThrottle]. */
+    val authFailures: Int
+        get() = getIntValue(R.string.settings_key_auth_failures, 0)
+
+    /**
+     * Counts an unlock attempt as wrong before it is checked, and locks the unlock screen as a
+     * wrong attempt would: closing the app while the attempt is checked then gives no free try.
+     * [resetAuthFailures] takes it back once the attempt turns out right. Returns the count.
+     */
+    @SuppressLint("ApplySharedPref")
+    fun recordAuthAttempt(): Int {
+        val failures = authFailures + 1
+        val editor = settings.edit()
+            .putInt(getResString(R.string.settings_key_auth_failures), failures)
+        putAuthLockout(editor, UnlockThrottle.lockoutAfter(failures))
+        editor.commit()
+        return failures
+    }
+
+    /** Starts the lockout of the last attempt over from now, once it is known to be wrong. */
+    @SuppressLint("ApplySharedPref")
+    fun restartAuthLockout() {
+        val editor = settings.edit()
+        putAuthLockout(editor, UnlockThrottle.lockoutAfter(authFailures))
+        editor.commit()
+    }
+
+    /** After a successful unlock. */
+    @SuppressLint("ApplySharedPref")
+    fun resetAuthFailures() {
+        settings.edit()
+            .remove(getResString(R.string.settings_key_auth_failures))
+            .remove(getResString(R.string.settings_key_auth_lockout))
+            .commit()
+    }
+
+    /** How much longer the unlock screen is locked after wrong attempts, in milliseconds. */
+    fun authLockoutRemaining(): Long {
+        val stored = decodeLockout(getString(R.string.settings_key_auth_lockout, "")) ?: return 0
+        val now = SystemClock.elapsedRealtime()
+        val current = lockoutAt(stored, bootCount(), now)
+        if (current != stored)
+            setString(R.string.settings_key_auth_lockout, encodeLockout(current))
+        return remainingLockout(current, now)
+    }
+
+    private fun putAuthLockout(editor: SharedPreferences.Editor, duration: Long) {
+        val key = getResString(R.string.settings_key_auth_lockout)
+        if (duration > 0)
+            editor.putString(key, encodeLockout(Lockout(bootCount(), SystemClock.elapsedRealtime() + duration, duration)))
+        else
+            editor.remove(key)
+    }
+
+    /** Which boot this is, telling elapsed-realtime clocks apart; -1 where the system does not say. */
+    private fun bootCount(): Int {
+        return android.provider.Settings.Global.getInt(context.contentResolver, android.provider.Settings.Global.BOOT_COUNT, -1)
+    }
 
     /**
      * Credentials derived from a new password or PIN by [generateAuthCredentials]. [key] is the
@@ -829,4 +896,20 @@ internal fun decodePinLength(stored: String, credentials: String): Int? {
     if (parts.size != 2 || parts[1] != credentials.trim().hashCode().toString())
         return null
     return parts[0].toIntOrNull()?.takeIf { it > 0 }
+}
+
+/** A [Lockout] as stored: "boot:end:duration". */
+internal fun encodeLockout(lockout: Lockout): String {
+    return "${lockout.boot}:${lockout.endsAt}:${lockout.duration}"
+}
+
+/** The lockout [encodeLockout] stored, or null if there is none or it is not valid. */
+internal fun decodeLockout(stored: String): Lockout? {
+    val parts = stored.split(':')
+    if (parts.size != 3)
+        return null
+    val boot = parts[0].toIntOrNull() ?: return null
+    val endsAt = parts[1].toLongOrNull() ?: return null
+    val duration = parts[2].toLongOrNull()?.takeIf { it > 0 } ?: return null
+    return Lockout(boot, endsAt, duration)
 }

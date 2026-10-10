@@ -13,6 +13,8 @@
     <string name="settings_key_auth_credentials" translatable="false">pref_auth_credentials</string>
     <string name="settings_key_auth_iterations" translatable="false">pref_auth_iterations</string>
     <string name="settings_key_auth_pin_length" translatable="false">pref_auth_pin_length</string>
+    <string name="settings_key_auth_failures" translatable="false">pref_auth_failures</string>
+    <string name="settings_key_auth_lockout" translatable="false">pref_auth_lockout</string>
     <string name="settings_key_auth_salt" translatable="false">pref_auth_salt</string>
     <string name="settings_key_encryption" translatable="false">pref_encryption</string>
     <string name="settings_key_panic" translatable="false">pref_panic</string>
