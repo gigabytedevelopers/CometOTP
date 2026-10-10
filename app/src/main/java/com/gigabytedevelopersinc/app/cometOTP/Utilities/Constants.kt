@@ -87,6 +87,10 @@ object Constants {
 
     // Authentication
     const val AUTH_MIN_PIN_LENGTH        = 4
+    // The longest PIN the keypad lets you set up (Android's own lock screen allows 16 too).
+    const val AUTH_MAX_PIN_LENGTH        = 16
+    // Unlocking a PIN of unknown length (set before its length was stored) accepts this many digits.
+    const val AUTH_MAX_ENTERED_PIN_LENGTH = 64
     const val AUTH_MIN_PASSWORD_LENGTH   = 6
 
     // KeyStore

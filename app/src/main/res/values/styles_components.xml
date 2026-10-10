@@ -80,6 +80,11 @@
         <item name="android:letterSpacing">0.08</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
+    <style name="TextAppearance.Comet.PinKey" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="fontFamily">@font/inter_light</item>
+        <item name="android:fontFamily">@font/inter_light</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
     <style name="TextAppearance.Comet.Caption" parent="TextAppearance.Comet.BodySmall">
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
@@ -201,6 +206,28 @@
         <item name="iconGravity">textStart</item>
         <item name="iconTint">?attr/colorOnSurface</item>
         <item name="iconSize">@dimen/icon_size</item>
+    </style>
+
+    <!-- Keys of the PIN keypad (PinPadView), which sizes them: round, borderless, large digits. -->
+    <style name="Widget.Comet.PinKey" parent="Widget.Comet.Button.Text">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.PinKey</item>
+        <item name="android:textSize">@dimen/pin_key_text_size</item>
+        <item name="android:textColor">@color/pin_key_text</item>
+        <item name="iconTint">@color/pin_key_text</item>
+    </style>
+
+    <style name="Widget.Comet.PinKey.Icon">
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconSize">@dimen/pin_key_icon_size</item>
     </style>
 
     <!--

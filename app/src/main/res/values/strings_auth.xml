@@ -19,6 +19,19 @@
     <string name="auth_button_unlock">Unlock</string>
     <string name="auth_button_confirm">Confirm</string>
 
+    <!-- PIN keypad -->
+    <string name="auth_pin_key_backspace">Delete</string>
+    <string name="auth_pin_key_clear">Clear PIN</string>
+    <string name="auth_pin_key_confirm">OK</string>
+    <plurals name="auth_pin_dots_progress">
+        <item quantity="one">%1$d of %2$d digit entered</item>
+        <item quantity="other">%1$d of %2$d digits entered</item>
+    </plurals>
+    <plurals name="auth_pin_dots_count">
+        <item quantity="one">%1$d digit entered</item>
+        <item quantity="other">%1$d digits entered</item>
+    </plurals>
+
     <!-- Toast messages -->
     <string name="auth_toast_password_missing">Please set a password in the <b>Settings</b>!</string>
     <string name="auth_toast_pin_missing">Please set a PIN in the <b>Settings</b>!</string>

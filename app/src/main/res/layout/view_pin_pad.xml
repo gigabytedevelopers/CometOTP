@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The keys of PinPadView, in grid order: three per row, the action key left of 0. -->
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="HardcodedText"
+    tools:parentTag="com.gigabytedevelopersinc.app.cometOTP.View.PinPadView">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey1"
+        style="@style/Widget.Comet.PinKey"
+        android:text="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey2"
+        style="@style/Widget.Comet.PinKey"
+        android:text="2" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey3"
+        style="@style/Widget.Comet.PinKey"
+        android:text="3" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey4"
+        style="@style/Widget.Comet.PinKey"
+        android:text="4" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey5"
+        style="@style/Widget.Comet.PinKey"
+        android:text="5" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey6"
+        style="@style/Widget.Comet.PinKey"
+        android:text="6" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey7"
+        style="@style/Widget.Comet.PinKey"
+        android:text="7" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey8"
+        style="@style/Widget.Comet.PinKey"
+        android:text="8" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey9"
+        style="@style/Widget.Comet.PinKey"
+        android:text="9" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKeyAction"
+        style="@style/Widget.Comet.PinKey.Icon"
+        android:contentDescription="@string/auth_pin_key_confirm"
+        android:visibility="invisible"
+        app:icon="@drawable/ic_check" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey0"
+        style="@style/Widget.Comet.PinKey"
+        android:text="0" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKeyBackspace"
+        style="@style/Widget.Comet.PinKey.Icon"
+        android:contentDescription="@string/auth_pin_key_backspace"
+        app:icon="@drawable/ic_backspace" />
+
+</merge>

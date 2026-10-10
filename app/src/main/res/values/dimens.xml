@@ -36,6 +36,16 @@
     <dimen name="bar_icon_margin">12dp</dimen><!-- puts each glyph 36dp from the screen edge -->
     <dimen name="bar_icon_gap">5dp</dimen>
     <dimen name="fab_size">64dp</dimen>
+    <!-- PIN keypad (PinPadView) and dots (PinDotsView); the keypad shrinks its keys to fit. -->
+    <dimen name="pin_key_cell_width">96dp</dimen>
+    <dimen name="pin_key_cell_height">80dp</dimen>
+    <dimen name="pin_key_gap">8dp</dimen>
+    <dimen name="pin_key_text_size">32sp</dimen>
+    <dimen name="pin_key_icon_size">28dp</dimen>
+    <dimen name="pin_dot_size">14dp</dimen>
+    <dimen name="pin_dot_gap">18dp</dimen>
+    <dimen name="pin_dot_stroke">1.5dp</dimen>
+    <dimen name="pin_dot_shake">12dp</dimen>
     <dimen name="fab_notch_gap">6dp</dimen>
     <dimen name="fab_notch_radius">38dp</dimen>
     <dimen name="countdown_size">28dp</dimen>
