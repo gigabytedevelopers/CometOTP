@@ -157,6 +157,7 @@ class Settings(private val context: Context) {
         val authCredentials = this.authCredentials
         val authSalt = this.salt
         val authIterations = this.iterations
+        val pinLength = getString(R.string.settings_key_auth_pin_length, "")
 
         val warningShown = this.firstTimeWarningShown
 
@@ -171,6 +172,8 @@ class Settings(private val context: Context) {
             if (authCredentials.isNotEmpty()) {
                 editor.putString(getResString(R.string.settings_key_auth_credentials), authCredentials)
                 editor.putInt(getResString(R.string.settings_key_auth_iterations), authIterations)
+                if (pinLength.isNotEmpty())
+                    editor.putString(getResString(R.string.settings_key_auth_pin_length), pinLength)
 
                 val encodedSalt = Base64.encodeToString(authSalt, Base64.URL_SAFE)
                 editor.putString(getResString(R.string.settings_key_auth_salt), encodedSalt)
@@ -227,13 +230,32 @@ class Settings(private val context: Context) {
         get() = getString(R.string.settings_key_auth_credentials, "")
 
     /**
+     * How many digits the stored PIN has, so the keypad can unlock as soon as they are typed; null
+     * when unknown (a PIN stored before its length was), or when the credentials are a password's.
+     *
+     * The length is stored for the credentials it was stored with, and is unknown again once they
+     * change without it (say, by a version of the app that stored no length). A wrong length would
+     * have the keypad check every PIN at that length and never accept the right one.
+     */
+    var pinLength: Int?
+        get() = decodePinLength(getString(R.string.settings_key_auth_pin_length, ""), authCredentials)
+        set(value) {
+            if (value != null && value > 0 && authCredentials.isNotEmpty())
+                setString(R.string.settings_key_auth_pin_length, encodePinLength(value, authCredentials))
+            else
+                remove(R.string.settings_key_auth_pin_length)
+        }
+
+    /**
      * Credentials derived from a new password or PIN by [generateAuthCredentials]. [key] is the
      * database key they derive (password encryption); nothing is stored until [saveAuthCredentials].
      */
     class NewAuthCredentials internal constructor(
         val key: ByteArray,
         internal val password: String,
-        internal val iterations: Int
+        internal val iterations: Int,
+        /** How many characters the password or PIN has; 0 if unknown. */
+        internal val length: Int = 0
     )
 
     /** Derives credentials from [plainPassword] (PBKDF2, slow) without storing them; null on failure. */
@@ -243,7 +265,7 @@ class Settings(private val context: Context) {
             val credentials = EncryptionHelper.generatePBKDF2Credentials(plainPassword, salt, iterations)
             val password = Base64.encodeToString(credentials.password, Base64.URL_SAFE)
 
-            return NewAuthCredentials(credentials.key!!, password, iterations)
+            return NewAuthCredentials(credentials.key!!, password, iterations, plainPassword.length)
         } catch (e: NoSuchAlgorithmException) {
             e.printStackTrace()
         } catch (e: InvalidKeySpecException) {
@@ -268,13 +290,21 @@ class Settings(private val context: Context) {
         if (method != null)
             editor.putString(getResString(R.string.settings_key_auth), method.name.lowercase(Locale.ROOT))
 
+        // The length of a PIN goes with the PIN, so a new password never keeps an old PIN's length.
+        val pinLength = pinLengthToStore(method ?: authMethod, credentials.length)
+        val pinLengthKey = getResString(R.string.settings_key_auth_pin_length)
+        if (pinLength != null)
+            editor.putString(pinLengthKey, encodePinLength(pinLength, credentials.password))
+        else
+            editor.remove(pinLengthKey)
+
         return editor.commit()
     }
 
     /** What [saveAuthCredentials] overwrites, to be put back with [restoreValues]. */
     fun storedAuthCredentials(): Map<String, Any?> {
         return storedValues(R.string.settings_key_auth_iterations, R.string.settings_key_auth_credentials,
-            R.string.settings_key_auth)
+            R.string.settings_key_auth, R.string.settings_key_auth_pin_length)
     }
 
     /**
@@ -775,4 +805,28 @@ class Settings(private val context: Context) {
     companion object {
         const val DEFAULT_DRIVE_FOLDER_NAME = "CometOTP Backups"
     }
+}
+
+/** The PIN length [Settings.saveAuthCredentials] stores for a credential of [length] characters. */
+internal fun pinLengthToStore(method: AuthMethod, length: Int): Int? {
+    return if (method == AuthMethod.PIN && length > 0) length else null
+}
+
+/**
+ * A PIN length as stored for [credentials] (the stored hash): "length:hash code of the hash". The
+ * hash is Base64 with a line break at the end, which comes back from the preferences file with
+ * more whitespace around it, so it is compared without.
+ */
+internal fun encodePinLength(length: Int, credentials: String): String {
+    return "$length:${credentials.trim().hashCode()}"
+}
+
+/** The length [encodePinLength] stored, or null if it was stored for other [credentials] or is not valid. */
+internal fun decodePinLength(stored: String, credentials: String): Int? {
+    if (credentials.isBlank())
+        return null
+    val parts = stored.split(':')
+    if (parts.size != 2 || parts[1] != credentials.trim().hashCode().toString())
+        return null
+    return parts[0].toIntOrNull()?.takeIf { it > 0 }
 }
