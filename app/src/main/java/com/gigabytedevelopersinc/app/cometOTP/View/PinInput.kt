@@ -57,6 +57,11 @@ class PinInput(private val pad: PinPadView, private val dots: PinDotsView) {
             update()
     }
 
+    /** Turns the keypad on or off, e.g. off while wrong attempts lock the screen. */
+    fun setEnabled(enabled: Boolean) {
+        pad.isEnabled = enabled
+    }
+
     /** Shakes the dots in the error colour, then clears them and runs [onEnd]. */
     fun showError(onEnd: () -> Unit = {}) {
         entry.clear()

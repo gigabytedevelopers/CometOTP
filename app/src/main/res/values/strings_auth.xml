@@ -32,6 +32,25 @@
         <item quantity="other">%1$d digits entered</item>
     </plurals>
 
+    <!-- Wrong passwords and PINs, see UnlockThrottle -->
+    <string name="auth_error_wrong_pin">Wrong PIN</string>
+    <string name="auth_error_wrong_password">Wrong password</string>
+    <plurals name="auth_status_attempts_left">
+        <item quantity="one">%d attempt left</item>
+        <item quantity="other">%d attempts left</item>
+    </plurals>
+    <string name="auth_status_next_lockout_pin">Another wrong PIN locks CometOTP for %s</string>
+    <string name="auth_status_next_lockout_password">Another wrong password locks CometOTP for %s</string>
+    <string name="auth_status_locked">Too many wrong attempts. Try again in %s</string>
+    <plurals name="auth_duration_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="auth_duration_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
     <!-- Toast messages -->
     <string name="auth_toast_password_missing">Please set a password in the <b>Settings</b>!</string>
     <string name="auth_toast_pin_missing">Please set a PIN in the <b>Settings</b>!</string>

@@ -42,6 +42,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xl" />
 
+        <!-- Wrong attempts and lockouts, see AuthenticateActivity.showUnlockStatus(). -->
+        <TextView
+            android:id="@+id/authStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:gravity="center"
+            android:minLines="2"
+            android:textAppearance="@style/TextAppearance.Comet.BodySmall"
+            android:textColor="?attr/colorError" />
+
     </LinearLayout>
 
     <com.gigabytedevelopersinc.app.cometOTP.View.PinPadView
