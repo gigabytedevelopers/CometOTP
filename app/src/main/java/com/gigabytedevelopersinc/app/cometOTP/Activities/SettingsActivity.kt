@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.preference.CheckBoxPreference
-import android.preference.EditTextPreference
 import android.preference.ListPreference
 import android.preference.Preference
 import android.preference.PreferenceCategory
@@ -35,6 +34,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
+import com.gigabytedevelopersinc.app.cometOTP.Preferences.TextFieldPreference
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper
@@ -564,7 +564,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
         internal var useAutoBackup: ListPreference? = null
         internal var useAndroidSync: CheckBoxPreference? = null
 
-        internal var pgpEncryptionKey: EditTextPreference? = null
+        internal var pgpEncryptionKey: TextFieldPreference? = null
         internal var pgpSigningKey: OpenPgpKeyPreference? = null
         internal var themeBlack: CheckBoxPreference? = null
 
@@ -726,7 +726,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
             // OpenPGP
             val pgpProvider = findPreference(getString(R.string.settings_key_openpgp_provider)) as OpenPgpAppPreference
-            pgpEncryptionKey = findPreference(getString(R.string.settings_key_openpgp_key_encrypt)) as EditTextPreference?
+            pgpEncryptionKey = findPreference(getString(R.string.settings_key_openpgp_key_encrypt)) as TextFieldPreference?
             pgpSigningKey = findPreference(getString(R.string.settings_key_openpgp_key_sign)) as OpenPgpKeyPreference?
 
             pgpSigningKey!!.setOpenPgpProvider(pgpProvider.value)

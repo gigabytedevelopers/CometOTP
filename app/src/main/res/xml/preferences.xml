@@ -303,9 +303,11 @@
             android:key="@string/settings_key_openpgp_provider"
             android:title="@string/settings_title_openpgp_provider" />
 
-        <EditTextPreference
+        <com.gigabytedevelopersinc.app.cometOTP.Preferences.TextFieldPreference
             android:key="@string/settings_key_openpgp_key_encrypt"
             android:title="@string/settings_title_openpgp_key_encrypt"
+            android:hint="@string/settings_hint_openpgp_key_encrypt"
+            android:inputType="textEmailAddress"
             android:summary="@string/settings_desc_openpgp_key_encrypt"
             android:enabled="false" />
 

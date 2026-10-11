@@ -47,6 +47,7 @@ import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.ItemTouchHelp
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputLayout
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import java.lang.ref.WeakReference
@@ -690,18 +691,12 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     private fun setCounter(pos: Int) {
         val builder = MaterialAlertDialogBuilder(context)
 
-        val marginSmall = context.resources.getDimensionPixelSize(R.dimen.activity_margin_small)
-        val marginMedium = context.resources.getDimensionPixelSize(R.dimen.activity_margin_medium)
-
-        val input = EditText(context)
-        input.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        input.setText(String.format(Locale.ENGLISH, "%d", displayedEntries[pos].counter))
+        // Inflated in the dialog's theme, so the field has the app's field style.
+        val container = LayoutInflater.from(builder.context).inflate(R.layout.dialog_text_field, null)
+        container.findViewById<TextInputLayout>(R.id.dialog_field_layout).hint = context.getString(R.string.label_counter)
+        val input = container.findViewById<EditText>(R.id.dialog_field)
         input.inputType = InputType.TYPE_CLASS_NUMBER
-        input.setSingleLine()
-
-        val container = FrameLayout(context)
-        container.setPaddingRelative(marginMedium, marginSmall, marginMedium, 0)
-        container.addView(input)
+        input.setText(String.format(Locale.ENGLISH, "%d", displayedEntries[pos].counter))
 
         val dialog = builder.setTitle(R.string.dialog_title_counter)
                 .setView(container)
@@ -808,21 +803,17 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     fun establishPIN(pos: Int) {
         val builder = MaterialAlertDialogBuilder(context)
 
-        val marginSmall = context.resources.getDimensionPixelSize(R.dimen.activity_margin_small)
-        val marginMedium = context.resources.getDimensionPixelSize(R.dimen.activity_margin_medium)
-
-        val input = EditText(context)
-        input.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        // Inflated in the dialog's theme, so the field has the app's field style.
+        val container = LayoutInflater.from(builder.context).inflate(R.layout.dialog_text_field, null)
+        val fieldLayout = container.findViewById<TextInputLayout>(R.id.dialog_field_layout)
+        fieldLayout.hint = context.getString(R.string.dialog_title_pin)
+        val input = container.findViewById<EditText>(R.id.dialog_field)
         input.setRawInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD or InputType.TYPE_CLASS_NUMBER)
-        input.setText(displayedEntries[pos].pin)
-        input.setSingleLine()
-        input.requestFocus()
         input.transformationMethod = PasswordTransformationMethod()
+        fieldLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+        input.setText(displayedEntries[pos].pin)
+        input.requestFocus()
         UIHelper.showKeyboard(context, input, true)
-
-        val container = FrameLayout(context)
-        container.setPaddingRelative(marginMedium, marginSmall, marginMedium, 0)
-        container.addView(input)
 
         builder.setTitle(R.string.dialog_title_pin)
                 .setCancelable(false)

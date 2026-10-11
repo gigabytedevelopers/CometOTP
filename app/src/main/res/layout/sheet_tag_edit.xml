@@ -60,9 +60,9 @@
     <LinearLayout
         android:id="@+id/tag_color_row"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="56dp"
         android:layout_marginTop="@dimen/sheet_field_gap"
-        android:background="@drawable/bg_pill_field"
+        android:background="@drawable/bg_field_outline"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_vertical"

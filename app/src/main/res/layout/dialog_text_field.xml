@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One labelled field in a dialog: a card's counter or mOTP PIN (EntriesCardAdapter). The
+     caller sets the label, the input type and the text. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/sheet_side_padding"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingEnd="@dimen/sheet_side_padding">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dialog_field_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/dialog_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</FrameLayout>

@@ -33,20 +33,24 @@
 
     </FrameLayout>
 
-    <EditText
-        android:id="@+id/thumbnail_search"
-        style="@style/Widget.Comet.PillField"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/sheet_header_gap"
-        android:autofillHints="no"
-        android:drawablePadding="@dimen/space_sm"
         android:hint="@string/search_hint"
-        android:imeOptions="actionSearch"
-        android:inputType="text"
-        android:maxLines="1"
-        app:drawableStartCompat="@drawable/ic_search"
-        app:drawableTint="?attr/colorOnSurfaceVariant" />
+        app:endIconMode="clear_text"
+        app:startIconDrawable="@drawable/ic_search">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/thumbnail_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="no"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <GridView
         android:id="@+id/thumbnail_grid"
