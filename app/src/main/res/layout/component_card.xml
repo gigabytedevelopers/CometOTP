@@ -193,15 +193,6 @@
                     android:orientation="horizontal"
                     android:visibility="gone">
 
-                    <ImageView
-                        android:id="@+id/coverImg"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginEnd="@dimen/space_sm"
-                        android:contentDescription="@null"
-                        app:srcCompat="@drawable/ic_eye_off"
-                        app:tint="?attr/colorOnSurfaceVariant" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
