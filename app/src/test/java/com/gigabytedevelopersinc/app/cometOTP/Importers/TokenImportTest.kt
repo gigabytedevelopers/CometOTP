@@ -64,6 +64,16 @@ class TokenImportTest {
     }
 
     @Test
+    fun acceptsFourToTenDigits() {
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(token(digits = 3)))
+        assertNull(reasonFor(token(digits = 4)))
+        assertNull(reasonFor(token(Entry.OTPType.HOTP, digits = 10)))
+        assertEquals(10, TokenImport.convert(listOf(token(digits = 10))).entries.single().digits)
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(token(digits = 11)))
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(token(Entry.OTPType.STEAM, digits = 0)))
+    }
+
+    @Test
     fun reportsWhatItCannotImportByName() {
         assertNull(reasonFor(token()))
         assertEquals(TokenImport.SkipReason.INVALID_SECRET, reasonFor(token(secret = null)))
@@ -71,7 +81,7 @@ class TokenImportTest {
         assertEquals(TokenImport.SkipReason.UNSUPPORTED_TYPE, reasonFor(token(type = null)))
         assertEquals(TokenImport.SkipReason.UNSUPPORTED_ALGORITHM, reasonFor(token(algorithm = null)))
         assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(token(digits = 3)))
-        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(token(digits = 10)))
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(token(digits = 11)))
         assertEquals(TokenImport.SkipReason.UNSUPPORTED_PERIOD, reasonFor(token(period = 0)))
         // A counter-based account has no period to be wrong.
         assertNull(reasonFor(token(Entry.OTPType.HOTP, period = 0)))

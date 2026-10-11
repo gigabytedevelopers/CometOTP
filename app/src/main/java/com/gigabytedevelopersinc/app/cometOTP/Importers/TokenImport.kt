@@ -26,10 +26,6 @@ object TokenImport {
 
     class Converted(val entries: List<Entry>, val skipped: List<Skipped>)
 
-    /** The token calculator raises ten to this power as an Int; more digits would overflow it. */
-    const val MAX_DIGITS = 9
-    const val MIN_DIGITS = 4
-
     /**
      * Maps exported accounts onto entries, keeping their order. Accounts that CometOTP cannot
      * generate codes for are returned in [Converted.skipped].
@@ -58,7 +54,7 @@ object TokenImport {
             token.type == null -> SkipReason.UNSUPPORTED_TYPE
             token.type == Entry.OTPType.MOTP -> null
             token.algorithm == null -> SkipReason.UNSUPPORTED_ALGORITHM
-            token.digits !in MIN_DIGITS..MAX_DIGITS -> SkipReason.UNSUPPORTED_DIGITS
+            token.digits !in TokenCalculator.SUPPORTED_DIGITS -> SkipReason.UNSUPPORTED_DIGITS
             token.type != Entry.OTPType.HOTP && token.period <= 0 -> SkipReason.UNSUPPORTED_PERIOD
             else -> null
         }
