@@ -304,4 +304,23 @@
     <string name="add_camera_open_settings">Open settings</string>
     <string name="add_other_methods">Other ways to add</string>
 
+    <!-- Confirming a scanned code before it is added -->
+    <string name="scan_review_title">Add this service?</string>
+    <string name="scan_review_title_present">Already in CometOTP</string>
+    <string name="scan_review_add">Add</string>
+    <string name="scan_review_service">Service: %1$s</string>
+    <string name="scan_review_account">Account: %1$s</string>
+    <!-- e.g. "TOTP, SHA1, 6 digits, a new code every 30 seconds" -->
+    <string name="scan_review_totp">%1$s, %2$s, %3$s, %4$s</string>
+    <!-- e.g. "HOTP, SHA1, 6 digits, counter at 43" -->
+    <string name="scan_review_hotp">HOTP, %1$s, %2$s, counter at %3$d</string>
+    <plurals name="scan_review_digits">
+        <item quantity="one">%d digit</item>
+        <item quantity="other">%d digits</item>
+    </plurals>
+    <plurals name="scan_review_period">
+        <item quantity="one">a new code every second</item>
+        <item quantity="other">a new code every %d seconds</item>
+    </plurals>
+    <string name="scan_review_steam">Steam Guard code</string>
 </resources>

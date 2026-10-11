@@ -1616,15 +1616,47 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         if (!TextUtils.isEmpty(result)) {
             try {
-                val e = Entry(result!!)
-                e.updateOTP(false)
-                e.lastUsed = System.currentTimeMillis()
-                adapter.addEntry(e)
-                refreshTags()
+                confirmScannedEntry(Entry(result!!))
             } catch (e: Exception) {
                 Toast.makeText(this, R.string.toast_invalid_qr_code, Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    /**
+     * Shows what a scanned code holds (service, account and how its codes are made, never the
+     * secret) and adds it once confirmed. One already in the list is only named as such.
+     */
+    private fun confirmScannedEntry(e: Entry) {
+        val details = StringBuilder()
+        if (e.issuer.isNotEmpty())
+            details.append(getString(R.string.scan_review_service, e.issuer)).append('\n')
+        if (!e.label.isNullOrEmpty())
+            details.append(getString(R.string.scan_review_account, e.label)).append('\n')
+        val digits = resources.getQuantityString(R.plurals.scan_review_digits, e.digits, e.digits)
+        val how = when (e.type) {
+            Entry.OTPType.HOTP -> getString(R.string.scan_review_hotp, e.algorithm.name, digits, e.counter)
+            Entry.OTPType.STEAM -> getString(R.string.scan_review_steam)
+            else -> getString(R.string.scan_review_totp, e.type.name, e.algorithm.name, digits,
+                resources.getQuantityString(R.plurals.scan_review_period, e.period, e.period))
+        }
+        details.append(how)
+
+        val builder = MaterialAlertDialogBuilder(this).setMessage(details.toString())
+        if (adapter.entries.contains(e)) {
+            builder.setTitle(R.string.scan_review_title_present)
+                .setPositiveButton(android.R.string.ok, null)
+        } else {
+            builder.setTitle(R.string.scan_review_title)
+                .setPositiveButton(R.string.scan_review_add) { _, _ ->
+                    e.updateOTP(false)
+                    e.lastUsed = System.currentTimeMillis()
+                    adapter.addEntry(e)
+                    refreshTags()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+        }
+        builder.show()
     }
 
     /* ------------------------------------------------------------------------------------------
