@@ -99,6 +99,7 @@
 
     <!-- Errors -->
     <string name="error_invalid_secret">Invalid secret</string>
+    <string name="error_unsupported_digits">Use %1$d to %2$d digits</string>
 
     <!-- Dialogs -->
     <string name="dialog_title_auth">Authenticate</string>

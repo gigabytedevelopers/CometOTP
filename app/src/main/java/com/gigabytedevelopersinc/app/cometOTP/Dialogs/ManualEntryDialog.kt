@@ -179,7 +179,7 @@ object ManualEntryDialog {
         typeInput.setOnItemClickListener { _, _, position, _ ->
             state.type = TYPES[position]
             applyType.run()
-            validate(state, isNewEntry, issuerInput, labelInput, secretInput, digitsInput, periodInput, counterInput, submitButton)
+            validate(state, isNewEntry, issuerInput, labelInput, secretInput, digitsLayout, digitsInput, periodInput, counterInput, submitButton)
         }
         algorithmInput.setOnItemClickListener { _, _, position, _ -> state.algorithm = ALGORITHMS[position] }
 
@@ -258,7 +258,7 @@ object ManualEntryDialog {
             }
 
             override fun afterTextChanged(editable: Editable?) {
-                validate(state, isNewEntry, issuerInput, labelInput, secretInput, digitsInput, periodInput, counterInput, submitButton)
+                validate(state, isNewEntry, issuerInput, labelInput, secretInput, digitsLayout, digitsInput, periodInput, counterInput, submitButton)
             }
         }
 
@@ -411,7 +411,7 @@ object ManualEntryDialog {
         }
 
         applyType.run()
-        validate(state, isNewEntry, issuerInput, labelInput, secretInput, digitsInput, periodInput, counterInput, submitButton)
+        validate(state, isNewEntry, issuerInput, labelInput, secretInput, digitsLayout, digitsInput, periodInput, counterInput, submitButton)
 
         sheet.show()
     }
@@ -424,11 +424,16 @@ object ManualEntryDialog {
     }
 
     private fun validate(state: State, isNewEntry: Boolean, issuerInput: EditText, labelInput: EditText,
-                         secretInput: EditText, digitsInput: EditText, periodInput: EditText,
-                         counterInput: EditText, submit: MaterialButton) {
+                         secretInput: EditText, digitsLayout: TextInputLayout, digitsInput: EditText,
+                         periodInput: EditText, counterInput: EditText, submit: MaterialButton) {
+        val digitsSupported = isSupportedDigitsInput(digitsInput)
+        digitsLayout.error = if (digitsSupported || TextUtils.isEmpty(digitsInput.text)) null
+            else digitsLayout.context.getString(R.string.error_unsupported_digits,
+                    TokenCalculator.SUPPORTED_DIGITS.first, TokenCalculator.SUPPORTED_DIGITS.last)
+
         if ((TextUtils.isEmpty(labelInput.text) && TextUtils.isEmpty(issuerInput.text)) ||
                 (TextUtils.isEmpty(secretInput.text) && isNewEntry) ||
-                !isNonZeroIntegerInput(digitsInput)) {
+                !digitsSupported) {
             submit.isEnabled = false
             return
         }
@@ -441,6 +446,11 @@ object ManualEntryDialog {
         } else {
             submit.isEnabled = true
         }
+    }
+
+    private fun isSupportedDigitsInput(editText: EditText): Boolean {
+        val digits = editText.text.toString().toIntOrNull() ?: return false
+        return digits in TokenCalculator.SUPPORTED_DIGITS
     }
 
     private fun isNonZeroIntegerInput(editText: EditText): Boolean {
