@@ -59,6 +59,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
 import com.google.android.material.snackbar.Snackbar
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog
@@ -798,6 +799,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         dismissSheet()
         val sheet = BottomSheetDialog(this)
         sheet.setContentView(layoutRes)
+        // A sheet is a window of its own, which the screen's protection does not reach.
+        ScreenshotGuard.protect(sheet.window, settings)
         sheet.setOnDismissListener { d ->
             if (activeSheet === d)
                 activeSheet = null

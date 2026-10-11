@@ -17,6 +17,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
@@ -53,6 +54,8 @@ object ManualEntryDialog {
 
         val sheet = BottomSheetDialog(callingActivity)
         sheet.setContentView(R.layout.sheet_create_service)
+        // It shows the key; the screen's protection does not reach a sheet.
+        ScreenshotGuard.protect(sheet.window, settings)
         expand(sheet)
 
         val root = sheet.findViewById<View>(R.id.manual_submit)

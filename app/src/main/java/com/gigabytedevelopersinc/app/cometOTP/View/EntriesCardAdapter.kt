@@ -40,6 +40,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.InProcessBackupQueue
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.RecycleBin
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
@@ -951,6 +952,8 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
         val sheet = BottomSheetDialog(context)
         sheet.setContentView(R.layout.sheet_card_options)
+        // It shows the code; the screen's protection does not reach a sheet.
+        ScreenshotGuard.protect(sheet.window, settings)
 
         val header = sheet.findViewById<FrameLayout>(R.id.card_options_header)
         if (header != null) {

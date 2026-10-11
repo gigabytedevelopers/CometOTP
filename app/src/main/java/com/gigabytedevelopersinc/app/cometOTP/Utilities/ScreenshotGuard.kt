@@ -4,6 +4,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Utilities
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
+import android.view.Window
 import android.view.WindowManager
 
 private const val MINUTE_MS = 60_000L
@@ -54,5 +55,17 @@ class ScreenshotGuard(private val activity: Activity, private val onChange: ((Bo
     /** Call when the activity is destroyed. */
     fun stop() {
         handler.removeCallbacks(expire)
+    }
+
+    companion object {
+        /**
+         * Keeps a dialog's or sheet's [window] out of screenshots unless they are allowed: it is a
+         * window of its own, which its screen's FLAG_SECURE does not cover. For those showing
+         * codes, secrets or the camera.
+         */
+        fun protect(window: Window?, settings: Settings) {
+            if (window != null && !settings.screenshotsAllowed())
+                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
 }
