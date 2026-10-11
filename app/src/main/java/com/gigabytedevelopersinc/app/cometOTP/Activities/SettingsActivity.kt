@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.preference.CheckBoxPreference
 import android.preference.EditTextPreference
 import android.preference.ListPreference
+import android.preference.Preference
 import android.preference.PreferenceCategory
 import android.preference.PreferenceFragment
 import android.preference.PreferenceManager
@@ -18,6 +19,7 @@ import android.provider.DocumentsContract
 import android.util.Log
 import android.view.View
 import android.view.ViewStub
+import android.widget.ListView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference
 import com.gigabytedevelopersinc.app.cometOTP.R
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
@@ -38,6 +41,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.GeneralUtils
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.KeyStoreHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.LauncherIcon
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.ThemePick
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -132,6 +136,11 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
         val fragment = SettingsFragment()
         this.fragment = fragment
+        // Taken here, once: the fragment the system restores is replaced by this one right away.
+        val scrollTo = intent.getStringExtra(EXTRA_SCROLL_TO_KEY)
+        intent.removeExtra(EXTRA_SCROLL_TO_KEY)
+        if (scrollTo != null)
+            fragment.arguments = Bundle().apply { putString(EXTRA_SCROLL_TO_KEY, scrollTo) }
 
         fragmentManager.beginTransaction()
             .replace(R.id.container_content, fragment)
@@ -198,7 +207,11 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             key == getString(R.string.settings_key_special_features) ||
             key == getString(R.string.settings_key_backup_location) ||
             key == getString(R.string.settings_key_theme_mode) ||
-            key == getString(R.string.settings_key_theme_black_auto)) {
+            key == getString(R.string.settings_key_theme_black_auto) ||
+            key == getString(R.string.settings_key_dynamic_colors)) {
+            // Drawn again in the new look, still at the theme picker rather than at the top.
+            if (key != getString(R.string.settings_key_special_features) && key != getString(R.string.settings_key_backup_location))
+                intent.putExtra(EXTRA_SCROLL_TO_KEY, getString(R.string.settings_key_theme_picker))
             recreate()
         } else if (key == getString(R.string.settings_key_encryption)) {
             if (settings.encryption != EncryptionType.PASSWORD) {
@@ -433,6 +446,10 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
     }
 
     companion object {
+        /** A preference key: after a recreate(), the settings list scrolls to it. */
+        const val EXTRA_SCROLL_TO_KEY = "settings_scroll_to_key"
+        private const val SCROLL_ATTEMPTS = 10
+        private const val SCROLL_RETRY_MS = 50L
         /** Survives recreation of this screen; see [RetainedJob]. */
         private val encryptionJob = RetainedJob<SettingsActivity>()
     }
@@ -448,9 +465,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
         internal var pgpEncryptionKey: EditTextPreference? = null
         internal var pgpSigningKey: OpenPgpKeyPreference? = null
-        internal var themeMode: ListPreference? = null
         internal var themeBlack: CheckBoxPreference? = null
-        internal var theme: ListPreference? = null
 
         fun encryptionChangeWithDialog(encryptionType: EncryptionType) {
             val builder = MaterialAlertDialogBuilder(activity)
@@ -484,6 +499,35 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             }
         }
 
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            scrollToRequestedPreference(view)
+        }
+
+        /**
+         * After the screen was drawn again for a change it shows (a theme, a list style), goes
+         * back to the setting that was changed, see [EXTRA_SCROLL_TO_KEY].
+         */
+        private fun scrollToRequestedPreference(view: View) {
+            val key = arguments?.getString(EXTRA_SCROLL_TO_KEY) ?: return
+            arguments?.remove(EXTRA_SCROLL_TO_KEY)
+            val target = findPreference(key) ?: return
+            val list = view.findViewById<ListView>(android.R.id.list) ?: return
+            scrollWhenBound(list, target, SCROLL_ATTEMPTS)
+        }
+
+        /** The preferences are bound to the list a moment after the view is created: waits for them. */
+        private fun scrollWhenBound(list: ListView, target: Preference, attemptsLeft: Int) {
+            list.postDelayed({
+                val adapter = list.adapter
+                val index = if (adapter == null) -1 else (0 until adapter.count).firstOrNull { adapter.getItem(it) === target } ?: -1
+                if (index >= 0)
+                    list.setSelection(index)
+                else if (attemptsLeft > 1)
+                    scrollWhenBound(list, target, attemptsLeft - 1)
+            }, SCROLL_RETRY_MS)
+        }
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
@@ -514,9 +558,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             // Authentication
             catUI = findPreference(getString(R.string.settings_key_cat_ui)) as PreferenceCategory?
             encryption = findPreference(getString(R.string.settings_key_encryption)) as ListPreference?
-            themeMode = findPreference(getString(R.string.settings_key_theme_mode)) as ListPreference?
             themeBlack = findPreference(getString(R.string.settings_key_theme_black_auto)) as CheckBoxPreference?
-            theme = findPreference(getString(R.string.settings_key_theme)) as ListPreference?
 
             encryption!!.setOnPreferenceChangeListener { _, o ->
                 val newEncryption = o as String
@@ -613,16 +655,13 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
                 }
             }
 
-            // Remove Theme Mode selection option for devices below Android 10. Disable theme selection if Theme Mode is set auto
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                catUI!!.removePreference(themeMode)
+            // "Black theme in auto mode" only means something while the theme picker is on Auto,
+            // which needs the system dark mode of Android 10 and later.
+            if (Settings(activity).themePick != ThemePick.AUTO)
                 catUI!!.removePreference(themeBlack)
-            } else {
-                if (sharedPref.getString(getString(R.string.settings_key_theme_mode), getString(R.string.settings_default_theme_mode))!! == "auto")
-                    catUI!!.removePreference(theme)
-                else
-                    catUI!!.removePreference(themeBlack)
-            }
+            // Wallpaper colours are there from Android 12 on.
+            if (!AppTheme.dynamicColorsAvailable)
+                catUI!!.removePreference(findPreference(getString(R.string.settings_key_dynamic_colors)))
 
             val clearCache = findPreference(getString(R.string.settings_key_clear_cache))!!
             clearCache.setOnPreferenceClickListener {

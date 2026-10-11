@@ -316,6 +316,19 @@
 
     <style name="AppTheme.Black" parent="AppBaseTheme.Black"/>
 
+    <!-- Put back over the wallpaper's colours (dynamic colour, AppTheme.apply) so that the black
+         theme stays black: they bring their own surfaces, background and outline. -->
+    <style name="ThemeOverlay.Comet.BlackSurfaces" parent="">
+        <item name="colorSurface">@color/neutral_1000</item>
+        <item name="colorSurfaceContainer">@color/neutral_1000</item>
+        <item name="colorSurfaceContainerLow">@color/neutral_1000</item>
+        <item name="colorSurfaceVariant">@color/neutral_900</item>
+        <item name="colorSurfaceContainerHigh">@color/neutral_900</item>
+        <item name="colorSurfaceContainerHighest">@color/neutral_900</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="colorOutline">@color/neutral_800</item>
+    </style>
+
     <style name="CardViewStyle.Black">
         <item name="cardBackgroundColor">@color/neutral_900</item>
     </style>

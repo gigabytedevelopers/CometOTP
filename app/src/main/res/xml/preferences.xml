@@ -87,13 +87,10 @@
         android:title="@string/settings_category_title_ui"
         android:key="@string/settings_key_cat_ui">
 
-        <ListPreference
-            android:key="@string/settings_key_theme_mode"
-            android:title="@string/settings_title_theme_mode"
-            android:summary="%s"
-            android:entries="@array/settings_entries_theme_mode"
-            android:entryValues="@array/settings_values_theme_mode"
-            android:defaultValue="@string/settings_default_theme_mode" />
+        <!-- Stores the mode and theme below it, shown as previews (ThemePickerPreference) -->
+        <com.gigabytedevelopersinc.app.cometOTP.Preferences.ThemePickerPreference
+            android:key="@string/settings_key_theme_picker"
+            android:title="@string/settings_title_theme" />
 
         <CheckBoxPreference
             android:key="@string/settings_key_theme_black_auto"
@@ -101,13 +98,11 @@
             android:summary="@string/settings_desc_theme_black_auto"
             android:defaultValue="false" />
 
-        <ListPreference
-            android:key="@string/settings_key_theme"
-            android:title="@string/settings_title_theme"
-            android:summary="%s"
-            android:entries="@array/settings_entries_theme"
-            android:entryValues="@array/settings_values_theme"
-            android:defaultValue="@string/settings_default_theme" />
+        <CheckBoxPreference
+            android:key="@string/settings_key_dynamic_colors"
+            android:title="@string/settings_title_dynamic_colors"
+            android:summary="@string/settings_desc_dynamic_colors"
+            android:defaultValue="false" />
 
         <com.gigabytedevelopersinc.app.cometOTP.Preferences.LauncherIconPreference
             android:key="@string/settings_key_launcher_icon"

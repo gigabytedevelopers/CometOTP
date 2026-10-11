@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One choice in a TilePickerPreference: a preview, outlined while chosen, and its name. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/space_xs"
+    android:paddingBottom="@dimen/space_xs">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/tile_frame"
+        android:layout_width="@dimen/tile_preview_width"
+        android:layout_height="@dimen/tile_preview_height"
+        android:clickable="false"
+        android:focusable="false"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="0dp"
+        app:contentPadding="4dp"
+        app:strokeColor="?attr/colorPrimary">
+
+        <com.gigabytedevelopersinc.app.cometOTP.View.AppearancePreviewView
+            android:id="@+id/tile_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/tile_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:importantForAccessibility="no"
+        android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
+        android:textColor="?attr/colorOnSurface" />
+
+</LinearLayout>

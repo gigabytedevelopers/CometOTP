@@ -1228,6 +1228,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 changedKey == getString(R.string.settings_key_label_highlight_token) ||
                 changedKey == getString(R.string.settings_key_theme_mode) ||
                 changedKey == getString(R.string.settings_key_theme_black_auto) ||
+                changedKey == getString(R.string.settings_key_dynamic_colors) ||
                 changedKey == getString(R.string.settings_key_hide_global_timeout) ||
                 changedKey == getString(R.string.settings_key_hide_issuer) ||
                 changedKey == getString(R.string.settings_key_show_prev_token)) {

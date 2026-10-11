@@ -2,6 +2,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities
 
 import android.view.WindowManager
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.journeyapps.barcodescanner.CaptureActivity
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
@@ -23,7 +24,7 @@ class SecureCaptureActivity : CaptureActivity() {
     override fun initializeContent(): DecoratedBarcodeView {
         val settings = Settings(this)
 
-        setTheme(settings.theme)
+        AppTheme.apply(this, settings)
 
         if (!settings.screenshotsEnabled)
             window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)

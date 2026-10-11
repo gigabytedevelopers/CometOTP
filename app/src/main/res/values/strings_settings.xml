@@ -23,9 +23,14 @@
     <string name="settings_title_block_autofill">Disable autofill in CometOTP</string>
     <string name="settings_title_auto_unlock_after_autofill">Unlock automatically after autofill</string>
 
-    <string name="settings_title_theme_mode">Theme Mode</string>
     <string name="settings_title_theme_black_auto">Black Theme</string>
     <string name="settings_title_theme">Theme</string>
+    <string name="settings_theme_auto">Auto</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_black">Black</string>
+    <string name="settings_title_dynamic_colors">Dynamic colour</string>
+    <string name="settings_desc_dynamic_colors">Use the colours of your wallpaper</string>
     <string name="settings_title_show_prev_token">Show previous token</string>
     <string name="settings_title_show_next_token">Show next token</string>
     <string name="settings_title_label_size">Label Font Size</string>
@@ -225,17 +230,6 @@
         <item>Off</item>
         <item>New Entries</item>
         <item>Any Edits</item>
-    </string-array>
-
-    <string-array name="settings_entries_theme_mode">
-        <item>Auto</item>
-        <item>Manual</item>
-    </string-array>
-
-    <string-array name="settings_entries_theme">
-        <item>Light Theme</item>
-        <item>Dark Theme</item>
-        <item>Black Theme</item>
     </string-array>
 
     <string-array name="settings_entries_label_display">

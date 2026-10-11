@@ -458,38 +458,41 @@ class Settings(private val context: Context) {
     val launcherIcon: String
         get() = getString(R.string.settings_key_launcher_icon, R.string.settings_default_launcher_icon)
 
+    /** The theme to draw, once "auto" has followed the system's dark mode; see [resolveTheme]. */
+    val themeChoice: ThemeChoice
+        get() = resolveTheme(
+            getString(R.string.settings_key_theme_mode, R.string.settings_default_theme_mode),
+            getString(R.string.settings_key_theme, R.string.settings_default_theme),
+            getBoolean(R.string.settings_key_theme_black_auto, false),
+            (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES,
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+
     val theme: Int
-        get() {
-            var theme = R.style.AppTheme_NoActionBar
-            val themeMode = getString(R.string.settings_key_theme_mode, R.string.settings_default_theme_mode)
+        get() = AppTheme.styleFor(themeChoice)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && themeMode == "auto") {
-                val blackTheme = getBoolean(R.string.settings_key_theme_black_auto, false)
-
-                when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-                    //Dark Mode
-                    Configuration.UI_MODE_NIGHT_YES -> {
-                        if (blackTheme)
-                            theme = R.style.AppTheme_Black_NoActionBar
-                        else
-                            theme = R.style.AppTheme_Dark_NoActionBar
-                    }
-                    //Light Mode / Undefined mode / Default mode
-                    Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_UNDEFINED -> theme = R.style.AppTheme_NoActionBar
-                    else -> theme = R.style.AppTheme_NoActionBar
-                }
+    /**
+     * What the theme picker shows as chosen. Choosing stores it as the two settings the theme has
+     * always been kept in: the mode (auto or manual) and, for manual, the theme.
+     */
+    var themePick: ThemePick
+        get() = themePickFor(
+            getString(R.string.settings_key_theme_mode, R.string.settings_default_theme_mode),
+            getString(R.string.settings_key_theme, R.string.settings_default_theme),
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        set(pick) {
+            val editor = settings.edit()
+            if (pick == ThemePick.AUTO) {
+                editor.putString(getResString(R.string.settings_key_theme_mode), "auto")
             } else {
-                val themeName = getString(R.string.settings_key_theme, R.string.settings_default_theme)
-
-                when (themeName) {
-                    "light" -> theme = R.style.AppTheme_NoActionBar
-                    "dark" -> theme = R.style.AppTheme_Dark_NoActionBar
-                    "black" -> theme = R.style.AppTheme_Black_NoActionBar
-                }
+                editor.putString(getResString(R.string.settings_key_theme_mode), "manual")
+                editor.putString(getResString(R.string.settings_key_theme), pick.value)
             }
-
-            return theme
+            editor.apply()
         }
+
+    /** Colours taken from the wallpaper (Android 12 and later), see [AppTheme.apply]. */
+    val dynamicColors: Boolean
+        get() = getBoolean(R.string.settings_key_dynamic_colors, false)
 
     val labelSize: Int
         get() = getInt(R.string.settings_key_label_size, R.integer.settings_default_label_size)

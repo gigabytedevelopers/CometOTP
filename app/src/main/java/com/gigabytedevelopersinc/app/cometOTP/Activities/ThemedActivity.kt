@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowCompat
 import com.gigabytedevelopersinc.app.cometOTP.R
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 
@@ -17,7 +18,7 @@ abstract class ThemedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         settings = Settings(this)
 
-        setTheme(settings.theme)
+        AppTheme.apply(this, settings)
 
         // Set the navigation bar color on older platforms. From Android 15 (API 35) the app is
         // drawn edge-to-edge, the system bars are transparent and this call is a deprecated no-op;
