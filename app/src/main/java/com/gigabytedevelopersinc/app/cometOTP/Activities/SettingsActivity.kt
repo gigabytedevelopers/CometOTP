@@ -786,6 +786,22 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             if (!AppTheme.dynamicColorsAvailable)
                 catUI!!.removePreference(findPreference(getString(R.string.settings_key_dynamic_colors)))
 
+            // Taps: a double tap starts with a single tap, so it cannot do what the single tap
+            // does (TapMode.allowedAsDoubleTap). Its list leaves that out, and moving the single
+            // tap to what the double tap does sets the double tap to Nothing, and says so.
+            val tapSingle = findPreference(getString(R.string.settings_key_tap_single)) as ListPreference
+            val tapDouble = findPreference(getString(R.string.settings_key_tap_double)) as ListPreference
+            offerDoubleTaps(tapDouble, tapSingle.value)
+            tapSingle.setOnPreferenceChangeListener { _, newValue ->
+                val single = newValue as String
+                val reset = !tapModeOf(tapDouble.value).allowedAsDoubleTap(tapModeOf(single))
+                offerDoubleTaps(tapDouble, single)
+                if (reset)
+                    Snackbar.make(activity.findViewById(R.id.container_content),
+                        R.string.settings_toast_double_tap_reset, Snackbar.LENGTH_LONG).show()
+                true
+            }
+
             val clearCache = findPreference(getString(R.string.settings_key_clear_cache))!!
             clearCache.setOnPreferenceClickListener {
                 val clearCacheIntent = Intent(activity, CacheActivity::class.java)
@@ -856,6 +872,26 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             }
             if (until > 0)
                 view?.postDelayed(screenshotExpiry, until - System.currentTimeMillis())
+        }
+
+        /**
+         * Offers the double tap every choice the single tap ([single]) leaves it, and sets it to
+         * Nothing if it was set to one of the others.
+         */
+        private fun offerDoubleTaps(tapDouble: ListPreference, single: String?) {
+            val entries = resources.getStringArray(R.array.settings_entries_tap)
+            val values = resources.getStringArray(R.array.settings_values_tap)
+            val singleMode = tapModeOf(single)
+            val offered = values.indices.filter { tapModeOf(values[it]).allowedAsDoubleTap(singleMode) }
+            tapDouble.entries = offered.map { entries[it] }.toTypedArray()
+            tapDouble.entryValues = offered.map { values[it] }.toTypedArray()
+            if (!tapModeOf(tapDouble.value).allowedAsDoubleTap(singleMode))
+                tapDouble.value = Constants.TapMode.NOTHING.name.lowercase(Locale.ROOT)
+        }
+
+        private fun tapModeOf(value: String?): Constants.TapMode {
+            return Constants.TapMode.entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
+                ?: Constants.TapMode.NOTHING
         }
 
         /** Shows the lock method as the Security screen does; it can have changed there. */

@@ -758,10 +758,12 @@ class Settings(private val context: Context) {
             return Constants.TapMode.valueOf(singleTap.uppercase(Locale.ENGLISH))
         }
 
+    /** What a double tap does: Nothing if it was set to what a single tap does, see [Constants.TapMode.allowedAsDoubleTap]. */
     val tapDouble: Constants.TapMode
         get() {
             val doubleTap = getString(R.string.settings_key_tap_double, R.string.settings_default_tap_double)
-            return Constants.TapMode.valueOf(doubleTap.uppercase(Locale.ENGLISH))
+            val mode = Constants.TapMode.valueOf(doubleTap.uppercase(Locale.ENGLISH))
+            return if (mode.allowedAsDoubleTap(tapSingle)) mode else Constants.TapMode.NOTHING
         }
 
     /**

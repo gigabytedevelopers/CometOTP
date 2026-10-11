@@ -50,6 +50,12 @@ object Constants {
         /** Whether a tap set to this copies the token (and maybe goes to the background). */
         val copies: Boolean
             get() = this == COPY || this == COPY_BACKGROUND
+
+        /**
+         * Whether a double tap may do this while a single tap does [single]. A double tap starts
+         * with a single tap, so it cannot do the same thing: only Nothing can be both.
+         */
+        fun allowedAsDoubleTap(single: TapMode): Boolean = this == NOTHING || this != single
     }
 
     enum class LabelDisplay {
