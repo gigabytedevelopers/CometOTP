@@ -3,6 +3,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** The theme and list style pickers map onto the settings the app has always kept. */
@@ -45,8 +46,15 @@ class AppearanceTest {
     fun theDefaultListStyleIsTodaysSizes() {
         // settings_default_label_size and settings_default_thumbnail_size
         assertEquals(ListStyle.DEFAULT, ListStyle.of(18, "46dp"))
-        assertEquals(ListStyle.COMPACT, ListStyle.of(14, "32dp"))
-        assertEquals(ListStyle.LARGE, ListStyle.of(22, "64dp"))
+        assertEquals(ListStyle.LARGE, ListStyle.of(26, "46dp"))
+        assertEquals(ListStyle.EXTRA_LARGE, ListStyle.of(30, "64dp"))
+    }
+
+    @Test
+    fun theStylesFitTheLabelSizeSetting() {
+        // settings_min_label_size and settings_max_label_size
+        for (style in ListStyle.entries)
+            assertTrue(style.labelSize in 12..32)
     }
 
     @Test

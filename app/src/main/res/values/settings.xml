@@ -229,7 +229,7 @@
     <integer name="settings_min_tap_to_reveal_timeout">5</integer>
     <integer name="settings_max_tap_to_reveal_timeout">60</integer>
     <integer name="settings_min_label_size">12</integer>
-    <integer name="settings_max_label_size">24</integer>
+    <integer name="settings_max_label_size">32</integer>
     <integer name="settings_auth_min_inactivity_delay">10</integer>
     <integer name="settings_auth_max_inactivity_delay">360</integer>
 </resources>

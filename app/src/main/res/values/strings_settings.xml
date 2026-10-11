@@ -46,9 +46,9 @@
     <string name="settings_title_dynamic_colors">Dynamic colour</string>
     <string name="settings_desc_dynamic_colors">Use the colours of your wallpaper</string>
     <string name="settings_title_list_style">List style</string>
-    <string name="settings_list_style_compact">Compact</string>
     <string name="settings_list_style_default">Default</string>
     <string name="settings_list_style_large">Large</string>
+    <string name="settings_list_style_extra_large">Extra large</string>
     <string name="settings_title_show_prev_token">Show previous token</string>
     <string name="settings_title_show_next_token">Show next token</string>
     <string name="settings_title_label_size">Label Font Size</string>

@@ -52,12 +52,14 @@ internal fun themePickFor(mode: String, theme: String, autoSupported: Boolean): 
 
 /**
  * The list styles: presets for the token size (the label size setting, see
- * EntryViewHolder.setLabelSize) and the icon size, which can still be set one by one.
+ * EntryViewHolder.setLabelSize) and the icon size, which can still be set one by one. Default is
+ * the card as it has always been, a 22sp token; Large a 30sp token and Extra large a 34sp one
+ * with larger icons.
  */
 enum class ListStyle(val labelSize: Int, val thumbnailSize: String) {
-    COMPACT(14, "32dp"),
     DEFAULT(18, "46dp"),
-    LARGE(22, "64dp");
+    LARGE(26, "46dp"),
+    EXTRA_LARGE(30, "64dp");
 
     companion object {
         /** The style these settings make, or null when they are set one by one to something else. */

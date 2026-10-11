@@ -57,6 +57,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     private val valueNextInline: TextView = v.findViewById(R.id.valueTextNextInline)
     private val otherTokensRow: View = v.findViewById(R.id.otherTokensRow)
     private val textColumn: View = v.findViewById(R.id.textColumn)
+    private val coverText: TextView = v.findViewById(R.id.coverText)
     private val textColumnPaddingTop = textColumn.paddingTop
     private val textColumnPaddingBottom = textColumn.paddingBottom
     private val issuer: TextView
@@ -390,7 +391,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         // The design uses a fixed type scale; the label size setting scales the token instead so
         // the user preference still has a visible effect. The token auto-sizes to fit its line,
         // so the preference sets the ceiling rather than the size, which setTextSize cannot do
-        // on an auto-sizing view. The token is the card's largest text: 30sp at the default size.
+        // on an auto-sizing view. The token is the card's largest text: 22sp at the default size,
+        // as it has been since before the list styles.
         // The auto-size ceiling has to stay above the floor, or the configuration is rejected.
         val max = Math.max(MIN_TOKEN_TEXT_SIZE_SP + 2, size + TOKEN_SIZE_ABOVE_LABEL_SP)
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
@@ -404,11 +406,13 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             value.layoutParams.height = lineHeight
             value.requestLayout()
         }
-        // The cover over a hidden token is as tall as the token's line.
+        // The cover over a hidden token is as tall as the token's line, its dots as large as the
+        // token, so that they fit the line.
         if (coverLayout.layoutParams.height != lineHeight) {
             coverLayout.layoutParams.height = lineHeight
             coverLayout.requestLayout()
         }
+        coverText.setTextSize(TypedValue.COMPLEX_UNIT_SP, max.toFloat())
     }
 
     fun setThumbnailSize(size: Int) {
@@ -505,7 +509,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         /** The token never shrinks below this, however narrow the card gets. */
         private const val MIN_TOKEN_TEXT_SIZE_SP = 14
         /** How much larger than the label size setting the token may grow. */
-        private const val TOKEN_SIZE_ABOVE_LABEL_SP = 12
+        private const val TOKEN_SIZE_ABOVE_LABEL_SP = 4
         /** The token's line height for each sp of its largest size; 40dp at the default 30sp. */
         private const val TOKEN_LINE_PER_SP = 4f / 3
     }

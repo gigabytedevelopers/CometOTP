@@ -379,7 +379,8 @@
     </style>
 
     <!-- The next token on a card, in a pill: under the token with the previous one, or beside
-         it on its own (component_card) -->
+         it on its own (component_card). No vertical padding, so the line under the token is no
+         taller than the previous token's text. -->
     <style name="Widget.Comet.NextTokenPill" parent="">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -388,9 +389,7 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:maxLines">1</item>
         <item name="android:paddingStart">8dp</item>
-        <item name="android:paddingTop">2dp</item>
         <item name="android:paddingEnd">8dp</item>
-        <item name="android:paddingBottom">2dp</item>
         <item name="android:textAppearance">@style/TextAppearance.Comet.CodeNext</item>
         <item name="android:textDirection">ltr</item>
         <item name="drawableStartCompat">@drawable/ic_next_token</item>
@@ -420,12 +419,12 @@
         <item name="checkedIconVisible">false</item>
     </style>
 
+    <!-- No vertical padding: the line height of its text is room enough, and a taller chip would
+         make every card taller, since each keeps the chip's room -->
     <style name="Widget.Comet.TagChip" parent="">
         <item name="android:background">@drawable/bg_tag_chip</item>
         <item name="android:paddingStart">8dp</item>
         <item name="android:paddingEnd">8dp</item>
-        <item name="android:paddingTop">2dp</item>
-        <item name="android:paddingBottom">2dp</item>
         <item name="android:textAppearance">@style/TextAppearance.Comet.LabelSmall</item>
         <item name="android:textSize">9sp</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>

@@ -126,8 +126,8 @@ class ThemePickerPreference(context: Context, attrs: AttributeSet?) : TilePicker
 }
 
 /**
- * The list style, picked from previews: Compact, Default or Large set the token and icon sizes
- * together (see [ListStyle]). Sizes set one by one to something else leave no tile chosen.
+ * The list style, picked from previews: Default, Large or Extra large set the token and icon
+ * sizes together (see [ListStyle]). Sizes set one by one to something else leave no tile chosen.
  */
 class ListStylePreference(context: Context, attrs: AttributeSet?) : TilePickerPreference(context, attrs) {
 
@@ -150,8 +150,8 @@ class ListStylePreference(context: Context, attrs: AttributeSet?) : TilePickerPr
             }
         }
         return listOf(
-            tile(ListStyle.COMPACT, R.string.settings_list_style_compact, 6, 0.12f),
-            tile(ListStyle.DEFAULT, R.string.settings_list_style_default, 4, 0.16f),
-            tile(ListStyle.LARGE, R.string.settings_list_style_large, 3, 0.21f))
+            tile(ListStyle.DEFAULT, R.string.settings_list_style_default, 5, 0.13f),
+            tile(ListStyle.LARGE, R.string.settings_list_style_large, 4, 0.16f),
+            tile(ListStyle.EXTRA_LARGE, R.string.settings_list_style_extra_large, 3, 0.21f))
     }
 }
