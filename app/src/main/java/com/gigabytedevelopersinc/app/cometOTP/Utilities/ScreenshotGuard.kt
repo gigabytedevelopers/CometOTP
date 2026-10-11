@@ -25,9 +25,10 @@ internal fun screenshotsAllowedAt(enabled: Boolean, until: Long, now: Long): Boo
  * Keeps [activity]'s window out of screenshots, screen recordings and the recent apps preview
  * (FLAG_SECURE) unless screenshots are allowed in Settings → Security, and only for as long as
  * they were allowed: when that time is up the window is protected again, even while it stays
- * open.
+ * open. [onChange] hears whether screenshots are allowed, and until when (0: no end), each time
+ * it is checked.
  */
-class ScreenshotGuard(private val activity: Activity) {
+class ScreenshotGuard(private val activity: Activity, private val onChange: ((Boolean, Long) -> Unit)? = null) {
     private val handler = Handler(Looper.getMainLooper())
     private val expire = Runnable { update() }
 
@@ -46,6 +47,8 @@ class ScreenshotGuard(private val activity: Activity) {
         val until = if (allowed) settings.screenshotsAllowedUntil else 0
         if (until > 0)
             handler.postDelayed(expire, until - System.currentTimeMillis())
+
+        onChange?.invoke(allowed, until)
     }
 
     /** Call when the activity is destroyed. */

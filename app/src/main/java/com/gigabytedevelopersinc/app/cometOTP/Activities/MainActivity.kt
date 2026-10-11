@@ -22,6 +22,7 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -100,12 +101,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import java.util.Date
 import java.util.UUID
 import javax.crypto.SecretKey
 
 class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     override val protectsScreen: Boolean
         get() = true
+
+    /** The reminder shown while screenshots are allowed; null until the layout is set. */
+    private var screenshotBanner: View? = null
 
     private lateinit var adapter: EntriesCardAdapter
     private lateinit var touchHelperCallback: SimpleItemTouchHelperCallback
@@ -423,6 +428,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         }
 
         setContentView(R.layout.activity_main)
+
+        screenshotBanner = findViewById(R.id.screenshotBanner)
+        findViewById<View>(R.id.screenshotBannerOff).setOnClickListener {
+            settings.blockScreenshots()
+            updateScreenshotGuard()
+        }
 
         @Suppress("DEPRECATION")
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
@@ -1079,6 +1090,18 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         super.onNewIntent(intent)
         setIntent(intent)
         newIntentArrived = true
+    }
+
+    /** Shows the reminder while screenshots are allowed; see ThemedActivity.protectsScreen. */
+    override fun onScreenshotsChanged(allowed: Boolean, until: Long) {
+        val banner = screenshotBanner ?: return
+        banner.visibility = if (allowed) View.VISIBLE else View.GONE
+        if (allowed) {
+            banner.findViewById<TextView>(R.id.screenshotBannerText).text = if (until > 0)
+                getString(R.string.main_screenshots_until, DateFormat.getTimeFormat(this).format(Date(until)))
+            else
+                getString(R.string.main_screenshots_on)
+        }
     }
 
     override fun onResume() {

@@ -177,6 +177,62 @@
 
         </androidx.appcompat.widget.Toolbar>
 
+        <!-- While screenshots are allowed (Settings > Security): until when, and a way to stop -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/screenshotBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/card_side_margin"
+            android:layout_marginEnd="@dimen/card_side_margin"
+            android:layout_marginBottom="@dimen/space_xs"
+            android:visibility="gone"
+            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/space_md"
+                android:paddingEnd="@dimen/space_xs">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null"
+                    app:srcCompat="@drawable/ic_eye"
+                    app:tint="?attr/colorOnSecondaryContainer" />
+
+                <TextView
+                    android:id="@+id/screenshotBannerText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_sm"
+                    android:layout_marginEnd="@dimen/space_sm"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    tools:text="Screenshots on until 5:45 PM" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/screenshotBannerOff"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="@dimen/space_sm"
+                    android:text="@string/main_screenshots_turn_off"
+                    android:textColor="?attr/colorOnSecondaryContainer" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout

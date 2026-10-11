@@ -22,13 +22,22 @@ abstract class ThemedActivity : AppCompatActivity() {
 
     private var screenshotGuard: ScreenshotGuard? = null
 
+    /** Whether screenshots of this protected screen are allowed now, and until when (0: no end). */
+    protected open fun onScreenshotsChanged(allowed: Boolean, until: Long) {}
+
+    /** Applies the screenshot setting again, e.g. right after it was changed here. */
+    protected fun updateScreenshotGuard() {
+        screenshotGuard?.update()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         settings = Settings(this)
 
         AppTheme.apply(this, settings)
 
         if (protectsScreen)
-            screenshotGuard = ScreenshotGuard(this).also { it.update() }
+            screenshotGuard = ScreenshotGuard(this) { allowed, until -> onScreenshotsChanged(allowed, until) }
+                .also { it.update() }
 
         // Set the navigation bar color on older platforms. From Android 15 (API 35) the app is
         // drawn edge-to-edge, the system bars are transparent and this call is a deprecated no-op;
