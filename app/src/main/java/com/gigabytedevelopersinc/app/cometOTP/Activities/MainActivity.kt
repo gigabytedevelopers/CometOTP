@@ -841,6 +841,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         val sheet = openSheet(R.layout.sheet_navigation)
         bindSheetAction(sheet, R.id.nav_home) {}
         bindSheetAction(sheet, R.id.nav_tags, ::openTags)
+        bindSheetAction(sheet, R.id.nav_removed, ::openRemovedAccounts)
         bindSheetAction(sheet, R.id.nav_security, ::openSecurity)
         bindSheetAction(sheet, R.id.nav_support) { startActivity(Intent(this, SupportActivity::class.java)) }
         bindSheetAction(sheet, R.id.nav_backup, ::openBackup)
@@ -973,6 +974,15 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         if (key != null)
             intent.putExtra(Constants.EXTRA_BACKUP_ENCRYPTION_KEY, key.encoded)
         startActivity(intent)
+    }
+
+    private fun openRemovedAccounts() {
+        val intent = Intent(this, RemovedAccountsActivity::class.java)
+        val key = adapter.encryptionKey
+        if (key != null)
+            intent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, key.encoded)
+        // Reloads the list when an account was restored, as after the Tags screen.
+        backupLauncher.launch(intent)
     }
 
     private fun openTags() {

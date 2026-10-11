@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One removed account: who it is, when it goes for good, and the way back. -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Comet.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/card_side_margin"
+    android:layout_marginTop="@dimen/card_vertical_margin"
+    android:layout_marginEnd="@dimen/card_side_margin"
+    android:layout_marginBottom="@dimen/card_vertical_margin">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="72dp"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_md"
+        android:paddingEnd="@dimen/space_xs">
+
+        <ImageView
+            android:id="@+id/removed_icon"
+            android:layout_width="@dimen/issuer_icon_size"
+            android:layout_height="@dimen/issuer_icon_size"
+            android:background="@drawable/bg_thumbnail_tile"
+            android:contentDescription="@null"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
+            tools:src="@mipmap/ic_launcher" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_md"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/space_sm"
+            android:paddingBottom="@dimen/space_sm">
+
+            <TextView
+                android:id="@+id/removed_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="ShareTest" />
+
+            <TextView
+                android:id="@+id/removed_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Comet.Caption"
+                tools:text="one@example.test" />
+
+            <TextView
+                android:id="@+id/removed_days"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textAppearance="@style/TextAppearance.Comet.Caption"
+                android:textColor="?attr/colorError"
+                tools:text="Deleted in 29 days" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/removed_restore"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/removed_restore"
+            app:srcCompat="@drawable/ic_restore_from_trash"
+            app:tint="?attr/colorPrimary" />
+
+        <ImageButton
+            android:id="@+id/removed_delete"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/button_delete_permanently"
+            app:srcCompat="@drawable/ic_delete_forever"
+            app:tint="?attr/colorError" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

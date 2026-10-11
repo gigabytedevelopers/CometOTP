@@ -214,6 +214,11 @@
             android:parentActivityName=".Activities.SupportActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Activities.RemovedAccountsActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Activities.TagsActivity"
             android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"

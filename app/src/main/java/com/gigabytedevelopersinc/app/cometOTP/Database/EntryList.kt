@@ -34,6 +34,18 @@ class EntryList {
         return addEntry(newEntry, false)
     }
 
+    /**
+     * Puts [newEntry] at [index] (clamped to the list), e.g. back where it was before its removal
+     * was undone; false if an equal entry is in the list already.
+     */
+    fun insertEntry(index: Int, newEntry: Entry): Boolean {
+        if (entryList.contains(newEntry))
+            return false
+        newEntry.listId = currentId.incrementAndGet()
+        entryList.add(index.coerceIn(0, entryList.size), newEntry)
+        return true
+    }
+
     fun addEntry(newEntry: Entry, update: Boolean): Boolean {
         if (!entryList.contains(newEntry)) {
             val newId = currentId.incrementAndGet()

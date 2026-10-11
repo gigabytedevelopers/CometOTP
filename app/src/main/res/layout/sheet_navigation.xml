@@ -27,6 +27,12 @@
         app:drawableStartCompat="@drawable/ic_tag" />
 
     <TextView
+        android:id="@+id/nav_removed"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/nav_removed"
+        app:drawableStartCompat="@drawable/ic_restore_from_trash" />
+
+    <TextView
         android:id="@+id/nav_security"
         style="@style/Widget.Comet.NavRow"
         android:text="@string/nav_security"

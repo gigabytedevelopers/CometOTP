@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Removed accounts (RemovedAccountsActivity): delete everything in the bin for good. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/removed_empty_bin"
+        android:title="@string/removed_empty_bin"
+        app:showAsAction="always" />
+</menu>

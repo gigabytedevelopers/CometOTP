@@ -35,6 +35,8 @@
          Light application theme
          ============================================================ -->
     <style name="AppBaseTheme" parent="Theme.Material3Expressive.Light.NoActionBar">
+        <!-- Text actions in a toolbar ("Empty" on Removed accounts), in sentence case like every other button -->
+        <item name="actionMenuTextAppearance">@style/TextAppearance.Comet.ActionMenu</item>
         <!-- Material colour roles -->
         <item name="colorInputFill">@color/input_fill_light</item>
         <item name="colorInputFillAlt">@color/input_fill_alt_light</item>
@@ -172,6 +174,8 @@
          Dark application theme
          ============================================================ -->
     <style name="AppBaseTheme.Dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+        <!-- Text actions in a toolbar ("Empty" on Removed accounts), in sentence case like every other button -->
+        <item name="actionMenuTextAppearance">@style/TextAppearance.Comet.ActionMenu</item>
         <item name="colorInputFill">@color/input_fill_dark</item>
         <item name="colorInputFillAlt">@color/input_fill_alt_dark</item>
         <item name="colorSheetHandle">@color/sheet_handle_dark</item>

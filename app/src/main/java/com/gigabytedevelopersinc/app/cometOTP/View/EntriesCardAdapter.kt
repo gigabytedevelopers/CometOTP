@@ -39,6 +39,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.InProcessBackupQueue
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.RecycleBin
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
@@ -458,16 +459,11 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             .setTitle(context.resources.getQuantityString(R.plurals.dialog_title_remove_selected, toRemove.size, toRemove.size))
             .setMessage(context.resources.getQuantityString(R.plurals.dialog_msg_remove_selected, toRemove.size, list))
             .setPositiveButton(R.string.menu_popup_remove) { _, _ ->
-                for (entry in toRemove) {
-                    val realIndex = entryList.indexOf(entry)
-                    if (realIndex < 0)
-                        continue
-                    cancelHideTask(entryList.getEntry(realIndex))
-                    entryList.removeEntry(realIndex)
+                // Manage mode closes first: the snackbar then sits above the add button it brings back.
+                moveToBin(toRemove) {
+                    selected.clear()
+                    callback?.onSelectionFinished()
                 }
-                selected.clear()
-                saveAndRefresh(settings.autoBackupEncryptedFullEnabled)
-                callback?.onSelectionFinished()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -849,28 +845,61 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
     @SuppressLint("StringFormatInvalid")
     fun removeItem(pos: Int) {
-        val builder = MaterialAlertDialogBuilder(context)
+        val entry = displayedEntries[pos]
+        val message = context.getString(R.string.dialog_msg_confirm_delete, displayName(entry))
 
-        val label = displayedEntries[pos].label
-        val message = context.getString(R.string.dialog_msg_confirm_delete, label)
-
-        builder.setTitle(R.string.dialog_title_remove)
+        MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.dialog_title_remove)
                 .setMessage(message)
-                .setPositiveButton(android.R.string.yes) { _, _ ->
-                    val realIndex = getRealIndex(pos)
-
-                    displayedEntries.removeAt(pos)
-                    notifyItemRemoved(pos)
-
-                    cancelHideTask(entryList.getEntry(realIndex))
-                    entryList.removeEntry(realIndex)
-                    saveEntries(settings.autoBackupEncryptedFullEnabled)
-                }
-                .setNegativeButton(android.R.string.no) { _, _ ->
-
-                }
+                .setPositiveButton(R.string.menu_popup_remove) { _, _ -> moveToBin(listOf(entry)) }
+                .setNegativeButton(android.R.string.cancel, null)
                 .setCancelable(false)
                 .show()
+    }
+
+    /**
+     * Moves [entries] from the list to the removed accounts ([RecycleBin]) and offers to undo it.
+     * They go into the bin first and leave the list after, so a bin that cannot be written leaves
+     * them where they were. False in that case. [afterRemoval] runs before the undo snackbar is
+     * shown, so that the screen it is placed on is the one it stays on (see makeSnackbar).
+     */
+    private fun moveToBin(entries: List<Entry>, afterRemoval: () -> Unit = {}): Boolean {
+        val key = sharedEncryptionKey ?: return false
+        if (!RecycleBin.add(context, entries, key)) {
+            (context as MainActivity).makeSnackbar(R.string.toast_remove_failed, Snackbar.LENGTH_LONG).show()
+            return false
+        }
+
+        // Where they were, to put them back there on undo.
+        val places = entries.map { entryList.indexOf(it) }
+        for (entry in entries) {
+            val realIndex = entryList.indexOf(entry)
+            if (realIndex < 0)
+                continue
+            cancelHideTask(entryList.getEntry(realIndex))
+            entryList.removeEntry(realIndex)
+        }
+        saveAndRefresh(settings.autoBackupEncryptedFullEnabled)
+        afterRemoval()
+
+        val message = if (entries.size == 1)
+            context.getString(R.string.toast_removed_one, displayName(entries[0]))
+        else
+            context.resources.getQuantityString(R.plurals.toast_removed_many, entries.size, entries.size)
+        (context as MainActivity).makeSnackbar(message, UNDO_DURATION_MS)
+                .setAction(R.string.button_undo) { undoRemoval(entries, places) }
+                .show()
+        return true
+    }
+
+    /** Puts [entries] back at their [places] in the list and takes them out of the bin. */
+    private fun undoRemoval(entries: List<Entry>, places: List<Int>) {
+        val key = sharedEncryptionKey ?: return
+        // The earliest place first, so that the later places still line up.
+        for ((entry, place) in entries.zip(places).sortedBy { it.second })
+            entryList.insertEntry(if (place < 0) Int.MAX_VALUE else place, entry)
+        RecycleBin.take(context, entries, key)
+        saveAndRefresh(settings.autoBackupEncryptedFullEnabled)
     }
 
     // sends the current OTP code via a "Send Action" with the MIME type "text/x-keystrokes"
@@ -1028,6 +1057,9 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
         /** How many of the selected entries a removal names before "and N more". */
         private const val MAX_NAMES_LISTED = 5
+
+        /** How long a removal can be undone from its snackbar; the bin keeps it for 30 days. */
+        private const val UNDO_DURATION_MS = 6000
 
         private var sharedEncryptionKey: SecretKey? = null
 

@@ -168,4 +168,22 @@ class EntryListTest {
         assertEquals(setOf("a", "b", "c"), list.allTags.toSet())
         assertEquals(3, list.allTags.size)
     }
+
+    @Test
+    fun insertsBackAtAPlace() {
+        val list = EntryList()
+        val a = entry("a", "A")
+        val b = entry("b", "B")
+        val c = entry("c", "C")
+        list.addEntry(a)
+        list.addEntry(c)
+
+        assertTrue(list.insertEntry(1, b))
+        assertEquals(listOf("a", "b", "c"), list.entries.map { it.label })
+        // A place past the end puts it last; an equal entry is not added twice.
+        assertTrue(list.insertEntry(99, entry("d", "D")))
+        assertEquals("d", list.entries.last().label)
+        assertFalse(list.insertEntry(0, entry("a", "A")))
+        assertEquals(4, list.entries.size)
+    }
 }

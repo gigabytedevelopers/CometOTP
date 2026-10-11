@@ -125,7 +125,7 @@
     <string name="dialog_label_confirm_password">Confirm password</string>
 
     <string name="dialog_msg_auth">Please enter your device credentials to start CometOTP.</string>
-    <string name="dialog_msg_confirm_delete">Are you sure you want to remove the account \"%1$s\"?</string>
+    <string name="dialog_msg_confirm_delete">Remove \"%1$s\"? It stays in Removed accounts for 30 days, where you can restore it.</string>
 
     <string name="dialog_msg_used_tokens">In order for CometOTP to recognize which tokens get used you
         have to have either \"tap to reveal\" enabled or use the copy button. This applies to the
@@ -175,6 +175,38 @@
     <string name="label_filter_by_tags">Filter by tags</string>
     <string name="label_manage_list">Manage list</string>
 
+    <!-- Removing accounts, and the Removed accounts screen (RecycleBin) -->
+    <string name="toast_removed_one">Removed %1$s</string>
+    <plurals name="toast_removed_many">
+        <item quantity="one">Removed %d account</item>
+        <item quantity="other">Removed %d accounts</item>
+    </plurals>
+    <string name="button_undo">Undo</string>
+    <string name="toast_remove_failed">Could not remove: the removed accounts could not be saved</string>
+    <string name="removed_activity_title">Removed accounts</string>
+    <string name="nav_removed">Removed accounts</string>
+    <plurals name="removed_days_left">
+        <item quantity="one">Deleted in %d day</item>
+        <item quantity="other">Deleted in %d days</item>
+    </plurals>
+    <string name="removed_restore">Restore</string>
+    <string name="removed_restore_format">Restore %1$s</string>
+    <string name="removed_delete_format">Delete %1$s permanently</string>
+    <string name="removed_empty_bin">Empty</string>
+    <string name="removed_empty_title">Nothing removed</string>
+    <string name="removed_empty_subtitle">Accounts you remove stay here for 30 days, so you can restore them.</string>
+    <string name="removed_restored">Restored %1$s</string>
+    <string name="removed_already_in_list">%1$s is already in your list</string>
+    <string name="removed_restore_failed">Could not restore: your accounts could not be saved</string>
+    <string name="dialog_title_delete_permanently">Delete permanently?</string>
+    <string name="dialog_msg_delete_permanently">%1$s will be deleted for good. You will no longer be able to get its codes.</string>
+    <string name="dialog_title_empty_bin">Empty Removed accounts?</string>
+    <plurals name="dialog_msg_empty_bin">
+        <item quantity="one">%d account will be deleted for good. You will no longer be able to get its codes.</item>
+        <item quantity="other">%d accounts will be deleted for good. You will no longer be able to get their codes.</item>
+    </plurals>
+    <string name="button_delete_permanently">Delete</string>
+
     <!-- Manage mode -->
     <plurals name="label_selected_count">
         <item quantity="one">%d selected</item>
@@ -202,8 +234,8 @@
         <item quantity="other">and %d more</item>
     </plurals>
     <plurals name="dialog_msg_remove_selected">
-        <item quantity="one">%1$s\n\nYou will no longer get codes for it here. This cannot be undone.</item>
-        <item quantity="other">%1$s\n\nYou will no longer get codes for them here. This cannot be undone.</item>
+        <item quantity="one">%1$s\n\nIt stays in Removed accounts for 30 days, where you can restore it.</item>
+        <item quantity="other">%1$s\n\nThey stay in Removed accounts for 30 days, where you can restore them.</item>
     </plurals>
     <plurals name="dialog_title_tag_selected">
         <item quantity="one">Tags for %d account</item>

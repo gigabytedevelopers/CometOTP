@@ -93,6 +93,10 @@
         <item name="android:fontFamily">@font/inter_light</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
+    <style name="TextAppearance.Comet.ActionMenu" parent="TextAppearance.Comet.LabelLarge">
+        <item name="android:textAllCaps">false</item>
+        <item name="textAllCaps">false</item>
+    </style>
     <style name="TextAppearance.Comet.Caption" parent="TextAppearance.Comet.BodySmall">
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
