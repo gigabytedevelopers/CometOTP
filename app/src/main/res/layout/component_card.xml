@@ -115,19 +115,37 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/valueText"
+                    <!-- The token and, with the previous token not shown, the next one's pill
+                         beside it while it is due -->
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/token_line_height"
+                        android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.Comet.Code"
-                        android:textDirection="ltr"
-                        app:autoSizeMaxTextSize="30sp"
-                        app:autoSizeMinTextSize="14sp"
-                        app:autoSizeStepGranularity="1sp"
-                        app:autoSizeTextType="uniform"
-                        tools:text="4119 3435" />
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/valueText"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/token_line_height"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:maxLines="1"
+                            android:textAppearance="@style/TextAppearance.Comet.Code"
+                            android:textDirection="ltr"
+                            app:autoSizeMaxTextSize="30sp"
+                            app:autoSizeMinTextSize="14sp"
+                            app:autoSizeStepGranularity="1sp"
+                            app:autoSizeTextType="uniform"
+                            tools:text="4119 3435" />
+
+                        <TextView
+                            android:id="@+id/valueTextNextInline"
+                            style="@style/Widget.Comet.NextTokenPill"
+                            android:layout_marginStart="@dimen/space_sm"
+                            android:visibility="gone"
+                            tools:text="568 202" />
+
+                    </LinearLayout>
 
                     <!-- The previous token and, while the current one is about to expire, the next
                          one in a pill: on their own line, so that neither takes room from the token -->
@@ -156,20 +174,8 @@
 
                         <TextView
                             android:id="@+id/valueTextNext"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_field"
-                            android:drawablePadding="4dp"
-                            android:gravity="center_vertical"
-                            android:maxLines="1"
-                            android:paddingStart="8dp"
-                            android:paddingTop="2dp"
-                            android:paddingEnd="8dp"
-                            android:paddingBottom="2dp"
-                            android:textAppearance="@style/TextAppearance.Comet.CodeNext"
-                            android:textDirection="ltr"
+                            style="@style/Widget.Comet.NextTokenPill"
                             android:visibility="gone"
-                            app:drawableStartCompat="@drawable/ic_next_token"
                             tools:text="568 202"
                             tools:visibility="visible" />
 

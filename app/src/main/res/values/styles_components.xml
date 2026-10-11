@@ -378,6 +378,24 @@
         <item name="materialThemeOverlay">@style/ThemeOverlay.Comet.TextInput.Dropdown</item>
     </style>
 
+    <!-- The next token on a card, in a pill: under the token with the previous one, or beside
+         it on its own (component_card) -->
+    <style name="Widget.Comet.NextTokenPill" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_pill_field</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Comet.CodeNext</item>
+        <item name="android:textDirection">ltr</item>
+        <item name="drawableStartCompat">@drawable/ic_next_token</item>
+    </style>
+
     <!-- Plain pill input (search bar, PIN entry) -->
     <style name="Widget.Comet.PillField" parent="Widget.AppCompat.EditText">
         <item name="android:background">@drawable/bg_pill_field</item>

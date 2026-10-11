@@ -54,6 +54,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     private val value: TextView = v.findViewById(R.id.valueText)
     private val valuePrev: TextView = v.findViewById(R.id.valueTextPrev)
     private val valueNext: TextView = v.findViewById(R.id.valueTextNext)
+    private val valueNextInline: TextView = v.findViewById(R.id.valueTextNextInline)
     private val otherTokensRow: View = v.findViewById(R.id.otherTokensRow)
     private val issuer: TextView
     private val label: TextView
@@ -216,14 +217,15 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         // save the unformatted token to the tag of this TextView for copy/paste
         value.tag = entry.currentOTP
 
-        // The previous token, and the next one while the current one is about to expire (the
-        // colour turns red then, whether or not the red is shown), share the line under the
-        // token, so neither takes room from it. While either is set to show, every card keeps
-        // the line, an HOTP card too, with the next token's pill holding its room: all cards are
-        // the same height, and none changes size each period. Screen readers say which is which.
-        val lineShown = settings.showPrevToken || settings.showNextToken
+        // With the previous token shown, it and the next one (while the current one is about to
+        // expire: the colour turns red then, whether or not the red is shown) share the line
+        // under the token, which every card keeps, an HOTP card too, with the next token's pill
+        // holding its room: all cards are the same height and none changes size. Without the
+        // previous token there is no such line and the token sits centred in the card; the next
+        // one's pill then shows beside it while it is due. Screen readers say which is which.
+        val linePerCard = settings.showPrevToken
         val tokenPrev = entry.prevOTP
-        if (settings.showPrevToken && !tokenPrev.isNullOrEmpty()) {
+        if (linePerCard && !tokenPrev.isNullOrEmpty()) {
             val prevFormatted = Tools.formatToken(tokenPrev, settings.tokenSplitGroupSize)
             valuePrev.text = prevFormatted
             valuePrev.contentDescription = context.getString(R.string.label_prev_token_format, prevFormatted)
@@ -234,17 +236,20 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
 
         val tokenNext = entry.nextOTP
         val showNext = settings.showNextToken && entry.isTimeBased && !tokenNext.isNullOrEmpty()
+        val nextDue = showNext && entry.color == Entry.COLOR_RED
+        val nextView = if (linePerCard) valueNext else valueNextInline
+        (if (linePerCard) valueNextInline else valueNext).visibility = View.GONE
         if (showNext) {
             val nextFormatted = Tools.formatToken(tokenNext, settings.tokenSplitGroupSize)
-            valueNext.text = nextFormatted
-            valueNext.contentDescription = context.getString(R.string.label_next_token_format, nextFormatted)
+            nextView.text = nextFormatted
+            nextView.contentDescription = context.getString(R.string.label_next_token_format, nextFormatted)
         }
-        valueNext.visibility = when {
-            showNext && entry.color == Entry.COLOR_RED -> View.VISIBLE
-            lineShown -> View.INVISIBLE // holds the line's height on every card
+        nextView.visibility = when {
+            nextDue -> View.VISIBLE
+            linePerCard -> View.INVISIBLE // holds the line's height on every card
             else -> View.GONE
         }
-        otherTokensRow.visibility = if (lineShown) View.VISIBLE else View.GONE
+        otherTokensRow.visibility = if (linePerCard) View.VISIBLE else View.GONE
 
         val entryTags: List<String> = entry.tags
         if (entryTags.isEmpty()) {
