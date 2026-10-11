@@ -56,6 +56,9 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     private val valueNext: TextView = v.findViewById(R.id.valueTextNext)
     private val valueNextInline: TextView = v.findViewById(R.id.valueTextNextInline)
     private val otherTokensRow: View = v.findViewById(R.id.otherTokensRow)
+    private val textColumn: View = v.findViewById(R.id.textColumn)
+    private val textColumnPaddingTop = textColumn.paddingTop
+    private val textColumnPaddingBottom = textColumn.paddingBottom
     private val issuer: TextView
     private val label: TextView
     private val counter: TextView
@@ -250,6 +253,19 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             else -> View.GONE
         }
         otherTokensRow.visibility = if (linePerCard) View.VISIBLE else View.GONE
+
+        // A card with nothing ever on that line (an HOTP card, an mOTP one still without its
+        // PIN) does not leave it empty under the token: the line's height goes half above and
+        // half below the text instead, so the card is as tall as the others, token centred.
+        var spread = 0
+        if (linePerCard && tokenPrev.isNullOrEmpty() && !showNext) {
+            val unspecified = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            otherTokensRow.measure(unspecified, unspecified)
+            spread = otherTokensRow.measuredHeight
+            otherTokensRow.visibility = View.GONE
+        }
+        textColumn.setPaddingRelative(textColumn.paddingStart, textColumnPaddingTop + spread / 2,
+                textColumn.paddingEnd, textColumnPaddingBottom + spread - spread / 2)
 
         val entryTags: List<String> = entry.tags
         if (entryTags.isEmpty()) {
