@@ -171,6 +171,12 @@
     <string name="button_setup_key">Setup Key</string>
     <string name="sheet_title_sort">Sort by</string>
     <string name="label_filter_by_tags">Filter by tags</string>
+
+    <!-- Manage mode -->
+    <plurals name="dialog_title_tag_selected">
+        <item quantity="one">Tags for %d account</item>
+        <item quantity="other">Tags for %d accounts</item>
+    </plurals>
     <string name="empty_services_title">No services added yet</string>
     <string name="empty_services_subtitle">Use the + button to add a new service</string>
     <string name="empty_search_title">No services found</string>
