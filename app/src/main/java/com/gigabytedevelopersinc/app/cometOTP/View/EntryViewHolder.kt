@@ -183,7 +183,9 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             issuer.visibility = View.VISIBLE
             contentHint = issuerText
         } else {
-            issuer.visibility = View.GONE
+            // Hidden for every card by the setting; one entry without an issuer keeps the room,
+            // so that its card is as tall as the others.
+            issuer.visibility = if (settings.isHideIssuerEnabled) View.GONE else View.INVISIBLE
         }
 
         if (!TextUtils.isEmpty(labelText)) {
@@ -192,7 +194,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             if (!showIssuer)
                 contentHint = labelText
         } else {
-            label.visibility = View.GONE
+            label.text = null
+            label.visibility = View.INVISIBLE
         }
 
         accessibleName = contentHint
@@ -215,12 +218,12 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
 
         // The previous token, and the next one while the current one is about to expire (the
         // colour turns red then, whether or not the red is shown), share the line under the
-        // token, so neither takes room from it. The next token's pill keeps its room for the
-        // whole period, so the line, and with it the card, does not appear and go each period
-        // when the previous token is not shown. Screen readers say which token is which.
+        // token, so neither takes room from it. While either is set to show, every card keeps
+        // the line, an HOTP card too, with the next token's pill holding its room: all cards are
+        // the same height, and none changes size each period. Screen readers say which is which.
+        val lineShown = settings.showPrevToken || settings.showNextToken
         val tokenPrev = entry.prevOTP
-        val showPrev = settings.showPrevToken && !tokenPrev.isNullOrEmpty()
-        if (showPrev) {
+        if (settings.showPrevToken && !tokenPrev.isNullOrEmpty()) {
             val prevFormatted = Tools.formatToken(tokenPrev, settings.tokenSplitGroupSize)
             valuePrev.text = prevFormatted
             valuePrev.contentDescription = context.getString(R.string.label_prev_token_format, prevFormatted)
@@ -235,15 +238,20 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             val nextFormatted = Tools.formatToken(tokenNext, settings.tokenSplitGroupSize)
             valueNext.text = nextFormatted
             valueNext.contentDescription = context.getString(R.string.label_next_token_format, nextFormatted)
-            valueNext.visibility = if (entry.color == Entry.COLOR_RED) View.VISIBLE else View.INVISIBLE
-        } else {
-            valueNext.visibility = View.GONE
         }
-        otherTokensRow.visibility = if (showPrev || showNext) View.VISIBLE else View.GONE
+        valueNext.visibility = when {
+            showNext && entry.color == Entry.COLOR_RED -> View.VISIBLE
+            lineShown -> View.INVISIBLE // holds the line's height on every card
+            else -> View.GONE
+        }
+        otherTokensRow.visibility = if (lineShown) View.VISIBLE else View.GONE
 
         val entryTags: List<String> = entry.tags
         if (entryTags.isEmpty()) {
-            tags.visibility = View.GONE
+            // The chip is taller than the issuer: its room is kept, so that a card with tags is
+            // no taller than one without.
+            tags.text = null
+            tags.visibility = View.INVISIBLE
             tagBar.visibility = View.GONE
         } else {
             // The leading bar and the chip take the colour of the entry's first tag
@@ -284,7 +292,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
                 valueLayout.visibility = View.VISIBLE
                 coverLayout.visibility = View.GONE
             } else {
-                valueLayout.visibility = View.GONE
+                // Under the cover, keeping the card's height
+                valueLayout.visibility = View.INVISIBLE
                 coverLayout.visibility = View.VISIBLE
             }
         }
@@ -374,6 +383,11 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             value.layoutParams.height = lineHeight
             value.requestLayout()
         }
+        // The cover over a hidden token is as tall as the token's line.
+        if (coverLayout.layoutParams.height != lineHeight) {
+            coverLayout.layoutParams.height = lineHeight
+            coverLayout.requestLayout()
+        }
     }
 
     fun setThumbnailSize(size: Int) {
@@ -409,7 +423,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         tapToReveal = enabled
 
         if (enabled) {
-            valueLayout.visibility = View.GONE
+            valueLayout.visibility = View.INVISIBLE
             coverLayout.visibility = View.VISIBLE
         } else {
             valueLayout.visibility = View.VISIBLE

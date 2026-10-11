@@ -102,102 +102,111 @@
 
             </LinearLayout>
 
-            <!-- Token (visible) -->
-            <LinearLayout
-                android:id="@+id/valueLayout"
+            <!-- The token, and over it while hidden (tap to reveal) the cover; the hidden token
+                 keeps its room, so the card is the same height either way -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/valueText"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/token_line_height"
-                    android:gravity="center_vertical"
-                    android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.Comet.Code"
-                    android:textDirection="ltr"
-                    app:autoSizeMaxTextSize="30sp"
-                    app:autoSizeMinTextSize="14sp"
-                    app:autoSizeStepGranularity="1sp"
-                    app:autoSizeTextType="uniform"
-                    tools:text="4119 3435" />
-
-                <!-- The previous token and, while the current one is about to expire, the next
-                     one in a pill: on their own line, so that neither takes room from the token -->
+                <!-- Token (visible) -->
                 <LinearLayout
-                    android:id="@+id/otherTokensRow"
+                    android:id="@+id/valueLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
-                    tools:visibility="visible">
+                    android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/valueTextPrev"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/space_sm"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.Comet.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textDirection="ltr"
-                        android:visibility="gone"
-                        tools:text="220 671"
-                        tools:visibility="visible" />
-
-                    <TextView
-                        android:id="@+id/valueTextNext"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_pill_field"
-                        android:drawablePadding="4dp"
+                        android:id="@+id/valueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/token_line_height"
                         android:gravity="center_vertical"
                         android:maxLines="1"
-                        android:paddingStart="8dp"
-                        android:paddingTop="2dp"
-                        android:paddingEnd="8dp"
-                        android:paddingBottom="2dp"
-                        android:textAppearance="@style/TextAppearance.Comet.CodeNext"
+                        android:textAppearance="@style/TextAppearance.Comet.Code"
                         android:textDirection="ltr"
+                        app:autoSizeMaxTextSize="30sp"
+                        app:autoSizeMinTextSize="14sp"
+                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeTextType="uniform"
+                        tools:text="4119 3435" />
+
+                    <!-- The previous token and, while the current one is about to expire, the next
+                         one in a pill: on their own line, so that neither takes room from the token -->
+                    <LinearLayout
+                        android:id="@+id/otherTokensRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:visibility="gone"
-                        app:drawableStartCompat="@drawable/ic_next_token"
-                        tools:text="568 202"
-                        tools:visibility="visible" />
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:id="@+id/valueTextPrev"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/space_sm"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textAppearance="@style/TextAppearance.Comet.BodySmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textDirection="ltr"
+                            android:visibility="gone"
+                            tools:text="220 671"
+                            tools:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/valueTextNext"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_field"
+                            android:drawablePadding="4dp"
+                            android:gravity="center_vertical"
+                            android:maxLines="1"
+                            android:paddingStart="8dp"
+                            android:paddingTop="2dp"
+                            android:paddingEnd="8dp"
+                            android:paddingBottom="2dp"
+                            android:textAppearance="@style/TextAppearance.Comet.CodeNext"
+                            android:textDirection="ltr"
+                            android:visibility="gone"
+                            app:drawableStartCompat="@drawable/ic_next_token"
+                            tools:text="568 202"
+                            tools:visibility="visible" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-            </LinearLayout>
+                <!-- Token (hidden / tap to reveal) -->
+                <LinearLayout
+                    android:id="@+id/coverLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/token_line_height"
+                    android:layout_gravity="top"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
-            <!-- Token (hidden / tap to reveal) -->
-            <LinearLayout
-                android:id="@+id/coverLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone">
+                    <ImageView
+                        android:id="@+id/coverImg"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="@dimen/space_sm"
+                        android:contentDescription="@null"
+                        app:srcCompat="@drawable/ic_eye_off"
+                        app:tint="?attr/colorOnSurfaceVariant" />
 
-                <ImageView
-                    android:id="@+id/coverImg"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_marginEnd="@dimen/space_sm"
-                    android:contentDescription="@null"
-                    app:srcCompat="@drawable/ic_eye_off"
-                    app:tint="?attr/colorOnSurfaceVariant" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/label_hidden"
+                        android:text="@string/bullet_placeholder"
+                        android:textAppearance="@style/TextAppearance.Comet.Code"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/label_hidden"
-                    android:text="@string/bullet_placeholder"
-                    android:textAppearance="@style/TextAppearance.Comet.Code"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
 
-            </LinearLayout>
+            </FrameLayout>
 
             <!-- Account label -->
             <TextView
