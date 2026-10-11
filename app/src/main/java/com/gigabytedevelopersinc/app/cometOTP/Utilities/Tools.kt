@@ -11,6 +11,8 @@ import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.PersistableBundle
+import android.view.HapticFeedbackConstants
 import android.view.View
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity
 import com.gigabytedevelopersinc.app.cometOTP.R
@@ -112,11 +114,27 @@ object Tools {
         return df.format(now)
     }
 
+    /**
+     * Copies a token. The clip is marked sensitive, so that the system's clipboard preview and
+     * keyboards' clipboard suggestions do not show the code.
+     */
     fun copyToClipboard(context: Context, text: String?) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText(context.getString(R.string.label_clipboard_content), text)
+        val extras = PersistableBundle()
+        // ClipDescription.EXTRA_IS_SENSITIVE from Android 13; keyboards read the same key on older
+        // versions too.
+        extras.putBoolean(EXTRA_CLIP_IS_SENSITIVE, true)
+        clip.description.extras = extras
         clipboard.setPrimaryClip(clip)
 
-        Snackbar.make((context as MainActivity).findViewById<View>(R.id.main_content), R.string.toast_copied_to_clipboard, Snackbar.LENGTH_LONG).show()
+        val anchor = (context as MainActivity).findViewById<View>(R.id.main_content)
+        anchor.performHapticFeedback(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) HapticFeedbackConstants.CONFIRM
+            else HapticFeedbackConstants.VIRTUAL_KEY
+        )
+        Snackbar.make(anchor, R.string.toast_copied_to_clipboard, Snackbar.LENGTH_LONG).show()
     }
+
+    private const val EXTRA_CLIP_IS_SENSITIVE = "android.content.extra.IS_SENSITIVE"
 }
