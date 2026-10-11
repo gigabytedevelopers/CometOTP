@@ -99,7 +99,11 @@
 
     <!-- Errors -->
     <string name="error_invalid_secret">Invalid secret</string>
-    <string name="error_unsupported_digits">Use %1$d to %2$d digits</string>
+    <!-- Quantity follows the upper bound, %2$d -->
+    <plurals name="error_unsupported_digits">
+        <item quantity="one">Use %1$d to %2$d digit</item>
+        <item quantity="other">Use %1$d to %2$d digits</item>
+    </plurals>
 
     <!-- Dialogs -->
     <string name="dialog_title_auth">Authenticate</string>

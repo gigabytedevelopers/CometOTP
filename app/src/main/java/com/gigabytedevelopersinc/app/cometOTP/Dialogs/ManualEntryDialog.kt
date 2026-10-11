@@ -428,8 +428,8 @@ object ManualEntryDialog {
                          periodInput: EditText, counterInput: EditText, submit: MaterialButton) {
         val digitsSupported = isSupportedDigitsInput(digitsInput)
         digitsLayout.error = if (digitsSupported || TextUtils.isEmpty(digitsInput.text)) null
-            else digitsLayout.context.getString(R.string.error_unsupported_digits,
-                    TokenCalculator.SUPPORTED_DIGITS.first, TokenCalculator.SUPPORTED_DIGITS.last)
+            else digitsLayout.resources.getQuantityString(R.plurals.error_unsupported_digits,
+                    TokenCalculator.SUPPORTED_DIGITS.last, TokenCalculator.SUPPORTED_DIGITS.first, TokenCalculator.SUPPORTED_DIGITS.last)
 
         if ((TextUtils.isEmpty(labelInput.text) && TextUtils.isEmpty(issuerInput.text)) ||
                 (TextUtils.isEmpty(secretInput.text) && isNewEntry) ||
