@@ -2,6 +2,8 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -38,6 +40,38 @@ class TokenCalculatorTest {
             assertEquals("counter $counter", expected[counter],
                     TokenCalculator.HOTP(KEY_SHA1, counter.toLong(), 6, TokenCalculator.HashAlgorithm.SHA1))
         }
+    }
+
+    /** RFC 4226, appendix D, before truncation: the whole 31-bit value is a ten digit code. */
+    @Test
+    fun hotpKeepsAllTenDigits() {
+        val expected = arrayOf("1284755224", "1094287082", "0137359152", "1726969429", "1640338314",
+                               "0868254676", "1918287922", "0082162583", "0673399871", "0645520489")
+        for (counter in expected.indices) {
+            assertEquals("counter $counter", expected[counter],
+                    TokenCalculator.HOTP(KEY_SHA1, counter.toLong(), 10, TokenCalculator.HashAlgorithm.SHA1))
+        }
+    }
+
+    /** 10^10 does not fit in an Int; computed as one, it saturated and turned this value into 0. */
+    @Test
+    fun truncatesTheLargest31BitValue() {
+        assertEquals(Int.MAX_VALUE, TokenCalculator.truncate(Int.MAX_VALUE, 10))
+        assertEquals(147483647, TokenCalculator.truncate(Int.MAX_VALUE, 9))
+        assertEquals(3647, TokenCalculator.truncate(Int.MAX_VALUE, 4))
+        // Longer codes stored before the range was enforced keep the whole value, as before.
+        assertEquals(Int.MAX_VALUE, TokenCalculator.truncate(Int.MAX_VALUE, 12))
+        assertEquals("002147483647", Tools.formatTokenString(TokenCalculator.truncate(Int.MAX_VALUE, 12), 12))
+    }
+
+    @Test
+    fun supportsFourToTenDigits() {
+        assertEquals(4, TokenCalculator.SUPPORTED_DIGITS.first)
+        assertEquals(10, TokenCalculator.SUPPORTED_DIGITS.last)
+        assertFalse(3 in TokenCalculator.SUPPORTED_DIGITS)
+        assertTrue(TokenCalculator.STEAM_DEFAULT_DIGITS in TokenCalculator.SUPPORTED_DIGITS)
+        assertTrue(TokenCalculator.TOTP_DEFAULT_DIGITS in TokenCalculator.SUPPORTED_DIGITS)
+        assertFalse(11 in TokenCalculator.SUPPORTED_DIGITS)
     }
 
     private fun assertTotp(sha1: Int, sha256: Int, sha512: Int, time: Long) {

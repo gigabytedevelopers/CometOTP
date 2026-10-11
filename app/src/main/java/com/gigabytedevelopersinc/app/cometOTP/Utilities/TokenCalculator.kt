@@ -16,6 +16,13 @@ object TokenCalculator {
     const val HOTP_INITIAL_COUNTER = 1
     const val STEAM_DEFAULT_DIGITS = 5
 
+    /**
+     * The code lengths CometOTP accepts, wherever an account comes from. RFC 4226's dynamic
+     * truncation yields a 31-bit value (at most 2,147,483,647), so a code longer than ten digits
+     * would only add leading zeros that no service expects.
+     */
+    val SUPPORTED_DIGITS = 4..10
+
     private val STEAMCHARS = charArrayOf(
         '2', '3', '4', '5', '6', '7', '8', '9', 'B', 'C',
         'D', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q',
@@ -44,10 +51,7 @@ object TokenCalculator {
     }
 
     fun TOTP_RFC6238(secret: ByteArray, period: Int, time: Long, digits: Int, algorithm: HashAlgorithm, offset: Int): Int {
-        val fullToken = TOTP(secret, period, time, algorithm, offset)
-        val div = Math.pow(10.0, digits.toDouble()).toInt()
-
-        return fullToken % div
+        return truncate(TOTP(secret, period, time, algorithm, offset), digits)
     }
 
     fun TOTP_RFC6238(secret: ByteArray, period: Int, digits: Int, algorithm: HashAlgorithm, offset: Int): String {
@@ -68,10 +72,17 @@ object TokenCalculator {
     }
 
     fun HOTP(secret: ByteArray, counter: Long, digits: Int, algorithm: HashAlgorithm): String {
-        val fullToken = HOTP(secret, counter, algorithm)
-        val div = Math.pow(10.0, digits.toDouble()).toInt()
+        return Tools.formatTokenString(truncate(HOTP(secret, counter, algorithm), digits), digits)
+    }
 
-        return Tools.formatTokenString(fullToken % div, digits)
+    /**
+     * Keeps the last [digits] digits of a 31-bit HOTP value. The modulus is a Long because 10^10
+     * does not fit in an Int; it stops growing at 10^10, which already exceeds any 31-bit value.
+     */
+    internal fun truncate(fullToken: Int, digits: Int): Int {
+        var modulus = 1L
+        repeat(digits.coerceAtMost(SUPPORTED_DIGITS.last)) { modulus *= 10 }
+        return (fullToken % modulus).toInt()
     }
 
     private fun TOTP(key: ByteArray, period: Int, time: Long, algorithm: HashAlgorithm, offset: Int): Int {
