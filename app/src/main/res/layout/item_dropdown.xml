@@ -9,5 +9,4 @@
     android:paddingEnd="@dimen/space_md"
     android:paddingBottom="14dp"
     android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
-    android:textColor="?attr/colorOnSurface"
-    android:textSize="15sp" />
+    android:textColor="?attr/colorOnSurface" />

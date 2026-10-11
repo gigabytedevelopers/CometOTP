@@ -63,21 +63,11 @@
             style="@style/Widget.Comet.SectionHeader"
             android:text="@string/scheduled_backup_section_schedule" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/space_sm"
-            android:paddingEnd="@dimen/space_sm"
-            android:text="@string/scheduled_backup_label_frequency"
-            android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
-            android:textColor="?attr/colorOnSurface" />
-
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Comet.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/sheet_label_gap"
-            app:hintEnabled="false">
+            android:hint="@string/scheduled_backup_label_frequency">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/sched_frequency"
@@ -86,7 +76,6 @@
                 android:inputType="none"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
-                android:textSize="15sp"
                 tools:text="Daily" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -103,22 +92,12 @@
             style="@style/Widget.Comet.SectionHeader"
             android:text="@string/scheduled_backup_section_destination" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/space_sm"
-            android:paddingEnd="@dimen/space_sm"
-            android:text="@string/scheduled_backup_label_destination"
-            android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
-            android:textColor="?attr/colorOnSurface" />
-
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Comet.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/sheet_label_gap"
             android:layout_marginBottom="@dimen/space_sm"
-            app:hintEnabled="false">
+            android:hint="@string/scheduled_backup_label_destination">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/sched_destination"
@@ -127,7 +106,6 @@
                 android:inputType="none"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
-                android:textSize="15sp"
                 tools:text="Google Drive" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -181,30 +159,12 @@
             style="@style/Widget.Comet.SectionHeader"
             android:text="@string/scheduled_backup_section_options" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/space_sm"
-            android:paddingEnd="@dimen/space_sm"
-            android:text="@string/scheduled_backup_label_keep"
-            android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
-            android:textColor="?attr/colorOnSurface" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:paddingStart="@dimen/space_sm"
-            android:paddingEnd="@dimen/space_sm"
-            android:text="@string/scheduled_backup_desc_keep"
-            android:textAppearance="@style/TextAppearance.Comet.Caption" />
-
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Comet.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/sheet_label_gap"
-            app:hintEnabled="false">
+            android:hint="@string/scheduled_backup_label_keep"
+            app:helperText="@string/scheduled_backup_desc_keep">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/sched_keep"
@@ -213,7 +173,6 @@
                 android:inputType="none"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
-                android:textSize="15sp"
                 tools:text="5" />
 
         </com.google.android.material.textfield.TextInputLayout>

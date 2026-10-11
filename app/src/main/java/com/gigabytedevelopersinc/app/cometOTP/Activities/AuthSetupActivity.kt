@@ -98,7 +98,6 @@ class AuthSetupActivity : BaseActivity() {
         continueButton = v.findViewById(R.id.setupContinue)
 
         input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-        input.setHint(R.string.auth_hint_password)
 
         // The field would otherwise save the password typed so far in the instance state.
         input.isSaveEnabled = false
@@ -190,6 +189,7 @@ class AuthSetupActivity : BaseActivity() {
             return
         }
 
+        layout.hint = getString(if (confirming) R.string.settings_hint_password_confirm else R.string.auth_hint_password)
         input.setText("")
         layout.error = null
         continueButton.isEnabled = false

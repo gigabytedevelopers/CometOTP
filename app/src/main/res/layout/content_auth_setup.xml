@@ -34,19 +34,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_lg"
+        android:hint="@string/auth_hint_password"
         app:endIconMode="password_toggle"
-        app:errorEnabled="true"
-        app:hintEnabled="false">
+        app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/setupInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints="newPassword"
-            android:gravity="center"
             android:imeOptions="actionDone"
-            android:inputType="textPassword"
-            android:letterSpacing="0.15" />
+            android:inputType="textPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

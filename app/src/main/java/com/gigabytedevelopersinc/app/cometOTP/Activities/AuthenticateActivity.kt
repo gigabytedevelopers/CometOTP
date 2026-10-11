@@ -307,7 +307,6 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
         passwordLayout = v.findViewById(R.id.passwordLayout)
         val hintResId = if (authMethod == AuthMethod.PASSWORD) R.string.auth_hint_password else R.string.auth_hint_pin
         passwordLayout.hint = getString(hintResId)
-        passwordLayout.editText?.setHint(hintResId)
         if (settings.blockAccessibility) {
             passwordLayout.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         }

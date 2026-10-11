@@ -317,22 +317,22 @@
     <!-- ============================================================
          Inputs
          ============================================================ -->
-    <!-- Outlined rather than filled: the filled box draws its stroke as an underline only, and
-         the fill is a shade from the surface behind it, which left a field on a dialog's raised
-         background invisible. The outline runs round the pill; the fill stays. -->
+    <!-- As 2FAS draws its fields: no fill, a thin outline with small rounded corners, and the
+         label inside the field until it has focus or text, then in a gap in the outline. The
+         outline is what marks the field out on any background, a dialog's raised one too. -->
     <style name="Widget.Comet.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="boxBackgroundColor">?attr/colorInputFill</item>
+        <item name="boxBackgroundColor">@android:color/transparent</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
         <item name="boxStrokeColor">@color/input_stroke</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
-        <item name="boxCornerRadiusTopStart">@dimen/radius_pill</item>
-        <item name="boxCornerRadiusTopEnd">@dimen/radius_pill</item>
-        <item name="boxCornerRadiusBottomStart">@dimen/radius_pill</item>
-        <item name="boxCornerRadiusBottomEnd">@dimen/radius_pill</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Small</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_sm</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_sm</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_sm</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_sm</item>
         <item name="hintTextColor">?attr/colorPrimary</item>
-        <item name="android:textColorHint">?attr/colorTextHint</item>
-        <item name="endIconTint">?attr/colorOnSurface</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
         <item name="startIconTint">?attr/colorOnSurfaceVariant</item>
         <item name="errorTextColor">?attr/colorError</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.Comet.TextInput</item>
@@ -348,7 +348,6 @@
 
     <style name="Widget.Comet.AutoCompleteTextView" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox">
         <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
-        <item name="android:textSize">15sp</item>
         <item name="android:paddingTop">@dimen/input_vertical_padding</item>
         <item name="android:paddingBottom">@dimen/input_vertical_padding</item>
         <item name="android:paddingStart">@dimen/input_horizontal_padding</item>
@@ -356,28 +355,26 @@
 
     <style name="Widget.Comet.TextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:textAppearance">@style/TextAppearance.Comet.BodyLarge</item>
-        <item name="android:textSize">15sp</item>
         <item name="android:paddingTop">@dimen/input_vertical_padding</item>
         <item name="android:paddingBottom">@dimen/input_vertical_padding</item>
         <item name="android:paddingStart">@dimen/input_horizontal_padding</item>
     </style>
 
     <!-- Exposed dropdown flavour of the same field -->
-    <!-- The design gives the dropdown a slightly stronger fill than the text fields. -->
     <style name="Widget.Comet.TextInput.Dropdown" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-        <item name="boxBackgroundColor">?attr/colorInputFillAlt</item>
+        <item name="boxBackgroundColor">@android:color/transparent</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
         <item name="boxStrokeColor">@color/input_stroke</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Pill</item>
-        <item name="boxCornerRadiusTopStart">@dimen/radius_pill</item>
-        <item name="boxCornerRadiusTopEnd">@dimen/radius_pill</item>
-        <item name="boxCornerRadiusBottomStart">@dimen/radius_pill</item>
-        <item name="boxCornerRadiusBottomEnd">@dimen/radius_pill</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Comet.Small</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_sm</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_sm</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_sm</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_sm</item>
         <item name="hintTextColor">?attr/colorPrimary</item>
-        <item name="android:textColorHint">?attr/colorTextHint</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
         <item name="endIconDrawable">@drawable/ic_chevron_down</item>
-        <item name="endIconTint">?attr/colorOnSurface</item>
+        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.Comet.TextInput.Dropdown</item>
     </style>
 
