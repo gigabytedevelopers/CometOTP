@@ -4,7 +4,6 @@
     <!-- Buttons -->
     <string name="button_cancel">Cancel</string>
     <string name="button_enter_details">Enter details</string>
-    <string name="button_scan_qr">Scan QR Code</string>
     <string name="button_qr_from_image">QR Code from Image</string>
     <string name="button_save">Save</string>
     <string name="button_new_tag">New Tag</string>
@@ -293,4 +292,16 @@
     <string name="main_screenshots_until">Screenshots on until %1$s</string>
     <string name="main_screenshots_on">Screenshots on</string>
     <string name="main_screenshots_turn_off">Turn off</string>
+
+    <!-- The add sheet: a camera that scans as it opens, then the other ways to add -->
+    <string name="add_title">Add a service</string>
+    <string name="add_scan_hint">Point your camera at the service\'s QR code</string>
+    <string name="add_scan_not_service">That QR code is not for a service. Try another.</string>
+    <string name="add_scanner_description">Camera, scanning for a QR code</string>
+    <string name="add_camera_needed">Allow the camera to scan QR codes here</string>
+    <string name="add_camera_blocked">Camera access is off for CometOTP. Turn it on in the app\'s settings.</string>
+    <string name="add_camera_allow">Allow camera</string>
+    <string name="add_camera_open_settings">Open settings</string>
+    <string name="add_other_methods">Other ways to add</string>
+
 </resources>
