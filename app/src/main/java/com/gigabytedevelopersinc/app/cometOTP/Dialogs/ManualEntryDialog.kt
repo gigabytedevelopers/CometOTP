@@ -70,6 +70,7 @@ object ManualEntryDialog {
         val secretLayout = sheet.findViewById<TextInputLayout>(R.id.manual_secret_layout)
         val secretInput = sheet.findViewById<EditText>(R.id.manual_secret)
         val secretView = sheet.findViewById<TextView>(R.id.manual_secret_view)
+        val secretViewLayout = sheet.findViewById<View>(R.id.manual_secret_view_layout)
         val typeLayout = sheet.findViewById<TextInputLayout>(R.id.manual_type_layout)
         val typeInput = sheet.findViewById<MaterialAutoCompleteTextView>(R.id.manual_type)
         val issuerInput = sheet.findViewById<EditText>(R.id.manual_issuer)
@@ -87,7 +88,7 @@ object ManualEntryDialog {
         val submitButton = sheet.findViewById<MaterialButton>(R.id.manual_submit)
 
         if (title == null || close == null || iconFrame == null || icon == null || secretLayout == null
-                || secretInput == null || secretView == null || typeLayout == null || typeInput == null
+                || secretInput == null || secretView == null || secretViewLayout == null || typeLayout == null || typeInput == null
                 || issuerInput == null || labelInput == null || tagsInput == null || counterLayout == null
                 || counterInput == null || expandButton == null || expandLayout == null || periodLayout == null
                 || periodInput == null || digitsInput == null || algorithmLayout == null || algorithmInput == null
@@ -397,7 +398,7 @@ object ManualEntryDialog {
             }
 
             secretLayout.visibility = View.GONE
-            secretView.visibility = View.VISIBLE
+            secretViewLayout.visibility = View.VISIBLE
 
             typeLayout.isEnabled = false
             algorithmLayout.isEnabled = false

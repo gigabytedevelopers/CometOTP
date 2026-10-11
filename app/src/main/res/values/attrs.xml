@@ -18,6 +18,10 @@
         <attr name="wrapSelectorWheel" format="boolean"/>
     </declare-styleable>
 
+    <declare-styleable name="TextFieldPreference">
+        <attr name="android:hint" />
+        <attr name="android:inputType" />
+    </declare-styleable>
     <declare-styleable name="CountdownRingView">
         <attr name="ringColor" format="color|reference" />
         <attr name="ringExpiringColor" format="color|reference" />

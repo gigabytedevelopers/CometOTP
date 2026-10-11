@@ -413,6 +413,7 @@ class IntroScreenActivity : IntroActivity() {
         private var passwordLayout: TextInputLayout? = null
         private var passwordInput: TextInputEditText? = null
         private var passwordConfirm: EditText? = null
+        private var passwordConfirmLayout: TextInputLayout? = null
 
         private var selectionMapping: SparseArray<Constants.AuthMethod>? = null
 
@@ -502,6 +503,7 @@ class IntroScreenActivity : IntroActivity() {
             passwordLayout = root.findViewById(R.id.introPasswordLayout)
             passwordInput = root.findViewById(R.id.introPasswordEdit)
             passwordConfirm = root.findViewById(R.id.introPasswordConfirm)
+            passwordConfirmLayout = root.findViewById(R.id.introPasswordConfirmLayout)
             // The fields would otherwise keep the password typed so far in the saved instance
             // state, which the system may write to disk.
             passwordInput!!.isSaveEnabled = false
@@ -575,7 +577,7 @@ class IntroScreenActivity : IntroActivity() {
                     credentialsLayout!!.visibility = View.VISIBLE
 
                     passwordLayout!!.hint = getString(R.string.settings_hint_password)
-                    passwordConfirm!!.setHint(R.string.settings_hint_password_confirm)
+                    passwordConfirmLayout!!.hint = getString(R.string.settings_hint_password_confirm)
 
                     passwordInput!!.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                     passwordConfirm!!.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
@@ -602,7 +604,7 @@ class IntroScreenActivity : IntroActivity() {
                     credentialsLayout!!.visibility = View.VISIBLE
 
                     passwordLayout!!.hint = getString(R.string.settings_hint_pin)
-                    passwordConfirm!!.setHint(R.string.settings_hint_pin_confirm)
+                    passwordConfirmLayout!!.hint = getString(R.string.settings_hint_pin_confirm)
 
                     passwordInput!!.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
                     passwordConfirm!!.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD

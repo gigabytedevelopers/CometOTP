@@ -73,6 +73,7 @@ class PasswordEncryptedPreference(context: Context, attrs: AttributeSet?) : Dial
         val passwordLayout = view.findViewById<TextInputLayout>(R.id.passwordLayout)
         passwordInput = view.findViewById(R.id.passwordEdit)
         passwordConfirm = view.findViewById(R.id.passwordConfirm)
+        val passwordConfirmLayout = view.findViewById<TextInputLayout>(R.id.passwordConfirmLayout)
 
         if (settings.blockAccessibility) {
             passwordLayout.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
@@ -97,13 +98,13 @@ class PasswordEncryptedPreference(context: Context, attrs: AttributeSet?) : Dial
 
         if (mode == Mode.PASSWORD) {
             passwordLayout.hint = context.getString(R.string.settings_hint_password)
-            passwordConfirm.setHint(R.string.settings_hint_password_confirm)
+            passwordConfirmLayout.hint = context.getString(R.string.settings_hint_password_confirm)
 
             passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             passwordConfirm.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         } else if (mode == Mode.PIN) {
             passwordLayout.hint = context.getString(R.string.settings_hint_pin)
-            passwordConfirm.setHint(R.string.settings_hint_pin_confirm)
+            passwordConfirmLayout.hint = context.getString(R.string.settings_hint_pin_confirm)
 
             passwordInput.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
             passwordConfirm.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD

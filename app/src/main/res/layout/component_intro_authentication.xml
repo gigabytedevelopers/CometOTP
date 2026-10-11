@@ -77,13 +77,21 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/introPasswordConfirm"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/introPasswordConfirmLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/settings_hint_password_confirm"
-                android:inputType="textPassword"
-                android:autofillHints="password" />
+                android:layout_marginTop="@dimen/sheet_field_gap"
+                android:hint="@string/settings_hint_password_confirm" >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/introPasswordConfirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:autofillHints="password" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 

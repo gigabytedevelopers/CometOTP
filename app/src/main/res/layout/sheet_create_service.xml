@@ -96,24 +96,29 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/manual_secret_view"
+        <!-- When editing: the key, which cannot change, to read and copy -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/manual_secret_view_layout"
+            style="@style/Widget.Comet.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/sheet_field_gap"
-            android:background="@drawable/bg_pill_field"
-            android:fontFamily="@font/droid_sans_mono_slashed"
-            android:maxLines="3"
-            android:paddingStart="@dimen/space_md"
-            android:paddingTop="14dp"
-            android:paddingEnd="@dimen/space_md"
-            android:paddingBottom="14dp"
-            android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textIsSelectable="true"
+            android:hint="@string/label_key"
             android:visibility="gone"
-            tools:text="JBSWY3DPEHPK3PXP"
-            tools:visibility="visible" />
+            tools:visibility="visible">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/manual_secret_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/droid_sans_mono_slashed"
+                android:inputType="none"
+                android:maxLines="3"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textIsSelectable="true"
+                tools:text="JBSWY3DPEHPK3PXP" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Type -->
         <com.google.android.material.textfield.TextInputLayout
