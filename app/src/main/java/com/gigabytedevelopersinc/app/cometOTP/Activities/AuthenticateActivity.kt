@@ -47,6 +47,9 @@ import com.google.android.material.textfield.TextInputLayout
 import java.io.File
 
 class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, View.OnClickListener {
+    override val protectsScreen: Boolean
+        get() = true
+
     private val autoFillTextListener = AutoFillableTextInputEditText.AutoFillTextListener { text -> startAuthTask(text.toString()) }
 
     private lateinit var authMethod: AuthMethod
@@ -95,9 +98,6 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!settings.screenshotsEnabled)
-            window.setFlags(LayoutParams.FLAG_SECURE, LayoutParams.FLAG_SECURE)
-
         authMethod = settings.authMethod
         newEncryption = intent.getStringExtra(Constants.EXTRA_AUTH_NEW_ENCRYPTION)
         existingAuthCredentials = settings.authCredentials

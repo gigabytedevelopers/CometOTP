@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +37,9 @@ import com.journeyapps.barcodescanner.DefaultDecoderFactory
  * which the main screen reads, so the secrets never travel in an Intent.
  */
 class ImportScanActivity : ThemedActivity() {
+    // The codes carry every secret of the export in the clear.
+    override val protectsScreen: Boolean
+        get() = true
 
     private lateinit var barcodeView: DecoratedBarcodeView
 
@@ -59,10 +61,6 @@ class ImportScanActivity : ThemedActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // The codes carry every secret of the export in the clear.
-        if (!settings.screenshotsEnabled)
-            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
 
         setContentView(R.layout.activity_import_scan)
 

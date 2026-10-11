@@ -18,6 +18,7 @@ import android.preference.PreferenceFragment
 import android.preference.PreferenceGroup
 import android.preference.PreferenceManager
 import android.provider.DocumentsContract
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -53,6 +54,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import org.openintents.openpgp.util.OpenPgpAppPreference
 import org.openintents.openpgp.util.OpenPgpKeyPreference
+import java.util.Date
 import java.util.Locale
 import javax.crypto.SecretKey
 
@@ -557,6 +559,8 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
         internal lateinit var settings: Settings
         internal var encryption: ListPreference? = null
         internal var appLock: Preference? = null
+        private var screenshots: CheckBoxPreference? = null
+        private val screenshotExpiry = Runnable { updateScreenshots() }
         internal var useAutoBackup: ListPreference? = null
         internal var useAndroidSync: CheckBoxPreference? = null
 
@@ -652,6 +656,26 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
                 blockAutofill.setSummary(R.string.settings_desc_autofill_requires_android_o)
                 autoUnlockAfterAutofill.isEnabled = false
                 autoUnlockAfterAutofill.setSummary(R.string.settings_desc_autofill_requires_android_o)
+            }
+
+            // Screenshots: allowed from when they are switched on, for the time chosen below.
+            val screenshots = findPreference(getString(R.string.settings_key_enable_screenshot)) as CheckBoxPreference
+            this.screenshots = screenshots
+            screenshots.setOnPreferenceChangeListener { _, newValue ->
+                if (newValue as Boolean)
+                    settings.allowScreenshots(settings.screenshotDurationMinutes)
+                else
+                    settings.blockScreenshots()
+                // Once the switch has taken the new value.
+                view?.post { updateScreenshots() }
+                true
+            }
+            findPreference(getString(R.string.settings_key_screenshot_duration))!!.setOnPreferenceChangeListener { _, newValue ->
+                // A new time limit counts from now.
+                if (settings.screenshotsAllowed())
+                    settings.allowScreenshots((newValue as String).toIntOrNull() ?: 0)
+                view?.post { updateScreenshots() }
+                true
             }
 
             // Authentication
@@ -807,6 +831,31 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             if (screen != null)
                 activity.setTitle(Screen.valueOf(screen).title)
             updateAppLockSummary()
+            updateScreenshots()
+        }
+
+        override fun onPause() {
+            view?.removeCallbacks(screenshotExpiry)
+            super.onPause()
+        }
+
+        /** Shows whether screenshots are allowed and until when, and switches off when the time is up. */
+        private fun updateScreenshots() {
+            val screenshots = screenshots ?: return
+            view?.removeCallbacks(screenshotExpiry)
+
+            val allowed = settings.screenshotsAllowed()
+            if (screenshots.isChecked != allowed)
+                screenshots.isChecked = allowed
+            val until = if (allowed) settings.screenshotsAllowedUntil else 0
+            screenshots.summary = when {
+                !allowed -> getString(R.string.settings_desc_enable_screenshot)
+                until > 0 -> getString(R.string.settings_desc_screenshots_until,
+                    DateFormat.getTimeFormat(activity).format(Date(until)))
+                else -> getString(R.string.settings_desc_screenshots_until_off)
+            }
+            if (until > 0)
+                view?.postDelayed(screenshotExpiry, until - System.currentTimeMillis())
         }
 
         /** Shows the lock method as the Security screen does; it can have changed there. */

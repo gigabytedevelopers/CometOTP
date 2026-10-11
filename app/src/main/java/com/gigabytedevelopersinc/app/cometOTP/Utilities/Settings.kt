@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.SystemClock
 import android.preference.PreferenceManager
 import android.util.Base64
+import androidx.core.content.edit
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Tasks.upgradeAuthCredentials
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
@@ -652,9 +653,48 @@ class Settings(private val context: Context) {
         }
 
 
-    @Suppress("BooleanMethodIsAlwaysInverted")
-    val screenshotsEnabled: Boolean
-        get() = getBoolean(R.string.settings_key_enable_screenshot, false)
+    /**
+     * Whether screenshots are allowed now (see [ScreenshotGuard]). Once the time they were allowed
+     * for is up, this switches them off, so the setting shows it too.
+     */
+    fun screenshotsAllowed(now: Long = System.currentTimeMillis()): Boolean {
+        val enabled = getBoolean(R.string.settings_key_enable_screenshot, false)
+        if (enabled && !settings.contains(getResString(R.string.settings_key_screenshots_until))) {
+            // Allowed before there was a time limit: still allowed, now as "until I turn it off".
+            settings.edit {
+                putLong(getResString(R.string.settings_key_screenshots_until), 0)
+                putString(getResString(R.string.settings_key_screenshot_duration), "0")
+            }
+        }
+        val allowed = screenshotsAllowedAt(enabled, screenshotsAllowedUntil, now)
+        if (enabled && !allowed)
+            blockScreenshots()
+        return allowed
+    }
+
+    /** When allowed screenshots stop being allowed (milliseconds since the epoch), or 0 for "until I turn it off". */
+    val screenshotsAllowedUntil: Long
+        get() = getLong(R.string.settings_key_screenshots_until, 0)
+
+    /** How long screenshots are allowed for when switched on, in minutes; 0 until switched off. */
+    val screenshotDurationMinutes: Int
+        get() = getString(R.string.settings_key_screenshot_duration, R.string.settings_default_screenshot_duration).toIntOrNull()
+            ?: getResString(R.string.settings_default_screenshot_duration).toInt()
+
+    /** Allows screenshots from [now] for [minutes] (0: until switched off). */
+    fun allowScreenshots(minutes: Int, now: Long = System.currentTimeMillis()) {
+        settings.edit {
+            putLong(getResString(R.string.settings_key_screenshots_until), screenshotWindowEnd(minutes, now))
+            putBoolean(getResString(R.string.settings_key_enable_screenshot), true)
+        }
+    }
+
+    fun blockScreenshots() {
+        settings.edit {
+            remove(getResString(R.string.settings_key_screenshots_until))
+            putBoolean(getResString(R.string.settings_key_enable_screenshot), false)
+        }
+    }
 
     @Suppress("BooleanMethodIsAlwaysInverted")
     var usedTokensDialogShown: Boolean

@@ -100,6 +100,8 @@
     <string name="settings_key_tags_toggles" translatable="false">pref_tags_toggles</string>
 
     <string name="settings_key_enable_screenshot" translatable="false">pref_enable_screenshot</string>
+    <string name="settings_key_screenshot_duration" translatable="false">pref_screenshot_duration</string>
+    <string name="settings_key_screenshots_until" translatable="false">pref_screenshots_until</string>
     <string name="settings_key_enable_android_backup_service" translatable="false">pref_enable_android_backup_service</string>
     <string name="settings_key_clear_cache" translatable="false">pref_clear_cache</string>
     <string name="settings_key_clear_keystore" translatable="false">pref_clear_keystore</string>
@@ -122,6 +124,7 @@
     <string name="settings_default_tap_double" translatable="false">nothing</string>
     <string name="settings_default_thumbnail_size" translatable="false">46dp</string>
     <string name="settings_default_split_group_size" translatable="false">3</string>
+    <string name="settings_default_screenshot_duration" translatable="false">30</string>
     <string name="settings_default_tag_functionality" translatable="false">or</string>
     <string name="settings_default_auto_backup_password_enc" translatable="false">off</string>
     <integer name="settings_default_sched_backup_interval">1440</integer>  <!-- minutes, daily -->
@@ -190,6 +193,15 @@
         <item>46dp</item>
         <item>64dp</item>
         <item>96dp</item>
+    </string-array>
+
+    <!-- Minutes; 0 is "until I turn it off" -->
+    <string-array name="settings_values_screenshot_duration" translatable="false">
+        <item>5</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>0</item>
     </string-array>
 
     <string-array name="settings_values_split_group_size" translatable="false">

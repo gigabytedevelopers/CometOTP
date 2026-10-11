@@ -12,12 +12,6 @@
             android:summary="@string/settings_desc_special_features"
             android:defaultValue="false" />
 
-        <CheckBoxPreference
-            android:key="@string/settings_key_enable_screenshot"
-            android:title="@string/settings_title_enable_screenshot"
-            android:summary="@string/settings_desc_enable_screenshot"
-            android:defaultValue="false" />
-
         <Preference
             android:key="@string/settings_key_clear_keystore"
             android:title="@string/settings_title_clear_keystore"

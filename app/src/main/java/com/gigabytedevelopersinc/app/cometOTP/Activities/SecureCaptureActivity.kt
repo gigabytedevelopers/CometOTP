@@ -3,6 +3,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Activities
 
 import android.view.WindowManager
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.journeyapps.barcodescanner.CaptureActivity
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
@@ -21,18 +22,30 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView
  * Desc: SecureCaptureActivity
  **/
 class SecureCaptureActivity : CaptureActivity() {
+    // Not a ThemedActivity, so it keeps its own; see ThemedActivity.protectsScreen.
+    private val screenshotGuard = ScreenshotGuard(this)
+
     override fun initializeContent(): DecoratedBarcodeView {
         val settings = Settings(this)
 
         AppTheme.apply(this, settings)
 
-        if (!settings.screenshotsEnabled)
-            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        screenshotGuard.update()
 
         @Suppress("DEPRECATION")
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
 
         return super.initializeContent()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        screenshotGuard.update()
+    }
+
+    override fun onDestroy() {
+        screenshotGuard.stop()
+        super.onDestroy()
     }
 }

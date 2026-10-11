@@ -8,6 +8,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowCompat
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 
@@ -15,10 +16,19 @@ abstract class ThemedActivity : AppCompatActivity() {
     // lateinit exposes a public field, so Java subclasses keep reading `settings` directly.
     lateinit var settings: Settings
 
+    /** Whether this screen shows codes or secrets, and is kept out of screenshots; see [ScreenshotGuard]. */
+    protected open val protectsScreen: Boolean
+        get() = false
+
+    private var screenshotGuard: ScreenshotGuard? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         settings = Settings(this)
 
         AppTheme.apply(this, settings)
+
+        if (protectsScreen)
+            screenshotGuard = ScreenshotGuard(this).also { it.update() }
 
         // Set the navigation bar color on older platforms. From Android 15 (API 35) the app is
         // drawn edge-to-edge, the system bars are transparent and this call is a deprecated no-op;
@@ -53,5 +63,11 @@ abstract class ThemedActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        screenshotGuard?.update()
+    }
+
+    override fun onDestroy() {
+        screenshotGuard?.stop()
+        super.onDestroy()
     }
 }

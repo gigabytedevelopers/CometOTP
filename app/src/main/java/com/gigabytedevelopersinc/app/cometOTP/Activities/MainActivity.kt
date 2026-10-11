@@ -25,7 +25,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.CheckedTextView
 import android.widget.EditText
@@ -105,6 +104,8 @@ import java.util.UUID
 import javax.crypto.SecretKey
 
 class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
+    override val protectsScreen: Boolean
+        get() = true
 
     private lateinit var adapter: EntriesCardAdapter
     private lateinit var touchHelperCallback: SimpleItemTouchHelperCallback
@@ -420,9 +421,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         when (checkAppStart(this, sharedPreferences)!!) {
             AppStart.NORMAL, AppStart.FIRST_TIME_VERSION, AppStart.FIRST_TIME -> {}
         }
-
-        if (!settings.screenshotsEnabled)
-            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
 
         setContentView(R.layout.activity_main)
 
@@ -1229,7 +1227,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         } else if (changedKey == getString(R.string.settings_key_tap_single) ||
                 changedKey == getString(R.string.settings_key_tap_double) ||
                 changedKey == getString(R.string.settings_key_theme) ||
-                changedKey == getString(R.string.settings_key_enable_screenshot) ||
                 changedKey == getString(R.string.settings_key_tag_functionality) ||
                 changedKey == getString(R.string.settings_key_label_highlight_token) ||
                 changedKey == getString(R.string.settings_key_theme_mode) ||

@@ -39,6 +39,9 @@ import com.google.android.material.textfield.TextInputLayout
  * checked as soon as it has as many digits as the first.
  */
 class AuthSetupActivity : BaseActivity() {
+    override val protectsScreen: Boolean
+        get() = true
+
     private var method = Constants.AuthMethod.PASSWORD
     private var minLength = Constants.AUTH_MIN_PASSWORD_LENGTH
 
@@ -63,9 +66,6 @@ class AuthSetupActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (!settings.screenshotsEnabled)
-            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
 
         val methodName = intent.getStringExtra(EXTRA_METHOD)
         if (methodName != null)

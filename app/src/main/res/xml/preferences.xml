@@ -74,6 +74,21 @@
             android:summary="@string/settings_desc_auto_unlock_after_autofill"
             android:defaultValue="false" />
 
+        <!-- Allowed for a time (SettingsActivity); every protected screen checks it (ScreenshotGuard) -->
+        <CheckBoxPreference
+            android:key="@string/settings_key_enable_screenshot"
+            android:title="@string/settings_title_enable_screenshot"
+            android:summary="@string/settings_desc_enable_screenshot"
+            android:defaultValue="false" />
+
+        <ListPreference
+            android:key="@string/settings_key_screenshot_duration"
+            android:title="@string/settings_title_screenshot_duration"
+            android:summary="%s"
+            android:entries="@array/settings_entries_screenshot_duration"
+            android:entryValues="@array/settings_values_screenshot_duration"
+            android:defaultValue="@string/settings_default_screenshot_duration" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

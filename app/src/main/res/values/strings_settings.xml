@@ -81,7 +81,8 @@
     <string name="settings_title_clear_cache">Clear Cache</string>
 
     <string name="settings_title_special_features">Enable Special Features</string>
-    <string name="settings_title_enable_screenshot">Enable Screenshots</string>
+    <string name="settings_title_enable_screenshot">Allow screenshots</string>
+    <string name="settings_title_screenshot_duration">Allow screenshots for</string>
     <string name="settings_title_enable_android_backup_service">Enable Android Sync</string>
     <string name="settings_title_clear_keystore">Clear KeyStore</string>
 
@@ -144,8 +145,9 @@
     </string>
 
     <string name="settings_desc_special_features">Uncheck to disable the <b>Special Features</b> again</string>
-    <string name="settings_desc_enable_screenshot">Allow to take screenshots of the main screen
-        (disabled by default for security reasons)</string>
+    <string name="settings_desc_enable_screenshot">Screenshots and screen recordings of your codes are blocked</string>
+    <string name="settings_desc_screenshots_until">Allowed until %1$s</string>
+    <string name="settings_desc_screenshots_until_off">Allowed until you turn this off</string>
     <string name="settings_desc_enable_android_backup_service">Enables CometOTP to use Android\'s
         built in backup service to backup keys and preferences</string>
     <string name="settings_desc_clear_keystore">Delete the encryption key from the KeyStore</string>
@@ -263,6 +265,14 @@
         <item>Default</item>
         <item>Medium</item>
         <item>Large</item>
+    </string-array>
+
+    <string-array name="settings_entries_screenshot_duration">
+        <item>5 minutes</item>
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>Until I turn it off</item>
     </string-array>
 
     <string-array name="settings_entries_split_group_size">
