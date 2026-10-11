@@ -19,8 +19,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Filter
-import android.widget.Filterable
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -55,9 +53,8 @@ import java.util.concurrent.Executors
 import javax.crypto.SecretKey
 
 class EntriesCardAdapter(private val context: Context, private val tagsFilterAdapter: TagsAdapter) :
-    RecyclerView.Adapter<EntryViewHolder>(), ItemTouchHelperAdapter, Filterable {
+    RecyclerView.Adapter<EntryViewHolder>(), ItemTouchHelperAdapter {
 
-    private var filter: EntryFilter? = null
     // Named "entries" in the Java version; renamed because getEntries() below is now the
     // "entries" property.
     private val entryList: EntryList
@@ -65,6 +62,17 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     private lateinit var displayedEntries: ArrayList<Entry>
     private var callback: Callback? = null
     private var tagsFilter: List<String> = ArrayList()
+
+    /**
+     * What the search bar holds; empty when not searching. Kept here rather than applied once, so
+     * every refresh (an edit, a new entry, a reload, a sort change) shows the search results again
+     * instead of the whole tag-filtered list.
+     */
+    var searchQuery: String = ""
+        set(query) {
+            field = query
+            showFilteredEntries()
+        }
 
     private val settings: Settings = Settings(context)
     private val taskHandler: Handler = Handler(Looper.getMainLooper())
@@ -141,8 +149,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     }
 
     private fun entriesChanged(itemPos: Int) {
-        displayedEntries = entryList.getEntriesSorted(sortMode)
-        filterByTags(tagsFilter)
+        showFilteredEntries()
 
         if (itemPos == RecyclerView.NO_POSITION)
             notifyDataSetChanged()
@@ -296,8 +303,16 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     }
 
     fun filterByTags(tags: List<String>) {
-        displayedEntries = entryList.getEntriesFilteredByTags(tags, settings.noTagsToggle, settings.tagFunctionality, sortMode)
         tagsFilter = tags
+        showFilteredEntries()
+    }
+
+    /** Shows the search results while searching (across every tag, as before), else the entries in the selected tags. */
+    private fun showFilteredEntries() {
+        displayedEntries = if (searchQuery.isEmpty())
+            entryList.getEntriesFilteredByTags(tagsFilter, settings.noTagsToggle, settings.tagFunctionality, sortMode)
+        else
+            entryList.getFilteredEntries(searchQuery, settings.searchValues, sortMode)
 
         notifyDataSetChanged()
     }
@@ -812,40 +827,8 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         this.callback = cb
     }
 
-    override fun getFilter(): EntryFilter {
-        if (filter == null)
-            filter = EntryFilter()
-
-        return filter!!
-    }
-
-    fun clearFilter() {
-        if (filter != null)
-            filter = null
-    }
-
     val tags: List<String>
         get() = entryList.allTags
-
-    inner class EntryFilter : Filter() {
-        private val filterValues: List<Constants.SearchIncludes> = settings.searchValues
-
-        override fun performFiltering(constraint: CharSequence?): FilterResults {
-            val filtered = entryList.getFilteredEntries(constraint, filterValues, sortMode)
-
-            val filterResults = FilterResults()
-            filterResults.count = filtered.size
-            filterResults.values = filtered
-
-            return filterResults
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        override fun publishResults(constraint: CharSequence?, results: FilterResults) {
-            displayedEntries = results.values as ArrayList<Entry>
-            notifyDataSetChanged()
-        }
-    }
 
     interface Callback {
         fun onMoveEventStart()

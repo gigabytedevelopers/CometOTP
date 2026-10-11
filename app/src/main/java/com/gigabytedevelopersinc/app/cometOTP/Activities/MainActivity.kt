@@ -1099,7 +1099,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         // what any of the keys below would.
         if (key == null) {
             adapter.notifyDataSetChanged()
-            adapter.clearFilter()
             recreateActivity = true
             return
         }
@@ -1110,8 +1109,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 changedKey == getString(R.string.settings_key_split_group_size) ||
                 changedKey == getString(R.string.settings_key_thumbnail_size)) {
             adapter.notifyDataSetChanged()
-        } else if (changedKey == getString(R.string.settings_key_search_includes)) {
-            adapter.clearFilter()
         } else if (changedKey == getString(R.string.settings_key_tap_single) ||
                 changedKey == getString(R.string.settings_key_tap_double) ||
                 changedKey == getString(R.string.settings_key_theme) ||
@@ -1156,10 +1153,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     private fun setFilterString(newText: String) {
-        if (newText.isEmpty())
-            adapter.filterByTags(tagsDrawerAdapter.activeTags)
-        else
-            adapter.filter.filter(newText)
+        adapter.searchQuery = newText
 
         this.filterString = newText
     }
