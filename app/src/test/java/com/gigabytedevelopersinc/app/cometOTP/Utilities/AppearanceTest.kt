@@ -2,9 +2,10 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
-/** The theme picker maps onto the settings the app has always kept. */
+/** The theme and list style pickers map onto the settings the app has always kept. */
 class AppearanceTest {
 
     @Test
@@ -38,5 +39,19 @@ class AppearanceTest {
         assertEquals(ThemePick.BLACK, themePickFor("manual", "black", true))
         assertEquals("auto", ThemePick.AUTO.value)
         assertEquals("black", ThemePick.BLACK.value)
+    }
+
+    @Test
+    fun theDefaultListStyleIsTodaysSizes() {
+        // settings_default_label_size and settings_default_thumbnail_size
+        assertEquals(ListStyle.DEFAULT, ListStyle.of(18, "46dp"))
+        assertEquals(ListStyle.COMPACT, ListStyle.of(14, "32dp"))
+        assertEquals(ListStyle.LARGE, ListStyle.of(22, "64dp"))
+    }
+
+    @Test
+    fun sizesSetOneByOneMayMatchNoStyle() {
+        assertNull(ListStyle.of(18, "64dp"))
+        assertNull(ListStyle.of(20, "46dp"))
     }
 }

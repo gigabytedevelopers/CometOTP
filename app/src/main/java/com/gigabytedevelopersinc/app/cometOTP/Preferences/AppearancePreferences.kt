@@ -1,6 +1,7 @@
 @file:Suppress("PackageName", "DEPRECATION", "OVERRIDE_DEPRECATION")
 package com.gigabytedevelopersinc.app.cometOTP.Preferences
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
@@ -15,8 +16,10 @@ import android.widget.TextView
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import com.gigabytedevelopersinc.app.cometOTP.Activities.SettingsActivity
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.ListStyle
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ThemeChoice
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ThemePick
@@ -119,5 +122,36 @@ class ThemePickerPreference(context: Context, attrs: AttributeSet?) : TilePicker
         tiles.add(Tile(R.string.settings_theme_black, current == ThemePick.BLACK,
             { it.setThemes(preview(ThemeChoice.BLACK)) }) { settings.themePick = ThemePick.BLACK })
         return tiles
+    }
+}
+
+/**
+ * The list style, picked from previews: Compact, Default or Large set the token and icon sizes
+ * together (see [ListStyle]). Sizes set one by one to something else leave no tile chosen.
+ */
+class ListStylePreference(context: Context, attrs: AttributeSet?) : TilePickerPreference(context, attrs) {
+
+    override val watchedKeys = setOf(R.string.settings_key_label_size, R.string.settings_key_thumbnail_size)
+
+    override fun tiles(): List<Tile> {
+        val settings = Settings(context)
+        val current = settings.listStyle
+        fun tile(style: ListStyle, label: Int, rows: Int, rowHeight: Float) = Tile(label, current == style,
+            {
+                it.setThemes(context)
+                it.rows = rows
+                it.rowHeight = rowHeight
+            }) {
+            settings.listStyle = style
+            // The size settings below show their new values; the list comes back to this picker.
+            (context as? Activity)?.let {
+                it.intent.putExtra(SettingsActivity.EXTRA_SCROLL_TO_KEY, key)
+                it.recreate()
+            }
+        }
+        return listOf(
+            tile(ListStyle.COMPACT, R.string.settings_list_style_compact, 6, 0.12f),
+            tile(ListStyle.DEFAULT, R.string.settings_list_style_default, 4, 0.16f),
+            tile(ListStyle.LARGE, R.string.settings_list_style_large, 3, 0.21f))
     }
 }

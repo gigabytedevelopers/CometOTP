@@ -494,6 +494,19 @@ class Settings(private val context: Context) {
     val dynamicColors: Boolean
         get() = getBoolean(R.string.settings_key_dynamic_colors, false)
 
+    /** The list style the token and icon sizes make, or null when they are set one by one. */
+    var listStyle: ListStyle?
+        get() = ListStyle.of(labelSize,
+            getString(R.string.settings_key_thumbnail_size, R.string.settings_default_thumbnail_size))
+        set(style) {
+            if (style == null)
+                return
+            settings.edit()
+                .putInt(getResString(R.string.settings_key_label_size), style.labelSize)
+                .putString(getResString(R.string.settings_key_thumbnail_size), style.thumbnailSize)
+                .apply()
+        }
+
     val labelSize: Int
         get() = getInt(R.string.settings_key_label_size, R.integer.settings_default_label_size)
 

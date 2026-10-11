@@ -32,6 +32,7 @@
     <string name="settings_key_theme" translatable="false">pref_theme</string>
     <string name="settings_key_dynamic_colors" translatable="false">pref_dynamic_colors</string>
     <string name="settings_key_theme_picker" translatable="false">pref_theme_picker</string>
+    <string name="settings_key_list_style" translatable="false">pref_list_style</string>
     <string name="settings_key_launcher_icon" translatable="false">pref_launcher_icon</string>
     <string name="settings_default_launcher_icon" translatable="false">blue</string>
     <string name="settings_key_show_prev_token" translatable="false">pref_show_prev_token</string>

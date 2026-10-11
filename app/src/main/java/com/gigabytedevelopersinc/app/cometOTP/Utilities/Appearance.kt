@@ -51,6 +51,23 @@ internal fun themePickFor(mode: String, theme: String, autoSupported: Boolean): 
 }
 
 /**
+ * The list styles: presets for the token size (the label size setting, see
+ * EntryViewHolder.setLabelSize) and the icon size, which can still be set one by one.
+ */
+enum class ListStyle(val labelSize: Int, val thumbnailSize: String) {
+    COMPACT(14, "32dp"),
+    DEFAULT(18, "46dp"),
+    LARGE(22, "64dp");
+
+    companion object {
+        /** The style these settings make, or null when they are set one by one to something else. */
+        fun of(labelSize: Int, thumbnailSize: String): ListStyle? {
+            return entries.firstOrNull { it.labelSize == labelSize && it.thumbnailSize == thumbnailSize }
+        }
+    }
+}
+
+/**
  * Applies the chosen theme, and with dynamic colour the wallpaper's colours on top of it. The
  * light or dark wallpaper palette follows the chosen theme rather than the system, so a light
  * theme picked while the system is dark stays light; the black theme keeps its black surfaces.

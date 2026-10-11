@@ -104,6 +104,11 @@
             android:summary="@string/settings_desc_dynamic_colors"
             android:defaultValue="false" />
 
+        <!-- Sets the label (token) size and thumbnail size further down (ListStylePreference) -->
+        <com.gigabytedevelopersinc.app.cometOTP.Preferences.ListStylePreference
+            android:key="@string/settings_key_list_style"
+            android:title="@string/settings_title_list_style" />
+
         <com.gigabytedevelopersinc.app.cometOTP.Preferences.LauncherIconPreference
             android:key="@string/settings_key_launcher_icon"
             android:title="@string/settings_title_launcher_icon"
