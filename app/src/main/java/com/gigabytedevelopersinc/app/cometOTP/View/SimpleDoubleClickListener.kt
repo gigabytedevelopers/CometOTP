@@ -16,7 +16,10 @@ import android.view.View
  * Time: 1:11 AM
  * Desc: SimpleDoubleClickListener
  **/
-abstract class SimpleDoubleClickListener : View.OnClickListener {
+abstract class SimpleDoubleClickListener(
+    /** False when a double click does nothing: a single click then acts at once, without waiting for a second. */
+    private val waitsForDoubleClick: () -> Boolean = { true }
+) : View.OnClickListener {
 
     companion object {
         private const val DOUBLE_CLICK_TIME_DELTA: Long = 300 // Milliseconds
@@ -26,6 +29,11 @@ abstract class SimpleDoubleClickListener : View.OnClickListener {
     private var firstTap = true
 
     override fun onClick(v: View) {
+        if (!waitsForDoubleClick()) {
+            onSingleClick(v)
+            return
+        }
+
         val clickTime = System.currentTimeMillis()
 
         if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {

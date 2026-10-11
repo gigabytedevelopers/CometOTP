@@ -11,6 +11,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
@@ -93,7 +95,9 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             false
         }
 
-        card.setOnClickListener(object : SimpleDoubleClickListener() {
+        // Without a double-tap action a single tap acts at once, rather than after the 300 ms a
+        // second tap would have had. With tap-to-copy that wait was the lag of every copy.
+        card.setOnClickListener(object : SimpleDoubleClickListener({ Settings(context).tapDouble != Constants.TapMode.NOTHING }) {
             // value.tag is null while no token has been worked out. There is nothing to copy,
             // reveal or send yet, so the tap is ignored, as the copy button already does.
             override fun onSingleClick(v: View) {
@@ -158,7 +162,18 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         }
 
         menuButton.contentDescription = context.getString(R.string.button_card_options_format, contentHint)
-        copyButton.contentDescription = context.getString(R.string.button_card_copy_format, contentHint)
+        val copyLabel = context.getString(R.string.button_card_copy_format, contentHint)
+        copyButton.contentDescription = copyLabel
+
+        // A tap on the card copies by default, which leaves the copy button with nothing to add;
+        // it stays for anyone who has tapping set to something else. Screen readers announce the
+        // card as copying the token.
+        val tapCopies = settings.tapSingle == Constants.TapMode.COPY || settings.tapSingle == Constants.TapMode.COPY_BACKGROUND
+        copyButton.visibility = if (tapCopies) View.GONE else View.VISIBLE
+        if (tapCopies)
+            ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_CLICK, copyLabel, null)
+        else
+            ViewCompat.setAccessibilityDelegate(card, null)
 
         // A token should be ready by the time the card is bound. If one is not, the line shows a
         // mask rather than emptying out, so the card keeps its shape instead of collapsing and
