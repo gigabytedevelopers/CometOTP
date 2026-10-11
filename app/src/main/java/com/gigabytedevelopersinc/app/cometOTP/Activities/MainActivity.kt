@@ -1,8 +1,6 @@
 @file:Suppress("PackageName")
 package com.gigabytedevelopersinc.app.cometOTP.Activities
 
-import android.Manifest
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -26,7 +24,6 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.format.DateFormat
-import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +44,6 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.IntentCompat
 import androidx.core.content.pm.PackageInfoCompat
@@ -57,7 +53,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
@@ -66,7 +61,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.google.android.material.snackbar.Snackbar
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog
@@ -106,12 +100,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.zxing.BarcodeFormat
-import com.journeyapps.barcodescanner.BarcodeCallback
-import com.journeyapps.barcodescanner.BarcodeView
-import com.journeyapps.barcodescanner.DefaultDecoderFactory
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import java.util.Date
 import java.util.UUID
@@ -128,11 +116,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private lateinit var touchHelperCallback: SimpleItemTouchHelperCallback
     private lateinit var touchHelper: ItemTouchHelper
     private var activeSheet: BottomSheetDialog? = null
-
-    /** The add sheet's camera while the sheet is open, see showAddSheet(). */
-    private var addSheetScanner: BarcodeView? = null
-    /** Whether the camera was refused for good, so asking again does nothing. */
-    private var addSheetCameraBlocked = false
 
     private var encryptionType = EncryptionType.KEYSTORE
     private var requireAuthentication = false
@@ -224,34 +207,19 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     // QR code scanning
     private fun scanQRCode() {
-        // No barcode image: the scanner would write a picture of every code it reads into the
-        // cache directory, secret included, and nothing here ever used it. A Google
-        // Authenticator export code carries every secret of the export at once.
-        val options = ScanOptions()
-                .setOrientationLocked(false)
-                .setBarcodeImageEnabled(false)
-                .setBeepEnabled(false)
-                .setCaptureActivity(SecureCaptureActivity::class.java)
-        scanQrLauncher.launch(options)
+        scanQrLauncher.launch(Intent(this, ScanActivity::class.java))
     }
 
     /* Activity result launchers. Each launcher owns the handling of exactly one kind of result. */
     // Registration order matters: the result registry keys launchers by the order they are
     // registered in, so it must match between the old and the recreated activity.
 
-    private val scanQrLauncher: ActivityResultLauncher<ScanOptions> = registerForActivityResult(
-            ScanContract()) { result ->
-        if (result != null && result.contents != null)
-            addQRCode(result.contents)
-    }
-
-    // The add sheet's camera. Refused for good ("don't ask again"), the system asks no more and
-    // the sheet sends the user to the app's settings instead.
-    private val addSheetCameraLauncher: ActivityResultLauncher<String> = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()) { granted ->
-        if (!granted && !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))
-            addSheetCameraBlocked = true
-        updateAddSheetCamera()
+    // The scanner keeps the code in memory, so its secret does not travel in the result.
+    private val scanQrLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { result ->
+        val code = ScanActivity.takeResult()
+        if (result.resultCode == RESULT_OK && code != null)
+            addQRCode(code)
     }
 
     private val introLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
@@ -820,7 +788,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         updateBackCallbackState()
     }
 
-    private fun openSheet(layoutRes: Int, onDismiss: (() -> Unit)? = null): BottomSheetDialog {
+    private fun openSheet(layoutRes: Int): BottomSheetDialog {
         dismissSheet()
         val sheet = BottomSheetDialog(this)
         sheet.setContentView(layoutRes)
@@ -829,7 +797,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         sheet.setOnDismissListener { d ->
             if (activeSheet === d)
                 activeSheet = null
-            onDismiss?.invoke()
         }
         activeSheet = sheet
         sheet.show()
@@ -873,105 +840,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         }
     }
 
-    /**
-     * Add a service: the sheet opens scanning, as 2FAS's does, with the other ways to add below
-     * the camera. A code for a service closes it and adds the service; any other code is named
-     * as such under the title while the camera goes on looking. Without the camera permission a
-     * card in place of the preview asks for it.
-     */
     private fun showAddSheet() {
-        val sheet = openSheet(R.layout.sheet_add_service) {
-            addSheetScanner?.pause()
-            addSheetScanner = null
-        }
-        sheet.behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        sheet.behavior.skipCollapsed = true
+        val sheet = openSheet(R.layout.sheet_add_service)
+        bindSheetAction(sheet, R.id.add_scan_qr, ::scanQRCode)
         bindSheetAction(sheet, R.id.add_qr_from_image, ::showOpenFileSelector)
         bindSheetAction(sheet, R.id.add_setup_key) { ManualEntryDialog.show(this@MainActivity, settings, adapter) }
         bindSheetAction(sheet, R.id.add_import_tokens, ::showImportSourcesSheet)
-
-        val scanner = sheet.findViewById<BarcodeView>(R.id.add_scanner) ?: return
-        val status = sheet.findViewById<TextView>(R.id.add_scan_status) ?: return
-        scanner.decoderFactory = DefaultDecoderFactory(listOf(BarcodeFormat.QR_CODE))
-        // A code in view is decoded again on every frame: each is looked at once. Once no code
-        // has been decoded for a moment (the camera moved away), the hint comes back.
-        var lastText: String? = null
-        val hintColor = status.currentTextColor
-        val resetStatus = Runnable {
-            lastText = null
-            status.setTextColor(hintColor)
-            status.setText(R.string.add_scan_hint)
-        }
-        scanner.decodeContinuous(BarcodeCallback { result ->
-            val text = result.text ?: return@BarcodeCallback
-            status.removeCallbacks(resetStatus)
-            status.postDelayed(resetStatus, SCAN_STATUS_RESET_MS)
-            if (text == lastText)
-                return@BarcodeCallback
-            lastText = text
-            if (!isServiceCode(text)) {
-                showScanError(status)
-                return@BarcodeCallback
-            }
-            status.removeCallbacks(resetStatus)
-            scanner.performHapticFeedback(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                HapticFeedbackConstants.CONFIRM else HapticFeedbackConstants.VIRTUAL_KEY)
-            sheet.dismiss()
-            addQRCode(text)
-        })
-        sheet.findViewById<View>(R.id.add_camera_allow)?.setOnClickListener {
-            if (addSheetCameraBlocked)
-                startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                    Uri.fromParts("package", packageName, null)))
-            else
-                addSheetCameraLauncher.launch(Manifest.permission.CAMERA)
-        }
-
-        addSheetScanner = scanner
-        updateAddSheetCamera()
-    }
-
-    /** Says, in red and with two blinks, that the code in view is not one to add. */
-    private fun showScanError(status: TextView) {
-        status.setText(R.string.add_scan_not_service)
-        status.setTextColor(Tools.getThemeColor(this, androidx.appcompat.R.attr.colorError))
-        ObjectAnimator.ofFloat(status, View.ALPHA, 1f, 0.2f, 1f, 0.2f, 1f)
-            .setDuration(SCAN_ERROR_BLINK_MS)
-            .start()
-    }
-
-    /** Whether [text] is something [addQRCode] adds: an account's link or a Google Authenticator export. */
-    private fun isServiceCode(text: String): Boolean {
-        if (GoogleAuthMigration.isMigrationUri(text))
-            return true
-        return try {
-            Entry(text)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    /** Runs the add sheet's camera while the sheet is open and this screen in front, or asks for it. */
-    private fun updateAddSheetCamera() {
-        val scanner = addSheetScanner ?: return
-        val card = scanner.parent as? View ?: return
-        val permission = card.findViewById<View>(R.id.add_camera_permission)
-        val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-
-        scanner.visibility = if (granted) View.VISIBLE else View.GONE
-        permission?.visibility = if (granted) View.GONE else View.VISIBLE
-        if (!granted) {
-            card.findViewById<TextView>(R.id.add_camera_permission_text)?.setText(
-                if (addSheetCameraBlocked) R.string.add_camera_blocked else R.string.add_camera_needed)
-            card.findViewById<TextView>(R.id.add_camera_allow)?.setText(
-                if (addSheetCameraBlocked) R.string.add_camera_open_settings else R.string.add_camera_allow)
-        }
-
-        // Called from onResume and from the permission's result, both while the lifecycle still
-        // says STARTED; onPause stops the camera again.
-        if (granted && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
-            scanner.resume()
     }
 
     private fun showNavigationSheet() {
@@ -1228,7 +1102,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     override fun onResume() {
         super.onResume()
-        updateAddSheetCamera()
 
         // Both a cancelled result and a new intent are delivered before onResume, whichever order
         // they come in, so this is the first point where it is known whether the lock screen or
@@ -1326,7 +1199,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     public override fun onPause() {
-        addSheetScanner?.pause()
         importImagesJob.onPause(this)
         importFileJob.onPause(this)
         if (settings.authMethod == AuthMethod.DEVICE)
@@ -2222,9 +2094,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     companion object {
-        /** How long after the last code decoded the add sheet's hint comes back. */
-        private const val SCAN_STATUS_RESET_MS = 1500L
-        private const val SCAN_ERROR_BLINK_MS = 700L
         var animatorDuration: Long = 1000
 
         private const val INTENT_SCAN_QR = "com.gigabytedevelopersinc.app.cometOTP.intent.SCAN_QR"

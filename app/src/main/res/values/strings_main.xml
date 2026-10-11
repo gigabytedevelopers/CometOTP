@@ -4,6 +4,7 @@
     <!-- Buttons -->
     <string name="button_cancel">Cancel</string>
     <string name="button_enter_details">Enter details</string>
+    <string name="button_scan_qr">Scan QR Code</string>
     <string name="button_qr_from_image">QR Code from Image</string>
     <string name="button_save">Save</string>
     <string name="button_new_tag">New Tag</string>
@@ -293,16 +294,21 @@
     <string name="main_screenshots_on">Screenshots on</string>
     <string name="main_screenshots_turn_off">Turn off</string>
 
-    <!-- The add sheet: a camera that scans as it opens, then the other ways to add -->
-    <string name="add_title">Add a service</string>
-    <string name="add_scan_hint">Point your camera at the service\'s QR code</string>
-    <string name="add_scan_not_service">That QR code is not for a service. Try another.</string>
-    <string name="add_scanner_description">Camera, scanning for a QR code</string>
-    <string name="add_camera_needed">Allow the camera to scan QR codes here</string>
-    <string name="add_camera_blocked">Camera access is off for CometOTP. Turn it on in the app\'s settings.</string>
-    <string name="add_camera_allow">Allow camera</string>
-    <string name="add_camera_open_settings">Open settings</string>
-    <string name="add_other_methods">Other ways to add</string>
+    <!-- The scanner (ScanActivity): the camera full screen, reading one QR code -->
+    <string name="scan_title">Scan code</string>
+    <string name="scan_hint">Point your camera at the service\'s QR code</string>
+    <string name="scan_not_service">That QR code is not for a service. Try another.</string>
+    <string name="scan_camera_needed">Allow the camera to scan QR codes</string>
+    <string name="scan_camera_blocked">Camera access is off for CometOTP. Turn it on in the app\'s settings.</string>
+    <string name="scan_camera_allow">Allow camera</string>
+    <string name="scan_camera_open_settings">Open settings</string>
+    <string name="scan_close">Close the scanner</string>
+    <string name="scan_flash_on">Turn the flash on</string>
+    <string name="scan_flash_off">Turn the flash off</string>
+    <string name="scan_privacy">Scanned on this phone by CometOTP</string>
+    <string name="scan_privacy_more">About scanning</string>
+    <string name="scan_privacy_title">Scanned on this phone</string>
+    <string name="scan_privacy_msg">CometOTP reads the QR code here on your phone. No picture of it is saved and nothing is sent anywhere. Once you add the service, its key is kept only in CometOTP, encrypted.</string>
 
     <!-- Confirming a scanned code before it is added -->
     <string name="scan_review_title">Add this service?</string>

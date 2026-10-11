@@ -72,7 +72,10 @@
          action, and 8dp between stacked buttons. -->
     <dimen name="nav_row_height">56dp</dimen>
     <dimen name="sheet_list_inset">12dp</dimen>
-    <dimen name="add_scanner_height">240dp</dimen>
+    <!-- The scanner's viewfinder corners (ViewfinderView) -->
+    <dimen name="scan_corner_length">64dp</dimen>
+    <dimen name="scan_corner_stroke">3dp</dimen>
+    <dimen name="scan_corner_radius">24dp</dimen>
     <dimen name="sheet_side_padding">@dimen/space_md</dimen>
     <dimen name="sheet_header_gap">@dimen/space_sm</dimen><!-- the 48dp title row to the first item -->
     <dimen name="sheet_field_gap">@dimen/space_md</dimen>

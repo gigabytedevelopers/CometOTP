@@ -1,130 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Add a service: the camera scans as soon as the sheet opens (MainActivity.showAddSheet), with
-     the other ways in below it. Without the camera permission, a card asks for it in place of the
-     preview. The preview is a TextureView so the card's rounded corners clip it. -->
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:overScrollMode="never">
+    android:orientation="vertical"
+    android:paddingStart="@dimen/sheet_list_inset"
+    android:paddingEnd="@dimen/sheet_list_inset"
+    android:paddingBottom="@dimen/space_lg">
 
-    <LinearLayout
+    <View style="@style/Widget.Comet.SheetHandle" />
+
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="@dimen/sheet_list_inset"
-        android:paddingEnd="@dimen/sheet_list_inset"
-        android:paddingBottom="@dimen/space_lg">
+        android:layout_height="@dimen/space_md" />
 
-        <View style="@style/Widget.Comet.SheetHandle" />
+    <TextView
+        android:id="@+id/add_scan_qr"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/button_scan_qr"
+        app:drawableStartCompat="@drawable/ic_qr_scanner" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
-            android:gravity="center"
-            android:text="@string/add_title"
-            android:textAppearance="@style/TextAppearance.Comet.SheetTitle" />
+    <TextView
+        android:id="@+id/add_qr_from_image"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/button_qr_from_image"
+        app:drawableStartCompat="@drawable/ic_image_outline" />
 
-        <!-- The hint, or why the code in view cannot be added -->
-        <TextView
-            android:id="@+id/add_scan_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xs"
-            android:accessibilityLiveRegion="polite"
-            android:gravity="center"
-            android:text="@string/add_scan_hint"
-            android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+    <TextView
+        android:id="@+id/add_setup_key"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/button_setup_key"
+        app:drawableStartCompat="@drawable/ic_edit_pen" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/add_scanner_height"
-            android:layout_marginStart="@dimen/space_xs"
-            android:layout_marginTop="@dimen/space_md"
-            android:layout_marginEnd="@dimen/space_xs"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-            app:cardCornerRadius="@dimen/radius_sheet"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp">
+    <TextView
+        android:id="@+id/add_import_tokens"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/button_import_tokens"
+        app:drawableStartCompat="@drawable/ic_import_accounts" />
 
-            <com.journeyapps.barcodescanner.BarcodeView
-                android:id="@+id/add_scanner"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/add_scanner_description"
-                app:zxing_preview_scaling_strategy="centerCrop"
-                app:zxing_use_texture_view="true" />
-
-            <LinearLayout
-                android:id="@+id/add_camera_permission"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="@dimen/space_lg"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@null"
-                    app:srcCompat="@drawable/ic_qr_scanner"
-                    app:tint="?attr/colorPrimary" />
-
-                <TextView
-                    android:id="@+id/add_camera_permission_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_sm"
-                    android:gravity="center"
-                    android:text="@string/add_camera_needed"
-                    android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/add_camera_allow"
-                    style="@style/Widget.Comet.Button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_md"
-                    android:text="@string/add_camera_allow" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_xs"
-            android:layout_marginTop="@dimen/space_lg"
-            android:layout_marginBottom="@dimen/space_xs"
-            android:text="@string/add_other_methods"
-            android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
-            android:textColor="?attr/colorOnSurface" />
-
-        <TextView
-            android:id="@+id/add_qr_from_image"
-            style="@style/Widget.Comet.NavRow"
-            android:text="@string/button_qr_from_image"
-            app:drawableStartCompat="@drawable/ic_image_outline" />
-
-        <TextView
-            android:id="@+id/add_setup_key"
-            style="@style/Widget.Comet.NavRow"
-            android:text="@string/button_setup_key"
-            app:drawableStartCompat="@drawable/ic_edit_pen" />
-
-        <TextView
-            android:id="@+id/add_import_tokens"
-            style="@style/Widget.Comet.NavRow"
-            android:text="@string/button_import_tokens"
-            app:drawableStartCompat="@drawable/ic_import_accounts" />
-
-    </LinearLayout>
-
-</androidx.core.widget.NestedScrollView>
+</LinearLayout>

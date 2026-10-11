@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The scanner (ScanActivity): the camera full screen with a viewfinder, a close button, the
+     title and the flash at the top, the hint under the viewfinder and how the code is read at the
+     bottom. Black behind the camera, and white controls, whatever the theme. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scanRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:ignore="Overdraw">
+
+    <com.journeyapps.barcodescanner.BarcodeView
+        android:id="@+id/scanCamera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/scan_hint"
+        app:zxing_preview_scaling_strategy="centerCrop" />
+
+    <com.gigabytedevelopersinc.app.cometOTP.View.ViewfinderView
+        android:id="@+id/scanViewfinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Without the camera permission, in place of the camera -->
+    <LinearLayout
+        android:id="@+id/scanPermission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/space_lg"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/scanPermissionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/scan_camera_needed"
+            android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
+            android:textColor="@android:color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/scanPermissionAllow"
+            style="@style/Widget.Comet.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:text="@string/scan_camera_allow" />
+
+    </LinearLayout>
+
+    <!-- Placed under the viewfinder by ScanActivity -->
+    <TextView
+        android:id="@+id/scanStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
+        android:gravity="center"
+        android:paddingStart="@dimen/space_lg"
+        android:paddingEnd="@dimen/space_lg"
+        android:shadowColor="#99000000"
+        android:shadowRadius="4"
+        android:text="@string/scan_hint"
+        android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
+        android:textColor="@android:color/white" />
+
+    <FrameLayout
+        android:id="@+id/scanTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="top"
+        android:paddingStart="@dimen/space_md"
+        android:paddingEnd="@dimen/space_md">
+
+        <ImageButton
+            android:id="@+id/scanClose"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="start|center_vertical"
+            android:background="@drawable/bg_scan_button"
+            android:contentDescription="@string/scan_close"
+            app:srcCompat="@drawable/ic_close"
+            app:tint="@android:color/black" />
+
+        <TextView
+            android:id="@+id/scanTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:shadowColor="#99000000"
+            android:shadowRadius="4"
+            android:text="@string/scan_title"
+            android:textAppearance="@style/TextAppearance.Comet.TitleMedium"
+            android:textColor="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/scanFlash"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end|center_vertical"
+            android:background="@drawable/bg_scan_button"
+            android:contentDescription="@string/scan_flash_on"
+            app:srcCompat="@drawable/ic_flash_off"
+            app:tint="@android:color/black" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/scanPrivacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_md"
+        android:paddingEnd="@dimen/space_xs"
+        android:paddingBottom="@dimen/space_sm">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@null"
+            app:srcCompat="@drawable/ic_shield"
+            app:tint="#CCFFFFFF" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_sm"
+            android:layout_weight="1"
+            android:shadowColor="#99000000"
+            android:shadowRadius="4"
+            android:text="@string/scan_privacy"
+            android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
+            android:textColor="#E6FFFFFF" />
+
+        <ImageButton
+            android:id="@+id/scanPrivacyMore"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/scan_privacy_more"
+            app:srcCompat="@drawable/ic_info_outline"
+            app:tint="#E6FFFFFF" />
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -224,8 +224,10 @@
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Activities.SecureCaptureActivity"
-            android:screenOrientation="portrait" />
+            android:name=".Activities.ScanActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- Puts CometOTP on the share sheet for images: a QR code screenshot or a photo of one.
              The share sheet starts its target in the sharing app's task, so this invisible screen

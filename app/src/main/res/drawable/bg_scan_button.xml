@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The scanner's round buttons: a 40dp white circle in a 48dp touch target, on the camera image
+     whatever the theme -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="4dp">
+    <ripple android:color="#33000000">
+        <item>
+            <shape android:shape="oval">
+                <solid android:color="@android:color/white" />
+            </shape>
+        </item>
+    </ripple>
+</inset>
