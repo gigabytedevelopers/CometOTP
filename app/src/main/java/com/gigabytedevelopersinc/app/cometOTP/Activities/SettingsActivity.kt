@@ -2,6 +2,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities
 
 import android.Manifest
+import android.app.Fragment
 import android.app.backup.BackupManager
 import android.content.Intent
 import android.content.SharedPreferences
@@ -14,18 +15,24 @@ import android.preference.ListPreference
 import android.preference.Preference
 import android.preference.PreferenceCategory
 import android.preference.PreferenceFragment
+import android.preference.PreferenceGroup
 import android.preference.PreferenceManager
 import android.provider.DocumentsContract
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewStub
+import android.widget.ImageView
 import android.widget.ListView
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
@@ -49,8 +56,15 @@ import org.openintents.openpgp.util.OpenPgpKeyPreference
 import java.util.Locale
 import javax.crypto.SecretKey
 
+/**
+ * Settings: a hub with a row for each group of settings (see [Screen]), each opening a screen of
+ * its own, and rows for the Tags and Removed accounts screens. The screens are fragments in this
+ * one activity, which holds the database key for all of them and returns it when it closes.
+ */
 class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
-    internal var fragment: SettingsFragment? = null
+    /** The group of settings on screen; null while the hub shows. */
+    internal val fragment: SettingsFragment?
+        get() = fragmentManager.findFragmentById(R.id.container_content) as? SettingsFragment
 
     private lateinit var retainedKey: RetainedDatabaseKey
     internal var encryptionKey: SecretKey?
@@ -61,6 +75,10 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
     internal var encryptionChanged = false
     /** Whether the key has been changed since the screen was started, see initialDatabaseKeyState(). */
     private var launchKeyStale = false
+    /** Whether accounts were changed from here (restored, or tags edited): the list then reloads. */
+    private var entriesChanged = false
+    /** The preference to scroll to once, see [EXTRA_SCROLL_TO_KEY]. */
+    private var scrollRequest: String? = null
     private var progress: AlertDialog? = null
 
     /* Activity result launchers (replace the request-code based onActivityResult()). */
@@ -112,6 +130,14 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
         }
     }
 
+    // Tags and Removed accounts ask for the list to reload, as they do when opened from the list.
+    private val manageLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK && result.data?.getBooleanExtra(EXTRA_RELOAD, false) == true)
+            entriesChanged = true
+    }
+
     // Android 13+ (API 33): the results of broadcast-triggered backups are reported through
     // notifications, which need the POST_NOTIFICATIONS runtime permission.
     private val notificationPermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(
@@ -147,17 +173,17 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             retainedKey.initialized = true
         }
 
-        val fragment = SettingsFragment()
-        this.fragment = fragment
-        // Taken here, once: the fragment the system restores is replaced by this one right away.
-        val scrollTo = intent.getStringExtra(EXTRA_SCROLL_TO_KEY)
+        entriesChanged = savedInstanceState?.getBoolean(STATE_ENTRIES_CHANGED, false) ?: false
+        // Taken here, once, for the screen the system restores; see takeScrollRequest().
+        scrollRequest = intent.getStringExtra(EXTRA_SCROLL_TO_KEY)
         intent.removeExtra(EXTRA_SCROLL_TO_KEY)
-        if (scrollTo != null)
-            fragment.arguments = Bundle().apply { putString(EXTRA_SCROLL_TO_KEY, scrollTo) }
 
-        fragmentManager.beginTransaction()
-            .replace(R.id.container_content, fragment)
-            .commit()
+        // After a recreate() the system restores the hub and the open screen, back stack and all.
+        if (savedInstanceState == null) {
+            fragmentManager.beginTransaction()
+                .replace(R.id.container_content, HubFragment())
+                .commit()
+        }
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         sharedPref.registerOnSharedPreferenceChangeListener(this)
@@ -165,33 +191,33 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
         // Predictive back: onBackPressed() is no longer invoked when targeting Android 16+.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                finishWithResult()
+                goBack()
             }
         })
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        outState.putBoolean(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, encryptionChanged)
-        outState.putBoolean(RetainedDatabaseKey.STATE_LAUNCH_KEY_STALE, launchKeyStale || encryptionChanged)
+    /** From a screen back to the hub, from the hub back to where Settings was opened. */
+    private fun goBack() {
+        if (fragmentManager.backStackEntryCount > 0)
+            fragmentManager.popBackStack()
+        else
+            finishWithResult()
     }
 
-    fun finishWithResult() {
-        val data = Intent()
-
-        data.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, encryptionChanged)
-        val encryptionKey = encryptionKey
-        if (encryptionKey != null)
-            data.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, encryptionKey.encoded)
-
-        setResult(RESULT_OK, data)
-        finish()
+    internal fun openScreen(screen: Screen) {
+        val fragment = SettingsFragment()
+        fragment.arguments = Bundle().apply { putString(ARG_SCREEN, screen.name) }
+        fragmentManager.beginTransaction()
+            .replace(R.id.container_content, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        finishWithResult()
-        return true
+    /** The preference to scroll to, once: see [EXTRA_SCROLL_TO_KEY]. */
+    internal fun takeScrollRequest(): String? {
+        val key = scrollRequest
+        scrollRequest = null
+        return key
     }
 
     private fun intentWithKey(screen: Class<*>): Intent {
@@ -205,6 +231,41 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
     /** The Security screen, the one place the lock method is set. */
     internal fun openSecurity() {
         securityLauncher.launch(intentWithKey(SecurityActivity::class.java))
+    }
+
+    internal fun openTags() {
+        manageLauncher.launch(intentWithKey(TagsActivity::class.java))
+    }
+
+    internal fun openRemovedAccounts() {
+        manageLauncher.launch(intentWithKey(RemovedAccountsActivity::class.java))
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putBoolean(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, encryptionChanged)
+        outState.putBoolean(RetainedDatabaseKey.STATE_LAUNCH_KEY_STALE, launchKeyStale || encryptionChanged)
+        outState.putBoolean(STATE_ENTRIES_CHANGED, entriesChanged)
+    }
+
+    fun finishWithResult() {
+        val data = Intent()
+
+        data.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, encryptionChanged)
+        val encryptionKey = encryptionKey
+        if (encryptionKey != null)
+            data.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, encryptionKey.encoded)
+        if (entriesChanged)
+            data.putExtra(EXTRA_RELOAD, true)
+
+        setResult(RESULT_OK, data)
+        finish()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        goBack()
+        return true
     }
 
     override fun onDestroy() {
@@ -422,12 +483,74 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
     companion object {
         /** A preference key: after a recreate(), the settings list scrolls to it. */
         const val EXTRA_SCROLL_TO_KEY = "settings_scroll_to_key"
+        /** Asks the list to reload its accounts, as the Tags screen does. */
+        private const val EXTRA_RELOAD = "reload"
+        private const val STATE_ENTRIES_CHANGED = "settings_entries_changed"
+        private const val ARG_SCREEN = "settings_screen"
         private const val SCROLL_ATTEMPTS = 10
         private const val SCROLL_RETRY_MS = 50L
         /** Survives recreation of this screen; see [RetainedJob]. */
         private val encryptionJob = RetainedJob<SettingsActivity>()
     }
 
+    /** The groups of settings, each a screen: its title, and the categories of preferences.xml it shows. */
+    internal enum class Screen(val title: Int, val categories: List<Int>) {
+        SECURITY(R.string.settings_category_title_security,
+            listOf(R.string.settings_key_cat_security, R.string.settings_key_cat_special)),
+        APPEARANCE(R.string.settings_category_title_appearance, listOf(R.string.settings_key_cat_ui)),
+        BEHAVIOUR(R.string.settings_category_title_behaviour, listOf(R.string.settings_key_cat_behaviour)),
+        BACKUP(R.string.settings_category_title_backup, listOf(R.string.settings_key_cat_backup)),
+        STORAGE(R.string.settings_hub_storage, listOf(R.string.settings_key_cat_storage))
+    }
+
+    /** The hub: a row for each [Screen], then the screens the settings work with. */
+    class HubFragment : Fragment() {
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+            val v = inflater.inflate(R.layout.content_settings_hub, container, false)
+            val settings = activity as SettingsActivity
+
+            bindRow(v, R.id.hub_security, R.drawable.ic_shield, Screen.SECURITY.title, R.string.settings_hub_security_desc) {
+                settings.openScreen(Screen.SECURITY)
+            }
+            bindRow(v, R.id.hub_appearance, R.drawable.ic_palette, Screen.APPEARANCE.title, R.string.settings_hub_appearance_desc) {
+                settings.openScreen(Screen.APPEARANCE)
+            }
+            bindRow(v, R.id.hub_behaviour, R.drawable.ic_touch_app, Screen.BEHAVIOUR.title, R.string.settings_hub_behaviour_desc) {
+                settings.openScreen(Screen.BEHAVIOUR)
+            }
+            bindRow(v, R.id.hub_backup, R.drawable.ic_backup_cloud, Screen.BACKUP.title, R.string.settings_hub_backup_desc) {
+                settings.openScreen(Screen.BACKUP)
+            }
+            bindRow(v, R.id.hub_storage, R.drawable.ic_storage, Screen.STORAGE.title, R.string.settings_hub_storage_desc) {
+                settings.openScreen(Screen.STORAGE)
+            }
+            bindRow(v, R.id.hub_tags, R.drawable.ic_tag, R.string.nav_tags, R.string.settings_hub_tags_desc) {
+                settings.openTags()
+            }
+            bindRow(v, R.id.hub_removed, R.drawable.ic_restore_from_trash, R.string.nav_removed, R.string.settings_hub_removed_desc) {
+                settings.openRemovedAccounts()
+            }
+            ViewCompat.setAccessibilityHeading(v.findViewById(R.id.hub_section_manage), true)
+            return v
+        }
+
+        override fun onResume() {
+            super.onResume()
+            activity.setTitle(R.string.settings_activity_title)
+        }
+
+        private fun bindRow(parent: View, id: Int, icon: Int, title: Int, subtitle: Int, action: () -> Unit) {
+            val row = parent.findViewById<View>(id)
+            row.findViewById<ImageView>(R.id.row_icon).setImageResource(icon)
+            row.findViewById<TextView>(R.id.row_title).setText(title)
+            val subtitleView = row.findViewById<TextView>(R.id.row_subtitle)
+            subtitleView.setText(subtitle)
+            subtitleView.visibility = View.VISIBLE
+            row.setOnClickListener { action() }
+        }
+    }
+
+    /** The settings of one [Screen], taken from preferences.xml. */
     class SettingsFragment : PreferenceFragment() {
         internal var catUI: PreferenceCategory? = null
 
@@ -483,8 +606,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
          * back to the setting that was changed, see [EXTRA_SCROLL_TO_KEY].
          */
         private fun scrollToRequestedPreference(view: View) {
-            val key = arguments?.getString(EXTRA_SCROLL_TO_KEY) ?: return
-            arguments?.remove(EXTRA_SCROLL_TO_KEY)
+            val key = (activity as SettingsActivity).takeScrollRequest() ?: return
             val target = findPreference(key) ?: return
             val list = view.findViewById<ListView>(android.R.id.list) ?: return
             scrollWhenBound(list, target, SCROLL_ATTEMPTS)
@@ -646,10 +768,44 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
                 startActivity(clearCacheIntent)
                 false
             }
+
+            val screen = arguments?.getString(ARG_SCREEN)
+            if (screen != null)
+                showOnly(Screen.valueOf(screen))
+        }
+
+        /**
+         * Keeps the settings of [screen] and drops the other groups. The first category's settings
+         * show without its heading, which is the screen's title already; a further category (the
+         * special features on the Security screen) keeps its heading, below them.
+         */
+        private fun showOnly(screen: Screen) {
+            val root = preferenceScreen
+            val keys = screen.categories.map { getString(it) }
+            val groups = (0 until root.preferenceCount).map { root.getPreference(it) }
+            for (group in groups) {
+                if (group.key !in keys)
+                    root.removePreference(group)
+            }
+
+            val main = findPreference(keys.first()) as PreferenceGroup
+            root.removePreference(main)
+            val children = (0 until main.preferenceCount).map { main.getPreference(it) }
+            for (i in 0 until root.preferenceCount)
+                root.getPreference(i).order = children.size + i
+            // In their order, so that each comes back after the setting it depends on.
+            children.forEachIndexed { i, child ->
+                main.removePreference(child)
+                child.order = i
+                root.addPreference(child)
+            }
         }
 
         override fun onResume() {
             super.onResume()
+            val screen = arguments?.getString(ARG_SCREEN)
+            if (screen != null)
+                activity.setTitle(Screen.valueOf(screen).title)
             updateAppLockSummary()
         }
 

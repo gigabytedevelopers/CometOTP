@@ -254,6 +254,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         if (encryptionChanged)
             updateEncryption(newKey)
 
+        // Accounts restored, or tags edited, from the screens Settings links to.
+        if (result.data!!.getBooleanExtra("reload", false)) {
+            adapter.loadEntries()
+            refreshTags()
+        }
+
         if (recreateActivity) {
             // Keeps the database key for the recreated screen, in memory only.
             ViewModelProvider(this)[RetainedKey::class.java].key = adapter.encryptionKey

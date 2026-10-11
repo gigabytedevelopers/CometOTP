@@ -4,8 +4,20 @@
 
     <!-- Categories -->
     <string name="settings_category_title_security">Security</string>
-    <string name="settings_category_title_ui">User Interface</string>
+    <string name="settings_category_title_appearance">Appearance</string>
+    <string name="settings_category_title_behaviour">Behaviour</string>
     <string name="settings_category_title_backup">Backup</string>
+
+    <!-- The settings hub (SettingsActivity): one row per group of settings, then other screens -->
+    <string name="settings_hub_security_desc">Lock, re-lock, encryption and privacy</string>
+    <string name="settings_hub_appearance_desc">Theme, colours, list style and how codes show</string>
+    <string name="settings_hub_behaviour_desc">Taps, copying, search and tag filtering</string>
+    <string name="settings_hub_backup_desc">Android sync, backup files, passwords and OpenPGP</string>
+    <string name="settings_hub_storage">Storage</string>
+    <string name="settings_hub_storage_desc">Clear the cache</string>
+    <string name="settings_hub_section_manage">Manage</string>
+    <string name="settings_hub_tags_desc">Create, edit and colour tags</string>
+    <string name="settings_hub_removed_desc">Restore accounts removed in the last 30 days</string>
 
     <!-- Titles -->
     <string name="settings_title_app_lock">App lock</string>

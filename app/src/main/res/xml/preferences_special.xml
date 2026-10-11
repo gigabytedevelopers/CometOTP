@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory
-        android:title="@string/about_title_special_features" >
+        android:title="@string/about_title_special_features"
+        android:key="@string/settings_key_cat_special">
 
         <CheckBoxPreference
             android:key="@string/settings_key_special_features"

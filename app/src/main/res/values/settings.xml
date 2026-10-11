@@ -27,6 +27,10 @@
     <string name="settings_key_auto_unlock_after_autofill" translatable="false">pref_auto_unlock_after_autofill</string>
 
     <string name="settings_key_cat_ui" translatable="false">perf_cat_ui</string>
+    <string name="settings_key_cat_behaviour" translatable="false">pref_cat_behaviour</string>
+    <string name="settings_key_cat_backup" translatable="false">pref_cat_backup</string>
+    <string name="settings_key_cat_storage" translatable="false">pref_cat_storage</string>
+    <string name="settings_key_cat_special" translatable="false">pref_cat_special</string>
     <string name="settings_key_app_lock" translatable="false">pref_app_lock</string>
     <string name="settings_key_theme_mode" translatable="false">perf_theme_mode</string>
     <string name="settings_key_theme_black_auto" translatable="false">pref_theme_black_auto</string>
