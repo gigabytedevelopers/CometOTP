@@ -45,7 +45,11 @@ object Constants {
     }
 
     enum class TapMode {
-        NOTHING, REVEAL, COPY, COPY_BACKGROUND, SEND_KEYSTROKES
+        NOTHING, REVEAL, COPY, COPY_BACKGROUND, SEND_KEYSTROKES;
+
+        /** Whether a tap set to this copies the token (and maybe goes to the background). */
+        val copies: Boolean
+            get() = this == COPY || this == COPY_BACKGROUND
     }
 
     enum class LabelDisplay {

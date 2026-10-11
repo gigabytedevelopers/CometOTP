@@ -764,6 +764,14 @@ class Settings(private val context: Context) {
             return Constants.TapMode.valueOf(doubleTap.uppercase(Locale.ENGLISH))
         }
 
+    /**
+     * Whether a tap on a card (single or double) copies its token. A card then needs no copy
+     * button, and its options sheet offers Copy instead; otherwise the button is there and the
+     * sheet leaves Copy out.
+     */
+    val tapCopies: Boolean
+        get() = tapSingle.copies || tapDouble.copies
+
     var backupLocation: Uri
         get() = Uri.parse(getString(R.string.settings_key_backup_location, ""))
         set(uri) {

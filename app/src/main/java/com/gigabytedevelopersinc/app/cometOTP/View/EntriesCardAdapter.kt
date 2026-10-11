@@ -978,6 +978,9 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         if (pin != null && entry.type == Entry.OTPType.MOTP)
             pin.visibility = View.VISIBLE
 
+        // Copy is only here while a tap copies and the card has no copy button: with the
+        // button there, it would be the same thing twice.
+        sheet.findViewById<View>(R.id.card_options_copy)?.visibility = if (settings.tapCopies) View.VISIBLE else View.GONE
         bindOption(sheet, R.id.card_options_copy) {
             val token = entry.currentOTP
             if (!token.isNullOrEmpty()) {

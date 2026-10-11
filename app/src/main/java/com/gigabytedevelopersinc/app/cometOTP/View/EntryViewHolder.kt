@@ -74,7 +74,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     private var isPreview = false
     /** What the card is called to screen readers: its issuer, or its label without one. */
     private var accessibleName: String? = ""
-    private var tapCopies = false
+    /** Whether a single tap copies: screen readers then announce the card's tap as copying. */
+    private var singleTapCopies = false
 
     init {
         valueLayout = v.findViewById(R.id.valueLayout)
@@ -206,11 +207,12 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         accessibleName = contentHint
         copyButton.contentDescription = context.getString(R.string.button_card_copy_format, contentHint)
 
-        // A tap on the card copies by default, which leaves the copy button with nothing to add;
-        // it stays for anyone who has tapping set to something else. Screen readers announce the
-        // card as copying the token (bindSelection).
-        tapCopies = settings.tapSingle == Constants.TapMode.COPY || settings.tapSingle == Constants.TapMode.COPY_BACKGROUND
-        copyButton.visibility = if (tapCopies || isPreview) View.GONE else View.VISIBLE
+        // A tap on the card (single or double) copies by default, which leaves the copy button
+        // with nothing to add, and the countdown or counter alone in the column, centred; the
+        // button stays for anyone whose taps do not copy (see Settings.tapCopies). Screen readers
+        // announce a single tap as copying the token (bindSelection).
+        singleTapCopies = settings.tapSingle.copies
+        copyButton.visibility = if (settings.tapCopies || isPreview) View.GONE else View.VISIBLE
 
         // A token should be ready by the time the card is bound. If one is not, the line shows a
         // mask rather than emptying out, so the card keeps its shape instead of collapsing and
@@ -363,7 +365,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             }
         } else {
             ViewCompat.setStateDescription(card, null)
-            if (tapCopies)
+            if (singleTapCopies)
                 ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_CLICK,
                     copyButton.contentDescription, null)
             ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_LONG_CLICK,
