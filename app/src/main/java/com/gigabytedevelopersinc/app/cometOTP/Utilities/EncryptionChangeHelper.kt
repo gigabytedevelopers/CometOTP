@@ -8,7 +8,8 @@ import javax.crypto.SecretKey
 
 /**
  * Re-encrypts the database with a new key, restoring the internal backup if anything fails.
- * Shared by the settings screen and the security screen.
+ * Shared by the settings screen and the security screen. The removed accounts ([RecycleBin])
+ * follow once the new key is in effect; they are deleted if they cannot.
  */
 object EncryptionChangeHelper {
 
@@ -75,13 +76,16 @@ object EncryptionChangeHelper {
         }
 
         if (DatabaseHelper.saveDatabase(context, entries, newEncryptionKey)) {
-            if (store())
+            if (store()) {
+                RecycleBin.reencrypt(context, currentKey, newEncryptionKey)
                 return Result(Status.SUCCESS, newEncryptionKey)
+            }
 
             if (putDatabaseBack(context, hadDatabase)) {
                 revert()
                 return Result(Status.SAVE_FAILED, null)
             }
+            RecycleBin.reencrypt(context, currentKey, newEncryptionKey)
             return Result(Status.SUCCESS, newEncryptionKey)
         }
 

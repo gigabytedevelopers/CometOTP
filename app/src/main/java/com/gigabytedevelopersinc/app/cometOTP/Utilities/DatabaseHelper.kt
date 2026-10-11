@@ -18,11 +18,13 @@ object DatabaseHelper {
 
     internal val DatabaseFileLock = Any()
 
+    /** Deletes the database, its internal backup and the removed accounts ([RecycleBin]). */
     fun wipeDatabase(context: Context) {
         val db = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE)
         val dbBackup = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE_BACKUP)
         db.delete()
         dbBackup.delete()
+        RecycleBin.wipe(context)
     }
 
     /** Whether a database has been saved (it can exist and still be unreadable). */

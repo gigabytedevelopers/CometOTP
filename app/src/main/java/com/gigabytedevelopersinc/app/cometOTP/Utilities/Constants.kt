@@ -101,6 +101,8 @@ object Constants {
     const val FILENAME_ENCRYPTED_KEY   = "otp.key"
     const val FILENAME_DATABASE        = "secrets.dat"
     const val FILENAME_DATABASE_BACKUP = "secrets.dat.bck"
+    // Removed accounts (RecycleBin), encrypted like the database and wiped with it
+    const val FILENAME_REMOVED         = "removed.dat"
 
     // Backup files
     const val BACKUP_FILENAME_PLAIN    = "otp_accounts.json"
