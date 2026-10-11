@@ -44,15 +44,13 @@
         android:layout_marginTop="@dimen/sheet_header_gap"
         android:hint="@string/tags_hint_name"
         app:endIconContentDescription="@string/tags_help_name"
-        app:endIconDrawable="@drawable/ic_info_filled"
-        app:endIconMode="custom"
-        app:hintEnabled="false">
+        app:endIconDrawable="@drawable/ic_info_outline"
+        app:endIconMode="custom">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tag_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/tags_hint_name"
             android:inputType="textCapWords"
             android:maxLines="1" />
 
@@ -86,7 +84,6 @@
             android:layout_weight="1"
             android:textAppearance="@style/TextAppearance.Comet.BodyLarge"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="15sp"
             tools:text="Blue" />
 
         <ImageView

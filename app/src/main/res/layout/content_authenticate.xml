@@ -38,7 +38,6 @@
         android:layout_marginTop="@dimen/space_lg"
         android:hint="@string/auth_hint_password"
         app:endIconMode="password_toggle"
-        app:hintEnabled="false"
         app:passwordToggleEnabled="true">
 
         <com.gigabytedevelopersinc.app.cometOTP.View.AutoFillable.AutoFillableTextInputEditText
@@ -46,12 +45,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints="password"
-            android:gravity="center"
-            android:hint="@string/auth_hint_password"
             android:imeOptions="actionDone"
             android:importantForAccessibility="no"
-            android:inputType="textPassword"
-            android:letterSpacing="0.15" />
+            android:inputType="textPassword" />
         <requestFocus/>
 
     </com.google.android.material.textfield.TextInputLayout>

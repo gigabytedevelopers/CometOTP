@@ -27,6 +27,7 @@
 
     <!-- Contact form -->
     <string name="contact_activity_title">Contact Us</string>
+    <string name="contact_hint_type">Topic</string>
     <string name="contact_hint_email">Email</string>
     <string name="contact_hint_problem">Problem</string>
     <string name="contact_device_info_note">Your device information will be sent to us to help fix your problem</string>

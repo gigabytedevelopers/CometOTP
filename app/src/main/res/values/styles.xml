@@ -12,7 +12,8 @@
 
     <attr name="navigationBarColor" format="reference" />
     <attr name="colorInputFill" format="color|reference" />
-    <attr name="colorInputFillAlt" format="color|reference" />
+    <!-- A text field's outline while it does not have focus -->
+    <attr name="colorInputStroke" format="color|reference" />
     <attr name="colorSheetHandle" format="color|reference" />
 
     <!-- Icons -->
@@ -39,7 +40,7 @@
         <item name="actionMenuTextAppearance">@style/TextAppearance.Comet.ActionMenu</item>
         <!-- Material colour roles -->
         <item name="colorInputFill">@color/input_fill_light</item>
-        <item name="colorInputFillAlt">@color/input_fill_alt_light</item>
+        <item name="colorInputStroke">@color/neutral_400</item>
         <item name="colorSheetHandle">@color/sheet_handle_light</item>
         <item name="colorPrimary">@color/primary_800</item>
         <item name="colorOnPrimary">@color/neutral_0</item>
@@ -157,7 +158,7 @@
 
     <style name="DialogTheme" parent="Theme.Material3Expressive.Light.Dialog.MinWidth">
         <item name="colorInputFill">@color/input_fill_dark</item>
-        <item name="colorInputFillAlt">@color/input_fill_alt_dark</item>
+        <item name="colorInputStroke">@color/neutral_400</item>
         <!-- A full theme, so the app theme's field style has to be named again here. -->
         <item name="textInputStyle">@style/Widget.Comet.TextInput</item>
         <item name="colorSheetHandle">@color/sheet_handle_dark</item>
@@ -177,7 +178,7 @@
         <!-- Text actions in a toolbar ("Empty" on Removed accounts), in sentence case like every other button -->
         <item name="actionMenuTextAppearance">@style/TextAppearance.Comet.ActionMenu</item>
         <item name="colorInputFill">@color/input_fill_dark</item>
-        <item name="colorInputFillAlt">@color/input_fill_alt_dark</item>
+        <item name="colorInputStroke">@color/input_stroke_dark</item>
         <item name="colorSheetHandle">@color/sheet_handle_dark</item>
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorOnPrimary">@color/neutral_0</item>
@@ -281,6 +282,7 @@
     </style>
 
     <style name="DialogTheme.Dark" parent="Theme.Material3Expressive.Dark.Dialog.MinWidth">
+        <item name="colorInputStroke">@color/input_stroke_dark</item>
         <item name="textInputStyle">@style/Widget.Comet.TextInput</item>
         <item name="colorPrimary">@color/primary_300</item>
         <item name="colorAccent">@color/primary_500</item>

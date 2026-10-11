@@ -78,8 +78,8 @@
     <dimen name="sheet_label_gap">@dimen/space_sm</dimen>
     <dimen name="sheet_section_gap">@dimen/space_lg</dimen>
     <dimen name="sheet_button_gap">@dimen/space_sm</dimen>
-    <dimen name="input_vertical_padding">17dp</dimen>
-    <dimen name="input_horizontal_padding">20dp</dimen>
+    <dimen name="input_vertical_padding">16dp</dimen>
+    <dimen name="input_horizontal_padding">16dp</dimen>
     <dimen name="thumbnail_tile_size">68dp</dimen>
     <dimen name="thumbnail_tile_radius">16dp</dimen>
 
