@@ -27,7 +27,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.AppTheme
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupHelper
@@ -96,6 +95,20 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
             val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             contentResolver.takePersistableUriPermission(treeUri, takeFlags)
             settings.backupLocation = treeUri
+        }
+    }
+
+    // The Security screen re-encrypts the database when the password it is encrypted with changes.
+    private val securityLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        if (result.resultCode == RESULT_OK && data != null &&
+            data.getBooleanExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_CHANGED, false)) {
+            val keyMaterial = data.getByteArrayExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY)
+            encryptionKey = if (keyMaterial != null && keyMaterial.isNotEmpty())
+                EncryptionHelper.generateSymmetricKey(keyMaterial) else null
+            encryptionChanged = true
         }
     }
 
@@ -179,6 +192,19 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
     override fun onSupportNavigateUp(): Boolean {
         finishWithResult()
         return true
+    }
+
+    private fun intentWithKey(screen: Class<*>): Intent {
+        val intent = Intent(this, screen)
+        val encryptionKey = encryptionKey
+        if (encryptionKey != null)
+            intent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, encryptionKey.encoded)
+        return intent
+    }
+
+    /** The Security screen, the one place the lock method is set. */
+    internal fun openSecurity() {
+        securityLauncher.launch(intentWithKey(SecurityActivity::class.java))
     }
 
     override fun onDestroy() {
@@ -272,58 +298,18 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
     }
 
     private fun tryEncryptionChange(newEnc: EncryptionType, newKey: ByteArray?) {
-        startEncryptionChange(newEnc, newKey, null, null)
-    }
-
-    /** Stores a new password or PIN, see [CredentialsPreference.EncryptionChangeCallback]. */
-    internal fun changeCredentials(method: AuthMethod, password: String) {
-        if (settings.encryption == EncryptionType.PASSWORD)
-            startEncryptionChange(EncryptionType.PASSWORD, null, method, password)
-        else
-            startCredentialChange(method, password)
+        startEncryptionChange(newEnc, newKey)
     }
 
     /**
-     * KeyStore encryption: derives the credentials for [password] (PBKDF2, too slow for the main
-     * thread) and stores them together with [method] on a background thread. The database key
-     * does not depend on them, so nothing is re-encrypted.
-     */
-    private fun startCredentialChange(method: AuthMethod, password: String) {
-        if (encryptionJob.isBusy)
-            return
-
-        showProgress()
-
-        val appContext = applicationContext
-        encryptionJob.start {
-            val settings = Settings(appContext)
-            val newCredentials = settings.generateAuthCredentials(password)
-            if (newCredentials != null)
-                settings.saveAuthCredentials(newCredentials, method)
-
-            val outcome: (SettingsActivity) -> Unit = { it.onCredentialChangeDone() }
-            outcome
-        }
-    }
-
-    /** Runs on whichever instance is resumed when [startCredentialChange]'s job has finished. */
-    private fun onCredentialChangeDone() {
-        hideProgress()
-        // Shows the stored method, which is still the old one if nothing could be stored.
-        fragment?.credentials?.updateSummary()
-    }
-
-    /**
-     * Re-encrypts the database for [newEnc] on a background thread; deriving a key (PBKDF2) and
-     * re-encrypting are too slow for the main thread. The key is [newKey], or the one derived
-     * from [password] when a new credential for [method] is being set.
+     * Re-encrypts the database for [newEnc] with [newKey] on a background thread; re-encrypting
+     * is too slow for the main thread. (A new password or PIN is set on the Security screen.)
      *
-     * On success whatever the new key depends on is stored right away on that thread: the new
-     * credentials and method, or the new encryption type. Stored state then always matches the
-     * key the database is encrypted with, even if no screen is left to show the result. On
-     * failure nothing is stored and the old key stays in effect.
+     * On success the new encryption type is stored right away on that thread. Stored state then
+     * always matches the key the database is encrypted with, even if no screen is left to show
+     * the result. On failure nothing is stored and the old key stays in effect.
      */
-    private fun startEncryptionChange(newEnc: EncryptionType, newKey: ByteArray?, method: AuthMethod?, password: String?) {
+    private fun startEncryptionChange(newEnc: EncryptionType, newKey: ByteArray?) {
         if (encryptionJob.isBusy)
             return
 
@@ -336,38 +322,28 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
         encryptionJob.start {
             val settings = Settings(appContext)
-            val newCredentials = if (password != null) settings.generateAuthCredentials(password) else null
-            val keyBytes = if (password != null) newCredentials?.key else newKey
 
             // Stored by changeEncryption() right after the re-encryption; if that write fails the
-            // old values are put back and the database returns to the old key.
-            val before = if (newCredentials != null)
-                settings.storedAuthCredentials()
-            else
-                settings.storedValues(R.string.settings_key_encryption)
+            // old value is put back and the database returns to the old key.
+            val before = settings.storedValues(R.string.settings_key_encryption)
             val store = {
-                if (newCredentials != null) {
-                    settings.saveAuthCredentials(newCredentials, method)
-                } else {
-                    // Stored the way the encryption ListPreference persists its value.
-                    PreferenceManager.getDefaultSharedPreferences(appContext).edit()
-                        .putString(encryptionPreferenceKey, newEnc.name.lowercase(Locale.ROOT))
-                        .commit()
-                }
+                // Stored the way the encryption ListPreference persists its value.
+                PreferenceManager.getDefaultSharedPreferences(appContext).edit()
+                    .putString(encryptionPreferenceKey, newEnc.name.lowercase(Locale.ROOT))
+                    .commit()
             }
             val revert = { settings.restoreValues(before); Unit }
 
-            // No key (e.g. the credential could not be derived) ends in Status.NO_KEY.
-            val result = EncryptionChangeHelper.changeEncryption(appContext, currentKey, newEnc, keyBytes, store, revert)
+            // No key ends in Status.NO_KEY.
+            val result = EncryptionChangeHelper.changeEncryption(appContext, currentKey, newEnc, newKey, store, revert)
 
-            val credentialsChanged = newCredentials != null
-            val outcome: (SettingsActivity) -> Unit = { it.onEncryptionChangeDone(newEnc, credentialsChanged, result) }
+            val outcome: (SettingsActivity) -> Unit = { it.onEncryptionChangeDone(newEnc, result) }
             outcome
         }
     }
 
     /** Runs on whichever instance is resumed when [startEncryptionChange]'s job has finished. */
-    private fun onEncryptionChangeDone(newEnc: EncryptionType, credentialsChanged: Boolean, result: EncryptionChangeHelper.Result) {
+    private fun onEncryptionChangeDone(newEnc: EncryptionType, result: EncryptionChangeHelper.Result) {
         hideProgress()
 
         when (result.status) {
@@ -377,8 +353,6 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
                 // Already stored; this updates the preferences shown on screen.
                 fragment?.encryption?.value = newEnc.name.lowercase(Locale.ROOT)
-                if (credentialsChanged)
-                    fragment?.credentials?.updateSummary()
 
                 Snackbar.make(findViewById<View>(R.id.container_content), R.string.settings_toast_encryption_change_success, Snackbar.LENGTH_LONG).show()
             }
@@ -459,7 +433,7 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
         internal lateinit var settings: Settings
         internal var encryption: ListPreference? = null
-        internal var credentials: CredentialsPreference? = null
+        internal var appLock: Preference? = null
         internal var useAutoBackup: ListPreference? = null
         internal var useAndroidSync: CheckBoxPreference? = null
 
@@ -537,9 +511,12 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
 
             addPreferencesFromResource(R.xml.preferences)
 
-            val credentialsPreference = findPreference(getString(R.string.settings_key_auth)) as CredentialsPreference
-            credentials = credentialsPreference
-            credentialsPreference.setEncryptionChangeCallback { method, password -> (activity as SettingsActivity).changeCredentials(method, password) }
+            val appLock = findPreference(getString(R.string.settings_key_app_lock))!!
+            this.appLock = appLock
+            appLock.setOnPreferenceClickListener {
+                (activity as SettingsActivity).openSecurity()
+                true
+            }
 
             val blockAutofill = findPreference(getString(R.string.settings_key_block_autofill)) as CheckBoxPreference
             val autoUnlockAfterAutofill = findPreference(getString(R.string.settings_key_auto_unlock_after_autofill)) as CheckBoxPreference
@@ -669,6 +646,21 @@ class SettingsActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceCha
                 startActivity(clearCacheIntent)
                 false
             }
+        }
+
+        override fun onResume() {
+            super.onResume()
+            updateAppLockSummary()
+        }
+
+        /** Shows the lock method as the Security screen does; it can have changed there. */
+        private fun updateAppLockSummary() {
+            appLock?.setSummary(when (settings.authMethod) {
+                AuthMethod.PIN -> R.string.security_status_pin
+                AuthMethod.PASSWORD -> R.string.security_status_password
+                AuthMethod.DEVICE -> R.string.security_status_device
+                AuthMethod.NONE -> R.string.settings_app_lock_off
+            })
         }
     }
 }

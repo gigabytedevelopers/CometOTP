@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.SystemClock
 import android.preference.PreferenceManager
 import android.util.Base64
-import com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Tasks.upgradeAuthCredentials
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
@@ -211,7 +210,7 @@ class Settings(private val context: Context) {
 
     var authMethod: AuthMethod
         get() {
-            val authString = getString(R.string.settings_key_auth, CredentialsPreference.DEFAULT_VALUE.name.lowercase(Locale.ENGLISH))
+            val authString = getString(R.string.settings_key_auth, AuthMethod.NONE.name.lowercase(Locale.ENGLISH))
             return AuthMethod.valueOf(authString.uppercase(Locale.ENGLISH))
         }
         set(authMethod) {

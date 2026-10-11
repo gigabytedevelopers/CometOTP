@@ -16,9 +16,10 @@
             app:minValue="@integer/settings_min_tap_to_reveal_timeout"
             app:maxValue="@integer/settings_max_tap_to_reveal_timeout" />
 
-        <com.gigabytedevelopersinc.app.cometOTP.Preferences.CredentialsPreference
-            android:key="@string/settings_key_auth"
-            android:title="@string/settings_title_auth" />
+        <!-- Opens the Security screen, the one place the lock method is set (SettingsActivity) -->
+        <Preference
+            android:key="@string/settings_key_app_lock"
+            android:title="@string/settings_title_app_lock" />
 
         <ListPreference
             android:key="@string/settings_key_encryption"
