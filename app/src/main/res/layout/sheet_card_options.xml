@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Options for a single service, opened from the card's overflow button -->
+<!-- Options for a single service, opened with a long press on its card -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -12,19 +12,26 @@
 
     <View style="@style/Widget.Comet.SheetHandle" />
 
-    <TextView
-        android:id="@+id/card_options_title"
+    <!-- The card itself, kept up to date, so it is clear which service the options are for
+         (EntriesCardAdapter.showOptionsSheet) -->
+    <FrameLayout
+        android:id="@+id/card_options_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md"
-        android:layout_marginBottom="@dimen/space_xs"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:paddingStart="@dimen/space_md"
-        android:paddingEnd="@dimen/space_md"
-        android:textAppearance="@style/TextAppearance.Comet.TitleMedium"
-        android:textColor="?attr/colorOnSurface"
-        tools:text="1&amp;1" />
+        android:layout_marginTop="@dimen/space_sm"
+        android:layout_marginBottom="@dimen/space_sm" />
+
+    <TextView
+        android:id="@+id/card_options_copy"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/menu_popup_copy"
+        app:drawableStartCompat="@drawable/ic_copy" />
+
+    <TextView
+        android:id="@+id/card_options_select"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/menu_popup_select"
+        app:drawableStartCompat="@drawable/ic_checklist" />
 
     <TextView
         android:id="@+id/card_options_edit"

@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Database.EntryList
+import com.gigabytedevelopersinc.app.cometOTP.Dialogs.BulkTagsDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ManualEntryDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ThumbnailPickerSheet
 import com.gigabytedevelopersinc.app.cometOTP.R
@@ -48,6 +49,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import java.lang.ref.WeakReference
+import java.util.Collections
+import java.util.IdentityHashMap
 import java.util.Locale
 import java.util.concurrent.Executors
 import javax.crypto.SecretKey
@@ -82,6 +85,15 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             field = mode
             entriesChanged(RecyclerView.NO_POSITION)
         }
+
+    /**
+     * Manage mode: tapping a card selects it, and the selected entries can be removed or tagged
+     * together. Entries are held by identity: the displayed list holds the same objects as the
+     * stored one, and two entries may be equal while being different accounts' copies.
+     */
+    var selectionMode = false
+        private set
+    private val selected: MutableSet<Entry> = Collections.newSetFromMap(IdentityHashMap())
 
     init {
         this.entryList = EntryList()
@@ -314,6 +326,15 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         else
             entryList.getFilteredEntries(searchQuery, settings.searchValues, sortMode)
 
+        // Only what is on screen stays selected: an action on cards out of sight (removed, or
+        // filtered away) would come as a surprise.
+        if (selected.isNotEmpty()) {
+            val shown: MutableSet<Entry> = Collections.newSetFromMap(IdentityHashMap())
+            shown.addAll(displayedEntries)
+            if (selected.retainAll(shown))
+                callback?.onSelectionChanged(selected.size)
+        }
+
         notifyDataSetChanged()
     }
 
@@ -345,7 +366,12 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
     override fun onBindViewHolder(entryViewHolder: EntryViewHolder, i: Int) {
         val entry = displayedEntries[i]
+        bindEntry(entryViewHolder, entry)
+        entryViewHolder.bindSelection(selectionMode, selected.contains(entry), selectionMode && canReorder())
+    }
 
+    /** Shows [entry] on [holder]: a card in the list, or the copy heading its options sheet. */
+    private fun bindEntry(holder: EntryViewHolder, entry: Entry) {
         // Every entry gets its token worked out as the card is bound, rather than only the
         // counter-based ones. A time-based entry whose token is still current returns straight
         // away, so this costs nothing in the common case, and a freshly loaded entry no longer
@@ -353,14 +379,120 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         entry.updateOTP(false)
 
         if (settings.isHighlightTokenOptionEnabled)
-            entryViewHolder.updateColor(entry.color)
-        entryViewHolder.updateValues(entry)
+            holder.updateColor(entry.color)
+        holder.updateValues(entry)
 
-        entryViewHolder.setLabelSize(settings.labelSize)
-        entryViewHolder.setLabelScroll(settings.labelDisplay)
+        holder.setLabelSize(settings.labelSize)
+        holder.setLabelScroll(settings.labelDisplay)
 
         if (settings.thumbnailVisible)
-            entryViewHolder.setThumbnailSize(settings.thumbnailSize)
+            holder.setThumbnailSize(settings.thumbnailSize)
+    }
+
+    /* Manage mode */
+
+    /** Starts manage mode, with the card at [position] selected (none for NO_POSITION). */
+    fun startSelection(position: Int) {
+        selectionMode = true
+        if (position in displayedEntries.indices)
+            selected.add(displayedEntries[position])
+        notifyItemRangeChanged(0, itemCount)
+        callback?.onSelectionChanged(selected.size)
+    }
+
+    fun endSelection() {
+        if (!selectionMode)
+            return
+        selectionMode = false
+        selected.clear()
+        notifyItemRangeChanged(0, itemCount)
+    }
+
+    private fun toggleSelection(position: Int) {
+        val entry = displayedEntries[position]
+        if (!selected.remove(entry))
+            selected.add(entry)
+        notifyItemChanged(position)
+        callback?.onSelectionChanged(selected.size)
+    }
+
+    val selectedCount: Int
+        get() = selected.size
+
+    val allSelected: Boolean
+        get() = displayedEntries.isNotEmpty() && selected.size == displayedEntries.size
+
+    /** Selects every card on screen, or none once they all are. */
+    fun toggleSelectAll() {
+        if (allSelected)
+            selected.clear()
+        else
+            selected.addAll(displayedEntries)
+        notifyItemRangeChanged(0, itemCount)
+        callback?.onSelectionChanged(selected.size)
+    }
+
+    /**
+     * Whether the cards can be dragged into a new order: only while the list shows every entry in
+     * its own order, since that is the order a move changes (see [onItemMove]).
+     */
+    fun canReorder(): Boolean {
+        return sortMode == SortMode.UNSORTED && searchQuery.isEmpty() && entryList.isEqual(displayedEntries)
+    }
+
+    /** The selected entries, in the order they are shown. */
+    private fun selectedInOrder(): List<Entry> {
+        return displayedEntries.filter { selected.contains(it) }
+    }
+
+    /** Asks before removing every selected entry, naming them, then leaves manage mode. */
+    fun removeSelected() {
+        val toRemove = selectedInOrder()
+        if (toRemove.isEmpty())
+            return
+
+        val names = toRemove.take(MAX_NAMES_LISTED).joinToString("\n") { "• " + displayName(it) }
+        val more = toRemove.size - MAX_NAMES_LISTED
+        val list = if (more > 0) names + "\n" + context.resources.getQuantityString(R.plurals.label_and_more, more, more) else names
+
+        MaterialAlertDialogBuilder(context)
+            .setTitle(context.resources.getQuantityString(R.plurals.dialog_title_remove_selected, toRemove.size, toRemove.size))
+            .setMessage(context.resources.getQuantityString(R.plurals.dialog_msg_remove_selected, toRemove.size, list))
+            .setPositiveButton(R.string.menu_popup_remove) { _, _ ->
+                for (entry in toRemove) {
+                    val realIndex = entryList.indexOf(entry)
+                    if (realIndex < 0)
+                        continue
+                    cancelHideTask(entryList.getEntry(realIndex))
+                    entryList.removeEntry(realIndex)
+                }
+                selected.clear()
+                saveAndRefresh(settings.autoBackupEncryptedFullEnabled)
+                callback?.onSelectionFinished()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /** Adds tags to, or takes them off, every selected entry at once. */
+    fun tagSelected() {
+        val toTag = selectedInOrder()
+        if (toTag.isEmpty())
+            return
+
+        BulkTagsDialog.show(context, toTag, tags) {
+            saveAndRefresh(settings.autoBackupEncryptedFullEnabled)
+        }
+    }
+
+    private fun displayName(entry: Entry): String {
+        val issuer = entry.issuer
+        val label = entry.label
+        return when {
+            issuer.isNotEmpty() && !label.isNullOrEmpty() -> "$issuer ($label)"
+            issuer.isNotEmpty() -> issuer
+            else -> label ?: ""
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): EntryViewHolder {
@@ -376,8 +508,21 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                 callback?.onMoveEventStop()
             }
 
-            override fun onMenuButtonClicked(parentView: View, position: Int) {
-                showPopupMenu(parentView, position)
+            override fun onCardLongClicked(position: Int) {
+                if (selectionMode)
+                    toggleSelection(position)
+                else
+                    showOptionsSheet(position)
+            }
+
+            override fun onStartDrag(holder: EntryViewHolder) {
+                if (selectionMode && canReorder())
+                    callback?.onStartDrag(holder)
+            }
+
+            override fun onMoveRequested(from: Int, to: Int) {
+                if (selectionMode && canReorder() && to in displayedEntries.indices)
+                    onItemMove(from, to)
             }
 
             override fun onCopyButtonClicked(text: String, position: Int) {
@@ -385,6 +530,10 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             }
 
             override fun onCardSingleClicked(position: Int, text: String) {
+                if (selectionMode) {
+                    toggleSelection(position)
+                    return
+                }
                 when (settings.tapSingle) {
                     Constants.TapMode.REVEAL -> {
                         establishPinIfNeeded(position)
@@ -412,6 +561,8 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
 
             override fun onCardDoubleClicked(position: Int, text: String) {
+                if (selectionMode)
+                    return
                 when (settings.tapDouble) {
                     Constants.TapMode.REVEAL -> {
                         establishPinIfNeeded(position)
@@ -774,25 +925,49 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     }
 
     /**
-     * Options for a single service, as the bottom sheet the redesign uses for every other menu.
-     * The tapped row fills in before the sheet closes, matching the navigation and add sheets.
+     * Options for a single service, opened with a long press on its card. The card itself heads
+     * the sheet and keeps ticking, so it is clear which service the options are for. The tapped
+     * row fills in before the sheet closes, matching the navigation and add sheets.
      */
-    private fun showPopupMenu(view: View, pos: Int) {
+    private fun showOptionsSheet(pos: Int) {
         val entry = displayedEntries[pos]
 
         val sheet = BottomSheetDialog(context)
         sheet.setContentView(R.layout.sheet_card_options)
 
-        val title = sheet.findViewById<TextView>(R.id.card_options_title)
-        if (title != null) {
-            val issuer = entry.issuer
-            title.text = if (TextUtils.isEmpty(issuer)) entry.label else issuer
+        val header = sheet.findViewById<FrameLayout>(R.id.card_options_header)
+        if (header != null) {
+            val cardView = LayoutInflater.from(context).inflate(R.layout.component_card, header, false)
+            header.addView(cardView)
+            val preview = EntryViewHolder(context, cardView, settings.tapToReveal)
+            preview.showAsPreview()
+            bindEntry(preview, entry)
+
+            // Rebound just after each second turns, as the list's own updater does.
+            val ticker = object : Runnable {
+                override fun run() {
+                    bindEntry(preview, entry)
+                    taskHandler.postDelayed(this, untilNextSecond())
+                }
+            }
+            taskHandler.postDelayed(ticker, untilNextSecond())
+            sheet.setOnDismissListener { taskHandler.removeCallbacks(ticker) }
         }
 
         val pin = sheet.findViewById<View>(R.id.card_options_pin)
         if (pin != null && entry.type == Entry.OTPType.MOTP)
             pin.visibility = View.VISIBLE
 
+        bindOption(sheet, R.id.card_options_copy) {
+            val token = entry.currentOTP
+            if (!token.isNullOrEmpty()) {
+                establishPinIfNeeded(pos)
+                copyHandler(pos, token, false)
+            }
+        }
+        bindOption(sheet, R.id.card_options_select) {
+            callback?.onSelectionRequested(pos)
+        }
         bindOption(sheet, R.id.card_options_edit) {
             ManualEntryDialog.show(context as MainActivity, settings, this@EntriesCardAdapter,
                     entryList.getEntry(getRealIndex(pos))
@@ -805,6 +980,11 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         bindOption(sheet, R.id.card_options_remove) { removeItem(pos) }
 
         sheet.show()
+    }
+
+    /** Milliseconds until just after the next whole second. */
+    private fun untilNextSecond(): Long {
+        return 1000 - System.currentTimeMillis() % 1000 + 20
     }
 
     private fun bindOption(sheet: BottomSheetDialog, id: Int, action: Runnable) {
@@ -834,11 +1014,23 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     interface Callback {
         fun onMoveEventStart()
         fun onMoveEventStop()
+
+        /** "Select" in a card's options: start manage mode with that card selected. */
+        fun onSelectionRequested(position: Int)
+        /** Manage mode: [count] cards are selected now. */
+        fun onSelectionChanged(count: Int)
+        /** Manage mode is done with, e.g. after removing the selected cards. */
+        fun onSelectionFinished()
+        /** Manage mode: drag [holder] by its handle. */
+        fun onStartDrag(holder: EntryViewHolder)
     }
 
     companion object {
         /** How long a tapped option stays highlighted before its sheet closes. */
         private const val CARD_OPTION_FEEDBACK_MS = 180L
+
+        /** How many of the selected entries a removal names before "and N more". */
+        private const val MAX_NAMES_LISTED = 5
 
         private var sharedEncryptionKey: SecretKey? = null
 

@@ -23,7 +23,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 /**
  * An implementation of [ItemTouchHelper.Callback] that enables basic drag & drop and
- * swipe-to-dismiss. Drag events are automatically started by an item long-press.<br/>
+ * swipe-to-dismiss. Drags start from a card's handle in manage mode (ItemTouchHelper.startDrag);
+ * a long press opens the card's options instead.<br/>
  * </br/>
  * Expects the <code>RecyclerView.Adapter</code> to listen for
  * [ItemTouchHelperAdapter] callbacks and the <code>RecyclerView.ViewHolder</code> to implement
@@ -37,15 +38,10 @@ class SimpleItemTouchHelperCallback(adapter: ItemTouchHelperAdapter) : ItemTouch
         const val ALPHA_FULL = 1.0f
     }
 
-    private var dragEnabled = true
     private val mAdapter: ItemTouchHelperAdapter = adapter
 
-    fun setDragEnabled(newDragState: Boolean) {
-        this.dragEnabled = newDragState
-    }
-
     override fun isLongPressDragEnabled(): Boolean {
-        return dragEnabled
+        return false
     }
 
     override fun isItemViewSwipeEnabled(): Boolean {

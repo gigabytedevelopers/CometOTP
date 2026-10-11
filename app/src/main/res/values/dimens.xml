@@ -87,6 +87,7 @@
     <dimen name="card_vertical_margin">3dp</dimen><!-- the spacing the previous app used -->
     <dimen name="token_line_height">40dp</dimen>
     <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_selected_stroke">2dp</dimen><!-- a selected card in manage mode -->
     <dimen name="card_padding_without_corners">14dp</dimen>
     <dimen name="card_thumbnail_size">44dp</dimen>
     <!-- As tall as a card showing an issuer, a token and a label (12 + 16 + 30 + 16 + 12dp, measured

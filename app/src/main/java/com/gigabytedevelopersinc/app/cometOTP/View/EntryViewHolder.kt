@@ -1,9 +1,12 @@
 @file:Suppress("PackageName")
 package com.gigabytedevelopersinc.app.cometOTP.View
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.text.TextUtils
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
@@ -24,11 +27,13 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.ItemTouchHelperViewHolder
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.checkbox.MaterialCheckBox
 import java.util.Locale
 
 /**
  * Binds one [Entry] to the redesigned service card: issuer icon, issuer, token, account
- * label, optional tag chip, HOTP counter, per-card countdown ring and the overflow menu.
+ * label, optional tag chip, HOTP counter and per-card countdown ring. A long press opens the
+ * card's options; in manage mode (see [bindSelection]) a tap selects the card instead.
  */
 class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolean) :
     RecyclerView.ViewHolder(v), ItemTouchHelperViewHolder {
@@ -44,7 +49,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     private val thumbnailImg: ImageView
 
     private val copyButton: ImageButton
-    private val menuButton: ImageButton
+    private val selectCheck: MaterialCheckBox = v.findViewById(R.id.selectCheck)
+    private val dragHandle: View = v.findViewById(R.id.dragHandle)
     private val value: TextView = v.findViewById(R.id.valueText)
     private val valuePrev: TextView = v.findViewById(R.id.valueTextPrev)
     private val valueNext: TextView = v.findViewById(R.id.valueTextNext)
@@ -56,6 +62,14 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     private val countdown: CountdownRingView
 
     private val defaultValueColor: Int
+
+    /** Manage mode, see [bindSelection]. */
+    private var selectionMode = false
+    /** The copy of the card heading its options sheet, see [showAsPreview]. */
+    private var isPreview = false
+    /** What the card is called to screen readers: its issuer, or its label without one. */
+    private var accessibleName: String? = ""
+    private var tapCopies = false
 
     init {
         valueLayout = v.findViewById(R.id.valueLayout)
@@ -69,14 +83,9 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         counter = v.findViewById(R.id.counter)
         countdown = v.findViewById(R.id.cardCountdown)
         copyButton = v.findViewById(R.id.copyButton)
-        menuButton = v.findViewById(R.id.menuButton)
 
         defaultValueColor = value.currentTextColor
-
-        menuButton.setOnClickListener {
-            val position = currentPosition() ?: return@setOnClickListener
-            callback?.onMenuButtonClicked(itemView, position)
-        }
+        card.setStrokeColor(ColorStateList.valueOf(Tools.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)))
 
         copyButton.setOnClickListener {
             val position = currentPosition() ?: return@setOnClickListener
@@ -98,8 +107,9 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         }
 
         // Without a double-tap action a single tap acts at once, rather than after the 300 ms a
-        // second tap would have had. With tap-to-copy that wait was the lag of every copy.
-        card.setOnClickListener(object : SimpleDoubleClickListener({ Settings(context).tapDouble != Constants.TapMode.NOTHING }) {
+        // second tap would have had. With tap-to-copy that wait was the lag of every copy. In
+        // manage mode a tap only selects, so it never waits.
+        card.setOnClickListener(object : SimpleDoubleClickListener({ !selectionMode && Settings(context).tapDouble != Constants.TapMode.NOTHING }) {
             // value.tag is null while no token has been worked out. There is nothing to copy,
             // reveal or send yet, so the tap is ignored, as the copy button already does.
             override fun onSingleClick(v: View) {
@@ -115,7 +125,29 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             }
         })
 
+        card.setOnLongClickListener {
+            val position = currentPosition() ?: return@setOnLongClickListener false
+            callback?.onCardLongClicked(position)
+            true
+        }
+
+        dragHandle.setOnTouchListener(DragHandleTouch())
+
         setTapToReveal(tapToReveal)
+    }
+
+    /**
+     * Starts dragging the card as soon as its handle is touched. The handle is for dragging only;
+     * screen readers move the card with the "Move up" and "Move down" actions instead (see
+     * [bindSelection]), so it needs no click.
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private inner class DragHandleTouch : View.OnTouchListener {
+        override fun onTouch(v: View, event: MotionEvent): Boolean {
+            if (event.actionMasked == MotionEvent.ACTION_DOWN)
+                callback?.onStartDrag(this@EntryViewHolder)
+            return false
+        }
     }
 
     /**
@@ -163,19 +195,14 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             label.visibility = View.GONE
         }
 
-        menuButton.contentDescription = context.getString(R.string.button_card_options_format, contentHint)
-        val copyLabel = context.getString(R.string.button_card_copy_format, contentHint)
-        copyButton.contentDescription = copyLabel
+        accessibleName = contentHint
+        copyButton.contentDescription = context.getString(R.string.button_card_copy_format, contentHint)
 
         // A tap on the card copies by default, which leaves the copy button with nothing to add;
         // it stays for anyone who has tapping set to something else. Screen readers announce the
-        // card as copying the token.
-        val tapCopies = settings.tapSingle == Constants.TapMode.COPY || settings.tapSingle == Constants.TapMode.COPY_BACKGROUND
-        copyButton.visibility = if (tapCopies) View.GONE else View.VISIBLE
-        if (tapCopies)
-            ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_CLICK, copyLabel, null)
-        else
-            ViewCompat.setAccessibilityDelegate(card, null)
+        // card as copying the token (bindSelection).
+        tapCopies = settings.tapSingle == Constants.TapMode.COPY || settings.tapSingle == Constants.TapMode.COPY_BACKGROUND
+        copyButton.visibility = if (tapCopies || isPreview) View.GONE else View.VISIBLE
 
         // A token should be ready by the time the card is bound. If one is not, the line shows a
         // mask rather than emptying out, so the card keeps its shape instead of collapsing and
@@ -263,6 +290,72 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         }
     }
 
+    /**
+     * Manage mode ([selecting]): a tap selects the card instead of copying, a check shows whether
+     * it is [selected], and a handle drags it while the list can be reordered ([canDrag]). The
+     * copy button, countdown and counter make way for them. Outside manage mode a long press
+     * opens the card's options. Runs after [updateValues], which shows what this hides.
+     */
+    fun bindSelection(selecting: Boolean, selected: Boolean, canDrag: Boolean) {
+        selectionMode = selecting
+        selectCheck.isChecked = selected
+        selectCheck.visibility = if (selecting) View.VISIBLE else View.GONE
+        dragHandle.visibility = if (selecting && canDrag) View.VISIBLE else View.GONE
+        card.strokeWidth = if (selecting && selected)
+            context.resources.getDimensionPixelSize(R.dimen.card_selected_stroke) else 0
+        if (selecting) {
+            copyButton.visibility = View.GONE
+            counterLayout.visibility = View.GONE
+            countdown.stop()
+            countdown.visibility = View.GONE
+        }
+
+        // Starts from no custom actions, as the mode or the setting may have changed since.
+        ViewCompat.setAccessibilityDelegate(card, null)
+        if (selecting) {
+            ViewCompat.setStateDescription(card,
+                context.getString(if (selected) R.string.state_selected else R.string.state_not_selected))
+            ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_CLICK,
+                context.getString(if (selected) R.string.action_deselect else R.string.action_select), null)
+            ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_LONG_CLICK, null, null)
+            if (canDrag) {
+                ViewCompat.addAccessibilityAction(card, context.getString(R.string.action_move_up)) { _, _ ->
+                    val position = currentPosition()
+                    if (position != null) callback?.onMoveRequested(position, position - 1)
+                    true
+                }
+                ViewCompat.addAccessibilityAction(card, context.getString(R.string.action_move_down)) { _, _ ->
+                    val position = currentPosition()
+                    if (position != null) callback?.onMoveRequested(position, position + 1)
+                    true
+                }
+            }
+        } else {
+            ViewCompat.setStateDescription(card, null)
+            if (tapCopies)
+                ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_CLICK,
+                    copyButton.contentDescription, null)
+            ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_LONG_CLICK,
+                context.getString(R.string.button_card_options_format, accessibleName), null)
+        }
+    }
+
+    /**
+     * Makes this the copy of the card heading its options sheet: it shows the entry and keeps
+     * ticking, but touching it does nothing.
+     */
+    fun showAsPreview() {
+        isPreview = true
+        callback = null
+        card.isClickable = false
+        card.isLongClickable = false
+        card.isFocusable = false
+        counterLayout.isClickable = false
+        counterLayout.isLongClickable = false
+        copyButton.visibility = View.GONE
+        ViewCompat.setAccessibilityDelegate(card, null)
+    }
+
     fun setLabelSize(size: Int) {
         // The design uses a fixed type scale; the label size setting scales the token instead so
         // the user preference still has a visible effect. The token auto-sizes to fit its line,
@@ -333,8 +426,13 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         fun onMoveEventStart()
         fun onMoveEventStop()
 
-        fun onMenuButtonClicked(parentView: View, position: Int)
         fun onCopyButtonClicked(text: String, position: Int)
+        fun onCardLongClicked(position: Int)
+
+        /** Manage mode: the card's handle was touched. */
+        fun onStartDrag(holder: EntryViewHolder)
+        /** Manage mode: a screen reader asked to move the card from one position to another. */
+        fun onMoveRequested(from: Int, to: Int)
 
         fun onCardSingleClicked(position: Int, text: String)
         fun onCardDoubleClicked(position: Int, text: String)

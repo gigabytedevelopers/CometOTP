@@ -63,4 +63,10 @@
         android:text="@string/label_filter_by_tags"
         app:drawableStartCompat="@drawable/ic_tag" />
 
+    <TextView
+        android:id="@+id/sort_manage_list"
+        style="@style/Widget.Comet.NavRow"
+        android:text="@string/label_manage_list"
+        app:drawableStartCompat="@drawable/ic_checklist" />
+
 </LinearLayout>

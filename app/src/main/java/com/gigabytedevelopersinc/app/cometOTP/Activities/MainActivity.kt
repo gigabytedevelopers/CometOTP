@@ -32,6 +32,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.RadioGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -58,6 +59,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ImportPasswordDialog
@@ -87,6 +89,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.UIHelper
 import com.gigabytedevelopersinc.app.cometOTP.View.CoachMarkOverlay
 import com.gigabytedevelopersinc.app.cometOTP.View.CountdownRingView
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter
+import com.gigabytedevelopersinc.app.cometOTP.View.EntryViewHolder
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.SimpleItemTouchHelperCallback
 import com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter
@@ -105,6 +108,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     private lateinit var adapter: EntriesCardAdapter
     private lateinit var touchHelperCallback: SimpleItemTouchHelperCallback
+    private lateinit var touchHelper: ItemTouchHelper
     private var activeSheet: BottomSheetDialog? = null
 
     private var encryptionType = EncryptionType.KEYSTORE
@@ -151,6 +155,14 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private lateinit var tagsDrawerAdapter: TagsAdapter
     private var filterString: String? = null
     private var searchMode = false
+
+    /* Manage mode: select cards to remove or tag together, and drag them by their handles. */
+    private var manageMode = false
+    private lateinit var appBarSelection: View
+    private lateinit var selectionTitle: TextView
+    private lateinit var selectionAll: ImageButton
+    private lateinit var selectionTags: View
+    private lateinit var selectionDelete: View
 
     private var countDownTimer: CountDownTimer? = null
 
@@ -364,10 +376,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private fun restoreSortMode() {
         // settings is always set by ThemedActivity.onCreate() by the time this runs.
         if (::adapter.isInitialized && ::touchHelperCallback.isInitialized) {
-            val mode = settings.sortMode
-            adapter.sortMode = mode
-
-            touchHelperCallback.setDragEnabled(mode == SortMode.UNSORTED)
+            adapter.sortMode = settings.sortMode
         }
     }
 
@@ -492,8 +501,9 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         recList.adapter = adapter
 
+        // Cards are dragged by their handles in manage mode; a long press opens their options.
         touchHelperCallback = SimpleItemTouchHelperCallback(adapter)
-        val touchHelper = ItemTouchHelper(touchHelperCallback)
+        touchHelper = ItemTouchHelper(touchHelperCallback)
         touchHelper.attachToRecyclerView(recList)
 
         NotificationHelper.initializeNotificationChannels(this)
@@ -516,6 +526,22 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
             override fun onMoveEventStop() {
                 startUpdater()
+            }
+
+            override fun onSelectionRequested(position: Int) {
+                enterManageMode(position)
+            }
+
+            override fun onSelectionChanged(count: Int) {
+                updateSelectionBar(count)
+            }
+
+            override fun onSelectionFinished() {
+                exitManageMode()
+            }
+
+            override fun onStartDrag(holder: EntryViewHolder) {
+                touchHelper.startDrag(holder)
             }
         })
 
@@ -579,6 +605,16 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         updateSortIcon(settings.sortMode)
 
         findViewById<View>(R.id.searchBack).setOnClickListener { exitSearchMode() }
+
+        appBarSelection = findViewById(R.id.appBarSelection)
+        selectionTitle = findViewById(R.id.selectionTitle)
+        selectionAll = findViewById(R.id.selectionAll)
+        selectionTags = findViewById(R.id.selectionTags)
+        selectionDelete = findViewById(R.id.selectionDelete)
+        findViewById<View>(R.id.selectionClose).setOnClickListener { exitManageMode() }
+        selectionAll.setOnClickListener { adapter.toggleSelectAll() }
+        selectionTags.setOnClickListener { adapter.tagSelected() }
+        selectionDelete.setOnClickListener { adapter.removeSelected() }
         val searchClear = findViewById<View>(R.id.searchClear)
         searchClear.setOnClickListener { searchField.setText("") }
 
@@ -696,7 +732,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         appBarSearch.visibility = View.VISIBLE
         bottomBar.visibility = View.GONE
         fab.hide()
-        touchHelperCallback.setDragEnabled(false)
         // Also places the countdown at the end of the search bar, since every entry still matches.
         updateEmptyState(animateCountdown = false)
         updateBackCallbackState()
@@ -739,9 +774,6 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         appBarBrand.visibility = View.VISIBLE
         bottomBar.visibility = View.VISIBLE
         fab.show()
-
-        if (!::adapter.isInitialized || adapter.sortMode == SortMode.UNSORTED)
-            touchHelperCallback.setDragEnabled(true)
 
         updateEmptyState(animateCountdown = false)
         updateBackCallbackState()
@@ -827,6 +859,62 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         }
 
         bindSheetAction(sheet, R.id.sort_filter_tags, ::showTagFilterSheet)
+        bindSheetAction(sheet, R.id.sort_manage_list) { enterManageMode(RecyclerView.NO_POSITION) }
+    }
+
+    /**
+     * Manage mode: the app bar shows how many cards are selected and what can be done with them,
+     * and makes way for nothing else; the bottom bar and the add button step aside. Entered from a
+     * card's options with that card selected ([position]), or from the sort sheet with none.
+     * Over a search, it works on the results and gives the search back when it closes.
+     */
+    private fun enterManageMode(position: Int) {
+        if (!::adapter.isInitialized)
+            return
+
+        if (!manageMode) {
+            manageMode = true
+            if (searchMode)
+                UIHelper.hideKeyboard(this, searchField)
+            appBarBrand.visibility = View.GONE
+            appBarSearch.visibility = View.GONE
+            appBarSelection.visibility = View.VISIBLE
+            bottomBar.visibility = View.GONE
+            fab.hide()
+            updateEmptyState(animateCountdown = false)
+            updateBackCallbackState()
+        }
+        adapter.startSelection(position)
+
+        // From the sort sheet, reordering is the likely aim: say why there are no handles.
+        if (position == RecyclerView.NO_POSITION && !adapter.canReorder())
+            Snackbar.make(findViewById(R.id.main_content), R.string.toast_reorder_needs_unsorted, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun exitManageMode() {
+        if (!manageMode)
+            return
+
+        manageMode = false
+        adapter.endSelection()
+        appBarSelection.visibility = View.GONE
+        if (searchMode) {
+            appBarSearch.visibility = View.VISIBLE
+        } else {
+            appBarBrand.visibility = View.VISIBLE
+            bottomBar.visibility = View.VISIBLE
+            fab.show()
+        }
+        updateEmptyState(animateCountdown = false)
+        updateBackCallbackState()
+    }
+
+    private fun updateSelectionBar(count: Int) {
+        selectionTitle.text = resources.getQuantityString(R.plurals.label_selected_count, count, count)
+        selectionTags.isEnabled = count > 0
+        selectionDelete.isEnabled = count > 0
+        selectionAll.contentDescription = getString(
+            if (adapter.allSelected) R.string.button_deselect_all else R.string.button_select_all)
     }
 
     /** The bar's sort icon carries the current sort, as it did before the redesign. */
@@ -849,10 +937,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         settings.sortMode = mode
         updateSortIcon(mode)
 
-        if (::adapter.isInitialized) {
+        if (::adapter.isInitialized)
             adapter.sortMode = mode
-            touchHelperCallback.setDragEnabled(mode == SortMode.UNSORTED && !searchMode)
-        }
 
         if ((mode == SortMode.LAST_USED || mode == SortMode.MOST_USED) && !settings.usedTokensDialogShown)
             showUsedTokensDialog()
@@ -1812,17 +1898,19 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     /* Predictive back: with the OnBackInvokedCallback enabled (the default when targeting
      * Android 16+), KEYCODE_BACK is no longer dispatched. The callback is only enabled while the
-     * search mode is open, so the system back animation still runs otherwise. */
+     * search or manage mode is open, so the system back animation still runs otherwise. */
     private val closeOverlaysOnBack: OnBackPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            if (searchMode)
+            if (manageMode)
+                exitManageMode()
+            else if (searchMode)
                 exitSearchMode()
             updateBackCallbackState()
         }
     }
 
     private fun updateBackCallbackState() {
-        closeOverlaysOnBack.isEnabled = searchMode
+        closeOverlaysOnBack.isEnabled = searchMode || manageMode
     }
 
     override fun onDestroy() {
@@ -1868,7 +1956,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
      * takes the full width again when there are no results and the ring is hidden.
      */
     private fun updateAppBarCountdown(empty: Boolean, animate: Boolean) {
-        val visible = !settings.isHideGlobalTimeoutEnabled && !empty
+        // Manage mode's actions take the end of the app bar.
+        val visible = !settings.isHideGlobalTimeoutEnabled && !empty && !manageMode
 
         val searchEnd = if (visible) {
             val ring = appBarCountdown.layoutParams as ViewGroup.MarginLayoutParams

@@ -57,6 +57,8 @@
     <string name="menu_view_list">List</string>
     <string name="menu_view_grid">Grid</string>
 
+    <string name="menu_popup_copy">Copy</string>
+    <string name="menu_popup_select">Select</string>
     <string name="menu_popup_edit">Edit</string>
     <string name="menu_popup_change_image">Change Image</string>
     <string name="menu_popup_show_qr_code">Show QR Code</string>
@@ -171,8 +173,38 @@
     <string name="button_setup_key">Setup Key</string>
     <string name="sheet_title_sort">Sort by</string>
     <string name="label_filter_by_tags">Filter by tags</string>
+    <string name="label_manage_list">Manage list</string>
 
     <!-- Manage mode -->
+    <plurals name="label_selected_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <string name="button_close_selection">Close selection</string>
+    <string name="button_select_all">Select all</string>
+    <string name="button_tag_selected">Tags for the selected accounts</string>
+    <string name="button_remove_selected">Remove the selected accounts</string>
+    <string name="button_drag_to_reorder">Drag to reorder</string>
+    <string name="state_selected">Selected</string>
+    <string name="state_not_selected">Not selected</string>
+    <string name="action_select">Select</string>
+    <string name="action_deselect">Deselect</string>
+    <string name="action_move_up">Move up</string>
+    <string name="action_move_down">Move down</string>
+    <string name="button_deselect_all">Deselect all</string>
+    <string name="toast_reorder_needs_unsorted">To reorder, sort by Unsorted and clear the tag filter</string>
+    <plurals name="dialog_title_remove_selected">
+        <item quantity="one">Remove %d account?</item>
+        <item quantity="other">Remove %d accounts?</item>
+    </plurals>
+    <plurals name="label_and_more">
+        <item quantity="one">and %d more</item>
+        <item quantity="other">and %d more</item>
+    </plurals>
+    <plurals name="dialog_msg_remove_selected">
+        <item quantity="one">%1$s\n\nYou will no longer get codes for it here. This cannot be undone.</item>
+        <item quantity="other">%1$s\n\nYou will no longer get codes for them here. This cannot be undone.</item>
+    </plurals>
     <plurals name="dialog_title_tag_selected">
         <item quantity="one">Tags for %d account</item>
         <item quantity="other">Tags for %d accounts</item>
@@ -211,7 +243,7 @@
     <string name="coach_add_title">Create Services</string>
     <string name="coach_add_body">Tap here to add a service by scanning its QR code, picking a screenshot or typing the setup key.</string>
     <string name="coach_sort_title">Sorting thing out</string>
-    <string name="coach_sort_body">Sort your services by issuer, label or how often you use them, and filter them by tag.</string>
+    <string name="coach_sort_body">Sort your services by issuer, label or how often you use them, filter them by tag, or manage the list.</string>
     <string name="coach_search_title">Finding hidden services</string>
     <string name="coach_search_body">Search your services by issuer, label or tag when the list grows long.</string>
     <string name="coach_menu_title">Checking your options</string>
