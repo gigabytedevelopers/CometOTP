@@ -103,6 +103,18 @@ class OtpauthUriTest {
         assertEquals(6, badDigits.digits)
     }
 
+    /** Entry's own otpauth:// constructor needs android.net.Uri; this is the same check on the JVM path. */
+    @Test
+    fun linksOutsideFourToTenDigitsAreSkipped() {
+        fun reasonFor(digits: Int) = TokenImport.convert(listOf(
+                OtpauthUri.parse("otpauth://totp/x?secret=JBSWY3DPEE&digits=$digits")!!)).skipped.singleOrNull()?.reason
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(3))
+        assertNull(reasonFor(4))
+        assertNull(reasonFor(10))
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(11))
+        assertEquals(TokenImport.SkipReason.UNSUPPORTED_DIGITS, reasonFor(12))
+    }
+
     @Test
     fun readsOneLinkPerLineAndIgnoresTheRest() {
         val text = """

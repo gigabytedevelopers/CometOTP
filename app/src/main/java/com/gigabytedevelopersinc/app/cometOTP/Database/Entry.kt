@@ -149,6 +149,9 @@ class Entry {
 
         if (digits != null) {
             this.digits = digits.toInt()
+            // mOTP codes are always six characters and ignore it.
+            if (type != OTPType.MOTP && this.digits !in TokenCalculator.SUPPORTED_DIGITS)
+                throw Exception("unsupported number of digits")
         } else {
             this.digits = if (this.type == OTPType.STEAM) TokenCalculator.STEAM_DEFAULT_DIGITS else TokenCalculator.TOTP_DEFAULT_DIGITS
         }
