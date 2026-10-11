@@ -365,6 +365,15 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         val max = Math.max(MIN_TOKEN_TEXT_SIZE_SP + 2, size + TOKEN_SIZE_ABOVE_LABEL_SP)
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
                 value, MIN_TOKEN_TEXT_SIZE_SP, max, 1, TypedValue.COMPLEX_UNIT_SP)
+
+        // The line grows with the ceiling, or the text would shrink to the line instead: a fixed
+        // 40dp line kept Large tokens at the default size, and cramped large system font sizes.
+        val lineHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, max * TOKEN_LINE_PER_SP,
+                context.resources.displayMetrics).toInt()
+        if (value.layoutParams.height != lineHeight) {
+            value.layoutParams.height = lineHeight
+            value.requestLayout()
+        }
     }
 
     fun setThumbnailSize(size: Int) {
@@ -462,5 +471,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         private const val MIN_TOKEN_TEXT_SIZE_SP = 14
         /** How much larger than the label size setting the token may grow. */
         private const val TOKEN_SIZE_ABOVE_LABEL_SP = 12
+        /** The token's line height for each sp of its largest size; 40dp at the default 30sp. */
+        private const val TOKEN_LINE_PER_SP = 4f / 3
     }
 }
