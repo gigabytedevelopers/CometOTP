@@ -26,8 +26,13 @@
         android:theme="@style/AppTheme"
         tools:targetApi="tiramisu">
 
+        <!-- Every screen with a UI is portrait-only on phones, whatever the system auto-rotate
+             setting. Android 16+ ignores the lock on large screens (tablets, unfolded foldables),
+             so the landscape layouts and the state kept across recreation are still needed there.
+             The invisible Theme.NoDisplay screens are left out: they never draw. -->
         <activity
             android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.CometOTP.Splash"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard">
@@ -138,67 +143,82 @@
         </activity-alias>
         <activity
             android:name=".Activities.AboutActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.AuthenticateActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.BackupActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.ScheduledBackupActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.BackupActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.CacheActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <!-- No fixed orientation: Android 16+ ignores orientation locks on large screens and the
-             intro has landscape layouts and restores its state when recreated. -->
         <activity
             android:name=".Activities.IntroScreenActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/Theme.Intro.Solid" />
         <activity
             android:name=".Activities.LicensesActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.PrivacyPolicyActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.SettingsActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.SecurityActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.AuthSetupActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.SecurityActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.SupportActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.FaqDetailActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.SupportActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.ContactActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.SupportActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activities.TagsActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Activities.SecureCaptureActivity" />
+        <activity
+            android:name=".Activities.SecureCaptureActivity"
+            android:screenOrientation="portrait" />
 
         <!-- Puts CometOTP on the share sheet for images: a QR code screenshot or a photo of one.
              The share sheet starts its target in the sharing app's task, so this invisible screen
@@ -223,6 +243,7 @@
 
         <activity
             android:name=".Activities.ImportScanActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
