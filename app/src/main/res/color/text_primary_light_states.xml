@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- @color/text_primary_light, at 38% while disabled (Material's disabled emphasis), so that a setting that
+     cannot be used looks it -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.38" android:color="@color/text_primary_light" android:state_enabled="false" />
+    <item android:color="@color/text_primary_light" />
+</selector>

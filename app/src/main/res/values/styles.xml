@@ -75,8 +75,9 @@
         <item name="colorPrimaryDark">@color/primary_900</item>
         <item name="colorAccent">@color/primary_800</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog</item>
-        <item name="android:textColorPrimary">@color/text_primary_light</item>
-        <item name="android:textColorSecondary">@color/text_secondary_light</item>
+        <!-- With a disabled state: disabled settings are drawn in it -->
+        <item name="android:textColorPrimary">@color/text_primary_light_states</item>
+        <item name="android:textColorSecondary">@color/text_secondary_light_states</item>
         <item name="android:textColorHint">@color/text_hint_light</item>
 
         <!-- Flat surfaces: no primary-tinted elevation overlay -->
@@ -212,8 +213,9 @@
         <item name="colorPrimaryDark">@color/background_dark</item>
         <item name="colorAccent">@color/primary_500</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Comet.Dialog.Dark</item>
-        <item name="android:textColorPrimary">@color/text_primary_dark</item>
-        <item name="android:textColorSecondary">@color/text_secondary_dark</item>
+        <!-- With a disabled state: disabled settings are drawn in it -->
+        <item name="android:textColorPrimary">@color/text_primary_dark_states</item>
+        <item name="android:textColorSecondary">@color/text_secondary_dark_states</item>
         <item name="android:textColorHint">@color/text_hint_dark</item>
 
         <item name="elevationOverlayEnabled">false</item>
