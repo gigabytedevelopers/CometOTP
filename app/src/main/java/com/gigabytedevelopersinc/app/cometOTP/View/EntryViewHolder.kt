@@ -47,6 +47,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     private val menuButton: ImageButton
     private val value: TextView = v.findViewById(R.id.valueText)
     private val valuePrev: TextView = v.findViewById(R.id.valueTextPrev)
+    private val valueNext: TextView = v.findViewById(R.id.valueTextNext)
+    private val otherTokensRow: View = v.findViewById(R.id.otherTokensRow)
     private val issuer: TextView
     private val label: TextView
     private val counter: TextView
@@ -184,18 +186,33 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         // save the unformatted token to the tag of this TextView for copy/paste
         value.tag = entry.currentOTP
 
-        if (settings.showPrevToken) {
-            val tokenPrev = entry.prevOTP
-
-            if (tokenPrev != null && tokenPrev.isNotEmpty()) {
-                valuePrev.visibility = View.VISIBLE
-                valuePrev.text = Tools.formatToken(tokenPrev, settings.tokenSplitGroupSize)
-            } else {
-                valuePrev.visibility = View.GONE
-            }
+        // The previous token, and the next one while the current one is about to expire (the
+        // colour turns red then, whether or not the red is shown), share the line under the
+        // token, so neither takes room from it. The next token's pill keeps its room for the
+        // whole period, so the line, and with it the card, does not appear and go each period
+        // when the previous token is not shown. Screen readers say which token is which.
+        val tokenPrev = entry.prevOTP
+        val showPrev = settings.showPrevToken && !tokenPrev.isNullOrEmpty()
+        if (showPrev) {
+            val prevFormatted = Tools.formatToken(tokenPrev, settings.tokenSplitGroupSize)
+            valuePrev.text = prevFormatted
+            valuePrev.contentDescription = context.getString(R.string.label_prev_token_format, prevFormatted)
+            valuePrev.visibility = View.VISIBLE
         } else {
             valuePrev.visibility = View.GONE
         }
+
+        val tokenNext = entry.nextOTP
+        val showNext = settings.showNextToken && entry.isTimeBased && !tokenNext.isNullOrEmpty()
+        if (showNext) {
+            val nextFormatted = Tools.formatToken(tokenNext, settings.tokenSplitGroupSize)
+            valueNext.text = nextFormatted
+            valueNext.contentDescription = context.getString(R.string.label_next_token_format, nextFormatted)
+            valueNext.visibility = if (entry.color == Entry.COLOR_RED) View.VISIBLE else View.INVISIBLE
+        } else {
+            valueNext.visibility = View.GONE
+        }
+        otherTokensRow.visibility = if (showPrev || showNext) View.VISIBLE else View.GONE
 
         val entryTags: List<String> = entry.tags
         if (entryTags.isEmpty()) {

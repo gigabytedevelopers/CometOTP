@@ -82,6 +82,12 @@
         <item name="android:textColor">?attr/colorOnSurface</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
+    <!-- The next token, shown in a pill under one that is about to expire. -->
+    <style name="TextAppearance.Comet.CodeNext" parent="TextAppearance.Comet.LabelMedium">
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
     <style name="TextAppearance.Comet.PinKey" parent="TextAppearance.Material3.DisplaySmall">
         <item name="fontFamily">@font/inter_light</item>
         <item name="android:fontFamily">@font/inter_light</item>

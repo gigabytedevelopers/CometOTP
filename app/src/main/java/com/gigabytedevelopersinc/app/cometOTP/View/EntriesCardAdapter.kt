@@ -327,8 +327,9 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                 val item_changed = e.updateOTP(false)
                 var color_changed = false
 
-                // Check color change only if highlighting token feature is enabled and the entry is visible
-                if (settings.isHighlightTokenOptionEnabled) {
+                // The colour turns red when the token is about to expire. It is checked only for a
+                // card that shows its token, and only when the red is shown or the next token is.
+                if (settings.isHighlightTokenOptionEnabled || settings.showNextToken) {
                     color_changed = cardVisible && e.hasColorChanged()
                 }
 

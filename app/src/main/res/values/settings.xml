@@ -33,6 +33,7 @@
     <string name="settings_key_launcher_icon" translatable="false">pref_launcher_icon</string>
     <string name="settings_default_launcher_icon" translatable="false">blue</string>
     <string name="settings_key_show_prev_token" translatable="false">pref_show_prev_token</string>
+    <string name="settings_key_show_next_token" translatable="false">pref_show_next_token</string>
     <string name="settings_key_label_size" translatable="false">pref_label_size_sp</string>
     <string name="settings_key_label_scroll" translatable="false">pref_label_scroll</string>            <!-- Deprecated -->
     <string name="settings_key_label_display" translatable="false">pref_label_display</string>

@@ -192,12 +192,24 @@ class EntryBehaviourTest {
     }
 
     @Test
+    fun totpUpdateComputesTheNextCode() {
+        val e = Entry(Entry.OTPType.TOTP, "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", Int.MAX_VALUE, 6, "i", "l",
+            HashAlgorithm.SHA1, mutableListOf())
+        assertNull(e.nextOTP)
+        e.updateOTP(true)
+        // RFC 4226's code for counter 1, the step after the current one.
+        assertEquals("287082", e.nextOTP)
+    }
+
+    @Test
     fun steamUpdateUsesTheSteamAlphabet() {
         val e = Entry(Entry.OTPType.STEAM, "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", Int.MAX_VALUE, 5, "Steam", "l",
             HashAlgorithm.SHA1, mutableListOf())
         assertTrue(e.updateOTP(true))
         assertEquals("GG5F5", e.currentOTP)
         assertEquals("7W2CY", e.prevOTP)
+        assertEquals(5, e.nextOTP!!.length)
+        assertNotEquals(e.currentOTP, e.nextOTP)
     }
 
     @Test
@@ -218,6 +230,7 @@ class EntryBehaviourTest {
         assertTrue(e.updateOTP(true))
         assertEquals("PINREQ", e.currentOTP)
         assertEquals("", e.prevOTP)
+        assertNull(e.nextOTP)
     }
 
     @Test

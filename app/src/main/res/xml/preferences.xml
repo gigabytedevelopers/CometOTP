@@ -138,6 +138,12 @@
             android:summary="@string/settings_desc_show_prev_token"
             android:defaultValue="false" />
 
+        <CheckBoxPreference
+            android:key="@string/settings_key_show_next_token"
+            android:title="@string/settings_title_show_next_token"
+            android:summary="@string/settings_desc_show_next_token"
+            android:defaultValue="true" />
+
         <com.gigabytedevelopersinc.app.cometOTP.Preferences.NumberPickerPreference
             android:key="@string/settings_key_label_size"
             android:title="@string/settings_title_label_size"

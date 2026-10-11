@@ -38,6 +38,9 @@ class Entry {
         private set
     var prevOTP: String? = null
         private set
+    /** The code after [currentOTP], shown while that one is about to expire; null without one. */
+    var nextOTP: String? = null
+        private set
     var isVisible = false
     var hideTask: Runnable? = null
     private var last_update: Long = 0
@@ -358,12 +361,14 @@ class Entry {
                 when (type) {
                     OTPType.TOTP -> {
                         currentOTP = TokenCalculator.TOTP_RFC6238(secret!!, period, digits, algorithm, 0)
+                        nextOTP = TokenCalculator.TOTP_RFC6238(secret!!, period, digits, algorithm, 1)
 
                         if (prevOTP.isNullOrEmpty())
                             prevOTP = TokenCalculator.TOTP_RFC6238(secret!!, period, digits, algorithm, -1)
                     }
                     OTPType.STEAM -> {
                         currentOTP = TokenCalculator.TOTP_Steam(secret!!, period, digits, algorithm, 0)
+                        nextOTP = TokenCalculator.TOTP_Steam(secret!!, period, digits, algorithm, 1)
 
                         if (prevOTP.isNullOrEmpty())
                             prevOTP = TokenCalculator.TOTP_Steam(secret!!, period, digits, algorithm, -1)
@@ -373,8 +378,10 @@ class Entry {
 
                         if (currentPin.isEmpty()) {
                             currentOTP = MOTP_NO_PIN_CODE
+                            nextOTP = null
                         } else {
                             currentOTP = TokenCalculator.MOTP(currentPin, String(this.secret!!, Charset.defaultCharset()), time, 0)
+                            nextOTP = TokenCalculator.MOTP(currentPin, String(this.secret!!, Charset.defaultCharset()), time, 1)
 
                             if (prevOTP.isNullOrEmpty())
                                 prevOTP = TokenCalculator.MOTP(currentPin, String(this.secret!!, Charset.defaultCharset()), time, -1)

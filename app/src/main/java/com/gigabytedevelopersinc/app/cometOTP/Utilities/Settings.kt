@@ -869,6 +869,10 @@ class Settings(private val context: Context) {
     val showPrevToken: Boolean
         get() = getBoolean(R.string.settings_key_show_prev_token, false)
 
+    /** Whether a card shows the next token while its current one is about to expire. */
+    val showNextToken: Boolean
+        get() = getBoolean(R.string.settings_key_show_next_token, true)
+
     companion object {
         const val DEFAULT_DRIVE_FOLDER_NAME = "CometOTP Backups"
     }

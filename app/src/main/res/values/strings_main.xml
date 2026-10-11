@@ -69,6 +69,8 @@
     <string name="button_card_options_format">More options for %1$s</string>
     <string name="button_card_copy">Copy token</string>
     <string name="button_card_copy_format">Copy %1$s token</string>
+    <string name="label_next_token_format">Next token %1$s</string>
+    <string name="label_prev_token_format">Previous token %1$s</string>
     <string name="button_add">Add new account</string>
     <string name="button_close_menu">Close menu</string>
 
