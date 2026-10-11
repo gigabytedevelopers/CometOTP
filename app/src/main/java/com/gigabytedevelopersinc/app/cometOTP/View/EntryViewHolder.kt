@@ -307,8 +307,10 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             countdown.setHighlightExpiring(settings.isHighlightTokenOptionEnabled)
             countdown.update(entry.period)
         } else {
+            // Hidden with the token, and out of the column, so the copy button under it sits
+            // centred rather than low.
             countdown.stop()
-            countdown.visibility = if (showCountdown) View.INVISIBLE else View.GONE
+            countdown.visibility = View.GONE
         }
 
         if (this.tapToReveal) {

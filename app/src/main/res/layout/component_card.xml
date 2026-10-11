@@ -223,7 +223,7 @@
             android:id="@+id/trailingGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/space_xs"
+            android:layout_marginEnd="@dimen/card_trailing_margin"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -231,17 +231,19 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <!-- The HOTP counter or the countdown ring, over the copy button: a narrow column,
-                 which leaves the token its width -->
+                 which leaves the token its width. Their right edges, and the copy icon's, are as
+                 far from the card's edge as the thumbnail is from its start. -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
+                android:gravity="end"
                 android:orientation="vertical">
 
                 <LinearLayout
                     android:id="@+id/counterLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/card_copy_icon_inset"
                     android:background="@drawable/bg_pill_field"
                     android:clickable="true"
                     android:focusable="true"
@@ -275,6 +277,7 @@
                     android:id="@+id/cardCountdown"
                     android:layout_width="@dimen/countdown_size"
                     android:layout_height="@dimen/countdown_size"
+                    android:layout_marginEnd="@dimen/card_copy_icon_inset"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
@@ -287,7 +290,7 @@
                     android:layout_marginTop="@dimen/space_xs"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/button_card_copy"
-                    android:padding="9dp"
+                    android:padding="@dimen/card_copy_icon_inset"
                     app:srcCompat="@drawable/ic_copy"
                     app:tint="?attr/colorOnSurfaceVariant" />
 
