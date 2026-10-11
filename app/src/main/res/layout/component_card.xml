@@ -117,7 +117,7 @@
                     android:maxLines="1"
                     android:textAppearance="@style/TextAppearance.Comet.Code"
                     android:textDirection="ltr"
-                    app:autoSizeMaxTextSize="22sp"
+                    app:autoSizeMaxTextSize="30sp"
                     app:autoSizeMinTextSize="14sp"
                     app:autoSizeStepGranularity="1sp"
                     app:autoSizeTextType="uniform"

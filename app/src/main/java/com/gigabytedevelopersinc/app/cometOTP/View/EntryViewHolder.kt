@@ -250,9 +250,9 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         // The design uses a fixed type scale; the label size setting scales the token instead so
         // the user preference still has a visible effect. The token auto-sizes to fit its line,
         // so the preference sets the ceiling rather than the size, which setTextSize cannot do
-        // on an auto-sizing view.
+        // on an auto-sizing view. The token is the card's largest text: 30sp at the default size.
         // The auto-size ceiling has to stay above the floor, or the configuration is rejected.
-        val max = Math.max(MIN_TOKEN_TEXT_SIZE_SP + 2, size + 4)
+        val max = Math.max(MIN_TOKEN_TEXT_SIZE_SP + 2, size + TOKEN_SIZE_ABOVE_LABEL_SP)
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
                 value, MIN_TOKEN_TEXT_SIZE_SP, max, 1, TypedValue.COMPLEX_UNIT_SP)
     }
@@ -345,5 +345,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     companion object {
         /** The token never shrinks below this, however narrow the card gets. */
         private const val MIN_TOKEN_TEXT_SIZE_SP = 14
+        /** How much larger than the label size setting the token may grow. */
+        private const val TOKEN_SIZE_ABOVE_LABEL_SP = 12
     }
 }

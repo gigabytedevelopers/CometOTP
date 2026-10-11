@@ -75,10 +75,12 @@
     </style>
 
     <!-- App specific text roles -->
+    <!-- Tokens use tabular figures, so the digits do not shift as the code changes. -->
     <style name="TextAppearance.Comet.Code" parent="TextAppearance.Comet.TitleLarge">
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">30sp</item>
         <item name="android:letterSpacing">0.08</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:fontFeatureSettings">tnum</item>
     </style>
     <style name="TextAppearance.Comet.PinKey" parent="TextAppearance.Material3.DisplaySmall">
         <item name="fontFamily">@font/inter_light</item>
