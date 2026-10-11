@@ -888,7 +888,22 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         // From the sort sheet, reordering is the likely aim: say why there are no handles.
         if (position == RecyclerView.NO_POSITION && !adapter.canReorder())
-            Snackbar.make(findViewById(R.id.main_content), R.string.toast_reorder_needs_unsorted, Snackbar.LENGTH_LONG).show()
+            makeSnackbar(R.string.toast_reorder_needs_unsorted, Snackbar.LENGTH_LONG).show()
+    }
+
+    /**
+     * A snackbar on the home screen, above the add button while that shows: placed at the bottom
+     * of the screen, it went behind the bottom bar, its action (Undo) out of reach.
+     */
+    fun makeSnackbar(text: CharSequence, duration: Int): Snackbar {
+        val snackbar = Snackbar.make(findViewById(R.id.main_content), text, duration)
+        if (::fab.isInitialized && fab.isShown)
+            snackbar.anchorView = fab
+        return snackbar
+    }
+
+    fun makeSnackbar(@StringRes text: Int, duration: Int): Snackbar {
+        return makeSnackbar(getText(text), duration)
     }
 
     private fun exitManageMode() {

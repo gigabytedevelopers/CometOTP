@@ -133,7 +133,7 @@ object Tools {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) HapticFeedbackConstants.CONFIRM
             else HapticFeedbackConstants.VIRTUAL_KEY
         )
-        Snackbar.make(anchor, R.string.toast_copied_to_clipboard, Snackbar.LENGTH_LONG).show()
+        context.makeSnackbar(R.string.toast_copied_to_clipboard, Snackbar.LENGTH_LONG).show()
     }
 
     private const val EXTRA_CLIP_IS_SENSITIVE = "android.content.extra.IS_SENSITIVE"

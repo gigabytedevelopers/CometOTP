@@ -133,7 +133,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         if (entryList.addEntry(e)) {
             saveAndRefresh(settings.autoBackupEncryptedPasswordsEnabled)
         } else {
-            Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)), R.string.toast_entry_exists, Snackbar.LENGTH_LONG).show()
+            (context as MainActivity).makeSnackbar(R.string.toast_entry_exists, Snackbar.LENGTH_LONG).show()
         }
     }
 
@@ -199,8 +199,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     private var databaseLoaded = false
 
     private fun showDatabaseLoadFailed() {
-        Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
-                R.string.toast_database_load_failed,
+        (context as MainActivity).makeSnackbar(R.string.toast_database_load_failed,
                 Snackbar.LENGTH_LONG)
                 .show()
     }
@@ -294,7 +293,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         if (activity.isFinishing || activity.isDestroyed)
             return
 
-        Snackbar.make(activity.findViewById<View>(R.id.main_content), message, Snackbar.LENGTH_LONG).show()
+        activity.makeSnackbar(message, Snackbar.LENGTH_LONG).show()
     }
 
     fun loadEntries() {
@@ -896,8 +895,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             try {
                 bitmap = BarcodeEncoder().encodeBitmap(uri.toString(), BarcodeFormat.QR_CODE, 0, 0)
             } catch (ignored: Exception) {
-                Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
-                        R.string.toast_qr_failed_to_generate,
+                (context as MainActivity).makeSnackbar(R.string.toast_qr_failed_to_generate,
                         Snackbar.LENGTH_LONG)
                         .show()
                 return
@@ -917,8 +915,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                     .create()
                     .show()
         } else {
-            Snackbar.make(((context as MainActivity).findViewById<View>(R.id.main_content)),
-                    R.string.toast_qr_unsupported,
+            (context as MainActivity).makeSnackbar(R.string.toast_qr_unsupported,
                     Snackbar.LENGTH_LONG)
                     .show()
         }
