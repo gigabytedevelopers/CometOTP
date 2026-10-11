@@ -24,6 +24,9 @@
     <attr name="colorSuccess" format="reference|color" />
     <attr name="colorWarning" format="reference|color" />
     <attr name="colorBottomBar" format="reference|color" />
+    <!-- The bottom bar's shadow, and the hairline round its top (transparent: none) -->
+    <attr name="colorBottomBarShadow" format="reference|color" />
+    <attr name="colorBottomBarLine" format="reference|color" />
 
     <!-- General styles -->
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3Expressive.Light" />
@@ -70,6 +73,8 @@
         <item name="colorSuccess">@color/system_green</item>
         <item name="colorWarning">@color/system_yellow</item>
         <item name="colorBottomBar">@color/surface_light</item>
+        <item name="colorBottomBarShadow">@color/bottom_bar_shadow_light</item>
+        <item name="colorBottomBarLine">@android:color/transparent</item>
 
         <!-- Legacy AppCompat roles still read by older widgets -->
         <item name="colorPrimaryDark">@color/primary_900</item>
@@ -209,6 +214,8 @@
         <item name="colorSuccess">@color/system_green</item>
         <item name="colorWarning">@color/system_yellow</item>
         <item name="colorBottomBar">@color/bottom_bar_dark</item>
+        <item name="colorBottomBarShadow">@color/bottom_bar_shadow_dark</item>
+        <item name="colorBottomBarLine">@color/input_stroke_dark</item>
 
         <item name="colorPrimaryDark">@color/background_dark</item>
         <item name="colorAccent">@color/primary_500</item>

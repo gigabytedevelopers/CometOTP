@@ -47,7 +47,11 @@
     <dimen name="pin_dot_stroke">1.5dp</dimen>
     <dimen name="pin_dot_shake">12dp</dimen>
     <dimen name="fab_notch_gap">6dp</dimen>
-    <dimen name="fab_notch_radius">38dp</dimen>
+    <!-- The bottom bar's cradle round the add button: the button's radius and a 6dp rim; the bar
+         view is that and its shadow's blur taller than the bar (CradleBottomBar) -->
+    <dimen name="fab_cradle_radius">38dp</dimen>
+    <dimen name="bottom_bar_shadow_radius">12dp</dimen>
+    <dimen name="bottom_bar_raise">50dp</dimen>
     <dimen name="countdown_size">28dp</dimen>
     <dimen name="countdown_stroke">2.5dp</dimen>
     <dimen name="card_elevation">2dp</dimen>

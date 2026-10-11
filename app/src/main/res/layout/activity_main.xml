@@ -259,20 +259,25 @@
     </FrameLayout>
 
     <!-- Docked bottom bar: flush with the window bottom, notched for the add button -->
-    <com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar
+    <!-- Raised round the add button; the view is bottom_bar_raise taller than the bar, for the
+         cradle above it and its shadow -->
+    <com.gigabytedevelopersinc.app.cometOTP.View.CradleBottomBar
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:elevation="8dp"
         app:barColor="?attr/colorBottomBar"
-        app:barLineColor="?attr/colorOutlineVariant"
+        app:barCradleRadius="@dimen/fab_cradle_radius"
+        app:barLineColor="?attr/colorBottomBarLine"
         app:barLineWidth="1dp"
-        app:barNotchRadius="@dimen/fab_notch_radius">
+        app:barRaise="@dimen/bottom_bar_raise"
+        app:barShadowColor="?attr/colorBottomBarShadow"
+        app:barShadowRadius="@dimen/bottom_bar_shadow_radius">
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/bottom_bar_height">
+            android:layout_height="@dimen/bottom_bar_height"
+            android:layout_marginTop="@dimen/bottom_bar_raise">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/menuButton"
@@ -307,7 +312,7 @@
 
         </FrameLayout>
 
-    </com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar>
+    </com.gigabytedevelopersinc.app.cometOTP.View.CradleBottomBar>
 
     <!-- Centred on the bar's top edge; the bottom margin is set from the window insets -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -317,7 +322,7 @@
         android:layout_height="@dimen/fab_size"
         android:layout_gravity="bottom|center_horizontal"
         android:contentDescription="@string/button_add"
-        app:elevation="14dp"
+        app:elevation="6dp"
         app:fabCustomSize="@dimen/fab_size"
         app:maxImageSize="@dimen/icon_size"
         app:srcCompat="@drawable/ic_add"
