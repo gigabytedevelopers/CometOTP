@@ -174,6 +174,7 @@ object ManualEntryDialog {
                 periodLayout.visibility = View.VISIBLE
 
                 digitsInput.setText(String.format(Locale.US, "%d", TokenCalculator.TOTP_DEFAULT_DIGITS))
+                periodInput.setText(String.format(Locale.US, "%d", TokenCalculator.MOTP_PERIOD))
                 digitsInput.isEnabled = false
                 periodInput.isEnabled = false
                 algorithmLayout.isEnabled = false

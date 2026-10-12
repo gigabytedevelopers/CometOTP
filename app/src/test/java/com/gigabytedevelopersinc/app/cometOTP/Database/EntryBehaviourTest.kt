@@ -4,6 +4,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Database
 import com.gigabytedevelopersinc.app.cometOTP.Database.EntryJsonFormatTest.Companion.assertJson
 import com.gigabytedevelopersinc.app.cometOTP.Database.EntryJsonFormatTest.Companion.unhex
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail.EntryThumbnails
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator.HashAlgorithm
 import org.json.JSONObject
 import org.junit.Assert.assertArrayEquals
@@ -77,7 +78,7 @@ class EntryBehaviourTest {
     fun motpConstructorKeepsTheSecretAsText() {
         val e = Entry(Entry.OTPType.MOTP, "abcdef0123456789", "Amazon", "m", mutableListOf())
         assertArrayEquals("abcdef0123456789".toByteArray(Charsets.US_ASCII), e.secret)
-        assertEquals(30, e.period)
+        assertEquals(10, e.period)
         assertEquals(6, e.digits)
         assertEquals(HashAlgorithm.SHA1, e.algorithm)
         assertEquals(EntryThumbnails.Amazon, e.thumbnail)
@@ -231,6 +232,40 @@ class EntryBehaviourTest {
         assertEquals("PINREQ", e.currentOTP)
         assertEquals("", e.prevOTP)
         assertNull(e.nextOTP)
+    }
+
+    /**
+     * mOTP tokens change every ten seconds. The entry used to keep the TOTP default of 30, so it
+     * worked out a new token, and its ring counted down, only every 30 seconds, and for 20 of
+     * them showed a token that had already changed.
+     */
+    @Test
+    fun motpStepsEveryTenSecondsWhateverItsStoredPeriod() {
+        val stored = Entry(JSONObject("""{"secret":"MFRGGZDFMYYDCMRTGQ2TMNZYHE======","label":"m",
+            "type":"MOTP","period":30}"""))
+        assertEquals(10, stored.period)
+        assertTrue(stored.hasNonDefaultPeriod())
+        // The period is still not written out for mOTP.
+        assertFalse(stored.toJSON().has("period"))
+
+        // Setting it does not change it either, while the other types keep theirs.
+        stored.period = 60
+        assertEquals(10, stored.period)
+        val totp = Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"t","period":60}"""))
+        assertEquals(60, totp.period)
+    }
+
+    @Test
+    fun motpTokensMatchTheCurrentTenSecondStep() {
+        val e = Entry(Entry.OTPType.MOTP, "abcdef0123456789", "i", "l", mutableListOf())
+        e.pin = "1234"
+        var now: Long
+        do {
+            now = System.currentTimeMillis() / 1000
+            e.updateOTP(true)
+        } while (System.currentTimeMillis() / 1000 / 10 != now / 10)
+        assertEquals(TokenCalculator.MOTP("1234", "abcdef0123456789", now, 0), e.currentOTP)
+        assertEquals(TokenCalculator.MOTP("1234", "abcdef0123456789", now, 1), e.nextOTP)
     }
 
     @Test

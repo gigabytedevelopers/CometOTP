@@ -21,7 +21,10 @@ class Entry {
     }
 
     var type = OTPType.TOTP
+    // mOTP always steps every ten seconds, whatever was stored or imported; its period is never
+    // saved, so this changes nothing on disk.
     var period = TokenCalculator.TOTP_DEFAULT_PERIOD
+        get() = if (type == OTPType.MOTP) TokenCalculator.MOTP_PERIOD else field
     var digits = TokenCalculator.TOTP_DEFAULT_DIGITS
     var algorithm: TokenCalculator.HashAlgorithm = TokenCalculator.DEFAULT_ALGORITHM
         private set
@@ -84,7 +87,6 @@ class Entry {
         this.issuer = issuer ?: ""
         this.label = label
         this.tags = tags
-        this.period = TokenCalculator.TOTP_DEFAULT_PERIOD
         setThumbnailFromIssuer(issuer)
     }
 

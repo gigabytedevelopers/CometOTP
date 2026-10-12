@@ -15,6 +15,8 @@ object TokenCalculator {
     const val TOTP_DEFAULT_DIGITS = 6
     const val HOTP_INITIAL_COUNTER = 1
     const val STEAM_DEFAULT_DIGITS = 5
+    /** mOTP codes change every ten seconds; unlike TOTP, the period is not configurable. */
+    const val MOTP_PERIOD = 10
 
     /**
      * The code lengths CometOTP accepts, wherever an account comes from. RFC 4226's dynamic
@@ -112,7 +114,7 @@ object TokenCalculator {
     }
 
     fun MOTP(PIN: String, secret: String, epoch: Long, offset: Int): String {
-        val epochText = ((epoch / 10) + offset).toString()
+        val epochText = ((epoch / MOTP_PERIOD) + offset).toString()
         val hashText = epochText + secret + PIN
         var otp = ""
 
