@@ -31,7 +31,8 @@ gh api -X PUT repos/gigabytedevelopers/CometOTP/rulesets/23826211 --input .githu
 It requires a pull request with one approving review from anyone with write access (in practice
 `@princesseke`, see below), dismisses stale approvals
 when new commits land, requires review threads to be resolved, forbids force pushes and deletions,
-keeps history linear, requires signed commits, and blocks the merge until all four CI jobs pass.
+keeps history linear, requires signed commits, and blocks the merge until all five required checks
+pass: the four CI jobs and **Repository security**. Nobody is on its bypass list, admins included.
 
 Squash is the only merge method allowed, and that is deliberate. A merge commit would break the
 linear history rule, and GitHub's rebase merge rewrites each commit and drops its signature, which
@@ -51,23 +52,27 @@ puts your signature on master:
 Merge locally instead. Your commits land on master exactly as you signed them:
 
 ```bash
-git checkout <branch> && git rebase master   # replays and re-signs, keeping history linear
+git checkout <branch> && git rebase master   # only if master has moved; replays and re-signs
 git checkout master && git merge --ff-only <branch>
 git push origin master
 ```
 
-GitHub sees the commits arrive and closes the pull request as merged. The push is a direct one, so
-it only works because admins are on the ruleset's bypass list; the pull request, its review and its
-four passing checks are still how the change got to that point.
+GitHub sees the commits arrive and closes the pull request as merged. The ruleset accepts this push
+without any bypass because the commit you push is the head of a pull request into `master` that is
+approved and has passed its checks. Anything else is rejected: a commit that is not that head, or
+the head of a pull request that targets another branch. A rebase that changes the commits gives the
+pull request a new head, which needs its checks and a fresh approval before the push goes through.
 
 For a contributor's pull request, where the commits are signed by them rather than by you, the
 green button is fine — squash, and GitHub signs the result.
 
-Repository admins are on the bypass list. Everyone else is fully bound: a fork's pull request
-needs an approving review and four passing checks before it can be merged. Admins still work
-through pull requests reviewed by Princess (see [Who reviews](#who-reviews)); the bypass is what
-lets you push a locally merged branch straight to `master`. Remove the `bypass_actors` entry if you
-stop merging locally and want the rules to bind admins too.
+Everyone is fully bound, admins and forks alike: nothing reaches `master` without an approving
+review of its latest push and five passing checks (see [Who reviews](#who-reviews)).
+
+Stacked pull requests, where one targets the branch of another, cannot be merged this way: a pull
+request into another branch never satisfies `master`'s rule. Once the lower one has merged, open a
+pull request of the upper one's head into `master` and get that approved. Retargeting the upper
+pull request to `master` works too, but the base change dismisses its approval.
 
 ### Who reviews
 
