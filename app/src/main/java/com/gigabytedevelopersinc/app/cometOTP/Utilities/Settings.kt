@@ -161,6 +161,7 @@ class Settings(private val context: Context) {
         val pinLength = getString(R.string.settings_key_auth_pin_length, "")
         val authFailures = this.authFailures
         val authLockout = getString(R.string.settings_key_auth_lockout, "")
+        val biometricUnlock = this.biometricUnlock
 
         val warningShown = this.firstTimeWarningShown
 
@@ -182,6 +183,8 @@ class Settings(private val context: Context) {
                     editor.putInt(getResString(R.string.settings_key_auth_failures), authFailures)
                 if (authLockout.isNotEmpty())
                     editor.putString(getResString(R.string.settings_key_auth_lockout), authLockout)
+                if (biometricUnlock)
+                    editor.putBoolean(getResString(R.string.settings_key_auth_biometric), true)
 
                 val encodedSalt = Base64.encodeToString(authSalt, Base64.URL_SAFE)
                 editor.putString(getResString(R.string.settings_key_auth_salt), encodedSalt)
@@ -447,6 +450,14 @@ class Settings(private val context: Context) {
 
     val relockOnScreenOff: Boolean
         get() = getBoolean(R.string.settings_key_relock_screen_off, true)
+
+    /**
+     * Whether a strong biometric may unlock the app instead of its PIN or password; only used
+     * while that is possible (see BiometricUnlock.availability).
+     */
+    var biometricUnlock: Boolean
+        get() = getBoolean(R.string.settings_key_auth_biometric, false)
+        set(value) = setBoolean(R.string.settings_key_auth_biometric, value)
 
     val relockOnBackground: Boolean
         get() = getBoolean(R.string.settings_key_relock_background, false)

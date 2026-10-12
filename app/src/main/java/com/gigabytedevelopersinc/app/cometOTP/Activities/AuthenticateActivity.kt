@@ -34,6 +34,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask
 import com.gigabytedevelopersinc.app.cometOTP.Tasks.AuthenticationTask.Result
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.BiometricUnlock
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType
@@ -74,6 +75,11 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     private var lockedOut = false
     private val lockoutTicker = Handler(Looper.getMainLooper())
     private val lockoutTick = Runnable { updateLockout() }
+
+    /* A strong biometric instead of the credential, see BiometricUnlock. */
+    private var biometricOffered = false
+    /** Asked for once each time the screen opens; after that only from its key or button. */
+    private var biometricPrompted = false
 
     /* Setting up a missing credential, see UnlockAction.SET_UP_CREDENTIAL. */
     private var settingUpCredential = false
@@ -130,6 +136,9 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
         setTitle(R.string.auth_activity_title)
         setContentView(R.layout.activity_container)
         initToolbar()
+        // Not while changing the encryption: the new key is made from the credential itself.
+        biometricOffered = newEncryption.isNullOrEmpty() && BiometricUnlock.isOffered(this, settings)
+        biometricPrompted = savedInstanceState?.getBoolean(STATE_BIOMETRIC_PROMPTED, false) ?: false
         initPasswordViews()
 
         setBroadcastCallback {
@@ -254,6 +263,7 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(STATE_AWAITING_SETUP, awaitingCredentialSetup)
+        outState.putBoolean(STATE_BIOMETRIC_PROMPTED, biometricPrompted)
     }
 
     private fun initPasswordViews() {
@@ -270,6 +280,11 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
             initPasswordLayoutView(v)
             initPasswordInputView(v)
             initUnlockViews(v)
+            if (biometricOffered) {
+                val biometricButton = v.findViewById<View>(R.id.buttonBiometric)
+                biometricButton.visibility = View.VISIBLE
+                biometricButton.setOnClickListener { promptBiometric() }
+            }
         }
         // Earlier wrong attempts are shown from onResume().
     }
@@ -286,6 +301,25 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
             submittedPinLength = pin.length
             startAuthTask(pin)
         }
+        if (biometricOffered)
+            pinInput.onBiometric = ::promptBiometric
+    }
+
+    /**
+     * Unlocks with a strong biometric instead of the credential. Cancelling it, or "Use PIN",
+     * leaves the keypad or password field in front; it also works while wrong attempts lock them,
+     * as a recognised biometric is the owner's.
+     */
+    private fun promptBiometric() {
+        if (isCheckRunning())
+            return
+        BiometricUnlock.prompt(this,
+                getString(if (authMethod == AuthMethod.PIN) R.string.auth_biometric_use_pin else R.string.auth_biometric_use_password),
+                onSuccess = {
+                    settings.resetAuthFailures()
+                    // With KeyStore encryption, the only kind it is offered with, there is no key to hand back.
+                    finishWithResult(true, null)
+                })
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
@@ -389,6 +423,10 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
         // Earlier wrong attempts, also from before the app was closed, and an attempt cancelled
         // while it was checked (it counts, see Settings.recordAuthAttempt()).
         showUnlockStatus(false)
+        if (biometricOffered && !biometricPrompted && !isCheckRunning()) {
+            biometricPrompted = true
+            promptBiometric()
+        }
     }
 
     private fun checkBackgroundTask() {
@@ -676,6 +714,7 @@ class AuthenticateActivity : BaseActivity(), TextView.OnEditorActionListener, Vi
     companion object {
         private const val TAG_TASK_FRAGMENT = "AuthenticateActivity.TaskFragmentTag"
         private const val STATE_AWAITING_SETUP = "AuthenticateActivity.awaitingSetup"
+        private const val STATE_BIOMETRIC_PROMPTED = "AuthenticateActivity.biometricPrompted"
 
         /** Survives recreation of this screen; see [RetainedJob]. */
         private val credentialSetupJob = RetainedJob<AuthenticateActivity>()

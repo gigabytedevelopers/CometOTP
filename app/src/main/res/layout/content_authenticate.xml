@@ -88,4 +88,16 @@
 
     </FrameLayout>
 
+    <!-- With biometric unlock on (BiometricUnlock): brings its prompt back -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonBiometric"
+        style="@style/Widget.Comet.Button.Text"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginTop="@dimen/space_sm"
+        android:text="@string/auth_biometric_key"
+        android:visibility="gone"
+        app:icon="@drawable/ic_fingerprint"
+        app:iconGravity="textStart" />
+
 </LinearLayout>
