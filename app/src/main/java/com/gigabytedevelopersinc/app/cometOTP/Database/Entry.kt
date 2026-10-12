@@ -383,6 +383,8 @@ class Entry {
 
                         if (currentPin.isEmpty()) {
                             currentOTP = MOTP_NO_PIN_CODE
+                            // Not the placeholder carried over as the previous token.
+                            prevOTP = ""
                             nextOTP = null
                         } else {
                             currentOTP = TokenCalculator.MOTP(currentPin, String(this.secret!!, Charset.defaultCharset()), time, 0)

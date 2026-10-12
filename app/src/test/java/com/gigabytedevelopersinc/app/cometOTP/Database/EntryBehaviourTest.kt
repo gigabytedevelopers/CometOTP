@@ -232,6 +232,11 @@ class EntryBehaviourTest {
         assertEquals("PINREQ", e.currentOTP)
         assertEquals("", e.prevOTP)
         assertNull(e.nextOTP)
+
+        // A later step does not show the placeholder as the previous token either.
+        e.updateOTP(true)
+        assertEquals("PINREQ", e.currentOTP)
+        assertEquals("", e.prevOTP)
     }
 
     /**
