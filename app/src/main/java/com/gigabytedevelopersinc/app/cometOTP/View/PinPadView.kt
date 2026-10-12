@@ -28,7 +28,8 @@ class PinPadView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
 
-    enum class ActionKey { NONE, CONFIRM }
+    /** The bottom-left key: none, OK for a PIN of no fixed length, or a biometric's. */
+    enum class ActionKey { NONE, CONFIRM, BIOMETRIC }
 
     var onDigit: ((Char) -> Unit)? = null
     var onBackspace: (() -> Unit)? = null
@@ -103,9 +104,21 @@ class PinPadView @JvmOverloads constructor(
     }
 
     private fun updateActionKey() {
-        val confirm = actionKey == ActionKey.CONFIRM
-        actionButton.visibility = if (confirm) VISIBLE else INVISIBLE
-        actionButton.isEnabled = confirm && actionEnabled && isEnabled
+        actionButton.visibility = if (actionKey == ActionKey.NONE) INVISIBLE else VISIBLE
+        when (actionKey) {
+            ActionKey.CONFIRM -> {
+                actionButton.setIconResource(R.drawable.ic_check)
+                actionButton.contentDescription = context.getString(R.string.auth_pin_key_confirm)
+                actionButton.isEnabled = actionEnabled && isEnabled
+            }
+            ActionKey.BIOMETRIC -> {
+                actionButton.setIconResource(R.drawable.ic_fingerprint)
+                actionButton.contentDescription = context.getString(R.string.auth_biometric_key)
+                // Not with the digits: a biometric still unlocks while wrong PINs lock the keypad.
+                actionButton.isEnabled = actionEnabled
+            }
+            ActionKey.NONE -> actionButton.isEnabled = false
+        }
     }
 
     override fun setEnabled(enabled: Boolean) {

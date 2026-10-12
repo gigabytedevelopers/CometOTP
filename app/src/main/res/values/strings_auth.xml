@@ -23,6 +23,8 @@
     <string name="auth_pin_key_backspace">Delete</string>
     <string name="auth_pin_key_clear">Clear PIN</string>
     <string name="auth_pin_key_confirm">OK</string>
+    <!-- Biometric unlock, instead of the PIN or password -->
+    <string name="auth_biometric_key">Unlock with biometrics</string>
     <plurals name="auth_pin_dots_progress">
         <item quantity="one">%1$d of %2$d digit entered</item>
         <item quantity="other">%1$d of %2$d digits entered</item>

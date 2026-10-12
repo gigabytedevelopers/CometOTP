@@ -21,13 +21,25 @@ class PinInput(private val pad: PinPadView, private val dots: PinDotsView) {
     /** Runs whenever a digit is typed or removed, e.g. to clear an error message. */
     var onChanged: (() -> Unit)? = null
 
+    /**
+     * Set, the keypad's bottom-left key asks for a biometric instead, whenever the PIN has a fixed
+     * length (with none, that key is OK and the biometric is only offered by the caller).
+     */
+    var onBiometric: (() -> Unit)? = null
+        set(value) {
+            field = value
+            updateActionKey()
+        }
+
+    private var busy = false
+
     private var entry = PinEntry(null, Constants.AUTH_MIN_PIN_LENGTH, Constants.AUTH_MAX_PIN_LENGTH)
 
     init {
         pad.onDigit = ::type
         pad.onBackspace = ::backspace
         pad.onClear = ::clear
-        pad.onAction = ::confirm
+        pad.onAction = ::action
         setLength(null, Constants.AUTH_MIN_PIN_LENGTH, Constants.AUTH_MAX_PIN_LENGTH)
     }
 
@@ -39,7 +51,7 @@ class PinInput(private val pad: PinPadView, private val dots: PinDotsView) {
         entry.clear()
         entry = PinEntry(length, minLength, maxLength)
         dots.setLength(length, minLength)
-        pad.actionKey = if (length == null) PinPadView.ActionKey.CONFIRM else PinPadView.ActionKey.NONE
+        updateActionKey()
         update()
     }
 
@@ -51,6 +63,7 @@ class PinInput(private val pad: PinPadView, private val dots: PinDotsView) {
 
     /** Disables the keypad and pulses the dots while the PIN is checked. */
     fun setBusy(busy: Boolean) {
+        this.busy = busy
         pad.isEnabled = !busy
         dots.setBusy(busy)
         if (!busy)
@@ -119,6 +132,22 @@ class PinInput(private val pad: PinPadView, private val dots: PinDotsView) {
             update()
     }
 
+    private fun action() {
+        if (pad.actionKey == PinPadView.ActionKey.BIOMETRIC)
+            onBiometric?.invoke()
+        else
+            confirm()
+    }
+
+    private fun updateActionKey() {
+        pad.actionKey = when {
+            entry.length == null -> PinPadView.ActionKey.CONFIRM
+            onBiometric != null -> PinPadView.ActionKey.BIOMETRIC
+            else -> PinPadView.ActionKey.NONE
+        }
+        update()
+    }
+
     private fun confirm() {
         if (entry.length == null && entry.canSubmit)
             submit()
@@ -131,7 +160,8 @@ class PinInput(private val pad: PinPadView, private val dots: PinDotsView) {
 
     private fun update() {
         dots.filled = entry.count
-        pad.actionEnabled = entry.canSubmit
+        // OK once enough digits are typed; the biometric key whenever no PIN is being checked.
+        pad.actionEnabled = if (pad.actionKey == PinPadView.ActionKey.BIOMETRIC) !busy else entry.canSubmit
         onChanged?.invoke()
     }
 }
