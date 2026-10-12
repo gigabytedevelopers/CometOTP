@@ -130,13 +130,22 @@ object ManualEntryDialog {
 
         /* --- help buttons ------------------------------------------------------------------- */
         secretLayout.setEndIconOnClickListener { showHelp(context, R.string.label_key, R.string.help_key) }
-        periodLayout.setEndIconOnClickListener { showHelp(context, R.string.label_period, R.string.help_period) }
+        // mOTP's period and length are fixed, so its help says so rather than what most use.
+        periodLayout.setEndIconOnClickListener {
+            showHelp(context, R.string.label_period,
+                    if (state.type == Entry.OTPType.MOTP) R.string.help_period_motp else R.string.help_period)
+        }
         val digitsLayout = digitsInput.parent.parent as TextInputLayout
-        digitsLayout.setEndIconOnClickListener { showHelp(context, R.string.label_digits, R.string.help_digits) }
+        digitsLayout.setEndIconOnClickListener {
+            showHelp(context, R.string.label_digits,
+                    if (state.type == Entry.OTPType.MOTP) R.string.help_digits_motp else R.string.help_digits)
+        }
 
         /* --- type dependent fields ---------------------------------------------------------- */
         val applyType = Runnable {
             val type = state.type
+            // mOTP codes come from MD5, not from any of the algorithms on offer.
+            algorithmLayout.visibility = if (type == Entry.OTPType.MOTP) View.GONE else View.VISIBLE
 
             if (type == Entry.OTPType.STEAM) {
                 counterLayout.visibility = View.GONE

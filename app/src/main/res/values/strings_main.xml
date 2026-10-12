@@ -267,6 +267,8 @@
     <string name="help_key">The secret key provided by the service, usually shown next to the QR code.</string>
     <string name="help_period">How many seconds a code stays valid. Most services use 30.</string>
     <string name="help_digits">Number of digits in the generated code. Most services use 6.</string>
+    <string name="help_period_motp">How many seconds a code stays valid. mOTP codes always change every 10 seconds.</string>
+    <string name="help_digits_motp">Number of characters in the generated code. mOTP codes always have 6.</string>
 
     <!-- Redesign: onboarding coach marks -->
     <string name="coach_next">Next</string>
