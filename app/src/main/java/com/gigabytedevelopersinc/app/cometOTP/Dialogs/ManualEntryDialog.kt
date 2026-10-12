@@ -8,10 +8,12 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.PasswordTransformationMethod
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity
@@ -416,6 +418,12 @@ object ManualEntryDialog {
 
             secretLayout.visibility = View.GONE
             secretViewLayout.visibility = View.VISIBLE
+            // The type cannot change, and Info shows it with the other settings that cannot.
+            typeLayout.visibility = View.GONE
+            sheet.findViewById<View>(R.id.manual_info)?.apply {
+                visibility = View.VISIBLE
+                setOnClickListener { showInfo(context, oldEntry) }
+            }
 
             typeLayout.isEnabled = false
             algorithmLayout.isEnabled = false
@@ -510,6 +518,39 @@ object ManualEntryDialog {
             Entry.OTPType.STEAM -> context.getString(R.string.type_steam)
             Entry.OTPType.TOTP -> context.getString(R.string.type_totp)
         }
+    }
+
+    /** A service's settings that cannot change once it is added, to read. */
+    private fun showInfo(context: Context, entry: Entry) {
+        val builder = MaterialAlertDialogBuilder(context)
+        val inflater = LayoutInflater.from(builder.context)
+        val rows = LinearLayout(builder.context)
+        rows.orientation = LinearLayout.VERTICAL
+        // In line with the dialog's title.
+        val padding = context.resources.getDimensionPixelSize(R.dimen.space_lg)
+        rows.setPadding(padding, context.resources.getDimensionPixelSize(R.dimen.space_sm), padding, 0)
+
+        fun row(nameRes: Int, value: String) {
+            val view = inflater.inflate(R.layout.item_info_row, rows, false)
+            view.findViewById<TextView>(R.id.info_name).setText(nameRes)
+            view.findViewById<TextView>(R.id.info_value).text = value
+            rows.addView(view)
+        }
+
+        row(R.string.label_type, typeLabel(context, entry.type))
+        // mOTP codes come from MD5, whatever algorithm the entry was stored with.
+        row(R.string.label_algorithm, if (entry.type == Entry.OTPType.MOTP) "MD5" else entry.algorithm.name)
+        if (entry.isTimeBased)
+            row(R.string.label_refresh_time, context.resources.getQuantityString(
+                    R.plurals.info_refresh_time, entry.period, entry.period))
+        else
+            row(R.string.label_counter, String.format(Locale.getDefault(), "%d", entry.counter))
+        row(R.string.label_digits, String.format(Locale.getDefault(), "%d", entry.digits))
+
+        builder.setTitle(R.string.label_info)
+                .setView(rows)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
     }
 
     private fun showHelp(context: Context, titleRes: Int, messageRes: Int) {

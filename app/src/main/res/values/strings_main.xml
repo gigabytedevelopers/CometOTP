@@ -257,6 +257,13 @@
     <!-- Redesign: create service sheet -->
     <string name="sheet_title_create_service">Create Service</string>
     <string name="sheet_title_edit_service">Edit Service</string>
+    <!-- Edit sheet: the row and dialog showing a service's settings that cannot change -->
+    <string name="label_info">Info</string>
+    <string name="label_refresh_time">Refresh time</string>
+    <plurals name="info_refresh_time">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
     <string name="button_create">Create</string>
     <string name="label_key">Key</string>
     <string name="label_tag_optional">Tag (Optional)</string>
