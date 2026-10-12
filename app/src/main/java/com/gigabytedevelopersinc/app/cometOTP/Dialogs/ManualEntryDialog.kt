@@ -397,8 +397,21 @@ object ManualEntryDialog {
             labelInput.setText(oldEntry.label)
             secretView.text = oldEntry.secretEncoded
             // Hidden until the eye shows it, and copied only then, as on the PIN and password fields.
+            // The eye and the QR code show the key only while the app has a lock (requireLock).
             secretView.transformationMethod = PasswordTransformationMethod.getInstance()
-            sheet.findViewById<View>(R.id.manual_secret_qr)?.setOnClickListener { adapter.showQRCode(oldEntry) }
+            val secretField = sheet.findViewById<TextInputLayout>(R.id.manual_secret_view_field)
+            secretField?.setEndIconOnClickListener {
+                adapter.requireLock {
+                    val show = secretView.transformationMethod is PasswordTransformationMethod
+                    secretView.transformationMethod = if (show) null else PasswordTransformationMethod.getInstance()
+                    secretField.setEndIconDrawable(if (show) R.drawable.ic_visibility_invisible else R.drawable.ic_visibility_visible)
+                    secretField.endIconContentDescription =
+                            context.getString(if (show) R.string.action_hide_key else R.string.action_show_key)
+                }
+            }
+            sheet.findViewById<View>(R.id.manual_secret_qr)?.setOnClickListener {
+                adapter.requireLock { adapter.showQRCode(oldEntry) }
+            }
             digitsInput.setText(String.format(Locale.ENGLISH, "%d", oldEntry.digits))
 
             if (oldType == Entry.OTPType.TOTP || oldType == Entry.OTPType.STEAM) {

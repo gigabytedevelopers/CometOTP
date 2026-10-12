@@ -1009,7 +1009,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         backupLauncher.launch(tagsIntent)
     }
 
-    private fun openSecurity() {
+    internal fun openSecurity() {
         val securityIntent = Intent(this, SecurityActivity::class.java)
         val key = adapter.encryptionKey
         if (key != null)

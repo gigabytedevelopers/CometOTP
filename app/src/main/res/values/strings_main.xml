@@ -257,6 +257,12 @@
     <!-- Redesign: create service sheet -->
     <string name="sheet_title_create_service">Create Service</string>
     <string name="sheet_title_edit_service">Edit Service</string>
+    <!-- Shown instead of a service's key or QR code while CometOTP has no lock -->
+    <string name="lock_required_title">Lock CometOTP first</string>
+    <string name="lock_required_message">A service\'s key and QR code can only be shown while CometOTP is locked with a PIN, a password or your screen lock, so nobody else holding your phone can read them. Set a lock up in Security.</string>
+    <string name="lock_required_set_up">Set up</string>
+    <string name="action_show_key">Show key</string>
+    <string name="action_hide_key">Hide key</string>
     <!-- Edit sheet: the row and dialog showing a service's settings that cannot change -->
     <string name="label_info">Info</string>
     <string name="label_refresh_time">Refresh time</string>

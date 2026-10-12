@@ -937,6 +937,24 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     }
 
 
+    /**
+     * Runs [action], which shows a service's key or QR code, only while CometOTP has a lock (a
+     * PIN, a password or the device's screen lock): without one, anyone holding the phone could
+     * read the key off it. Otherwise it says so, and offers the Security screen to set one.
+     */
+    fun requireLock(action: () -> Unit) {
+        if (settings.authMethod != Constants.AuthMethod.NONE) {
+            action()
+            return
+        }
+        MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.lock_required_title)
+                .setMessage(R.string.lock_required_message)
+                .setPositiveButton(R.string.lock_required_set_up) { _, _ -> (context as MainActivity).openSecurity() }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+    }
+
     /** Shows [entry] as a QR code, to add it to another app; kept out of screenshots, as it holds the key. */
     fun showQRCode(entry: Entry) {
         // Declared nullable to keep the Java version's null check (Entry.toUri() no longer returns null).
@@ -1023,7 +1041,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             ) { saveAndRefresh(settings.autoBackupEncryptedFullEnabled, pos) }
         }
         bindOption(sheet, R.id.card_options_image) { changeThumbnail(pos) }
-        bindOption(sheet, R.id.card_options_qr) { showQRCode(displayedEntries[pos]) }
+        bindOption(sheet, R.id.card_options_qr) { requireLock { showQRCode(displayedEntries[pos]) } }
         bindOption(sheet, R.id.card_options_pin) { establishPIN(pos) }
         bindOption(sheet, R.id.card_options_keystrokes) { withPin(pos) { sendKeystrokes(pos) } }
         bindOption(sheet, R.id.card_options_remove) { removeItem(pos) }

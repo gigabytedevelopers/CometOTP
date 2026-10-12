@@ -121,11 +121,14 @@
             tools:visibility="visible">
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/manual_secret_view_field"
                 style="@style/Widget.Comet.TextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/label_key"
-                app:endIconMode="password_toggle">
+                app:endIconContentDescription="@string/action_show_key"
+                app:endIconDrawable="@drawable/ic_visibility_visible"
+                app:endIconMode="custom">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/manual_secret_view"
