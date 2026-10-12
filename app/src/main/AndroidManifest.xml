@@ -280,6 +280,16 @@
                 <action android:name="com.gigabytedevelopersinc.app.cometOTP.broadcast.ENCRYPTED_BACKUP" />
             </intent-filter>
         </receiver>
+        <!-- Hands a backup written for sharing to the app it is shared with (BackupActivity) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.backupshare"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/backup_share_paths" />
+        </provider>
     </application>
 
     <!-- Required on Android 11+ for andOTP to be able to select a PGP provider -->

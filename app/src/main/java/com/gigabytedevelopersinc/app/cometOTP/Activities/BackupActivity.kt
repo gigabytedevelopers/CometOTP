@@ -3,6 +3,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Activities
 
 import android.app.PendingIntent
 import android.content.ActivityNotFoundException
+import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -22,6 +23,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.FileProvider
 import androidx.core.content.IntentCompat
 import androidx.core.os.BundleCompat
 import androidx.documentfile.provider.DocumentFile
@@ -50,6 +52,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import java.io.File
 import org.openintents.openpgp.IOpenPgpService2
 import org.openintents.openpgp.OpenPgpError
 import org.openintents.openpgp.OpenPgpSignatureResult
@@ -77,6 +80,9 @@ class BackupActivity : BaseActivity() {
     // The backup and restore forms live in bottom sheets; only one is open at a time.
     private var activeSheet: BottomSheetDialog? = null
     private var sheetButton: MaterialButton? = null
+    private var sheetShareButton: MaterialButton? = null
+    /** The file a backup is being written to for sharing, until it is shared; see shareBackup(). */
+    private var shareTarget: Uri? = null
     private var sheetProgress: ProgressBar? = null
     private var sheetClose: View? = null
     private var sheetIsRestore = false
@@ -145,9 +151,14 @@ class BackupActivity : BaseActivity() {
         stub.layoutResource = R.layout.content_backup
         val v = stub.inflate()
 
+        // Files shared on an earlier visit have long been taken by the apps they went to.
+        if (savedInstanceState == null)
+            clearSharedBackups()
+
         if (savedInstanceState != null) {
             encryptTargetFile = BundleCompat.getParcelable(savedInstanceState, STATE_ENCRYPT_TARGET, Uri::class.java)
             decryptSourceFile = BundleCompat.getParcelable(savedInstanceState, STATE_DECRYPT_SOURCE, Uri::class.java)
+            shareTarget = BundleCompat.getParcelable(savedInstanceState, STATE_SHARE_TARGET, Uri::class.java)
         }
 
         // Predictive back: onBackPressed() is no longer invoked when targeting Android 16+.
@@ -191,6 +202,7 @@ class BackupActivity : BaseActivity() {
             if (activeSheet === d) {
                 activeSheet = null
                 sheetButton = null
+                sheetShareButton = null
                 sheetProgress = null
                 sheetClose = null
             }
@@ -224,10 +236,12 @@ class BackupActivity : BaseActivity() {
         val type = sheet.findViewById<MaterialAutoCompleteTextView>(R.id.backupType)
         val autoSync = sheet.findViewById<MaterialSwitch>(R.id.backup_auto_sync)
         val button = sheet.findViewById<MaterialButton>(R.id.buttonBackup)
+        val share = sheet.findViewById<MaterialButton>(R.id.buttonShareBackup)
         sheetButton = button
+        sheetShareButton = share
         sheetProgress = sheet.findViewById(R.id.progressBarBackup)
 
-        if (type == null || autoSync == null || button == null)
+        if (type == null || autoSync == null || button == null || share == null)
             return
 
         bindTypeDropdown(type, false)
@@ -248,7 +262,9 @@ class BackupActivity : BaseActivity() {
             }
         }
 
+        share.setOnClickListener { shareBackup() }
         button.setOnClickListener {
+            shareTarget = null
             when (backupType) {
                 Constants.BackupType.PLAIN_TEXT ->
                     backupPlainWithWarning()
@@ -308,6 +324,7 @@ class BackupActivity : BaseActivity() {
             button.isEnabled = !loading
             button.text = if (loading) "" else getString(if (sheetIsRestore) R.string.backup_button_restore_short else R.string.backup_button_backup)
         }
+        sheetShareButton?.isEnabled = !loading
         sheetProgress?.visibility = if (loading) View.VISIBLE else View.GONE
         sheetClose?.isEnabled = !loading
         activeSheet?.setCancelable(!loading)
@@ -387,6 +404,7 @@ class BackupActivity : BaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putParcelable(STATE_ENCRYPT_TARGET, encryptTargetFile)
+        outState.putParcelable(STATE_SHARE_TARGET, shareTarget)
         outState.putParcelable(STATE_DECRYPT_SOURCE, decryptSourceFile)
     }
 
@@ -418,7 +436,10 @@ class BackupActivity : BaseActivity() {
     private fun handleBackupTaskResult(result: GenericBackupTask.BackupTaskResult) {
         showBackupProgress(false)
 
-        if (result.messageId != 0)
+        // A shared backup was written to the app's own file, not "to external storage": the
+        // share sheet that opens says enough.
+        val sharing = result.success && shareTarget != null
+        if (result.messageId != 0 && !sharing)
             notifyBackupState(result.messageId)
         else
             if (!result.success)
@@ -432,12 +453,75 @@ class BackupActivity : BaseActivity() {
                     .commit()
         }
 
-        if (result.success) {
+        val shared = shareTarget
+        shareTarget = null
+        if (result.success && shared != null) {
+            dismissSheet()
+            sendBackup(shared)
+        } else if (result.success) {
             dismissSheet()
             ResultDialog.showSuccess(this, R.drawable.ic_backup_cloud,
                     R.string.backup_result_created_title, R.string.backup_result_created_msg,
                     R.string.continue_on) { finishWithResult() }
         }
+    }
+
+    /**
+     * Share: the backup is written, in the chosen format, to a file of the app's own that the
+     * share sheet then hands to the app chosen (FileProvider, [SHARE_AUTHORITY]). The file goes
+     * the next time this screen opens ([clearSharedBackups]); the app it went to may still be
+     * reading it until then. An unencrypted backup is warned about first, as for Save.
+     */
+    private fun shareBackup() {
+        val type = backupType
+        if (type == Constants.BackupType.UNAVAILABLE)
+            return
+        val dir = File(cacheDir, SHARED_BACKUPS_DIR)
+        dir.mkdirs()
+        val file = File(dir, BackupHelper.backupFilename(this, type))
+        val uri = FileProvider.getUriForFile(this, packageName + SHARE_AUTHORITY, file)
+
+        val write = {
+            shareTarget = uri
+            when (type) {
+                Constants.BackupType.PLAIN_TEXT -> doBackupPlain(uri)
+                Constants.BackupType.ENCRYPTED -> doBackupCrypt(uri)
+                Constants.BackupType.OPEN_PGP -> backupEncryptedWithPGP(uri, null)
+                else -> {}
+            }
+        }
+        if (type == Constants.BackupType.PLAIN_TEXT) {
+            MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.backup_dialog_title_security_warning)
+                    .setMessage(R.string.backup_dialog_msg_export_warning)
+                    .setPositiveButton(android.R.string.yes) { _, _ -> write() }
+                    .setNegativeButton(android.R.string.no, null)
+                    .show()
+        } else {
+            write()
+        }
+    }
+
+    /** Opens the share sheet for the backup written to [uri]. */
+    private fun sendBackup(uri: Uri) {
+        // binary/aes is CometOTP's own; other apps take the file as plain bytes.
+        val mime = when (backupType) {
+            Constants.BackupType.PLAIN_TEXT -> Constants.BACKUP_MIMETYPE_PLAIN
+            Constants.BackupType.OPEN_PGP -> Constants.BACKUP_MIMETYPE_PGP
+            else -> "application/octet-stream"
+        }
+        val send = Intent(Intent.ACTION_SEND)
+                .setType(mime)
+                .putExtra(Intent.EXTRA_STREAM, uri)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        // The chooser passes the permission on only for a ClipData.
+        send.clipData = ClipData.newRawUri(null, uri)
+        startActivity(Intent.createChooser(send, getString(R.string.backup_share_title)))
+    }
+
+    /** Deletes the files shared before ([shareBackup]). */
+    private fun clearSharedBackups() {
+        File(cacheDir, SHARED_BACKUPS_DIR).listFiles()?.forEach { it.delete() }
     }
 
     private fun handleRestoreTaskResult(result: GenericRestoreTask.RestoreTaskResult) {
@@ -1053,6 +1137,12 @@ class BackupActivity : BaseActivity() {
 
         private const val STATE_ENCRYPT_TARGET = "BackupActivity.encryptTargetFile"
         private const val STATE_DECRYPT_SOURCE = "BackupActivity.decryptSourceFile"
+        private const val STATE_SHARE_TARGET = "BackupActivity.shareTarget"
+
+        /** Under the cache directory: backups written for sharing, see shareBackup(). */
+        private const val SHARED_BACKUPS_DIR = "shared_backups"
+        /** After the package name: the FileProvider sharing them (AndroidManifest.xml). */
+        private const val SHARE_AUTHORITY = ".backupshare"
 
         /** The formats in the order they are offered, password encryption first. */
         private val BACKUP_FORMATS = listOf(Constants.BackupType.ENCRYPTED,

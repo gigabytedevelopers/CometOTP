@@ -122,24 +122,44 @@
 
     </LinearLayout>
 
-    <FrameLayout
+    <!-- Share hands the backup to another app; Save writes it to a file -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/sheet_section_gap">
+        android:layout_marginTop="@dimen/sheet_section_gap"
+        android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonBackup"
-            style="@style/Widget.Comet.Button"
-            android:layout_width="match_parent"
+            android:id="@+id/buttonShareBackup"
+            style="@style/Widget.Comet.Button.Outlined"
+            android:layout_width="0dp"
             android:layout_height="@dimen/button_height"
-            android:text="@string/backup_button_backup" />
+            android:layout_marginEnd="@dimen/sheet_button_gap"
+            android:layout_weight="1"
+            android:text="@string/backup_button_share"
+            app:icon="@drawable/ic_share"
+            app:iconGravity="textStart" />
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/progressBarBackup"
-            style="@style/Widget.Comet.Progress.OnPrimary"
-            android:layout_gravity="center"
-            android:visibility="gone" />
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
 
-    </FrameLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonBackup"
+                style="@style/Widget.Comet.Button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:text="@string/backup_button_backup" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progressBarBackup"
+                style="@style/Widget.Comet.Progress.OnPrimary"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

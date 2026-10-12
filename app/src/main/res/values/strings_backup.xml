@@ -191,7 +191,9 @@
     <string name="backup_check_restore_old">Restore old backup format (created with an CometOTP version
         before version 2.0)</string>
 
-    <string name="backup_button_backup">Create Backup</string>
+    <string name="backup_button_backup">Save</string>
+    <string name="backup_button_share">Share</string>
+    <string name="backup_share_title">Share backup</string>
     <string name="backup_button_restore">Restore backup</string>
 
     <string-array name="backup_list_type_names">

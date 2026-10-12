@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- What the backup FileProvider may hand out: only the backups written for sharing
+     (BackupActivity.shareBackup), nothing else of the app's -->
+<paths>
+    <cache-path
+        name="shared_backups"
+        path="shared_backups/" />
+</paths>
