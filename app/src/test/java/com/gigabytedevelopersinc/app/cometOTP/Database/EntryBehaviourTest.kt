@@ -269,6 +269,12 @@ class EntryBehaviourTest {
     }
 
     @Test
+    fun motpTokensShowAsExpiringOnlyInTheirLastSeconds() {
+        assertEquals(3, Entry(Entry.OTPType.MOTP, "abcdef0123456789", "i", "l", mutableListOf()).expiringSeconds)
+        assertEquals(8, Entry().expiringSeconds)
+    }
+
+    @Test
     fun colourTurnsRedOnceNearExpiryAndResetsOnUpdate() {
         val e = Entry(Entry.OTPType.TOTP, "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", 1, 6, "i", "l",
             HashAlgorithm.SHA1, mutableListOf())

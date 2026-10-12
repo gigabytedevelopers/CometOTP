@@ -142,6 +142,12 @@ class CountdownRingView @JvmOverloads constructor(
         invalidate()
     }
 
+    /** Sets how many seconds before the end of the period the ring shows as expiring. */
+    fun setExpiringThreshold(seconds: Int) {
+        expiringThreshold = seconds
+        invalidate()
+    }
+
     fun setHighlightExpiring(highlight: Boolean) {
         highlightExpiring = highlight
         invalidate()

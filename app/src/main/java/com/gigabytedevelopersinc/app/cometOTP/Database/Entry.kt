@@ -410,7 +410,15 @@ class Entry {
     }
 
     /**
-     * Checks if the OTP is expiring. The color for the entry will be changed to red if the expiry time is less than or equal to 8 seconds
+     * How long before its token changes the entry shows it as expiring: in red, and with the next
+     * token where that is shown. A ten second mOTP token would otherwise spend most of its life
+     * expiring.
+     */
+    val expiringSeconds: Int
+        get() = if (type == OTPType.MOTP) MOTP_EXPIRY_TIME else EXPIRY_TIME
+
+    /**
+     * Checks if the OTP is expiring. The color for the entry will be changed to red if the expiry time is within [expiringSeconds]
      * COLOR_DEFAULT indicates that the OTP has not expired. In this case check if the OTP is about to expire. Update color to COLOR_RED if it's about to expire
      * COLOR_RED indicates that the OTP is already about to expire. Don't check again.
      * The color will be reset to COLOR_DEFAULT in [updateOTP] method
@@ -420,7 +428,7 @@ class Entry {
     fun hasColorChanged(): Boolean {
         if (color == COLOR_DEFAULT) {
             val time = System.currentTimeMillis() / 1000
-            if ((time % period) > (period - EXPIRY_TIME)) {
+            if ((time % period) > (period - expiringSeconds)) {
                 color = COLOR_RED
                 return true
             }
@@ -499,6 +507,7 @@ class Entry {
         private const val COLOR_DEFAULT = 0
         const val COLOR_RED = 1
         private const val EXPIRY_TIME = 8
+        private const val MOTP_EXPIRY_TIME = 3
 
         fun validateSecret(secret: String?, type: OTPType?): Boolean {
             try {
