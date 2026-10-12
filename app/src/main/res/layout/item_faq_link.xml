@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A page an FAQ answer links to, opened in the browser -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Comet.NavRow"
+    app:drawableEndCompat="@drawable/ic_chevron_right"
+    app:drawableStartCompat="@drawable/ic_link"
+    tools:text="GitHub" />

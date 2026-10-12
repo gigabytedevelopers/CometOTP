@@ -8,6 +8,7 @@
     <string-array name="faq_titles">
         <item>What is CometOTP</item>
         <item>What is OTP</item>
+        <item>How do I turn on 2FA</item>
         <item>How do I add a service</item>
         <item>Can\'t backup my services</item>
         <item>My codes are not accepted</item>
@@ -18,11 +19,65 @@
     <string-array name="faq_bodies">
         <item>CometOTP is a simple and free two-factor authenticator. It generates time-based one-time passwords (TOTP), counter-based passwords (HOTP), Steam codes and mOTP codes for the services you protect with two-factor authentication.\n\nEverything is stored encrypted on your device and never leaves it unless you create a backup yourself.</item>
         <item>A one-time password (OTP) is a short code that is only valid once and, for time-based codes, only for a short period of time (usually 30 seconds).\n\nWhen a service asks you for a code, open CometOTP, find the service and type in the code shown on its card before the countdown runs out.</item>
+        <item>Two-factor authentication (2FA) is turned on in each service\'s own security settings, not in CometOTP. Depending on the service it is called two-factor authentication, 2-step verification or login verification. The steps are much the same everywhere:\n\n1. Sign in to the service, on its website or in its app, and open its security settings.\n2. Choose to set up two-factor authentication with an authenticator app. The service shows a QR code and, usually, a setup key.\n3. In CometOTP, tap the + button and choose Scan QR Code, or choose Setup Key and type the key in.\n4. Type the code CometOTP shows into the service to finish.\n5. Keep the backup or recovery codes the service gives you somewhere safe. They let you sign in if you lose your phone.\n\nThe help pages below show where to find it for some popular services.</item>
         <item>Tap the + button on the home screen and choose one of the options:\n\n• Scan QR Code: point the camera at the QR code shown by the service.\n• QR Code from Image: pick a screenshot or photo of the QR code.\n• Setup Key: type the secret key and the account details by hand.</item>
         <item>Backups are created from the Backup &amp; Restore screen in the main menu. If the backup fails, make sure you have granted access to the folder you picked and that there is enough free space.\n\nAutomatic backups additionally need a default backup location and a backup password, both of which are set in Settings.</item>
         <item>Time-based codes depend on the clock of your phone. Make sure that automatic date &amp; time is enabled in your device settings.\n\nIf the codes are still rejected, remove the service from the website and add it to CometOTP again.</item>
         <item>Create an encrypted backup on your old phone from the Backup &amp; Restore screen, copy the file to your new phone and restore it there.\n\nCometOTP does not sync your accounts to the cloud, so a backup is the only way to move them.</item>
         <item>Your accounts are stored in an encrypted file. The key is either kept in the Android KeyStore (hardware backed on most devices) or derived from your password or PIN, depending on the encryption method you chose during setup.\n\nYou can additionally lock the app with a PIN, a password or your fingerprint from the Security screen.</item>
+    </string-array>
+
+    <!-- An FAQ answer's links, in the order of faq_titles: the names, and their pages
+         (faq_link_urls). @null where an answer has none. -->
+    <array name="faq_link_names">
+        <item>@null</item>
+        <item>@null</item>
+        <item>@array/faq_2fa_service_names</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+    </array>
+    <array name="faq_link_urls">
+        <item>@null</item>
+        <item>@null</item>
+        <item>@array/faq_2fa_service_urls</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+    </array>
+
+    <string name="faq_links_title">Help pages for popular services</string>
+    <string name="faq_links_note">For any other service, look for two-factor authentication or 2-step verification in its security settings.</string>
+    <string name="faq_link_unavailable">No browser was found to open the page</string>
+
+    <!-- How do I turn on 2FA: each service's own page on turning it on, in faq_2fa_service_urls -->
+    <string-array name="faq_2fa_service_names" translatable="false">
+        <item>Amazon</item>
+        <item>Discord</item>
+        <item>Dropbox</item>
+        <item>Facebook</item>
+        <item>GitHub</item>
+        <item>Google</item>
+        <item>Instagram</item>
+        <item>Microsoft</item>
+        <item>Reddit</item>
+        <item>X (Twitter)</item>
+    </string-array>
+    <string-array name="faq_2fa_service_urls" translatable="false">
+        <item>https://www.amazon.com/gp/help/customer/display.html?nodeId=G3PWZPU52FKN7PW4</item>
+        <item>https://support.discord.com/hc/en-us/articles/219576828-Setting-up-Multi-Factor-Authentication</item>
+        <item>https://help.dropbox.com/account-access/enable-2-factor-authentication</item>
+        <item>https://www.facebook.com/help/148233965247823</item>
+        <item>https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa/configuring-two-factor-authentication</item>
+        <item>https://support.google.com/accounts/answer/185839</item>
+        <item>https://help.instagram.com/566810106808145</item>
+        <item>https://support.microsoft.com/en-us/accounts-billing/security/how-to-use-two-step-verification-with-your-microsoft-account</item>
+        <item>https://support.reddithelp.com/hc/en-us/articles/360043470031-What-is-two-factor-authentication-and-how-do-I-set-it-up</item>
+        <item>https://help.x.com/en/managing-your-account/two-factor-authentication</item>
     </string-array>
 
     <!-- Contact form -->

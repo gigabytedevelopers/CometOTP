@@ -68,6 +68,42 @@
             android:textColor="?attr/colorOnSurfaceVariant"
             tools:text="CometOTP is a simple and free application..." />
 
+        <!-- Only for an answer with links (faq_link_names): pages to read on -->
+        <LinearLayout
+            android:id="@+id/faq_detail_links"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_lg"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_sm"
+                android:text="@string/faq_links_title"
+                android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
+                android:textColor="?attr/colorOnSurface" />
+
+            <!-- Out by the rows' own start padding, so their icons line up with the text -->
+            <LinearLayout
+                android:id="@+id/faq_detail_link_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/faq_link_outset"
+                android:layout_marginEnd="@dimen/faq_link_outset"
+                android:orientation="vertical" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_sm"
+                android:text="@string/faq_links_note"
+                android:textAppearance="@style/TextAppearance.Comet.Caption" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

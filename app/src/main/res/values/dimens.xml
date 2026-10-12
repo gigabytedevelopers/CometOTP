@@ -106,6 +106,8 @@
     <!-- The edit sheet's brand icon / initials choice: the ringed tile, and the picture in it -->
     <dimen name="choice_tile_size">80dp</dimen>
     <dimen name="thumbnail_header_height">36dp</dimen>
+    <!-- An FAQ answer's links: minus the rows' start padding (Widget.Comet.NavRow) -->
+    <dimen name="faq_link_outset">-16dp</dimen>
     <!-- Between an icon in the picker and the ring round the current one -->
     <dimen name="thumbnail_ring_padding">6dp</dimen>
     <dimen name="choice_tile_radius">20dp</dimen>
