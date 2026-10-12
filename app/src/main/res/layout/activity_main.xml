@@ -258,18 +258,18 @@
 
     </FrameLayout>
 
-    <!-- Docked bottom bar: flush with the window bottom, notched for the add button -->
-    <!-- Raised round the add button; the view is bottom_bar_raise taller than the bar, for the
-         cradle above it and its shadow -->
-    <com.gigabytedevelopersinc.app.cometOTP.View.CradleBottomBar
+    <!-- Docked bottom bar: flush with the window bottom, notched for the add button; the view is
+         bottom_bar_raise taller than the bar, for its shadow -->
+    <com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:barColor="?attr/colorBottomBar"
-        app:barCradleRadius="@dimen/fab_cradle_radius"
         app:barLineColor="?attr/colorBottomBarLine"
         app:barLineWidth="1dp"
+        app:barNotchCornerRadius="@dimen/fab_notch_corner_radius"
+        app:barNotchRadius="@dimen/fab_notch_radius"
         app:barRaise="@dimen/bottom_bar_raise"
         app:barShadowColor="?attr/colorBottomBarShadow"
         app:barShadowRadius="@dimen/bottom_bar_shadow_radius">
@@ -312,7 +312,7 @@
 
         </FrameLayout>
 
-    </com.gigabytedevelopersinc.app.cometOTP.View.CradleBottomBar>
+    </com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar>
 
     <!-- Centred on the bar's top edge; the bottom margin is set from the window insets -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton

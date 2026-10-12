@@ -33,13 +33,13 @@
         <attr name="ringHighlightExpiring" format="boolean" />
         <attr name="ringExpiringThreshold" format="integer" />
     </declare-styleable>
-    <declare-styleable name="CradleBottomBar">
+    <declare-styleable name="NotchedBottomBar">
         <attr name="barColor" format="color|reference" />
         <attr name="barLineColor" format="color|reference" />
         <attr name="barLineWidth" format="dimension" />
-        <attr name="barCradleRadius" format="dimension" />
+        <attr name="barNotchRadius" format="dimension" />
         <attr name="barRaise" format="dimension" />
-        <attr name="barShoulderRadius" format="dimension" />
+        <attr name="barNotchCornerRadius" format="dimension" />
         <attr name="barShadowColor" format="color|reference" />
         <attr name="barShadowRadius" format="dimension" />
     </declare-styleable>
