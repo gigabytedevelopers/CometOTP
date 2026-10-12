@@ -9,15 +9,15 @@ name: Request review
 # pull_request_target runs this file as it is on master, never the pull request's copy, and the job
 # never checks out or runs anything from the pull request, so a fork cannot use it to reach the
 # token. Keep it that way: no actions/checkout here.
-# This change takes effect only after merge. A rerun of a bot-started request retains its old
-# workflow; use the enwokoma account to request review on the PR introducing this change.
+# Uses only the scoped workflow token. No release credential is exposed to this workflow.
 on:
   pull_request_target:
     # synchronize as well, because a new push dismisses her approval (the ruleset's
     # dismiss_stale_reviews_on_push), and this asks her again for the new commits.
     types: [opened, reopened, ready_for_review, synchronize]
 
-permissions: {}
+permissions:
+  pull-requests: write
 
 concurrency:
   group: request-review-${{ github.event.pull_request.number }}
@@ -34,16 +34,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Request the review as enwokoma
+      - name: Request the review with the scoped workflow token
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          if [ -z "$GH_TOKEN" ] || [ "$(gh api user --jq .login)" != enwokoma ]; then
-            echo '::error::RELEASE_OWNER_TOKEN must authenticate as enwokoma; bot fallback is disabled.'
-            exit 1
-          fi
           # Asking again while she is already requested is a no-op, so this is safe on every push.
           gh api -X POST "repos/$REPO/pulls/$PR/requested_reviewers" -f 'reviewers[]=princesseke' --silent
           echo "Requested a review from @princesseke on #$PR."

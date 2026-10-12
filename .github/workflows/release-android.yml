@@ -36,7 +36,7 @@ jobs:
   release:
     name: Build and publish
     # The deployment actor is set when the run starts; a token inside a bot-started run cannot fix it.
-    if: github.actor == 'enwokoma'
+    if: vars.SECURITY_RELEASE_APPROVED == 'true' && github.actor == 'enwokoma'
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -47,11 +47,14 @@ jobs:
       url: https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7
         with:
           # git-cliff needs the history and tags to work out what changed.
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Reject incident indicators before reading release credentials
+        run: python3 .github/scripts/check_repository_security.py
 
       - name: Verify enwokoma's token and signed release tag
         env:
@@ -74,13 +77,13 @@ jobs:
           echo "Tag $GITHUB_REF_NAME matches app/version.properties."
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # gradle/actions/setup-gradle@v6
 
       # The keystore lives in the runner's temp directory, which is wiped when the job ends, and
       # never inside the workspace, so it cannot be picked up by an artifact upload.
@@ -127,7 +130,7 @@ jobs:
           fi
 
       - name: Generate release notes
-        uses: orhun/git-cliff-action@v4
+        uses: orhun/git-cliff-action@a9a95522b26fe6403f7bb24031f21fb573d0f5ff # orhun/git-cliff-action@v4
         id: notes
         with:
           config: cliff.toml
@@ -183,7 +186,7 @@ jobs:
       # the one track. Tag pushes have no inputs and target production directly; testing tracks
       # remain available as an explicit choice when dispatching a workflow by hand.
       - name: Publish to Google Play
-        uses: r0adkll/upload-google-play@v1
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.gigabytedevelopersinc.app.CometOTP
@@ -194,7 +197,7 @@ jobs:
           mappingFile: app/build/outputs/mapping/release/mapping.txt
 
       - name: Create the GitHub release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # softprops/action-gh-release@v3
         with:
           token: ${{ secrets.RELEASE_OWNER_TOKEN }}
           tag_name: v${{ steps.version.outputs.name }}
@@ -213,7 +216,7 @@ jobs:
       - name: Generate the new changelog section
         id: changelog_section
         continue-on-error: true
-        uses: orhun/git-cliff-action@v4
+        uses: orhun/git-cliff-action@a9a95522b26fe6403f7bb24031f21fb573d0f5ff # orhun/git-cliff-action@v4
         with:
           config: cliff.toml
           args: ${{ env.CLIFF_RANGE }}

@@ -24,9 +24,11 @@ jobs:
     # Only a passing CI run for a push to master in this repository. The branch filter alone would
     # also match a pull request from a fork whose own branch is called master.
     if: >-
+      vars.SECURITY_RELEASE_APPROVED == 'true' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_repository.full_name == github.repository
+    environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -35,11 +37,14 @@ jobs:
 
     steps:
       # The commit CI tested, not whatever master has moved on to since.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0   # all the tags, to compare against
           persist-credentials: false
+
+      - name: Reject incident indicators before reading release credentials
+        run: python3 .github/scripts/check_repository_security.py
 
       - name: Work out whether this version is new
         id: version
