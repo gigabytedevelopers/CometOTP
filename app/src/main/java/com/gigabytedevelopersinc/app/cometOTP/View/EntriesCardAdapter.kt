@@ -819,7 +819,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         val realIndex = getRealIndex(pos)
         val entry = entryList.getEntry(realIndex)
 
-        ThumbnailPickerSheet.show(context, entry.issuer, entry.label) { thumbnail ->
+        ThumbnailPickerSheet.show(context, entry.issuer, entry.label, entry.thumbnail) { thumbnail ->
             val e = entryList.getEntry(getRealIndex(pos))
             e.thumbnail = thumbnail
 

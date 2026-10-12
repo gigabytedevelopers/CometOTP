@@ -105,6 +105,9 @@
          it moves to centre on the box under the floating label -->
     <!-- The edit sheet's brand icon / initials choice: the ringed tile, and the picture in it -->
     <dimen name="choice_tile_size">80dp</dimen>
+    <dimen name="thumbnail_header_height">36dp</dimen>
+    <!-- Between an icon in the picker and the ring round the current one -->
+    <dimen name="thumbnail_ring_padding">6dp</dimen>
     <dimen name="choice_tile_radius">20dp</dimen>
     <dimen name="choice_picture_size">56dp</dimen>
     <dimen name="field_second_icon_margin">44dp</dimen>

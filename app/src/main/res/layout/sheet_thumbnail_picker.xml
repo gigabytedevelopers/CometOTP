@@ -52,17 +52,13 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <GridView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/thumbnail_grid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/sheet_field_gap"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:horizontalSpacing="@dimen/space_md"
-        android:numColumns="auto_fit"
-        android:paddingBottom="@dimen/space_lg"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="@dimen/space_md" />
+        android:paddingBottom="@dimen/space_lg" />
 
 </LinearLayout>

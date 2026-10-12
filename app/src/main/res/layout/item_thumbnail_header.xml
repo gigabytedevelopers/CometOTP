@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A letter's header in the icon picker; also drawn pinned at the top while its icons scroll
+     under it, so it is opaque -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/thumbnail_header_height"
+    android:background="?attr/colorSurfaceContainerHigh"
+    android:gravity="center_vertical"
+    android:importantForAccessibility="no"
+    android:paddingStart="@dimen/space_md"
+    android:paddingEnd="@dimen/space_md"
+    android:textAppearance="@style/TextAppearance.Comet.TitleSmall"
+    android:textColor="?attr/colorPrimary"
+    tools:text="A" />

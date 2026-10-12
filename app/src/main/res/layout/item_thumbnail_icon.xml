@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An icon in the icon picker, ringed in the accent colour while it is the current one -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingTop="@dimen/space_xs"
+    android:paddingBottom="@dimen/space_xs">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_choice_tile"
+        android:duplicateParentState="true"
+        android:padding="@dimen/thumbnail_ring_padding">
+
+        <ImageView
+            android:id="@+id/thumbnail_icon"
+            android:layout_width="@dimen/issuer_icon_size"
+            android:layout_height="@dimen/issuer_icon_size"
+            android:background="@drawable/bg_thumbnail_tile"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter" />
+
+    </FrameLayout>
+
+</FrameLayout>

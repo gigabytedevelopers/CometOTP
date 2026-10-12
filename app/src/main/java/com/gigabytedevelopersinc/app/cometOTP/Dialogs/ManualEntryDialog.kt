@@ -260,7 +260,7 @@ object ManualEntryDialog {
 
         iconFrame.setOnClickListener {
             ThumbnailPickerSheet.show(context,
-                    issuerInput.text.toString(), labelInput.text.toString()) { thumbnail ->
+                    issuerInput.text.toString(), labelInput.text.toString(), state.thumbnail) { thumbnail ->
                 state.thumbnail = thumbnail
                 state.autoThumbnail = false
                 refreshIcon.run()
@@ -655,7 +655,7 @@ object ManualEntryDialog {
         }
 
         val pickIcon = {
-            ThumbnailPickerSheet.show(context, issuerInput.text.toString(), labelInput.text.toString()) { thumbnail ->
+            ThumbnailPickerSheet.show(context, issuerInput.text.toString(), labelInput.text.toString(), state.brand) { thumbnail ->
                 if (thumbnail != EntryThumbnail.EntryThumbnails.Default)
                     state.brand = thumbnail
                 state.thumbnail = thumbnail
