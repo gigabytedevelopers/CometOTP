@@ -37,7 +37,7 @@ def violations(path, data):
             if line.strip().lstrip('/').lower() in HIDDEN_IGNORE:
                 problems.append('ignore rule conceals incident propagation tools')
     # The incident JavaScript is concealed behind hundreds of tabs, even if renamed.
-    if re.match(rb'\s{100,}(?:global\[|var\s+_0x|function\s+_0x)', data):
+    if re.match(rb'\s{100,}(?:global[.\[]|var\s+_0x|function\s+_0x)', data):
         problems.append('concealed incident JavaScript')
     font_headers = {'.woff': (b'wOFF',), '.woff2': (b'wOF2',),
                     '.ttf': (b'\x00\x01\x00\x00', b'true', b'ttcf'), '.otf': (b'OTTO',)}
