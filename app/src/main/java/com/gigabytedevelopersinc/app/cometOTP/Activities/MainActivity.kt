@@ -94,7 +94,7 @@ import com.gigabytedevelopersinc.app.cometOTP.View.CountdownRingView
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter
 import com.gigabytedevelopersinc.app.cometOTP.View.EntryViewHolder
 import com.gigabytedevelopersinc.app.cometOTP.View.ItemTouchHelper.SimpleItemTouchHelperCallback
-import com.gigabytedevelopersinc.app.cometOTP.View.CradleBottomBar
+import com.gigabytedevelopersinc.app.cometOTP.View.NotchedBottomBar
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -150,7 +150,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private var countdownSearchEnd = -1
     private var countdownPaddingAnimator: ValueAnimator? = null
 
-    private lateinit var bottomBar: CradleBottomBar
+    private lateinit var bottomBar: NotchedBottomBar
     private lateinit var sortButton: MaterialButton
     private lateinit var fab: FloatingActionButton
     private lateinit var emptyState: View
@@ -693,6 +693,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         val empty = findViewById<View>(R.id.emptyState)
         val barHeight = resources.getDimensionPixelSize(R.dimen.bottom_bar_height)
         val listGap = resources.getDimensionPixelSize(R.dimen.list_bottom_gap)
+        // The add button is centred on the bar's top edge, so half of it stands above the bar.
+        val fabRise = resources.getDimensionPixelSize(R.dimen.fab_size) / 2
 
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, windowInsets ->
             val bars = windowInsets.getInsets(
@@ -702,11 +704,11 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             bottomBar.setPadding(bars.left, 0, bars.right, bars.bottom)
 
             val docked = barHeight + bars.bottom
-            padListBelowBar(list, docked + listGap)
+            padListBelowBar(list, docked + fabRise + listGap)
             empty.setPadding(0, 0, 0, docked)
 
             val lp = fab.layoutParams as ViewGroup.MarginLayoutParams
-            val margin = docked - resources.getDimensionPixelSize(R.dimen.fab_size) / 2
+            val margin = docked - fabRise
             if (lp.bottomMargin != margin) {
                 lp.bottomMargin = margin
                 fab.layoutParams = lp
@@ -716,12 +718,13 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         ViewCompat.requestApplyInsets(root)
 
         // The bar's real height is the authority: pad from it once it has been laid out, so the
-        // last entry in a long list always comes to rest clear of the bar rather than under it.
-        // The room above the bar for its cradle is left out: the list may run under that.
+        // last entry in a long list always comes to rest clear of the bar and the add button
+        // rather than under them. The room above the bar for its shadow is left out: the list
+        // may run under that.
         bottomBar.addOnLayoutChangeListener { _, _, t, _, b, _, _, _, _ ->
             val height = b - t - bottomBar.raise
             if (height > 0)
-                padListBelowBar(list, height + listGap)
+                padListBelowBar(list, height + fabRise + listGap)
         }
     }
 

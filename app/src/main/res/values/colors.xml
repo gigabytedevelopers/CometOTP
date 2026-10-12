@@ -42,7 +42,7 @@
     <color name="background_light">#F5F6FA</color>
     <color name="surface_dark">#1E1F24</color>
     <color name="bottom_bar_dark">#1C1C1C</color>
-    <!-- The bottom bar's shadow (CradleBottomBar): stronger in the dark, where it shows less -->
+    <!-- The bottom bar's shadow (NotchedBottomBar): stronger in the dark, where it shows less -->
     <color name="bottom_bar_shadow_light">#29000000</color>
     <color name="bottom_bar_shadow_dark">#99000000</color>
 
