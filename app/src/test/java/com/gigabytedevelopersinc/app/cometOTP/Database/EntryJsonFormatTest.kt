@@ -9,6 +9,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.util.Locale
@@ -273,6 +274,30 @@ class EntryJsonFormatTest {
         }
     }
 
+    /**
+     * The initials and badge colour chosen for a card are saved only when set, so an entry without
+     * them is written exactly as before, and older entries load with neither.
+     */
+    @Test
+    fun initialsAndBadgeColourAreSavedOnlyWhenSet() {
+        val plain = Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"l","issuer":"Twitter"}"""))
+        assertEquals("", plain.initials)
+        assertEquals(0, plain.badgeColor)
+        assertFalse(plain.toJSON().has("initials"))
+        assertFalse(plain.toJSON().has("badge_color"))
+
+        plain.initials = "TW"
+        plain.badgeColor = 0xFF4CAF50.toInt()
+        val json = plain.toJSON()
+        assertEquals("TW", json.getString("initials"))
+        assertEquals(0xFF4CAF50.toInt(), json.getInt("badge_color"))
+        assertRoundTrip(plain)
+
+        // More than the tile shows is cut to two characters on loading.
+        val long = Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"l","initials":"ABC"}"""))
+        assertEquals("AB", long.initials)
+    }
+
     private fun assertRoundTrip(original: Entry) {
         val json = original.toJSON()
         val reloaded = Entry(JSONObject(json.toString()))
@@ -282,6 +307,8 @@ class EntryJsonFormatTest {
         assertEquals(original.thumbnail, reloaded.thumbnail)
         assertEquals(original.lastUsed, reloaded.lastUsed)
         assertEquals(original.usedFrequency, reloaded.usedFrequency)
+        assertEquals(original.initials, reloaded.initials)
+        assertEquals(original.badgeColor, reloaded.badgeColor)
         assertJson(json.toString(), reloaded.toJSON())
     }
 

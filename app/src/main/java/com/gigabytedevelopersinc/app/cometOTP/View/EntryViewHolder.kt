@@ -305,7 +305,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         thumbnailFrame.visibility = if (settings.thumbnailVisible) View.VISIBLE else View.GONE
         if (settings.thumbnailVisible) {
             val thumbnailSize = settings.thumbnailSize
-            thumbnailImg.setImageBitmap(EntryThumbnail.getThumbnailGraphic(context, issuerText, labelText, thumbnailSize, entry.thumbnail))
+            thumbnailImg.setImageBitmap(EntryThumbnail.getThumbnailGraphic(context, issuerText, labelText, thumbnailSize, entry.thumbnail,
+                    entry.initials, entry.badgeColor))
         }
 
         val showCountdown = entry.isTimeBased

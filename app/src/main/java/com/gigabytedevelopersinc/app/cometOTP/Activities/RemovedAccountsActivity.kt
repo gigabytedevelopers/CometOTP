@@ -231,7 +231,8 @@ class RemovedAccountsActivity : BaseActivity() {
             days.text = resources.getQuantityString(R.plurals.removed_days_left, left, left)
 
             val size = resources.getDimensionPixelSize(R.dimen.issuer_icon_size)
-            icon.setImageBitmap(EntryThumbnail.getThumbnailGraphic(this@RemovedAccountsActivity, issuer, accountLabel, size, entry.thumbnail))
+            icon.setImageBitmap(EntryThumbnail.getThumbnailGraphic(this@RemovedAccountsActivity, issuer, accountLabel, size, entry.thumbnail,
+                    entry.initials, entry.badgeColor))
 
             val shownName = displayName(entry)
             restore.contentDescription = getString(R.string.removed_restore_format, shownName)

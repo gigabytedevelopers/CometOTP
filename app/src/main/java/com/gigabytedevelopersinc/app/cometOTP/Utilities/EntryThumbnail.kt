@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.text.TextUtils
 import android.util.Log
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
 import com.gigabytedevelopersinc.app.cometOTP.R
@@ -514,14 +515,26 @@ object EntryThumbnail {
         }
     }
 
-    fun getThumbnailGraphic(context: Context, issuer: String?, label: String?, size: Int, thumbnail: EntryThumbnails): Bitmap? {
+    /** The colour the initials tile has for [issuer] (or [label]) when no badge colour is chosen. */
+    @ColorInt
+    fun automaticBadgeColor(context: Context, issuer: String?, label: String?): Int {
+        val letterSrc = (if (TextUtils.isEmpty(issuer)) label else issuer) ?: ""
+        return LetterBitmap(context).pickColor(letterSrc)
+    }
+
+    /**
+     * The picture for [thumbnail] at [size], or for Default the initials tile: [initials] (or the
+     * first letter of the issuer, else the label) on [badgeColor] (or a colour picked from them).
+     */
+    fun getThumbnailGraphic(context: Context, issuer: String?, label: String?, size: Int, thumbnail: EntryThumbnails,
+                            initials: String = "", @ColorInt badgeColor: Int = 0): Bitmap? {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
         if (thumbnail == EntryThumbnails.Default && size > 0) {
             val letterBitmap = LetterBitmap(context)
             // With neither an issuer nor a label the tile shows the "?" placeholder.
             val letterSrc = (if (TextUtils.isEmpty(issuer)) label else issuer) ?: ""
-            return letterBitmap.getLetterTile(letterSrc, letterSrc, size, size)
+            return letterBitmap.getLetterTile(letterSrc, letterSrc, size, size, initials, badgeColor)
         } else if (thumbnail != EntryThumbnails.Default) {
 
             try {

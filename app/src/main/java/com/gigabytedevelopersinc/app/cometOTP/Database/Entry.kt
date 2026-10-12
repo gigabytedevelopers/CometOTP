@@ -2,6 +2,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Database
 
 import android.net.Uri
+import androidx.annotation.ColorInt
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator
 import org.apache.commons.codec.binary.Base32
@@ -51,6 +52,14 @@ class Entry {
     var usedFrequency: Long = 0
     var tags: MutableList<String> = ArrayList()
     var thumbnail = EntryThumbnail.EntryThumbnails.Default
+    /**
+     * What the initials tile shows while [thumbnail] is Default: up to two characters, or empty
+     * for the first letter of the issuer (or label). Saved only when set.
+     */
+    var initials = ""
+    /** The initials tile's colour, or 0 for the one picked from the issuer. Saved only when set. */
+    @ColorInt
+    var badgeColor = 0
     var color = COLOR_DEFAULT
     var pin = ""
     var listId: Long = 0
@@ -251,6 +260,9 @@ class Entry {
         } catch (e: Exception) {
             this.usedFrequency = 0
         }
+
+        this.initials = jsonObj.optString(JSON_INITIALS, "").take(MAX_INITIALS)
+        this.badgeColor = jsonObj.optInt(JSON_BADGE_COLOR, 0)
     }
 
     @Throws(JSONException::class)
@@ -276,6 +288,12 @@ class Entry {
             tagsArray.put(tag)
         }
         jsonObj.put(JSON_TAGS, tagsArray)
+
+        // Left out unless set, so entries without them are saved as before.
+        if (initials.isNotEmpty())
+            jsonObj.put(JSON_INITIALS, initials)
+        if (badgeColor != 0)
+            jsonObj.put(JSON_BADGE_COLOR, badgeColor)
 
         return jsonObj
     }
@@ -502,6 +520,11 @@ class Entry {
         private const val JSON_TYPE = "type"
         private const val JSON_ALGORITHM = "algorithm"
         private const val JSON_TAGS = "tags"
+        private const val JSON_INITIALS = "initials"
+        private const val JSON_BADGE_COLOR = "badge_color"
+
+        /** The most characters the initials tile shows. */
+        const val MAX_INITIALS = 2
         private const val JSON_THUMBNAIL = "thumbnail"
         private const val JSON_LAST_USED = "last_used"
         private const val JSON_USED_FREQUENCY = "used_frequency"

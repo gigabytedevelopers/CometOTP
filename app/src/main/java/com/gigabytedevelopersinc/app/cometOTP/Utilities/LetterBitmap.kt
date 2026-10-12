@@ -10,6 +10,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.text.TextPaint
 import android.util.TypedValue
+import androidx.annotation.ColorInt
 import com.gigabytedevelopersinc.app.cometOTP.R
 
 /**
@@ -34,10 +35,6 @@ internal class LetterBitmap {
      * The [Canvas] to draw on
      */
     private val mCanvas = Canvas()
-    /**
-     * The first char of the name being displayed
-     */
-    private val mFirstChar = CharArray(1)
 
     /**
      * The background colors of the tile, copied out of the resource array (which is recycled as
@@ -78,30 +75,35 @@ internal class LetterBitmap {
      * @param key         The key used to generate the background color for the tile
      * @param width       The desired width of the tile
      * @param height      The desired height of the tile
+     * @param initials    What to show instead of the name's first letter, if not empty: up to
+     *                    two characters, which are drawn smaller
+     * @param color       The tile's colour instead of the one picked from [key], if not 0
      * @return A [Bitmap] that contains a letter used in the English
      * alphabet or digit, if there is no letter or digit available, a
      * default image is shown instead
      */
-    fun getLetterTile(displayName: String, key: String, width: Int, height: Int): Bitmap {
+    fun getLetterTile(displayName: String, key: String, width: Int, height: Int,
+                      initials: String = "", @ColorInt color: Int = 0): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         var firstChar = '?'
 
         if (displayName.isNotEmpty() && startsWithAlphabeticOrDigit(displayName)) {
             firstChar = displayName[0]
         }
+        val text = if (initials.isNotEmpty()) initials.uppercase() else Character.toUpperCase(firstChar).toString()
 
         val c = mCanvas
         c.setBitmap(bitmap)
-        c.drawColor(pickColor(key))
+        c.drawColor(if (color != 0) color else pickColor(key))
 
         /*if (!isEnglishLetterOrDigit(firstChar)) {
             firstChar = '?';
         }*/
-        mFirstChar[0] = Character.toUpperCase(firstChar)
-        mPaint.textSize = mTileLetterFontSizeScale * height
-        mPaint.getTextBounds(mFirstChar, 0, 1, mBounds)
+        // Two characters are drawn smaller, so they fit the tile as one does.
+        mPaint.textSize = mTileLetterFontSizeScale * height * (if (text.length > 1) TWO_CHARACTER_SCALE else 1f)
+        mPaint.getTextBounds(text, 0, text.length, mBounds)
         // Integer halves, as in the Java original, then widened to float.
-        c.drawText(mFirstChar, 0, 1, (width / 2).toFloat(), (height / 2 +
+        c.drawText(text, (width / 2).toFloat(), (height / 2 +
                 (mBounds.bottom - mBounds.top) / 2).toFloat(), mPaint)
         return bitmap
     }
@@ -111,7 +113,7 @@ internal class LetterBitmap {
      * @return A new or previously chosen color for `key` used as the
      * tile background color
      */
-    private fun pickColor(key: String): Int {
+    fun pickColor(key: String): Int {
         // String.hashCode() is not supposed to change across java versions, so
         // this should guarantee the same key always maps to the same color
         val color = Math.abs(key.hashCode()) % NUM_OF_TILE_COLORS
@@ -123,6 +125,9 @@ internal class LetterBitmap {
          * The number of available tile colors
          */
         private const val NUM_OF_TILE_COLORS = 8
+
+        /** How much smaller two characters are drawn than one. */
+        private const val TWO_CHARACTER_SCALE = 0.72f
 
         /**
          * @param string The string to check
