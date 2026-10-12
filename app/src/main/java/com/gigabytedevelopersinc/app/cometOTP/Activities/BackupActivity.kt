@@ -207,11 +207,15 @@ class BackupActivity : BaseActivity() {
         return sheet
     }
 
-    private fun bindTypeDropdown(dropdown: MaterialAutoCompleteTextView) {
-        val names = resources.getStringArray(R.array.backup_encryption_names)
+    /**
+     * The formats, password encryption first and unencrypted last ([BACKUP_FORMATS]); a backup
+     * calls the last "not recommended".
+     */
+    private fun bindTypeDropdown(dropdown: MaterialAutoCompleteTextView, restore: Boolean) {
+        val names = resources.getStringArray(if (restore) R.array.restore_format_names else R.array.backup_format_names)
         dropdown.setAdapter(ArrayAdapter(this, R.layout.item_dropdown, names))
-        dropdown.setText(names[Math.min(backupType.ordinal, names.size - 1)], false)
-        dropdown.setOnItemClickListener { _, _, position, _ -> setupBackupType(Constants.BackupType.values()[position]) }
+        dropdown.setText(names[BACKUP_FORMATS.indexOf(backupType).coerceAtLeast(0)], false)
+        dropdown.setOnItemClickListener { _, _, position, _ -> setupBackupType(BACKUP_FORMATS[position]) }
     }
 
     private fun showBackupSheet() {
@@ -226,7 +230,7 @@ class BackupActivity : BaseActivity() {
         if (type == null || autoSync == null || button == null)
             return
 
-        bindTypeDropdown(type)
+        bindTypeDropdown(type, false)
 
         autoSync.isChecked = settings.autoBackupEncryptedFullEnabled
         autoSync.setOnCheckedChangeListener { compoundButton, checked ->
@@ -274,7 +278,7 @@ class BackupActivity : BaseActivity() {
         if (type == null || replace == null || oldFormat == null || button == null)
             return
 
-        bindTypeDropdown(type)
+        bindTypeDropdown(type, true)
         description?.setText(R.string.backup_desc_restore_format)
 
         replace.isChecked = replaceExisting
@@ -1049,6 +1053,10 @@ class BackupActivity : BaseActivity() {
 
         private const val STATE_ENCRYPT_TARGET = "BackupActivity.encryptTargetFile"
         private const val STATE_DECRYPT_SOURCE = "BackupActivity.decryptSourceFile"
+
+        /** The formats in the order they are offered, password encryption first. */
+        private val BACKUP_FORMATS = listOf(Constants.BackupType.ENCRYPTED,
+                Constants.BackupType.OPEN_PGP, Constants.BackupType.PLAIN_TEXT)
 
         /**
          * A backup or restore that never reports back used to leave the sheet on its spinner for good,

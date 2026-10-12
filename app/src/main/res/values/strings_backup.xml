@@ -103,10 +103,16 @@
     <string name="backup_error_drive_not_configured">Google Drive backups are not set up for this build of CometOTP.</string>
     <string name="backup_error_drive_failed">Google Drive did not accept the backup.</string>
 
-    <string-array name="backup_encryption_names">
-        <item>Text</item>
-        <item>Password Encryption</item>
+    <!-- In the order of BackupActivity.BACKUP_FORMATS -->
+    <string-array name="backup_format_names">
+        <item>Password encryption</item>
         <item>OpenPGP</item>
+        <item>Unencrypted (not recommended)</item>
+    </string-array>
+    <string-array name="restore_format_names">
+        <item>Password encryption</item>
+        <item>OpenPGP</item>
+        <item>Unencrypted</item>
     </string-array>
 
     <string name="backup_title_replace">Replace existing services</string>
