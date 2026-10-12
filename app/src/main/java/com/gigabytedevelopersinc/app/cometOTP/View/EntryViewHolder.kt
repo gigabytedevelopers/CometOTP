@@ -15,6 +15,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -49,6 +51,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
     private val thumbnailImg: ImageView
 
     private val copyButton: ImageButton
+    private val trailingColumn: View
     private val selectCheck: MaterialCheckBox = v.findViewById(R.id.selectCheck)
     private val dragHandle: View = v.findViewById(R.id.dragHandle)
     private val value: TextView = v.findViewById(R.id.valueText)
@@ -89,6 +92,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         counter = v.findViewById(R.id.counter)
         countdown = v.findViewById(R.id.cardCountdown)
         copyButton = v.findViewById(R.id.copyButton)
+        trailingColumn = v.findViewById(R.id.trailingColumn)
 
         defaultValueColor = value.currentTextColor
         card.setStrokeColor(ColorStateList.valueOf(Tools.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)))
@@ -328,6 +332,20 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
                 coverLayout.visibility = View.VISIBLE
             }
         }
+
+        balanceTrailingColumn()
+    }
+
+    /**
+     * Centres what the trailing column shows, rather than the column, in the card's height. The
+     * copy icon sits `card_copy_icon_inset` inside its button, so with the counter or
+     * ring over it the column would show that much more space below than above; the same space
+     * above evens it out. Runs whenever what the column shows may have changed.
+     */
+    private fun balanceTrailingColumn() {
+        val stacked = copyButton.isVisible && (counterLayout.isVisible || countdown.isVisible)
+        val top = if (stacked) context.resources.getDimensionPixelSize(R.dimen.card_copy_icon_inset) else 0
+        trailingColumn.updatePadding(top = top)
     }
 
     /**
@@ -378,6 +396,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
             ViewCompat.replaceAccessibilityAction(card, AccessibilityActionCompat.ACTION_LONG_CLICK,
                 context.getString(R.string.button_card_options_format, accessibleName), null)
         }
+
+        balanceTrailingColumn()
     }
 
     /**
@@ -394,6 +414,7 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
         counterLayout.isLongClickable = false
         copyButton.visibility = View.GONE
         ViewCompat.setAccessibilityDelegate(card, null)
+        balanceTrailingColumn()
     }
 
     fun setLabelSize(size: Int) {

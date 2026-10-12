@@ -234,8 +234,11 @@
                  which leaves the token its width, centred in the card's height and with all
                  three on one centre line. The copy icon's right edge is as far from the card's
                  edge as the thumbnail is from its start. At least the copy button's width, so
-                 the counter and ring keep their place while it is left out. -->
+                 the counter and ring keep their place while it is left out. Its top padding,
+                 set from what it shows (EntryViewHolder.balanceTrailingColumn), centres what
+                 shows rather than the column. -->
             <LinearLayout
+                android:id="@+id/trailingColumn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="40dp"
