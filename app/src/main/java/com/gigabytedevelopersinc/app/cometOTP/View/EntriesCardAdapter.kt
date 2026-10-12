@@ -937,9 +937,10 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     }
 
 
-    private fun showQRCode(pos: Int) {
+    /** Shows [entry] as a QR code, to add it to another app; kept out of screenshots, as it holds the key. */
+    fun showQRCode(entry: Entry) {
         // Declared nullable to keep the Java version's null check (Entry.toUri() no longer returns null).
-        val uri: Uri? = displayedEntries[pos].toUri()
+        val uri: Uri? = entry.toUri()
         if (uri != null) {
             val bitmap: Bitmap
             try {
@@ -958,12 +959,14 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             image.scaleType = ImageView.ScaleType.FIT_CENTER
             image.setImageDrawable(drawable)
 
-            MaterialAlertDialogBuilder(context)
+            val dialog = MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.dialog_title_qr_code)
                     .setPositiveButton(android.R.string.ok) { _, _ -> }
                     .setView(image)
                     .create()
-                    .show()
+            // A window of its own, which the list's protection does not reach.
+            ScreenshotGuard.protect(dialog.window, settings)
+            dialog.show()
         } else {
             (context as MainActivity).makeSnackbar(R.string.toast_qr_unsupported,
                     Snackbar.LENGTH_LONG)
@@ -1020,7 +1023,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             ) { saveAndRefresh(settings.autoBackupEncryptedFullEnabled, pos) }
         }
         bindOption(sheet, R.id.card_options_image) { changeThumbnail(pos) }
-        bindOption(sheet, R.id.card_options_qr) { showQRCode(pos) }
+        bindOption(sheet, R.id.card_options_qr) { showQRCode(displayedEntries[pos]) }
         bindOption(sheet, R.id.card_options_pin) { establishPIN(pos) }
         bindOption(sheet, R.id.card_options_keystrokes) { withPin(pos) { sendKeystrokes(pos) } }
         bindOption(sheet, R.id.card_options_remove) { removeItem(pos) }
