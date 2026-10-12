@@ -5,6 +5,7 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.gigabytedevelopersinc.app.cometOTP.R
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail
 
 /**
  * The apps CometOTP can bring accounts across from, in the order the Import tokens sheet lists
@@ -76,6 +77,20 @@ enum class ImportSource(
     /** Last: the fallback for any app that can write its accounts out as links. */
     OTPAUTH_LINKS(Kind.FILE, R.string.import_source_links, R.string.import_links_title,
             R.drawable.ic_link, R.array.import_links_steps, R.string.import_links_note, TEXT_MIME_TYPES, OtpauthLinksImport);
+
+    /**
+     * The app's logo where CometOTP's service icons have it (the one for the app itself, not
+     * another of its maker's), or Default, which draws the app's initial.
+     */
+    val logo: EntryThumbnail.EntryThumbnails
+        get() = when (this) {
+            ONE_PASSWORD -> EntryThumbnail.EntryThumbnails.OnePassword
+            BITWARDEN -> EntryThumbnail.EntryThumbnails.Bitwarden
+            LASTPASS -> EntryThumbnail.EntryThumbnails.LastPass
+            MICROSOFT -> EntryThumbnail.EntryThumbnails.Microsoft
+            GOOGLE_AUTHENTICATOR -> EntryThumbnail.EntryThumbnails.Google
+            else -> EntryThumbnail.EntryThumbnails.Default
+        }
 
     enum class Kind {
         /** Read from the QR codes the app shows; the source has a flow of its own. */

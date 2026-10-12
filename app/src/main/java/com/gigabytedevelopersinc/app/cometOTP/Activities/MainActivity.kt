@@ -60,6 +60,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
 import com.google.android.material.snackbar.Snackbar
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
@@ -1580,6 +1581,13 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         sheet.findViewById<View>(R.id.sheetClose)?.setOnClickListener { sheet.dismiss() }
         sheet.findViewById<TextView>(R.id.importTitle)?.setText(source.title)
 
+        // From the app to CometOTP, with the app's logo where there is one, else its initial.
+        sheet.findViewById<ImageView>(R.id.importSourceLogo)?.setImageBitmap(EntryThumbnail.getThumbnailGraphic(
+                this, getString(source.label), null,
+                resources.getDimensionPixelSize(R.dimen.import_flow_icon_size), source.logo))
+        sheet.findViewById<View>(R.id.importFlow)?.contentDescription =
+                getString(R.string.import_flow_description, getString(source.label))
+
         val steps = sheet.findViewById<ViewGroup>(R.id.importSteps)
         if (steps != null) {
             sheet.findViewById<TextView>(R.id.importStepsHeading)?.text =
@@ -1601,6 +1609,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
         val choose = sheet.findViewById<View>(R.id.importChooseFile)
         if (source.kind == ImportSource.Kind.FILE) {
+            sheet.findViewById<View>(R.id.importDeleteNote)?.visibility = View.VISIBLE
             choose?.setOnClickListener {
                 sheet.dismiss()
                 importFileSource = source

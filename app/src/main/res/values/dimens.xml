@@ -76,6 +76,7 @@
          action, and 8dp between stacked buttons. -->
     <dimen name="nav_row_height">56dp</dimen>
     <dimen name="sheet_list_inset">12dp</dimen>
+    <dimen name="import_flow_icon_size">56dp</dimen><!-- sheet_import_file: app -> CometOTP -->
     <!-- The scanner's viewfinder corners (ViewfinderView) -->
     <dimen name="scan_corner_length">64dp</dimen>
     <dimen name="scan_corner_stroke">3dp</dimen>

@@ -49,6 +49,65 @@
 
         </FrameLayout>
 
+        <!-- From the app to CometOTP: the app's logo (or its initial), an arrow, CometOTP's icon.
+             One description for the three, set with the app's name. -->
+        <LinearLayout
+            android:id="@+id/importFlow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/sheet_header_gap"
+            android:gravity="center_vertical"
+            android:importantForAccessibility="yes"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="@dimen/import_flow_icon_size"
+                android:layout_height="@dimen/import_flow_icon_size"
+                android:background="@drawable/bg_issuer_icon">
+
+                <ImageView
+                    android:id="@+id/importSourceLogo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_thumbnail_tile"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:padding="6dp"
+                    android:scaleType="fitCenter" />
+
+            </FrameLayout>
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="@dimen/space_md"
+                android:layout_marginEnd="@dimen/space_md"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_arrow_forward"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+            <FrameLayout
+                android:layout_width="@dimen/import_flow_icon_size"
+                android:layout_height="@dimen/import_flow_icon_size"
+                android:background="@drawable/bg_issuer_icon">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_thumbnail_tile"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_logo_mark"
+                    app:tint="?attr/colorPrimary" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/importSteps"
             android:layout_width="match_parent"
@@ -81,6 +140,22 @@
             app:drawableStartCompat="@drawable/ic_info_outline"
             app:drawableTint="?attr/colorOnSurfaceVariant"
             tools:text="An encrypted vault needs the password you set in Aegis."
+            tools:visibility="visible" />
+
+        <!-- An export file holds every secret in it: shown for sources read from a file -->
+        <TextView
+            android:id="@+id/importDeleteNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sheet_field_gap"
+            android:drawablePadding="@dimen/space_sm"
+            android:gravity="center_vertical"
+            android:text="@string/import_file_delete_note"
+            android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_delete_outline"
+            app:drawableTint="?attr/colorOnSurfaceVariant"
             tools:visibility="visible" />
 
         <com.google.android.material.button.MaterialButton

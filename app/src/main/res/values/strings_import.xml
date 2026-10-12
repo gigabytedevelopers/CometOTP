@@ -89,4 +89,8 @@
     </plurals>
     <string name="import_nothing_new_title">Already in CometOTP</string>
     <string name="import_nothing_new_message">Every account in this export is already in CometOTP, so nothing was changed.</string>
+
+    <!-- sheet_import_file: the app to CometOTP, and what to do with the export afterwards -->
+    <string name="import_flow_description">From %1$s to CometOTP</string>
+    <string name="import_file_delete_note">Once your accounts are in CometOTP, delete the exported file: anyone who has it can make your codes.</string>
 </resources>
