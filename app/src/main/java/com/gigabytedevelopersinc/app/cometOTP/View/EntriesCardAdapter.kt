@@ -84,6 +84,10 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     private val taskHandler: Handler = Handler(Looper.getMainLooper())
 
     var sortMode: SortMode = SortMode.UNSORTED
+
+    /** The card held down outside manage mode, which opens its options if it is let go unmoved. */
+    private var heldForOptions: Int? = null
+    private var movedWhileHeld = false
         set(mode) {
             field = mode
             entriesChanged(RecyclerView.NO_POSITION)
@@ -503,6 +507,11 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
             override fun onMoveEventStop() {
                 callback?.onMoveEventStop()
+
+                val held = heldForOptions ?: return
+                heldForOptions = null
+                if (!movedWhileHeld && held in displayedEntries.indices)
+                    showOptionsSheet(held)
             }
 
             override fun onCardLongClicked(position: Int) {
@@ -510,6 +519,18 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                     toggleSelection(position)
                 else
                     showOptionsSheet(position)
+            }
+
+            override fun onCardHeld(holder: EntryViewHolder, position: Int) {
+                if (selectionMode || !canReorder()) {
+                    onCardLongClicked(position)
+                    return
+                }
+                // In the list's own order a held card lifts, to be dragged to a new place. Let go
+                // without moving it, it opens its options instead (see onMoveEventStop).
+                heldForOptions = position
+                movedWhileHeld = false
+                callback?.onStartDrag(holder)
             }
 
             override fun onStartDrag(holder: EntryViewHolder) {
@@ -783,6 +804,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         if (sortMode == SortMode.UNSORTED && entryList.isEqual(displayedEntries)) {
             entryList.swapEntries(fromPosition, toPosition)
+            movedWhileHeld = true
 
             displayedEntries = entryList.entries
             notifyItemMoved(fromPosition, toPosition)
@@ -1045,7 +1067,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         fun onSelectionChanged(count: Int)
         /** Manage mode is done with, e.g. after removing the selected cards. */
         fun onSelectionFinished()
-        /** Manage mode: drag [holder] by its handle. */
+        /** Drag [holder]: by its handle in manage mode, or held down while the list is in its own order. */
         fun onStartDrag(holder: EntryViewHolder)
     }
 

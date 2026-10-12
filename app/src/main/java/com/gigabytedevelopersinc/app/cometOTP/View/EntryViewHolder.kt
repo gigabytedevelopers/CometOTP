@@ -133,7 +133,11 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
 
         card.setOnLongClickListener {
             val position = currentPosition() ?: return@setOnLongClickListener false
-            callback?.onCardLongClicked(position)
+            // Pressed, a finger is holding the card; a screen reader's long-press action is not.
+            if (card.isPressed)
+                callback?.onCardHeld(this, position)
+            else
+                callback?.onCardLongClicked(position)
             true
         }
 
@@ -481,6 +485,8 @@ class EntryViewHolder(private val context: Context, v: View, tapToReveal: Boolea
 
         fun onCopyButtonClicked(text: String, position: Int)
         fun onCardLongClicked(position: Int)
+        /** A finger is holding the card down (a long press that may go on to drag it). */
+        fun onCardHeld(holder: EntryViewHolder, position: Int)
 
         /** Manage mode: the card's handle was touched. */
         fun onStartDrag(holder: EntryViewHolder)

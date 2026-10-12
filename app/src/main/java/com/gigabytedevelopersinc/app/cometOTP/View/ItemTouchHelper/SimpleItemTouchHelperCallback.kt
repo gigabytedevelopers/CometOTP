@@ -23,8 +23,9 @@ import androidx.recyclerview.widget.RecyclerView
 
 /**
  * An implementation of [ItemTouchHelper.Callback] that enables basic drag & drop and
- * swipe-to-dismiss. Drags start from a card's handle in manage mode (ItemTouchHelper.startDrag);
- * a long press opens the card's options instead.<br/>
+ * swipe-to-dismiss. Drags start from a card's handle in manage mode, or, while the list is in its
+ * own order, from holding a card down (ItemTouchHelper.startDrag); a card let go there without
+ * being moved opens its options.<br/>
  * </br/>
  * Expects the <code>RecyclerView.Adapter</code> to listen for
  * [ItemTouchHelperAdapter] callbacks and the <code>RecyclerView.ViewHolder</code> to implement
