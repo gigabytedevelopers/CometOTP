@@ -8,13 +8,7 @@
       "exclude": []
     }
   },
-  "bypass_actors": [
-    {
-      "actor_type": "RepositoryRole",
-      "actor_id": 5,
-      "bypass_mode": "always"
-    }
-  ],
+  "bypass_actors": [],
   "rules": [
     {
       "type": "deletion"
@@ -49,7 +43,8 @@
           { "context": "Unit tests" },
           { "context": "Android lint" },
           { "context": "Build debug" },
-          { "context": "Instrumented tests" }
+          { "context": "Instrumented tests" },
+          { "context": "Repository security", "integration_id": 15368 }
         ]
       }
     }
