@@ -523,7 +523,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             }
 
             override fun onCopyButtonClicked(text: String, position: Int) {
-                copyHandler(position, text, settings.isMinimizeAppOnCopyEnabled)
+                copyToken(position, text, settings.isMinimizeAppOnCopyEnabled)
             }
 
             override fun onCardSingleClicked(position: Int, text: String) {
@@ -536,18 +536,9 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                         establishPinIfNeeded(position)
                         cardTapToRevealHandler(position)
                     }
-                    Constants.TapMode.COPY -> {
-                        establishPinIfNeeded(position)
-                        copyHandler(position, text, false)
-                    }
-                    Constants.TapMode.COPY_BACKGROUND -> {
-                        establishPinIfNeeded(position)
-                        copyHandler(position, text, true)
-                    }
-                    Constants.TapMode.SEND_KEYSTROKES -> {
-                        establishPinIfNeeded(position)
-                        sendKeystrokes(position)
-                    }
+                    Constants.TapMode.COPY -> copyToken(position, text, false)
+                    Constants.TapMode.COPY_BACKGROUND -> copyToken(position, text, true)
+                    Constants.TapMode.SEND_KEYSTROKES -> withPin(position) { sendKeystrokes(position) }
                     else -> {
                         // If tap-to-reveal is disabled a single tab still needs to establish the PIN
                         if (!settings.tapToReveal)
@@ -565,18 +556,9 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                         establishPinIfNeeded(position)
                         cardTapToRevealHandler(position)
                     }
-                    Constants.TapMode.COPY -> {
-                        establishPinIfNeeded(position)
-                        copyHandler(position, text, false)
-                    }
-                    Constants.TapMode.COPY_BACKGROUND -> {
-                        establishPinIfNeeded(position)
-                        copyHandler(position, text, true)
-                    }
-                    Constants.TapMode.SEND_KEYSTROKES -> {
-                        establishPinIfNeeded(position)
-                        sendKeystrokes(position)
-                    }
+                    Constants.TapMode.COPY -> copyToken(position, text, false)
+                    Constants.TapMode.COPY_BACKGROUND -> copyToken(position, text, true)
+                    Constants.TapMode.SEND_KEYSTROKES -> withPin(position) { sendKeystrokes(position) }
                     else -> {
                     }
                 }
@@ -603,6 +585,29 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
 
         if (entry.type == Entry.OTPType.MOTP && entry.pin.isEmpty())
             establishPIN(position)
+    }
+
+    /**
+     * Runs [action] once the entry at [position] has a token to use. An mOTP entry without a PIN
+     * only has the "PIN REQ" placeholder, so it asks for the PIN first, and runs [action] once one
+     * is entered; nothing is copied or typed if the prompt is cancelled.
+     */
+    private fun withPin(position: Int, action: () -> Unit) {
+        val entry = displayedEntries[position]
+        if (entry.type == Entry.OTPType.MOTP && entry.pin.isEmpty())
+            establishPIN(position, action)
+        else
+            action()
+    }
+
+    /** Copies the token shown on the card, or, once a PIN has just been asked for, the new one. */
+    private fun copyToken(position: Int, shown: String, dropToBackground: Boolean) {
+        val askedForPin = displayedEntries[position].let { it.type == Entry.OTPType.MOTP && it.pin.isEmpty() }
+        withPin(position) {
+            val token = if (askedForPin) displayedEntries[position].currentOTP else shown
+            if (!token.isNullOrEmpty())
+                copyHandler(position, token, dropToBackground)
+        }
     }
 
     private fun copyHandler(position: Int, text: String, dropToBackground: Boolean) {
@@ -801,7 +806,8 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         }
     }
 
-    fun establishPIN(pos: Int) {
+    /** Asks for an mOTP entry's PIN; [onEntered] runs once one is accepted, not on cancel. */
+    fun establishPIN(pos: Int, onEntered: (() -> Unit)? = null) {
         val builder = MaterialAlertDialogBuilder(context)
 
         // Inflated in the dialog's theme, so the field has the app's field style.
@@ -829,6 +835,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                     e.updateOTP(true)
                     notifyItemChanged(pos)
                     UIHelper.hideKeyboard(context, input)
+                    onEntered?.invoke()
                 }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> UIHelper.hideKeyboard(context, input) }
                 .create()
@@ -981,13 +988,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         // Copy is only here while a tap copies and the card has no copy button: with the
         // button there, it would be the same thing twice.
         sheet.findViewById<View>(R.id.card_options_copy)?.visibility = if (settings.tapCopies) View.VISIBLE else View.GONE
-        bindOption(sheet, R.id.card_options_copy) {
-            val token = entry.currentOTP
-            if (!token.isNullOrEmpty()) {
-                establishPinIfNeeded(pos)
-                copyHandler(pos, token, false)
-            }
-        }
+        bindOption(sheet, R.id.card_options_copy) { copyToken(pos, entry.currentOTP.orEmpty(), false) }
         bindOption(sheet, R.id.card_options_select) {
             callback?.onSelectionRequested(pos)
         }
@@ -999,7 +1000,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         bindOption(sheet, R.id.card_options_image) { changeThumbnail(pos) }
         bindOption(sheet, R.id.card_options_qr) { showQRCode(pos) }
         bindOption(sheet, R.id.card_options_pin) { establishPIN(pos) }
-        bindOption(sheet, R.id.card_options_keystrokes) { sendKeystrokes(pos) }
+        bindOption(sheet, R.id.card_options_keystrokes) { withPin(pos) { sendKeystrokes(pos) } }
         bindOption(sheet, R.id.card_options_remove) { removeItem(pos) }
 
         sheet.show()
