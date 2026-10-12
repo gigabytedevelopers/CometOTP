@@ -103,6 +103,10 @@
     <!-- A second icon inside a text field, before its end icon (the key's QR code while editing):
          how far it sits from the field's end, how much room the text leaves it, and how far down
          it moves to centre on the box under the floating label -->
+    <!-- The edit sheet's brand icon / initials choice: the ringed tile, and the picture in it -->
+    <dimen name="choice_tile_size">80dp</dimen>
+    <dimen name="choice_tile_radius">20dp</dimen>
+    <dimen name="choice_picture_size">56dp</dimen>
     <dimen name="field_second_icon_margin">44dp</dimen>
     <dimen name="field_second_icon_room">92dp</dimen>
     <dimen name="field_icon_offset">3dp</dimen>

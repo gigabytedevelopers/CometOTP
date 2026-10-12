@@ -263,6 +263,15 @@
     <string name="lock_required_set_up">Set up</string>
     <string name="action_show_key">Show key</string>
     <string name="action_hide_key">Hide key</string>
+    <!-- Edit sheet: whether the card shows the service's brand icon or initials, and how the
+         initials look -->
+    <string name="personalise_brand_icon">Brand icon</string>
+    <string name="personalise_initials">Initials</string>
+    <string name="personalise_change_icon">Change icon</string>
+    <string name="personalise_edit_initials">Edit initials</string>
+    <string name="personalise_badge_colour">Badge colour</string>
+    <string name="personalise_automatic">Automatic</string>
+    <string name="personalise_initials_help">Up to 2 characters. Leave it empty to show the first letter of the service.</string>
     <!-- Edit sheet: the row and dialog showing a service's settings that cannot change -->
     <string name="label_info">Info</string>
     <string name="label_refresh_time">Refresh time</string>

@@ -4,18 +4,25 @@ package com.gigabytedevelopersinc.app.cometOTP.Dialogs
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.drawable.GradientDrawable
 import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.PasswordTransformationMethod
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.R
@@ -23,8 +30,8 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TagStore
-import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.Tools
 import com.gigabytedevelopersinc.app.cometOTP.View.EntriesCardAdapter
 import com.gigabytedevelopersinc.app.cometOTP.View.TagsAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -44,6 +51,8 @@ import java.util.concurrent.Callable
 object ManualEntryDialog {
     private val TYPES = Entry.OTPType.values()
     private val ALGORITHMS = TokenCalculator.HashAlgorithm.values()
+    /** Material's emphasis for what cannot be used. */
+    private const val DISABLED_ALPHA = 0.38f
 
     fun show(callingActivity: MainActivity, settings: Settings, adapter: EntriesCardAdapter) {
         show(callingActivity, settings, adapter, null, null)
@@ -333,6 +342,8 @@ object ManualEntryDialog {
                     entry.digits = digits
                     entry.period = period
                     entry.tags = tagsAdapter.activeTags
+                    entry.initials = state.initials
+                    entry.badgeColor = state.badgeColor
                     if (!state.autoThumbnail)
                         entry.thumbnail = state.thumbnail
 
@@ -356,6 +367,8 @@ object ManualEntryDialog {
                     entry.digits = digits
                     entry.counter = counter
                     entry.tags = tagsAdapter.activeTags
+                    entry.initials = state.initials
+                    entry.badgeColor = state.badgeColor
                     if (!state.autoThumbnail)
                         entry.thumbnail = state.thumbnail
 
@@ -375,6 +388,8 @@ object ManualEntryDialog {
                     entry.setIssuer(issuer, state.autoThumbnail)
                     entry.label = label
                     entry.tags = tagsAdapter.activeTags
+                    entry.initials = state.initials
+                    entry.badgeColor = state.badgeColor
                     if (!state.autoThumbnail)
                         entry.thumbnail = state.thumbnail
 
@@ -437,6 +452,14 @@ object ManualEntryDialog {
                 visibility = View.VISIBLE
                 setOnClickListener { showInfo(context, oldEntry) }
             }
+
+            // The brand icon or initials choice takes the icon tile's place.
+            iconFrame.visibility = View.GONE
+            state.initials = oldEntry.initials
+            state.badgeColor = oldEntry.badgeColor
+            state.brand = if (oldEntry.thumbnail != EntryThumbnail.EntryThumbnails.Default) oldEntry.thumbnail
+                    else thumbnailFor(oldEntry.issuer)
+            bindPersonalisation(sheet, context, state, issuerInput, labelInput)
 
             typeLayout.isEnabled = false
             algorithmLayout.isEnabled = false
@@ -533,6 +556,188 @@ object ManualEntryDialog {
         }
     }
 
+    /**
+     * Editing: whether the card shows the service's brand icon or its initials, and the initials'
+     * text and badge colour, which can only change while the initials are chosen. Without a brand
+     * icon to offer, choosing one opens the icon picker.
+     */
+    private fun bindPersonalisation(sheet: BottomSheetDialog, context: Context, state: State,
+                                    issuerInput: EditText, labelInput: EditText) {
+        val section = sheet.findViewById<View>(R.id.manual_personalisation)
+        val brandChoice = sheet.findViewById<View>(R.id.manual_choice_brand)
+        val brandPicture = sheet.findViewById<ImageView>(R.id.manual_choice_brand_picture)
+        val initialsChoice = sheet.findViewById<View>(R.id.manual_choice_initials)
+        val initialsPicture = sheet.findViewById<ImageView>(R.id.manual_choice_initials_picture)
+        val changeIcon = sheet.findViewById<View>(R.id.manual_change_icon)
+        val editInitials = sheet.findViewById<View>(R.id.manual_edit_initials)
+        val badgeRow = sheet.findViewById<View>(R.id.manual_badge_row)
+        val badgeDot = sheet.findViewById<View>(R.id.manual_badge_dot)
+        val badgeName = sheet.findViewById<TextView>(R.id.manual_badge_name)
+        val badgeChevron = sheet.findViewById<ImageView>(R.id.manual_badge_chevron)
+        val palette = sheet.findViewById<LinearLayout>(R.id.manual_badge_palette)
+        if (section == null || brandChoice == null || brandPicture == null || initialsChoice == null
+                || initialsPicture == null || changeIcon == null || editInitials == null || badgeRow == null
+                || badgeDot == null || badgeName == null || badgeChevron == null || palette == null)
+            return
+
+        section.visibility = View.VISIBLE
+        // Cut to their rounded tiles; android:clipToOutline in XML needs Android 12.
+        brandPicture.clipToOutline = true
+        initialsPicture.clipToOutline = true
+        val size = context.resources.getDimensionPixelSize(R.dimen.choice_picture_size)
+        val brandPadding = context.resources.getDimensionPixelSize(R.dimen.space_sm)
+
+        // The swatches: Automatic (0, the colour picked from the issuer), then the tag colours. One
+        // more than the tag sheet's, so they share the row's width rather than each taking its own.
+        val swatch = dp(context, 28)
+        val gap = dp(context, 4)
+        for (color in intArrayOf(0) + TagStore.palette(context)) {
+            val holder = FrameLayout(context)
+            holder.layoutParams = LinearLayout.LayoutParams(0, swatch + gap * 2, 1f)
+            holder.tag = color
+            holder.contentDescription = if (color == 0) context.getString(R.string.personalise_automatic)
+                    else TagStore.colorName(context, color)
+
+            val dot = View(context)
+            dot.layoutParams = FrameLayout.LayoutParams(swatch, swatch, Gravity.CENTER)
+            dot.setBackgroundResource(R.drawable.bg_color_dot)
+            holder.addView(dot)
+
+            val ring = View(context)
+            ring.layoutParams = FrameLayout.LayoutParams(swatch + gap * 2, swatch + gap * 2, Gravity.CENTER)
+            ring.setBackgroundResource(R.drawable.bg_color_dot_selected)
+            holder.addView(ring)
+
+            palette.addView(holder)
+        }
+
+        val refresh = Runnable {
+            val issuer = issuerInput.text.toString()
+            val label = labelInput.text.toString()
+            val initialsChosen = state.thumbnail == EntryThumbnail.EntryThumbnails.Default
+            brandChoice.isSelected = !initialsChosen
+            initialsChoice.isSelected = initialsChosen
+
+            if (state.brand != EntryThumbnail.EntryThumbnails.Default) {
+                brandPicture.imageTintList = null
+                brandPicture.setPadding(brandPadding, brandPadding, brandPadding, brandPadding)
+                brandPicture.setImageBitmap(EntryThumbnail.getThumbnailGraphic(context, issuer, label, size, state.brand))
+            } else {
+                // Nothing to offer yet: the brand mark, as on an empty icon tile.
+                brandPicture.setPadding(brandPadding, brandPadding, brandPadding, brandPadding)
+                brandPicture.setImageResource(R.drawable.ic_logo_mark)
+                brandPicture.imageTintList = ColorStateList.valueOf(
+                        Tools.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary))
+            }
+            initialsPicture.setImageBitmap(EntryThumbnail.getThumbnailGraphic(context, issuer, label, size,
+                    EntryThumbnail.EntryThumbnails.Default, state.initials, state.badgeColor))
+
+            // The initials' text and colour, as Material dims what cannot be used.
+            for (row in arrayOf(editInitials, badgeRow)) {
+                row.isEnabled = initialsChosen
+                row.alpha = if (initialsChosen) 1f else DISABLED_ALPHA
+            }
+            if (!initialsChosen) {
+                palette.visibility = View.GONE
+                badgeChevron.setImageResource(R.drawable.ic_expand_more)
+            }
+
+            val automatic = EntryThumbnail.automaticBadgeColor(context, issuer, label)
+            tint(badgeDot, if (state.badgeColor != 0) state.badgeColor else automatic)
+            badgeName.text = if (state.badgeColor != 0) TagStore.colorName(context, state.badgeColor)
+                    else context.getString(R.string.personalise_automatic)
+            for (i in 0 until palette.childCount) {
+                val holder = palette.getChildAt(i) as FrameLayout
+                val color = holder.tag as Int
+                tint(holder.getChildAt(0), if (color == 0) automatic else color)
+                holder.getChildAt(1).visibility = if (color == state.badgeColor) View.VISIBLE else View.GONE
+            }
+        }
+
+        val pickIcon = {
+            ThumbnailPickerSheet.show(context, issuerInput.text.toString(), labelInput.text.toString()) { thumbnail ->
+                if (thumbnail != EntryThumbnail.EntryThumbnails.Default)
+                    state.brand = thumbnail
+                state.thumbnail = thumbnail
+                state.autoThumbnail = false
+                refresh.run()
+            }
+        }
+
+        brandChoice.setOnClickListener {
+            if (state.brand == EntryThumbnail.EntryThumbnails.Default) {
+                pickIcon()
+            } else {
+                state.thumbnail = state.brand
+                state.autoThumbnail = false
+                refresh.run()
+            }
+        }
+        initialsChoice.setOnClickListener {
+            state.thumbnail = EntryThumbnail.EntryThumbnails.Default
+            state.autoThumbnail = false
+            refresh.run()
+        }
+        changeIcon.setOnClickListener { pickIcon() }
+
+        editInitials.setOnClickListener {
+            val builder = MaterialAlertDialogBuilder(context)
+            val container = LayoutInflater.from(builder.context).inflate(R.layout.dialog_text_field, null)
+            val fieldLayout = container.findViewById<TextInputLayout>(R.id.dialog_field_layout)
+            val input = container.findViewById<EditText>(R.id.dialog_field)
+            fieldLayout.hint = context.getString(R.string.personalise_initials)
+            fieldLayout.helperText = context.getString(R.string.personalise_initials_help)
+            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+            input.filters = arrayOf(InputFilter.LengthFilter(Entry.MAX_INITIALS))
+            input.setText(state.initials)
+            input.setSelection(input.text.length)
+            builder.setTitle(R.string.personalise_edit_initials)
+                    .setView(container)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        state.initials = input.text.toString().trim().take(Entry.MAX_INITIALS)
+                        refresh.run()
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+        }
+
+        badgeRow.setOnClickListener {
+            val open = palette.visibility != View.VISIBLE
+            palette.visibility = if (open) View.VISIBLE else View.GONE
+            badgeChevron.setImageResource(if (open) R.drawable.ic_expand_less else R.drawable.ic_expand_more)
+        }
+        for (i in 0 until palette.childCount) {
+            val holder = palette.getChildAt(i)
+            holder.setOnClickListener {
+                state.badgeColor = holder.tag as Int
+                refresh.run()
+            }
+        }
+
+        // The initials follow the issuer and label as they are typed.
+        val follow = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) = refresh.run()
+        }
+        issuerInput.addTextChangedListener(follow)
+        labelInput.addTextChangedListener(follow)
+
+        refresh.run()
+    }
+
+    private fun tint(view: View, @ColorInt color: Int) {
+        val background = ContextCompat.getDrawable(view.context, R.drawable.bg_color_dot)?.mutate() as GradientDrawable?
+        if (background != null) {
+            background.setColor(color)
+            view.background = background
+        }
+    }
+
+    private fun dp(context: Context, value: Int): Int {
+        return Math.round(value * context.resources.displayMetrics.density)
+    }
+
     /** A service's settings that cannot change once it is added, to read. */
     private fun showInfo(context: Context, entry: Entry) {
         val builder = MaterialAlertDialogBuilder(context)
@@ -588,6 +793,11 @@ object ManualEntryDialog {
         var algorithm: TokenCalculator.HashAlgorithm = TokenCalculator.DEFAULT_ALGORITHM
         var thumbnail = EntryThumbnail.EntryThumbnails.Default
         var autoThumbnail = true
+        /** Editing: the brand icon on offer, the entry's own or the one its issuer matches (Default: none). */
+        var brand = EntryThumbnail.EntryThumbnails.Default
+        var initials = ""
+        @ColorInt
+        var badgeColor = 0
     }
 
     fun interface UpdateCallback {

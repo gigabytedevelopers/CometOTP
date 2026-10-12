@@ -212,6 +212,189 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- When editing: whether the card shows the service's brand icon or its initials, and
+             how the initials look -->
+        <LinearLayout
+            android:id="@+id/manual_personalisation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sheet_field_gap"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_field_outline"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:padding="@dimen/space_sm">
+
+            <LinearLayout
+                android:id="@+id/manual_choice_brand"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/space_sm"
+                android:paddingBottom="@dimen/space_sm">
+
+                <FrameLayout
+                    android:id="@+id/manual_choice_brand_tile"
+                    android:layout_width="@dimen/choice_tile_size"
+                    android:layout_height="@dimen/choice_tile_size"
+                    android:background="@drawable/bg_choice_tile"
+                    android:duplicateParentState="true">
+
+                    <ImageView
+                        android:id="@+id/manual_choice_brand_picture"
+                        android:layout_width="@dimen/choice_picture_size"
+                        android:layout_height="@dimen/choice_picture_size"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_thumbnail_tile"
+                        android:contentDescription="@null"
+                        android:scaleType="fitCenter" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:text="@string/personalise_brand_icon"
+                    android:textAppearance="@style/TextAppearance.Comet.LabelLarge"
+                    android:textColor="?attr/colorOnSurface" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/manual_choice_initials"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/space_sm"
+                android:paddingBottom="@dimen/space_sm">
+
+                <FrameLayout
+                    android:id="@+id/manual_choice_initials_tile"
+                    android:layout_width="@dimen/choice_tile_size"
+                    android:layout_height="@dimen/choice_tile_size"
+                    android:background="@drawable/bg_choice_tile"
+                    android:duplicateParentState="true">
+
+                    <ImageView
+                        android:id="@+id/manual_choice_initials_picture"
+                        android:layout_width="@dimen/choice_picture_size"
+                        android:layout_height="@dimen/choice_picture_size"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_thumbnail_tile"
+                        android:contentDescription="@null"
+                        android:scaleType="fitCenter" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:text="@string/personalise_initials"
+                    android:textAppearance="@style/TextAppearance.Comet.LabelLarge"
+                    android:textColor="?attr/colorOnSurface" />
+
+            </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/manual_change_icon"
+                style="@style/Widget.Comet.NavRow"
+                android:layout_marginTop="@dimen/space_sm"
+                android:text="@string/personalise_change_icon"
+                app:drawableStartCompat="@drawable/ic_image_outline" />
+
+            <TextView
+                android:id="@+id/manual_edit_initials"
+                style="@style/Widget.Comet.NavRow"
+                android:text="@string/personalise_edit_initials"
+                app:drawableStartCompat="@drawable/ic_edit_pen" />
+
+            <LinearLayout
+                android:id="@+id/manual_badge_row"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/nav_row_height"
+                android:background="@drawable/bg_nav_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/space_md"
+                android:paddingEnd="@dimen/space_lg">
+
+                <!-- In a 24dp slot, so the dot lines up with the icons above it -->
+                <FrameLayout
+                    android:layout_width="24dp"
+                    android:layout_height="24dp">
+
+                    <View
+                        android:id="@+id/manual_badge_dot"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_color_dot" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:text="@string/personalise_badge_colour"
+                    android:textAppearance="@style/TextAppearance.Comet.LabelLarge"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/manual_badge_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_sm"
+                    android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Automatic" />
+
+                <ImageView
+                    android:id="@+id/manual_badge_chevron"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
+                    android:layout_marginStart="@dimen/space_xs"
+                    android:contentDescription="@null"
+                    app:srcCompat="@drawable/ic_expand_more"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/manual_badge_palette"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
         <!-- Tags -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Comet.TextInput"

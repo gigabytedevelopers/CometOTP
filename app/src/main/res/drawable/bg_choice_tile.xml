@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A choice tile in the edit sheet (brand icon or initials): ringed in the accent colour while
+     it is the one chosen -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <stroke android:width="2dp" android:color="?attr/colorPrimary" />
+            <corners android:radius="@dimen/choice_tile_radius" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="2dp" android:color="@android:color/transparent" />
+            <corners android:radius="@dimen/choice_tile_radius" />
+        </shape>
+    </item>
+</selector>
