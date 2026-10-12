@@ -231,19 +231,21 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <!-- The HOTP counter or the countdown ring, over the copy button: a narrow column,
-                 which leaves the token its width. Their right edges, and the copy icon's, are as
-                 far from the card's edge as the thumbnail is from its start. -->
+                 which leaves the token its width, centred in the card's height and with all
+                 three on one centre line. The copy icon's right edge is as far from the card's
+                 edge as the thumbnail is from its start. At least the copy button's width, so
+                 the counter and ring keep their place while it is left out. -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="end"
+                android:minWidth="40dp"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <LinearLayout
                     android:id="@+id/counterLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/card_copy_icon_inset"
                     android:background="@drawable/bg_pill_field"
                     android:clickable="true"
                     android:focusable="true"
@@ -277,7 +279,6 @@
                     android:id="@+id/cardCountdown"
                     android:layout_width="@dimen/countdown_size"
                     android:layout_height="@dimen/countdown_size"
-                    android:layout_marginEnd="@dimen/card_copy_icon_inset"
                     android:visibility="gone"
                     tools:visibility="visible" />
 

@@ -96,8 +96,8 @@
 
     <dimen name="card_side_margin">8dp</dimen>
     <!-- The trailing column (component_card): the copy icon sits card_copy_icon_inset inside its
-         button, so 7dp + 9dp puts it, and the countdown and counter, 16dp from the card's edge,
-         as the thumbnail is from its start (space_md) -->
+         button, so 7dp + 9dp puts it 16dp from the card's edge, as the thumbnail is from its
+         start (space_md); the countdown and counter are centred over it -->
     <dimen name="card_trailing_margin">7dp</dimen>
     <dimen name="card_copy_icon_inset">9dp</dimen>
     <dimen name="card_vertical_margin">3dp</dimen><!-- the spacing the previous app used -->
