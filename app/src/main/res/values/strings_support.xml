@@ -24,7 +24,7 @@
         <item>Backups are created from the Backup &amp; Restore screen in the main menu. If the backup fails, make sure you have granted access to the folder you picked and that there is enough free space.\n\nAutomatic backups additionally need a default backup location and a backup password, both of which are set in Settings.</item>
         <item>Time-based codes depend on the clock of your phone. Make sure that automatic date &amp; time is enabled in your device settings.\n\nIf the codes are still rejected, remove the service from the website and add it to CometOTP again.</item>
         <item>Create an encrypted backup on your old phone from the Backup &amp; Restore screen, copy the file to your new phone and restore it there.\n\nCometOTP does not sync your accounts to the cloud, so a backup is the only way to move them.</item>
-        <item>Your accounts are stored in an encrypted file. The key is either kept in the Android KeyStore (hardware backed on most devices) or derived from your password or PIN, depending on the encryption method you chose during setup.\n\nYou can additionally lock the app with a PIN, a password or your fingerprint from the Security screen.</item>
+        <item>Your accounts are stored in an encrypted file. The key is either kept in the Android KeyStore (hardware backed on most devices) or derived from your password or PIN, depending on the encryption method you chose during setup.\n\nYou can additionally lock the app from the Security screen, with a PIN or a password of its own (which your fingerprint or face can then stand in for) or with your phone\'s screen lock.</item>
     </string-array>
 
     <!-- An FAQ answer's links, in the order of faq_titles: the names, and their pages

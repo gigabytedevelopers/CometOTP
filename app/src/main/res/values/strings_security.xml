@@ -5,17 +5,16 @@
 
     <string name="security_row_pin">PIN</string>
     <string name="security_row_password">Password</string>
-    <string name="security_row_device">Fingerprint</string>
-    <string name="security_row_device_hint">Fingerprint, face or device lock</string>
+    <string name="security_row_device">Phone\'s screen lock</string>
+    <string name="security_row_device_hint">Your phone\'s fingerprint, face, PIN or pattern</string>
     <string name="security_status_pin">PIN Protection Active</string>
     <string name="security_status_password">Password Protection Active</string>
-    <string name="security_status_device">Fingerprint Protection Active</string>
+    <string name="security_status_device">Screen Lock Protection Active</string>
     <string name="security_remove_protection">Remove protection</string>
     <!-- Biometric unlock on top of a PIN or password, and why it cannot be turned on -->
     <string name="security_row_biometric">Biometric unlock</string>
     <string name="security_biometric_on_pin">Use your fingerprint or face instead of your PIN</string>
     <string name="security_biometric_on_password">Use your fingerprint or face instead of your password</string>
-    <string name="security_biometric_needs_credential">To use biometric unlock, set a PIN or password first</string>
     <string name="security_biometric_needs_keystore">Not available while your accounts are encrypted with your PIN or password</string>
     <string name="security_biometric_none_enrolled">Add a fingerprint in your phone\'s settings first</string>
     <string name="security_biometric_unsupported">This phone has no strong fingerprint or face unlock</string>
@@ -39,11 +38,11 @@
     <string name="security_result_password_msg">Password has been added successfully.</string>
     <string name="security_result_pin_title">You\'ve got a new PIN</string>
     <string name="security_result_pin_msg">PIN has been added successfully.</string>
-    <string name="security_result_device_title">You\'ve got your Fingerprint set</string>
-    <string name="security_result_device_msg">Device lock has been enabled successfully.</string>
+    <string name="security_result_device_title">You\'ve got your screen lock set</string>
+    <string name="security_result_device_msg">CometOTP now unlocks with your phone\'s screen lock.</string>
     <string name="security_result_reset_password">Reset Password</string>
     <string name="security_result_reset_pin">Reset PIN</string>
 
     <string name="security_biometric_title">Unlock CometOTP</string>
-    <string name="security_biometric_subtitle">Use your fingerprint, face or device lock</string>
+    <string name="security_biometric_subtitle">Use your fingerprint, face or screen lock</string>
 </resources>

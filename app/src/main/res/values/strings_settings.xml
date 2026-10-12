@@ -220,7 +220,7 @@
         <item>None</item>
         <item>Password</item>
         <item>PIN</item>
-        <item>Device Credentials</item>
+        <item>Phone\'s screen lock</item>
     </string-array>
 
     <string-array name="settings_entries_encryption">

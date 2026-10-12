@@ -55,6 +55,7 @@ class SecurityActivity : BaseActivity() {
     private lateinit var rowPassword: View
     private lateinit var rowDevice: View
     private lateinit var rowBiometric: View
+    private lateinit var biometricGroup: View
     private lateinit var biometricSubtitle: TextView
     private lateinit var biometricSwitch: MaterialSwitch
     private lateinit var removeButton: MaterialButton
@@ -105,6 +106,7 @@ class SecurityActivity : BaseActivity() {
         rowPassword = v.findViewById(R.id.row_password)
         rowDevice = v.findViewById(R.id.row_device)
         rowBiometric = v.findViewById(R.id.row_biometric)
+        biometricGroup = v.findViewById(R.id.row_biometric_group)
         biometricSubtitle = v.findViewById(R.id.row_biometric_subtitle)
         biometricSwitch = v.findViewById(R.id.switch_biometric)
         rowBiometric.setOnClickListener { toggleBiometric() }
@@ -112,7 +114,7 @@ class SecurityActivity : BaseActivity() {
 
         bindRow(rowPin, R.drawable.ic_dialpad, R.string.security_row_pin) { select(AuthMethod.PIN) }
         bindRow(rowPassword, R.drawable.ic_lock_outline, R.string.security_row_password) { select(AuthMethod.PASSWORD) }
-        bindRow(rowDevice, R.drawable.ic_fingerprint, R.string.security_row_device) { select(AuthMethod.DEVICE) }
+        bindRow(rowDevice, R.drawable.ic_screen_lock, R.string.security_row_device) { select(AuthMethod.DEVICE) }
         removeButton.setOnClickListener { confirmRemove() }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -170,14 +172,21 @@ class SecurityActivity : BaseActivity() {
         refreshBiometric()
     }
 
-    /** The biometric row: on or off where it can be used, otherwise dimmed, saying why not. */
+    /**
+     * The biometric row: only with CometOTP's own PIN or password, which it stands in for (the
+     * phone's screen lock has the phone's biometrics already). On or off where it can be used,
+     * otherwise dimmed, saying why not.
+     */
     private fun refreshBiometric() {
         val availability = BiometricUnlock.availability(this, settings)
+        biometricGroup.visibility =
+            if (availability == BiometricUnlock.Availability.NEEDS_CREDENTIAL) View.GONE else View.VISIBLE
         val available = availability == BiometricUnlock.Availability.AVAILABLE
         biometricSubtitle.setText(when (availability) {
             BiometricUnlock.Availability.AVAILABLE ->
                 if (settings.authMethod == AuthMethod.PIN) R.string.security_biometric_on_pin else R.string.security_biometric_on_password
-            BiometricUnlock.Availability.NEEDS_CREDENTIAL -> R.string.security_biometric_needs_credential
+            // Hidden then, above.
+            BiometricUnlock.Availability.NEEDS_CREDENTIAL -> R.string.security_row_biometric
             BiometricUnlock.Availability.NEEDS_KEYSTORE_ENCRYPTION -> R.string.security_biometric_needs_keystore
             BiometricUnlock.Availability.NONE_ENROLLED -> R.string.security_biometric_none_enrolled
             BiometricUnlock.Availability.UNSUPPORTED -> R.string.security_biometric_unsupported
@@ -269,7 +278,7 @@ class SecurityActivity : BaseActivity() {
         if (method == AuthMethod.DEVICE) {
             settings.authMethod = AuthMethod.DEVICE
             refresh()
-            ResultDialog.showSuccess(this, R.drawable.ic_fingerprint,
+            ResultDialog.showSuccess(this, R.drawable.ic_screen_lock,
                 R.string.security_result_device_title, R.string.security_result_device_msg,
                 R.string.continue_on, null)
             return

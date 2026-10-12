@@ -34,7 +34,14 @@
 
         <View style="@style/Widget.Comet.Divider" />
 
-        <!-- Biometric unlock on top of a PIN or password (BiometricUnlock); the row is the switch -->
+        <!-- Biometric unlock on top of a PIN or password (BiometricUnlock), shown only with one;
+             the row is the switch -->
+        <LinearLayout
+            android:id="@+id/row_biometric_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
         <LinearLayout
             android:id="@+id/row_biometric"
             android:layout_width="match_parent"
@@ -93,6 +100,8 @@
         </LinearLayout>
 
         <View style="@style/Widget.Comet.Divider" />
+
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/security_remove"
