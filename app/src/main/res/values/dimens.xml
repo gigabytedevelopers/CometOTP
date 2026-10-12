@@ -100,6 +100,12 @@
          start (space_md); the countdown and counter are centred over it -->
     <dimen name="card_trailing_margin">7dp</dimen>
     <dimen name="card_copy_icon_inset">9dp</dimen>
+    <!-- A second icon inside a text field, before its end icon (the key's QR code while editing):
+         how far it sits from the field's end, how much room the text leaves it, and how far down
+         it moves to centre on the box under the floating label -->
+    <dimen name="field_second_icon_margin">44dp</dimen>
+    <dimen name="field_second_icon_room">92dp</dimen>
+    <dimen name="field_icon_offset">3dp</dimen>
     <dimen name="card_vertical_margin">3dp</dimen><!-- the spacing the previous app used -->
     <dimen name="token_line_height">40dp</dimen>
     <dimen name="card_corner_radius">12dp</dimen>

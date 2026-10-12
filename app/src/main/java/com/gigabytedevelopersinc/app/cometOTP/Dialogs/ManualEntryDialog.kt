@@ -7,6 +7,7 @@ import android.content.res.ColorStateList
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -393,6 +394,9 @@ object ManualEntryDialog {
             issuerInput.setText(oldEntry.issuer)
             labelInput.setText(oldEntry.label)
             secretView.text = oldEntry.secretEncoded
+            // Hidden until the eye shows it, and copied only then, as on the PIN and password fields.
+            secretView.transformationMethod = PasswordTransformationMethod.getInstance()
+            sheet.findViewById<View>(R.id.manual_secret_qr)?.setOnClickListener { adapter.showQRCode(oldEntry) }
             digitsInput.setText(String.format(Locale.ENGLISH, "%d", oldEntry.digits))
 
             if (oldType == Entry.OTPType.TOTP || oldType == Entry.OTPType.STEAM) {

@@ -96,29 +96,51 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- When editing: the key, which cannot change, to read and copy -->
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- When editing: the key, which cannot change, hidden until revealed, with the service's
+             QR code beside it -->
+        <FrameLayout
             android:id="@+id/manual_secret_view_layout"
-            style="@style/Widget.Comet.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/sheet_field_gap"
-            android:hint="@string/label_key"
             android:visibility="gone"
             tools:visibility="visible">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/manual_secret_view"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Comet.TextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/droid_sans_mono_slashed"
-                android:inputType="none"
-                android:maxLines="3"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textIsSelectable="true"
-                tools:text="JBSWY3DPEHPK3PXP" />
+                android:hint="@string/label_key"
+                app:endIconMode="password_toggle">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/manual_secret_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/droid_sans_mono_slashed"
+                    android:inputType="none"
+                    android:maxLines="3"
+                    android:paddingStart="@dimen/space_md"
+                    android:paddingEnd="@dimen/field_second_icon_room"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textIsSelectable="true"
+                    tools:text="JBSWY3DPEHPK3PXP" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/manual_secret_qr"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginTop="@dimen/field_icon_offset"
+                android:layout_marginEnd="@dimen/field_second_icon_margin"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/menu_popup_show_qr_code"
+                app:srcCompat="@drawable/ic_qr_code"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+        </FrameLayout>
 
         <!-- Type -->
         <com.google.android.material.textfield.TextInputLayout
