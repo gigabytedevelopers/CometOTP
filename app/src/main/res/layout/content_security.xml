@@ -2,6 +2,7 @@
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:overScrollMode="never"
@@ -30,6 +31,66 @@
         <include
             android:id="@+id/row_device"
             layout="@layout/item_setting_row" />
+
+        <View style="@style/Widget.Comet.Divider" />
+
+        <!-- Biometric unlock on top of a PIN or password (BiometricUnlock); the row is the switch -->
+        <LinearLayout
+            android:id="@+id/row_biometric"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_nav_row"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="60dp"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/space_sm"
+            android:paddingTop="@dimen/space_sm"
+            android:paddingEnd="@dimen/space_sm"
+            android:paddingBottom="@dimen/space_sm">
+
+            <ImageView
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:contentDescription="@null"
+                app:srcCompat="@drawable/ic_fingerprint"
+                app:tint="@color/nav_row_text" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_md"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/security_row_biometric"
+                    android:textAppearance="@style/TextAppearance.Comet.LabelLarge"
+                    android:textColor="@color/nav_row_text"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/row_biometric_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Comet.Caption"
+                    tools:text="Use your fingerprint or face instead of your PIN" />
+
+            </LinearLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switch_biometric"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_md"
+                android:clickable="false"
+                android:focusable="false"
+                android:importantForAccessibility="no" />
+
+        </LinearLayout>
 
         <View style="@style/Widget.Comet.Divider" />
 

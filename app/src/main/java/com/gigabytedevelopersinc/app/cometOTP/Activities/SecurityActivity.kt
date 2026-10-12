@@ -2,8 +2,10 @@
 package com.gigabytedevelopersinc.app.cometOTP.Activities
 
 import android.app.KeyguardManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewStub
@@ -14,9 +16,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ResultDialog
 import com.gigabytedevelopersinc.app.cometOTP.R
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.BiometricUnlock
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.AuthMethod
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.EncryptionType
@@ -25,6 +30,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.EncryptionHelper
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Settings
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.snackbar.Snackbar
 import javax.crypto.SecretKey
 
@@ -48,6 +54,9 @@ class SecurityActivity : BaseActivity() {
     private lateinit var rowPin: View
     private lateinit var rowPassword: View
     private lateinit var rowDevice: View
+    private lateinit var rowBiometric: View
+    private lateinit var biometricSubtitle: TextView
+    private lateinit var biometricSwitch: MaterialSwitch
     private lateinit var removeButton: MaterialButton
 
     private val setupLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
@@ -95,6 +104,10 @@ class SecurityActivity : BaseActivity() {
         rowPin = v.findViewById(R.id.row_pin)
         rowPassword = v.findViewById(R.id.row_password)
         rowDevice = v.findViewById(R.id.row_device)
+        rowBiometric = v.findViewById(R.id.row_biometric)
+        biometricSubtitle = v.findViewById(R.id.row_biometric_subtitle)
+        biometricSwitch = v.findViewById(R.id.switch_biometric)
+        rowBiometric.setOnClickListener { toggleBiometric() }
         removeButton = v.findViewById(R.id.security_remove)
 
         bindRow(rowPin, R.drawable.ic_dialpad, R.string.security_row_pin) { select(AuthMethod.PIN) }
@@ -154,6 +167,67 @@ class SecurityActivity : BaseActivity() {
         setSubtitle(rowPassword, if (current == AuthMethod.PASSWORD) R.string.security_status_password else 0)
         setSubtitle(rowDevice, if (current == AuthMethod.DEVICE) R.string.security_status_device else R.string.security_row_device_hint)
         removeButton.visibility = if (current == AuthMethod.NONE) View.GONE else View.VISIBLE
+        refreshBiometric()
+    }
+
+    /** The biometric row: on or off where it can be used, otherwise dimmed, saying why not. */
+    private fun refreshBiometric() {
+        val availability = BiometricUnlock.availability(this, settings)
+        val available = availability == BiometricUnlock.Availability.AVAILABLE
+        biometricSubtitle.setText(when (availability) {
+            BiometricUnlock.Availability.AVAILABLE ->
+                if (settings.authMethod == AuthMethod.PIN) R.string.security_biometric_on_pin else R.string.security_biometric_on_password
+            BiometricUnlock.Availability.NEEDS_CREDENTIAL -> R.string.security_biometric_needs_credential
+            BiometricUnlock.Availability.NEEDS_KEYSTORE_ENCRYPTION -> R.string.security_biometric_needs_keystore
+            BiometricUnlock.Availability.NONE_ENROLLED -> R.string.security_biometric_none_enrolled
+            BiometricUnlock.Availability.UNSUPPORTED -> R.string.security_biometric_unsupported
+        })
+        biometricSwitch.isChecked = available && settings.biometricUnlock
+        // Without enrolled biometrics the row still opens the phone's settings to add one.
+        val usable = available || availability == BiometricUnlock.Availability.NONE_ENROLLED
+        rowBiometric.isEnabled = usable
+        biometricSwitch.isEnabled = available
+        rowBiometric.alpha = if (usable) 1f else DISABLED_ALPHA
+        rowBiometric.contentDescription = getString(R.string.security_row_biometric) + ", " + biometricSubtitle.text
+        ViewCompat.setStateDescription(rowBiometric,
+                if (available) getString(if (biometricSwitch.isChecked) R.string.state_on else R.string.state_off) else null)
+    }
+
+    /**
+     * Turns biometric unlock off, or on once a biometric is recognised, so that it is known to
+     * work before the unlock screen relies on it. Without one enrolled, opens the phone's settings.
+     */
+    private fun toggleBiometric() {
+        when (BiometricUnlock.availability(this, settings)) {
+            BiometricUnlock.Availability.AVAILABLE -> {}
+            BiometricUnlock.Availability.NONE_ENROLLED -> {
+                openBiometricEnrolment()
+                return
+            }
+            else -> return
+        }
+        if (settings.biometricUnlock) {
+            settings.biometricUnlock = false
+            refreshBiometric()
+            return
+        }
+        BiometricUnlock.prompt(this, getString(android.R.string.cancel), onSuccess = {
+            settings.biometricUnlock = true
+            refreshBiometric()
+        })
+    }
+
+    private fun openBiometricEnrolment() {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            Intent(android.provider.Settings.ACTION_BIOMETRIC_ENROLL)
+                    .putExtra(android.provider.Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED, BIOMETRIC_STRONG)
+        else
+            Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS)
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            startActivity(Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS))
+        }
     }
 
     private fun methodLabel(method: AuthMethod): Int {
@@ -318,6 +392,9 @@ class SecurityActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        // A biometric may have been added, or removed, in the phone's settings meanwhile.
+        if (::rowBiometric.isInitialized)
+            refreshBiometric()
         credentialJob.onResume(this)
         if (credentialJob.isBusy)
             showProgress()
@@ -338,6 +415,9 @@ class SecurityActivity : BaseActivity() {
     }
 
     companion object {
+        /** Material's emphasis for what cannot be used. */
+        private const val DISABLED_ALPHA = 0.38f
+
         /** Survives recreation of this screen; see [RetainedJob]. */
         private val credentialJob = RetainedJob<SecurityActivity>()
     }

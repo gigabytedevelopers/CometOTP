@@ -219,6 +219,9 @@
     <string name="button_drag_to_reorder">Drag to reorder</string>
     <string name="state_selected">Selected</string>
     <string name="state_not_selected">Not selected</string>
+    <!-- A setting's row that works as a switch, read out after its name -->
+    <string name="state_on">On</string>
+    <string name="state_off">Off</string>
     <string name="action_select">Select</string>
     <string name="action_deselect">Deselect</string>
     <string name="action_move_up">Move up</string>

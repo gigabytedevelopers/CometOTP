@@ -11,6 +11,14 @@
     <string name="security_status_password">Password Protection Active</string>
     <string name="security_status_device">Fingerprint Protection Active</string>
     <string name="security_remove_protection">Remove protection</string>
+    <!-- Biometric unlock on top of a PIN or password, and why it cannot be turned on -->
+    <string name="security_row_biometric">Biometric unlock</string>
+    <string name="security_biometric_on_pin">Use your fingerprint or face instead of your PIN</string>
+    <string name="security_biometric_on_password">Use your fingerprint or face instead of your password</string>
+    <string name="security_biometric_needs_credential">To use biometric unlock, set a PIN or password first</string>
+    <string name="security_biometric_needs_keystore">Not available while your accounts are encrypted with your PIN or password</string>
+    <string name="security_biometric_none_enrolled">Add a fingerprint in your phone\'s settings first</string>
+    <string name="security_biometric_unsupported">This phone has no strong fingerprint or face unlock</string>
 
     <string name="security_dialog_title_warning">Warning</string>
     <string name="security_dialog_msg_switch">Activating new security will automatically deactivate your %1$s security.</string>
