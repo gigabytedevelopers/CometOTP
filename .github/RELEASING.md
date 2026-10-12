@@ -34,9 +34,12 @@ when new commits land, requires review threads to be resolved, forbids force pus
 keeps history linear, requires signed commits, and blocks the merge until all five required checks
 pass: the four CI jobs and **Repository security**. Nobody is on its bypass list, admins included.
 
-Squash is the only merge method allowed, and that is deliberate. A merge commit would break the
-linear history rule, and GitHub's rebase merge rewrites each commit and drops its signature, which
-the signed-commits rule would then reject. A squash merge is signed by GitHub and stays linear.
+Squash and rebase are the allowed merge methods. A merge commit would break the linear history
+rule. Rebase is allowed only because GitHub counts a locally fast-forwarded push (see below) as a
+rebase merge: with squash alone it refuses that push with "merges must occur on the web". The web's
+**Rebase and merge** button still cannot be used, because it rewrites each commit and drops its
+signature, which the signed-commits rule rejects. A squash merge on the web is signed by GitHub and
+stays linear.
 
 ## Merging so the commits keep your signature
 
