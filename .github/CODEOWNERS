@@ -1,15 +1,18 @@
-# The owners of the project. GitHub asks them for a review on every pull request (never the
-# author), but their approval is not what the ruleset requires: any approving review from someone
-# with write access counts, and the review comes from @princesseke, who is asked on every pull
-# request by .github/workflows/request-review.yml. An owner cannot approve their own pull request,
-# which is why the reviewer is someone other than the owners.
+# Who GitHub asks to review every pull request (never its author). It asks them itself, so each
+# request shows as coming from the pull request's author: no workflow or token is involved.
 #
-# Owners have to be user accounts or @org/team names with write access. The organisation itself
-# (@gigabytedevelopers) is neither, which is why this file used to match nobody and no review was
+# The ruleset only needs one approving review from someone with write access, and that review
+# comes from @princesseke: GitHub never lets authors approve their own pull requests, so the
+# owners, @gigabytedevelopersinc and @enwokoma, cannot approve theirs. She is listed here so that
+# she is asked on every pull request, including those touching only the paths below.
+#
+# Entries have to be user accounts or @org/team names with write access. The organisation itself
+# (@gigabytedevelopers) is neither, which is why this file once matched nobody and no review was
 # ever requested automatically.
-*       @gigabytedevelopersinc @enwokoma
+*       @gigabytedevelopersinc @enwokoma @princesseke
 
-# The release machinery and anything that touches signing deserves a second look.
-/.github/                   @gigabytedevelopersinc @enwokoma
-/app/build.gradle           @gigabytedevelopersinc @enwokoma
-/cliff.toml                 @gigabytedevelopersinc @enwokoma
+# The release machinery and anything that touches signing deserves a second look. The last
+# matching line wins, so each one names everyone again.
+/.github/                   @gigabytedevelopersinc @enwokoma @princesseke
+/app/build.gradle           @gigabytedevelopersinc @enwokoma @princesseke
+/cliff.toml                 @gigabytedevelopersinc @enwokoma @princesseke
