@@ -111,6 +111,7 @@
 
     <string name="settings_key_dialog_hide_auto_time" translatable="false">pref_dialog_hide_auto_time</string>
     <string name="settings_key_coach_marks_shown" translatable="false">pref_coach_marks_shown</string>
+    <string name="settings_key_browser_pairing_explained" translatable="false">pref_browser_pairing_explained</string>
 
     <!-- Default values -->
     <integer name="settings_default_tap_to_reveal_timeout">30</integer>

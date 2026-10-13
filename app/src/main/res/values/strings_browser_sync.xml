@@ -36,12 +36,48 @@
         <item quantity="other">and %d services you have deleted since</item>
     </plurals>
     <string name="extensions_add_test">Add a test browser</string>
+    <string name="extensions_pair">Pair a browser</string>
 
     <!-- Pairing a browser: before the scanner, the scanner, then PairBrowserActivity -->
+    <string name="pair_lock_required_message">A browser gets a copy of your services\' keys, so CometOTP needs a lock (a PIN, a password or your screen lock) before it can pair one. Set a lock up in Security.</string>
+    <string name="pair_explain_title">Before you pair a browser</string>
+    <string name="pair_explain_message">The browser gets an encrypted copy of your services, so it can show their codes even when this phone is not with you.\n\nEvery service is shared unless you turn Browser extension off in its details. HOTP and mOTP services always stay on this phone.\n\nYou can remove a browser later, and its copy is deleted the next time it checks. A computer that is lost or offline keeps what it already has.</string>
+    <string name="pair_explain_continue">Continue</string>
+
     <string name="scan_pair_title">Pair a browser</string>
     <string name="scan_pair_hint">Point your camera at the QR code in the CometOTP extension</string>
     <string name="scan_not_pairing">That QR code is not from the CometOTP extension. Try another.</string>
     <string name="scan_pair_update">That code needs a newer version of CometOTP. Update the app, then try again.</string>
     <string name="scan_pairing_code_here">That code pairs a browser. Use Pair a browser in Security → Connected extensions.</string>
     <string name="scan_pair_privacy_msg">CometOTP reads the QR code here on your phone. No picture of it is saved. The code only lets this phone and the browser find each other through the relay: none of your services are shared until you tap Pair.</string>
+
+    <string name="pair_connecting_title">Connecting to %s</string>
+    <string name="pair_connecting_message">Setting up a private link through the relay…</string>
+    <string name="pair_compare_title">Check the code</string>
+    <string name="pair_compare_message">Pair only if %s shows this same code. If it shows another, cancel: someone else may be trying to connect.</string>
+    <string name="pair_approve">Pair</string>
+    <string name="pair_waiting_title">Confirm in the browser</string>
+    <string name="pair_waiting_message">In %s, choose “My phone shows the same code”.</string>
+    <string name="pair_sending_title">Sending your services</string>
+    <string name="pair_sending_message">Encrypting a copy for %s…</string>
+    <string name="pair_cancelling">Cancelling…</string>
+    <string name="pair_done_title">%s is paired</string>
+    <plurals name="pair_done_message">
+        <item quantity="one">It has a copy of %d service and can show its codes when this phone is away. Changes you make in CometOTP reach it on their own.</item>
+        <item quantity="other">It has a copy of %d services and can show their codes when this phone is away. Changes you make in CometOTP reach it on their own.</item>
+    </plurals>
+    <string name="pair_done">Done</string>
+    <string name="pair_try_again">Try again</string>
+    <string name="pair_failed_invalid_title">That code can\'t be used</string>
+    <string name="pair_failed_invalid_message">It is not a valid pairing code. Scan the code the CometOTP extension shows.</string>
+    <string name="pair_failed_used_title">That code was already used</string>
+    <string name="pair_failed_used_message">Another phone scanned it first. Don\'t confirm anything in the browser: start again there and scan the new code.</string>
+    <string name="pair_failed_expired_title">The code expired</string>
+    <string name="pair_failed_expired_message">Pairing codes only work for a few minutes. Show a new code in the browser and scan it.</string>
+    <string name="pair_failed_cancelled_title">Cancelled in the browser</string>
+    <string name="pair_failed_cancelled_message">Nothing was shared. You can start again from the browser.</string>
+    <string name="pair_failed_unreachable_title">Couldn\'t reach the relay</string>
+    <string name="pair_failed_unreachable_message">Check this phone\'s internet connection, then try again with a new code.</string>
+    <string name="pair_failed_broken_title">Pairing failed</string>
+    <string name="pair_failed_broken_message">Something went wrong between this phone and the browser, so pairing stopped. Try again with a new code.</string>
 </resources>

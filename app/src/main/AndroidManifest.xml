@@ -220,6 +220,11 @@
             android:parentActivityName=".Activities.SecurityActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Activities.PairBrowserActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".Activities.ConnectedExtensionsActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Activities.RemovedAccountsActivity"
             android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"

@@ -533,6 +533,13 @@ class Settings(private val context: Context) {
             setBoolean(R.string.settings_key_coach_marks_shown, value)
         }
 
+    /** Whether the explanation before pairing a browser, of what it gets, has been accepted. */
+    var browserPairingExplained: Boolean
+        get() = getBoolean(R.string.settings_key_browser_pairing_explained, false)
+        set(value) {
+            setBoolean(R.string.settings_key_browser_pairing_explained, value)
+        }
+
     var specialFeatures: Boolean
         get() = getBoolean(R.string.settings_key_special_features, false)
         set(value) {

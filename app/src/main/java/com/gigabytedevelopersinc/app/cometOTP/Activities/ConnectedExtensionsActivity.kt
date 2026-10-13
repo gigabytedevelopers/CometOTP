@@ -1,6 +1,7 @@
 @file:Suppress("PackageName")
 package com.gigabytedevelopersinc.app.cometOTP.Activities
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
@@ -16,13 +17,16 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserStore
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserSync
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserSyncException
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.ConnectedBrowsers
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.PairedBrowser
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.Pairing
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.TestBrowsers
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.VaultPayload
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
@@ -45,7 +49,8 @@ import javax.crypto.SecretKey
 
 /**
  * Settings → Security → Connected extensions: the browsers paired with CometOTP, how each one's
- * copy stands, and renaming or removing them. Removing one deletes its vault on the relay, then
+ * copy stands, pairing another, and renaming or removing them. Pairing needs a lock and, the first
+ * time, an explanation of what a browser gets. Removing one deletes its vault on the relay, then
  * says which services it had, since a lost computer keeps them.
  */
 class ConnectedExtensionsActivity : BaseActivity() {
@@ -57,6 +62,17 @@ class ConnectedExtensionsActivity : BaseActivity() {
     private lateinit var pausedNote: View
     private val worker = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
+
+    private val scanPairingCode = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val link = ScanActivity.takeResult()
+        if (result.resultCode == RESULT_OK && link != null)
+            pair(link)
+    }
+
+    private val pairBrowser = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == PairBrowserActivity.RESULT_SCAN_AGAIN)
+            scan()
+    }
 
     // It names browsers and, after a removal, services: kept out of screenshots like the list.
     override val protectsScreen: Boolean
@@ -93,6 +109,10 @@ class ConnectedExtensionsActivity : BaseActivity() {
         adapter = BrowserListAdapter()
         list.adapter = adapter
 
+        val pairButton = content.findViewById<View>(R.id.extensions_pair)
+        pairButton.visibility = if (encryptionKey != null) View.VISIBLE else View.GONE
+        pairButton.setOnClickListener { beforePairing { scan() } }
+
         if (encryptionKey == null)
             Toast.makeText(this, R.string.toast_database_load_failed, Toast.LENGTH_LONG).show()
     }
@@ -128,6 +148,53 @@ class ConnectedExtensionsActivity : BaseActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    /**
+     * Runs [action] once pairing may go ahead: CometOTP has a lock, since a browser gets a copy of
+     * the keys, and the person has read what that means (once).
+     */
+    private fun beforePairing(action: () -> Unit) {
+        if (BrowserSync.isPaused(settings)) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.lock_required_title)
+                .setMessage(R.string.pair_lock_required_message)
+                // Security, where a lock is set up, is the screen below this one.
+                .setPositiveButton(R.string.lock_required_set_up) { _, _ -> finish() }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            return
+        }
+        if (settings.browserPairingExplained) {
+            action()
+            return
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.pair_explain_title)
+            .setMessage(R.string.pair_explain_message)
+            .setPositiveButton(R.string.pair_explain_continue) { _, _ ->
+                settings.browserPairingExplained = true
+                action()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun scan() {
+        scanPairingCode.launch(Intent(this, ScanActivity::class.java).putExtra(ScanActivity.EXTRA_PAIRING, true))
+    }
+
+    /** Answers the browser's pairing code [link]. */
+    private fun pair(link: String) {
+        val key = encryptionKey ?: return
+        val code = try {
+            // Debug builds pair with the relay on the development computer, over plain http.
+            Pairing.parseUri(link, allowInsecureRelay = TestBrowsers.AVAILABLE)
+        } catch (e: BrowserSyncException) {
+            Snackbar.make(content, R.string.scan_not_pairing, Snackbar.LENGTH_LONG).show()
+            return
+        }
+        pairBrowser.launch(PairBrowserActivity.intent(this, code, key))
     }
 
     /** Debug builds: a browser paired with the relay on the development computer, to try this screen. */
