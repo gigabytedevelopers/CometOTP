@@ -115,6 +115,11 @@ class ConnectedExtensionsActivity : BaseActivity() {
 
         if (encryptionKey == null)
             Toast.makeText(this, R.string.toast_database_load_failed, Toast.LENGTH_LONG).show()
+
+        // Debug builds: a pairing link given to CometOTP rather than scanned (see MainActivity).
+        val link = intent.getStringExtra(EXTRA_PAIRING_LINK)
+        if (savedInstanceState == null && link != null && encryptionKey != null)
+            beforePairing { pair(link) }
     }
 
     override fun onResume() {
@@ -357,5 +362,10 @@ class ConnectedExtensionsActivity : BaseActivity() {
             status.text = statusText(browser)
             itemView.setOnClickListener { showOptions(browser) }
         }
+    }
+
+    companion object {
+        /** Debug builds: a browser's pairing link to answer as if it had been scanned. */
+        const val EXTRA_PAIRING_LINK = "pairing_link"
     }
 }

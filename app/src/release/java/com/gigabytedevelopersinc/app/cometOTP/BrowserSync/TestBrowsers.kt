@@ -4,7 +4,10 @@ package com.gigabytedevelopersinc.app.cometOTP.BrowserSync
 import android.content.Context
 import javax.crypto.SecretKey
 
-/** The debug build pairs stand-in browsers to try Connected extensions (src/debug); releases cannot. */
+/**
+ * The debug build pairs stand-in browsers, pairs over plain http with a local relay and takes
+ * pairing links from adb (src/debug); releases do none of that.
+ */
 object TestBrowsers {
     const val AVAILABLE = false
 

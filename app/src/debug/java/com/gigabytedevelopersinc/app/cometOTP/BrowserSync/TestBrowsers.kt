@@ -7,9 +7,11 @@ import javax.crypto.SecretKey
 
 /**
  * Debug builds only: pairs a stand-in browser with the relay on the development computer, so
- * Connected extensions and the uploads can be tried before a real browser can pair. Start the relay
- * from gigabytedevelopers/CometOTP-Browser on port 8787; from a phone, `adb reverse tcp:8787 tcp:8787`.
- * Release builds have a version of this that does nothing (src/release).
+ * Connected extensions and the uploads can be tried without the extension. [AVAILABLE] also lets
+ * pairing use such a relay over plain http, and take a pairing link sent with adb in place of a
+ * scanned code (src/debug's manifest). Start the relay from gigabytedevelopers/CometOTP-Browser on
+ * port 8787; from a phone, `adb reverse tcp:8787 tcp:8787`. Release builds have a version of this
+ * that does nothing (src/release).
  */
 object TestBrowsers {
     const val AVAILABLE = true

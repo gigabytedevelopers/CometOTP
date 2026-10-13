@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- Debug builds: a browser's pairing link sent with adb, answered as if it had been
+             scanned (MainActivity.openPairingLink). Not BROWSABLE, so no web page can send one;
+             release builds have no such link at all. -->
+        <activity
+            android:name="com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="cometotp" android:host="pair" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

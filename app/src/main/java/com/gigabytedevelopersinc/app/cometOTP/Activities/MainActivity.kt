@@ -63,6 +63,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
 import com.google.android.material.snackbar.Snackbar
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.Pairing
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.TestBrowsers
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.HideableDialog
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ImportPasswordDialog
@@ -1025,6 +1027,17 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         settingsLauncher.launch(settingsIntent)
     }
 
+    /**
+     * Debug builds: a browser's pairing link sent with adb (src/debug's manifest), answered as if
+     * it had been scanned, since a test cannot hold a QR code up to the camera.
+     */
+    private fun openPairingLink(link: String) {
+        val intent = Intent(this, ConnectedExtensionsActivity::class.java)
+            .putExtra(ConnectedExtensionsActivity.EXTRA_PAIRING_LINK, link)
+        adapter.encryptionKey?.let { intent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, it.encoded) }
+        startActivity(intent)
+    }
+
     private fun openAbout() {
         startActivity(Intent(this, AboutActivity::class.java))
     }
@@ -1058,7 +1071,9 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                     }
                 }
                 Intent.ACTION_VIEW ->
-                    try {
+                    if (TestBrowsers.AVAILABLE && callingIntent.dataString?.let { Pairing.isPairingUri(it) } == true)
+                        openPairingLink(callingIntent.dataString!!)
+                    else try {
                         // A missing data string throws here, as it did in Java, and is reported below.
                         val entry = Entry(callingIntent.dataString!!)
                         entry.updateOTP(false)
