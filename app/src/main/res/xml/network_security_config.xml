@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android's defaults, written out: HTTPS only, trusting the system's certificate authorities.
+     The debug build adds plain HTTP to a relay on this computer (src/debug). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>
