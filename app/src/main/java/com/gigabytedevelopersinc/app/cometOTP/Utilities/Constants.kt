@@ -113,6 +113,8 @@ object Constants {
     const val FILENAME_DATABASE_BACKUP = "secrets.dat.bck"
     // Removed accounts (RecycleBin), encrypted like the database and wiped with it
     const val FILENAME_REMOVED         = "removed.dat"
+    // Paired browsers (BrowserStore), encrypted like the database, wiped with it, never backed up
+    const val FILENAME_BROWSERS        = "browsers.dat"
 
     // Backup files
     const val BACKUP_FILENAME_PLAIN    = "otp_accounts.json"
