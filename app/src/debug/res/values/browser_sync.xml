@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Browser sync is shown in debug builds while it is being built. -->
+    <bool name="browser_sync_available">true</bool>
+</resources>
