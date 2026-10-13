@@ -46,9 +46,15 @@ object BrowserSync {
                 relay.delete(stale.relay, stale.vaultId, stale.writeToken)
         }
 
+        var complete = true
+        // Browsers removed while the relay could not be reached: try their deletion again.
+        for (browser in BrowserStore.load(context, key).filter { it.state == PairedBrowser.State.REMOVING }) {
+            if (!finishRemoval(context, browser, key, relay))
+                complete = false
+        }
+
         val phone = VaultPayload.phoneName(context)
         val uploader = VaultUploader(relay)
-        var complete = true
         for (browser in BrowserStore.load(context, key)) {
             val outcome = uploader.upload(browser, phone, services)
             when {
@@ -60,4 +66,26 @@ object BrowserSync {
         }
         return complete
     }
+
+    /**
+     * Removes [browser]: it is marked [PairedBrowser.State.REMOVING] at once, so it gets no more
+     * updates, and dropped once the relay has deleted its vault. Returns whether that happened
+     * now; if not, [sync] tries again at the next change or unlock. Background thread.
+     */
+    fun remove(context: Context, browser: PairedBrowser, key: SecretKey, relay: Relay = RelayClient()): Boolean {
+        val removing = browser.copy(state = PairedBrowser.State.REMOVING)
+        if (!BrowserStore.update(context, removing, key))
+            return true
+        return finishRemoval(context, removing, key, relay)
+    }
+
+    private fun finishRemoval(context: Context, browser: PairedBrowser, key: SecretKey, relay: Relay): Boolean {
+        if (!vaultDeleted(relay.delete(browser.relay, browser.vaultId, browser.writeToken)))
+            return false
+        BrowserStore.remove(context, browser.vaultId, key)
+        return true
+    }
+
+    /** Whether nothing is left of the vault on the relay after a delete: deleted, or already gone or unknown. */
+    internal fun vaultDeleted(result: DeleteResult): Boolean = result != DeleteResult.FAILED
 }

@@ -54,6 +54,7 @@ class VaultUploaderTest {
         assertEquals(VaultPayload.hash("Pixel 7", services), updated.payloadHash)
         assertEquals(now, updated.uploadedAt)
         assertEquals("2026-10-12", updated.lastRead)
+        assertEquals(services.map { it.id }, updated.sharedIds)
 
         // What was sent opens with the browser's key, as version 5, with the services in it.
         val (version, json) = SyncVault.open(key, id, relay.blobs.single())
@@ -72,8 +73,8 @@ class VaultUploaderTest {
     }
 
     @Test
-    fun leavesPendingAndBrokenPairingsAlone() {
-        for (state in listOf(State.PENDING, State.BROKEN)) {
+    fun leavesPendingBrokenAndRemovedPairingsAlone() {
+        for (state in listOf(State.PENDING, State.BROKEN, State.REMOVING)) {
             val relay = ScriptedRelay()
             val other = browser.copy(state = state)
             assertSame(other, uploader(relay).upload(other, "Pixel 7", services).browser)

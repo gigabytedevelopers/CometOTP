@@ -38,6 +38,8 @@ data class PairedBrowser(
     val uploadedAt: Long = 0,
     /** The day (UTC, YYYY-MM-DD) the relay says the browser last downloaded the vault. */
     val lastRead: String? = null,
+    /** The ids ([SyncVault.serviceId]) of the services in the last vault uploaded; null before the first. */
+    val sharedIds: List<String>? = null,
 ) {
     enum class State {
         /** Pairing has not finished: the browser has not confirmed it stored the vault's details. */
@@ -45,6 +47,8 @@ data class PairedBrowser(
         PAIRED,
         /** The relay no longer knows the vault (401 or 404): the browser has to be paired again. */
         BROKEN,
+        /** Removed on this phone; kept only until the relay has deleted its vault. */
+        REMOVING,
     }
 }
 
@@ -82,6 +86,7 @@ object BrowserStore {
                 .put("uploaded", b.uploadedAt)
             b.payloadHash?.let { item.put("hash", it) }
             b.lastRead?.let { item.put("read", it) }
+            b.sharedIds?.let { item.put("services", JSONArray(it)) }
             json.put(item)
         }
         return json.toString()
@@ -110,6 +115,7 @@ object BrowserStore {
                     payloadHash = if (item.has("hash")) item.getString("hash") else null,
                     uploadedAt = item.optLong("uploaded", 0),
                     lastRead = if (item.has("read")) item.getString("read") else null,
+                    sharedIds = item.optJSONArray("services")?.let { ids -> (0 until ids.length()).map(ids::getString) },
                 )
                 // Credentials of the wrong size could never be used; leave the browser out.
                 SyncEncoding.fromBase64Url(browser.vaultId, 16, "The vault id")

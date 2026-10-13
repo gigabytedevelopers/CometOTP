@@ -31,7 +31,8 @@ class VaultUploader(private val relay: Relay, private val now: () -> Long = Syst
             val blob = SyncVault.seal(key, id, version, json)
             when (val result = relay.upload(browser.relay, browser.vaultId, browser.writeToken, blob)) {
                 is UploadResult.Stored -> return Outcome(
-                    browser.copy(version = result.version, payloadHash = hash, uploadedAt = now(), lastRead = result.lastRead),
+                    browser.copy(version = result.version, payloadHash = hash, uploadedAt = now(), lastRead = result.lastRead,
+                        sharedIds = services.map { it.id }),
                     retry = false,
                 )
                 is UploadResult.Stale -> version = result.storedVersion + 1

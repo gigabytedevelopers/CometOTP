@@ -40,9 +40,11 @@ class BrowserStoreTest {
 
     @Test
     fun keepsEverythingAboutABrowser() {
-        val full = browser(1).copy(version = 7, payloadHash = "ab".repeat(32), uploadedAt = 5_000L, lastRead = "2026-10-13")
+        val full = browser(1).copy(version = 7, payloadHash = "ab".repeat(32), uploadedAt = 5_000L, lastRead = "2026-10-13",
+            sharedIds = listOf("mQq6NvYAZpg7QAw2", "SXvyuudfADeefNlo"))
         val minimal = browser(2, State.PENDING)
-        assertEquals(listOf(full, minimal), BrowserStore.fromJson(BrowserStore.toJson(listOf(full, minimal))))
+        val removing = browser(3, State.REMOVING)
+        assertEquals(listOf(full, minimal, removing), BrowserStore.fromJson(BrowserStore.toJson(listOf(full, minimal, removing))))
     }
 
     @Test
