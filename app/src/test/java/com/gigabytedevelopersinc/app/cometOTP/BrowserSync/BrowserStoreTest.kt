@@ -13,6 +13,9 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.w3c.dom.Element
+import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
 
 /** The paired browsers' file: encrypted like the database, following it, never backed up. */
 class BrowserStoreTest {
@@ -105,6 +108,27 @@ class BrowserStoreTest {
         BrowserStore.write(file, listOf(browser(1)), oldKey)
         assertFalse(BrowserStore.reencryptFile(file, null, newKey))
         assertFalse(file.exists())
+    }
+
+    /** A restored or transferred phone must pair its browsers again, so neither may carry the file. */
+    @Test
+    fun backupsAndDeviceTransfersLeaveTheFileOut() {
+        fun excluded(path: String, section: String?): List<String> {
+            val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(File(path))
+            val root = if (section == null) document.documentElement
+                else document.getElementsByTagName(section).item(0) as Element
+            val excludes = root.getElementsByTagName("exclude")
+            return (0 until excludes.length).map { (excludes.item(it) as Element).getAttribute("path") }
+        }
+        for ((path, section) in listOf(
+            "src/main/res/xml/backup_rules.xml" to null,
+            "src/main/res/xml/data_extraction_rules.xml" to "cloud-backup",
+            "src/main/res/xml/data_extraction_rules.xml" to "device-transfer",
+        )) {
+            val paths = excluded(path, section)
+            assertTrue("$path $section", Constants.FILENAME_BROWSERS in paths)
+            assertTrue("$path $section", Constants.FILENAME_REMOVED in paths)
+        }
     }
 
     companion object {

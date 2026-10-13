@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Android's backup, up to Android 11: everything as before, except the removed accounts
-     (RecycleBin), which backups leave out. -->
+     (RecycleBin) and the paired browsers (BrowserStore), which backups leave out. -->
 <full-backup-content>
     <exclude domain="file" path="removed.dat" />
+    <exclude domain="file" path="browsers.dat" />
 </full-backup-content>

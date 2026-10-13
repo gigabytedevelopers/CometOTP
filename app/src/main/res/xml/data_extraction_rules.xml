@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Android's backup and device-to-device transfer, from Android 12: everything as before,
-     except the removed accounts (RecycleBin), which backups leave out. -->
+     except the removed accounts (RecycleBin) and the paired browsers (BrowserStore), which backups
+     and transfers leave out. -->
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="file" path="removed.dat" />
+        <exclude domain="file" path="browsers.dat" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="file" path="removed.dat" />
+        <exclude domain="file" path="browsers.dat" />
     </device-transfer>
 </data-extraction-rules>
