@@ -5,7 +5,7 @@ Five workflows live in `.github/workflows`:
 | Workflow | File | When it runs |
 | --- | --- | --- |
 | CI | `ci.yml` | Every pull request, and every push to `master` |
-| Request review | `request-review.yml` | Every pull request that is not a draft; asks `@princesseke` to review |
+| Repository security | `repository-security.yml` | Every pull request and push; rejects editor autorun, disguised payloads and committed credentials |
 | Auto release | `auto-release.yml` | After CI passes on `master`; signs and pushes a new version tag as `@enwokoma` |
 | Release Android | `release-android.yml` | Publishes directly to Play production on a signed `v*` tag pushed by `@enwokoma`, or dispatched by `@enwokoma` on that tag |
 | Release iOS | `release-ios.yml` | Submits directly to App Review and releases after approval, but **switched off** until an iOS target and credentials are available |
@@ -79,15 +79,22 @@ pull request to `master` works too, but the base change dismisses its approval.
 
 ### Who reviews
 
-`@princesseke` reviews every pull request. She is not an owner: she is the reviewer because GitHub
-never lets the author of a pull request approve it, so the owners cannot approve their own work.
-The **Request review** workflow asks her on every pull request that is not a draft, and again on
-each new push, since a push dismisses her earlier approval.
+`@princesseke` reviews every pull request. She is the reviewer because GitHub never lets the author
+of a pull request approve it, so the owners cannot approve their own work.
 
-The owners, `@gigabytedevelopersinc` and `@enwokoma`, are listed in `.github/CODEOWNERS`. GitHub
-asks them for a review too (never the author), but the ruleset does not require a code owner's
-approval, only one approving review from someone with write access. That is what lets Princess's
-approval count. A pull request Princess opens is not sent to her; either owner approves it.
+She is listed in `.github/CODEOWNERS` with the owners, `@gigabytedevelopersinc` and `@enwokoma`, so
+GitHub asks all three (never the author) when a pull request is opened. GitHub makes those requests
+itself, so they show as coming from the pull request's author; no workflow or token is involved,
+and nothing appears as `github-actions`. The ruleset does not require a code owner's approval, only
+one approving review from someone with write access, which is what lets Princess's approval count.
+A pull request Princess opens is not sent to her; either owner approves it.
+
+A new push dismisses her approval but does not ask her again. Ask her yourself, so the request is
+yours too:
+
+```bash
+gh pr edit <number> --add-reviewer princesseke
+```
 
 Owners must be user accounts or `@org/team` names with write access. The organisation
 `@gigabytedevelopers` is neither, and while the file named it, no review was ever requested
@@ -212,15 +219,10 @@ when the original workflow actor is `@enwokoma`. A rerun retains the original ac
 an old bot-started release does not repair its attribution. Start a new manual run as yourself
 on a signed tag instead.
 
-The request-review workflow also uses your token. CI needs no personal token or signing key;
-its actor remains whoever performed the real push or PR event. GitHub Actions still provides
+No workflow requests reviews: GitHub requests them from `.github/CODEOWNERS` under the pull
+request author's name (see [Who reviews](#who-reviews)). CI needs no personal token or signing
+key; its actor remains whoever performed the real push or PR event. GitHub Actions still provides
 and identifies the check runs. Contributions by other people retain their own attribution.
-
-Review requests use `pull_request_target`, which runs the workflow on `master`. A workflow fix
-inside an open PR therefore does not change the actor of its own automatic review requests.
-After this change is reviewed and merged, the workflow validates `RELEASE_OWNER_TOKEN` as
-`enwokoma` and requests Princess under that account. Until then, request review directly while
-authenticated as `enwokoma`. Rerunning an old bot workflow does not switch its credentials.
 Existing bot-authored timeline events remain part of the PR history.
 
 Existing Actions runs and deployment records retain their original actor. A release's author
