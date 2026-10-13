@@ -1,6 +1,7 @@
 @file:Suppress("PackageName")
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
+import java.nio.ByteBuffer
 import java.security.AlgorithmParameters
 import java.security.Key
 import java.security.NoSuchAlgorithmException
@@ -85,6 +86,13 @@ class AndroidGcmCipherSpi : CipherSpi() {
 
     override fun engineInit(opmode: Int, key: Key, params: AlgorithmParameters?, random: SecureRandom?) =
         delegate.init(opmode, aes(key), params, random)
+
+    // Associated data (GCM's AAD) passes through too; without these the adapter refused it.
+    override fun engineUpdateAAD(src: ByteArray, offset: Int, len: Int) =
+        delegate.updateAAD(src, offset, len)
+
+    override fun engineUpdateAAD(src: ByteBuffer) =
+        delegate.updateAAD(src)
 
     override fun engineUpdate(input: ByteArray?, inputOffset: Int, inputLen: Int): ByteArray? =
         delegate.update(input, inputOffset, inputLen)
