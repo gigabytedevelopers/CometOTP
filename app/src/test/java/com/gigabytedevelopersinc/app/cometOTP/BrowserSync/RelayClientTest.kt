@@ -12,12 +12,19 @@ import org.junit.Test
 import java.net.InetSocketAddress
 
 /**
- * RelayClient's requests and how it reads each answer (protocol §6.3), against a stand-in relay on
+ * RelayClient's requests and how it reads each answer (protocol §6.2, §6.3), against a stand-in relay on
  * the JDK's own HTTP server that records what it was sent and answers as told.
  */
 class RelayClientTest {
 
-    private class Recorded(val method: String, val path: String, val authorization: String?, val contentType: String?, val body: ByteArray)
+    private class Recorded(
+        val method: String,
+        val path: String,
+        val query: String?,
+        val authorization: String?,
+        val contentType: String?,
+        val body: ByteArray,
+    )
 
     private lateinit var server: HttpServer
     private lateinit var relay: String
@@ -32,6 +39,7 @@ class RelayClientTest {
             requests.add(Recorded(
                 exchange.requestMethod,
                 exchange.requestURI.path,
+                exchange.requestURI.rawQuery,
                 exchange.requestHeaders.getFirst("Authorization"),
                 exchange.requestHeaders.getFirst("Content-Type"),
                 exchange.requestBody.readBytes(),
@@ -137,5 +145,107 @@ class RelayClientTest {
         assertEquals(UploadResult.Failed, client.upload(relay, id, token, ByteArray(10)))
         assertEquals(CreateResult.FAILED, client.createVault(relay, id, ByteArray(32), ByteArray(32)))
         assertEquals(DeleteResult.FAILED, client.delete(relay, id, token))
+    }
+
+    private val channel = "CCCCCCCCCCCCCCCCCCCCCC"
+    private val phoneToken = "P".repeat(43)
+
+    @Test
+    fun claimsAChannelWithTheHello() {
+        answer(201, """{"seq":1,"token":"$phoneToken"}""")
+        val hello = ByteArray(133) { it.toByte() }
+        assertEquals(ClaimResult.Claimed(phoneToken), client.claim(relay, channel, hello))
+        val sent = requests.single()
+        assertEquals("POST", sent.method)
+        assertEquals("/v1/pair/$channel/to-browser", sent.path)
+        assertEquals(null, sent.authorization)
+        assertEquals("application/json", sent.contentType)
+        assertArrayEquals(hello, SyncEncoding.fromBase64Url(JSONObject(String(sent.body)).getString("m")))
+
+        answer(409, """{"error":"claimed"}""")
+        assertEquals(ClaimResult.AlreadyClaimed, client.claim(relay, channel, hello))
+        answer(410, """{"error":"expired"}""")
+        assertEquals(ClaimResult.Expired, client.claim(relay, channel, hello))
+        answer(404, """{"error":"not_found"}""")
+        assertEquals(ClaimResult.Expired, client.claim(relay, channel, hello))
+        answer(409, """{"error":"full"}""")
+        assertEquals(ClaimResult.Failed, client.claim(relay, channel, hello))
+        answer(201, """{"seq":1}""")
+        assertEquals(ClaimResult.Failed, client.claim(relay, channel, hello))
+        answer(429, """{"error":"rate_limited"}""")
+        assertEquals(ClaimResult.Failed, client.claim(relay, channel, hello))
+    }
+
+    @Test
+    fun postsLaterFramesWithThePhonesToken() {
+        answer(201, """{"seq":2}""")
+        val frame = ByteArray(40) { 7 }
+        assertEquals(PostResult.POSTED, client.post(relay, channel, phoneToken, frame))
+        val sent = requests.single()
+        assertEquals("POST", sent.method)
+        assertEquals("/v1/pair/$channel/to-browser", sent.path)
+        assertEquals("Bearer $phoneToken", sent.authorization)
+        assertArrayEquals(frame, SyncEncoding.fromBase64Url(JSONObject(String(sent.body)).getString("m")))
+
+        for (ended in listOf(401 to "unauthorized", 404 to "not_found", 409 to "full", 410 to "expired")) {
+            answer(ended.first, """{"error":"${ended.second}"}""")
+            assertEquals(PostResult.ENDED, client.post(relay, channel, phoneToken, frame))
+        }
+        answer(429, """{"error":"rate_limited"}""")
+        assertEquals(PostResult.FAILED, client.post(relay, channel, phoneToken, frame))
+        answer(502, "")
+        assertEquals(PostResult.FAILED, client.post(relay, channel, phoneToken, frame))
+    }
+
+    @Test
+    fun pollsForTheBrowsersMessages() {
+        val one = ByteArray(45) { 1 }
+        val two = ByteArray(45) { 2 }
+        answer(200, """{"messages":[{"seq":1,"m":"${SyncEncoding.toBase64Url(one)}"},{"seq":2,"m":"${SyncEncoding.toBase64Url(two)}"}]}""")
+        val result = client.poll(relay, channel, phoneToken, 0) as PollResult.Messages
+        assertEquals(listOf(1, 2), result.messages.map { it.seq })
+        assertArrayEquals(one, result.messages[0].frame)
+        assertArrayEquals(two, result.messages[1].frame)
+        val sent = requests.single()
+        assertEquals("GET", sent.method)
+        assertEquals("/v1/pair/$channel/to-phone", sent.path)
+        assertEquals("after=0", sent.query)
+        assertEquals("Bearer $phoneToken", sent.authorization)
+
+        answer(200, """{"messages":[]}""")
+        assertEquals(0, (client.poll(relay, channel, phoneToken, 1) as PollResult.Messages).messages.size)
+        assertEquals("after=1", requests.last().query)
+
+        answer(410, """{"error":"expired"}""")
+        assertEquals(PollResult.Ended, client.poll(relay, channel, phoneToken, 1))
+        answer(401, """{"error":"unauthorized"}""")
+        assertEquals(PollResult.Ended, client.poll(relay, channel, phoneToken, 1))
+        answer(503, "")
+        assertEquals(PollResult.Failed, client.poll(relay, channel, phoneToken, 1))
+        answer(200, """{"messages":[{"seq":1,"m":"not base64url!"}]}""")
+        assertEquals(PollResult.Failed, client.poll(relay, channel, phoneToken, 0))
+        answer(200, """{"messages":[{"m":"AAAA"}]}""")
+        assertEquals(PollResult.Failed, client.poll(relay, channel, phoneToken, 0))
+        answer(200, """{"nothing":true}""")
+        assertEquals(PollResult.Failed, client.poll(relay, channel, phoneToken, 0))
+    }
+
+    @Test
+    fun closesAChannel() {
+        answer(204)
+        client.closeChannel(relay, channel, phoneToken)
+        val sent = requests.single()
+        assertEquals("DELETE", sent.method)
+        assertEquals("/v1/pair/$channel", sent.path)
+        assertEquals("Bearer $phoneToken", sent.authorization)
+    }
+
+    @Test
+    fun anUnreachableRelayFailsEveryChannelCall() {
+        server.stop(0)
+        assertEquals(ClaimResult.Failed, client.claim(relay, channel, ByteArray(133)))
+        assertEquals(PostResult.FAILED, client.post(relay, channel, phoneToken, ByteArray(40)))
+        assertEquals(PollResult.Failed, client.poll(relay, channel, phoneToken, 0))
+        client.closeChannel(relay, channel, phoneToken)
     }
 }
