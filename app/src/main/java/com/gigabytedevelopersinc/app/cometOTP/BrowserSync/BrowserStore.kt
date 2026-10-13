@@ -134,6 +134,14 @@ object BrowserStore {
         }
     }
 
+    /** [browsers] with the one sharing [browser]'s vault id replaced by it; null when there is none. */
+    internal fun withReplaced(browsers: List<PairedBrowser>, browser: PairedBrowser): MutableList<PairedBrowser>? {
+        val i = browsers.indexOfFirst { it.vaultId == browser.vaultId }
+        if (i < 0)
+            return null
+        return browsers.toMutableList().also { it[i] = browser }
+    }
+
     /* The file */
 
     private fun file(context: Context): File = File(context.filesDir, Constants.FILENAME_BROWSERS)
@@ -163,6 +171,17 @@ object BrowserStore {
                 browsers[i] = browser
             else
                 browsers.add(browser)
+            return write(file(context), browsers, key)
+        }
+    }
+
+    /**
+     * Replaces the browser with [browser]'s vault id, if it is still there: a browser removed
+     * while its upload was under way is not brought back. False if nothing was replaced.
+     */
+    fun update(context: Context, browser: PairedBrowser, key: SecretKey): Boolean {
+        synchronized(DatabaseHelper.DatabaseFileLock) {
+            val browsers = withReplaced(load(context, key), browser) ?: return false
             return write(file(context), browsers, key)
         }
     }

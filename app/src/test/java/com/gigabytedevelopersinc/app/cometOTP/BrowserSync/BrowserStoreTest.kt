@@ -110,6 +110,15 @@ class BrowserStoreTest {
         assertFalse(file.exists())
     }
 
+    @Test
+    fun anUpdateOnlyReplacesABrowserThatIsStillThere() {
+        val both = listOf(browser(1), browser(2))
+        assertEquals(listOf(browser(1), browser(2).copy(version = 3)), BrowserStore.withReplaced(both, browser(2).copy(version = 3)))
+        // Removed while its upload was under way: the update must not bring it back.
+        assertNull(BrowserStore.withReplaced(listOf(browser(2)), browser(1).copy(version = 9)))
+        assertEquals(listOf(browser(1), browser(2)), both)
+    }
+
     /** A restored or transferred phone must pair its browsers again, so neither may carry the file. */
     @Test
     fun backupsAndDeviceTransfersLeaveTheFileOut() {
