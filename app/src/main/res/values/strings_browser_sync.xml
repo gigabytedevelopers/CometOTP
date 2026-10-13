@@ -36,4 +36,12 @@
         <item quantity="other">and %d services you have deleted since</item>
     </plurals>
     <string name="extensions_add_test">Add a test browser</string>
+
+    <!-- Pairing a browser: before the scanner, the scanner, then PairBrowserActivity -->
+    <string name="scan_pair_title">Pair a browser</string>
+    <string name="scan_pair_hint">Point your camera at the QR code in the CometOTP extension</string>
+    <string name="scan_not_pairing">That QR code is not from the CometOTP extension. Try another.</string>
+    <string name="scan_pair_update">That code needs a newer version of CometOTP. Update the app, then try again.</string>
+    <string name="scan_pairing_code_here">That code pairs a browser. Use Pair a browser in Security → Connected extensions.</string>
+    <string name="scan_pair_privacy_msg">CometOTP reads the QR code here on your phone. No picture of it is saved. The code only lets this phone and the browser find each other through the relay: none of your services are shared until you tap Pair.</string>
 </resources>

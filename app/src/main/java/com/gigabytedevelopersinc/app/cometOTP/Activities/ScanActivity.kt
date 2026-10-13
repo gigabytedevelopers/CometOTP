@@ -21,6 +21,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserSync
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserSyncException
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.Pairing
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.TestBrowsers
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.GoogleAuthMigration
@@ -33,9 +37,10 @@ import com.journeyapps.barcodescanner.BarcodeView
 import com.journeyapps.barcodescanner.DefaultDecoderFactory
 
 /**
- * The scanner: the camera full screen with a viewfinder, reading one QR code for a service.
+ * The scanner: the camera full screen with a viewfinder, reading one QR code for a service, or
+ * with [EXTRA_PAIRING] a browser's pairing code.
  *
- * A code for a service finishes it with RESULT_OK and the code in [takeResult], kept in memory
+ * A code of the kind wanted finishes it with RESULT_OK and the code in [takeResult], kept in memory
  * so its secret never travels in an Intent; the caller confirms it before anything is added.
  * Any other code is named as such under the viewfinder, in red and with two blinks, while the
  * camera goes on looking; the hint comes back once no code has been in view for a moment.
@@ -57,6 +62,8 @@ class ScanActivity : ThemedActivity() {
     private var torchOn = false
     private var askedForCamera = false
     private var cameraBlocked = false
+    private var pairing = false
+    private var hint = R.string.scan_hint
 
     /** A code in view is decoded again on every frame: each is looked at once. */
     private var lastText: String? = null
@@ -64,7 +71,7 @@ class ScanActivity : ThemedActivity() {
     private val resetStatus = Runnable {
         lastText = null
         status.setTextColor(hintColor)
-        status.setText(R.string.scan_hint)
+        status.setText(hint)
     }
 
     private val cameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -85,6 +92,13 @@ class ScanActivity : ThemedActivity() {
         permissionPanel = findViewById(R.id.scanPermission)
         hintColor = status.currentTextColor
         ViewCompat.setAccessibilityHeading(findViewById(R.id.scanTitle), true)
+        pairing = intent.getBooleanExtra(EXTRA_PAIRING, false)
+        if (pairing) {
+            hint = R.string.scan_pair_hint
+            findViewById<TextView>(R.id.scanTitle).setText(R.string.scan_pair_title)
+            status.setText(hint)
+            camera.contentDescription = getString(hint)
+        }
 
         camera.decoderFactory = DefaultDecoderFactory(listOf(BarcodeFormat.QR_CODE))
         camera.decodeContinuous(BarcodeCallback { result -> onDecoded(result.text) })
@@ -95,7 +109,7 @@ class ScanActivity : ThemedActivity() {
         findViewById<View>(R.id.scanPrivacyMore).setOnClickListener {
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.scan_privacy_title)
-                .setMessage(R.string.scan_privacy_msg)
+                .setMessage(if (pairing) R.string.scan_pair_privacy_msg else R.string.scan_privacy_msg)
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         }
@@ -179,8 +193,9 @@ class ScanActivity : ThemedActivity() {
             return
         lastText = text
 
-        if (!isServiceCode(text)) {
-            showNotService()
+        val problem = if (pairing) pairingProblem(text) else serviceProblem(text)
+        if (problem != 0) {
+            showProblem(problem)
             return
         }
 
@@ -192,9 +207,26 @@ class ScanActivity : ThemedActivity() {
         finish()
     }
 
-    /** Says, in red and with two blinks, that the code in view is not one to add. */
-    private fun showNotService() {
-        status.setText(R.string.scan_not_service)
+    /** Why [text] is not a service to add, or 0 when it is one. */
+    private fun serviceProblem(text: String): Int = when {
+        isServiceCode(text) -> 0
+        Pairing.isPairingUri(text) && BrowserSync.isAvailable(this) -> R.string.scan_pairing_code_here
+        else -> R.string.scan_not_service
+    }
+
+    /** Why [text] is not a browser's pairing code to answer, or 0 when it is one. */
+    private fun pairingProblem(text: String): Int = try {
+        // Debug builds pair with the relay on the development computer, over plain http.
+        Pairing.parseUri(text, allowInsecureRelay = TestBrowsers.AVAILABLE)
+        0
+    } catch (e: BrowserSyncException) {
+        if (e.reason == BrowserSyncException.Reason.UNSUPPORTED_VERSION) R.string.scan_pair_update
+        else R.string.scan_not_pairing
+    }
+
+    /** Says, in red and with two blinks, why the code in view is not one to take. */
+    private fun showProblem(message: Int) {
+        status.setText(message)
         status.setTextColor(Tools.getThemeColor(this, androidx.appcompat.R.attr.colorError))
         ObjectAnimator.ofFloat(status, View.ALPHA, 1f, 0.2f, 1f, 0.2f, 1f)
             .setDuration(ERROR_BLINK_MS)
@@ -216,6 +248,9 @@ class ScanActivity : ThemedActivity() {
     }
 
     companion object {
+        /** Boolean extra: scan a browser's pairing code (protocol §3.1) rather than a service. */
+        const val EXTRA_PAIRING = "pairing"
+
         /** How long after the last code decoded the hint comes back. */
         private const val STATUS_RESET_MS = 1500L
         private const val ERROR_BLINK_MS = 700L
