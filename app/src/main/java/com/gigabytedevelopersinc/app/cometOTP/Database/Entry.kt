@@ -60,6 +60,11 @@ class Entry {
     /** The initials tile's colour, or 0 for the one picked from the issuer. Saved only when set. */
     @ColorInt
     var badgeColor = 0
+    /**
+     * Whether paired browsers may get this service, when its type allows it at all
+     * ([canShowInBrowser]). On unless switched off in the edit sheet; saved only when off.
+     */
+    var browserExtension = true
     var color = COLOR_DEFAULT
     var pin = ""
     var listId: Long = 0
@@ -263,6 +268,7 @@ class Entry {
 
         this.initials = jsonObj.optString(JSON_INITIALS, "").take(MAX_INITIALS)
         this.badgeColor = jsonObj.optInt(JSON_BADGE_COLOR, 0)
+        this.browserExtension = jsonObj.optBoolean(JSON_BROWSER_EXTENSION, true)
     }
 
     @Throws(JSONException::class)
@@ -294,6 +300,8 @@ class Entry {
             jsonObj.put(JSON_INITIALS, initials)
         if (badgeColor != 0)
             jsonObj.put(JSON_BADGE_COLOR, badgeColor)
+        if (!browserExtension)
+            jsonObj.put(JSON_BROWSER_EXTENSION, false)
 
         return jsonObj
     }
@@ -351,6 +359,17 @@ class Entry {
 
     val isCounterBased: Boolean
         get() = type == OTPType.HOTP
+
+    /**
+     * Whether a browser could show this service's codes at all. Its copy is read-only, so it
+     * could not keep an HOTP counter in step with the phone, and mOTP needs its PIN typed.
+     */
+    val canShowInBrowser: Boolean
+        get() = type == OTPType.TOTP || type == OTPType.STEAM
+
+    /** Whether paired browsers get this service. */
+    val showsInBrowser: Boolean
+        get() = browserExtension && canShowInBrowser
 
     val secretEncoded: String
         get() = if (type == OTPType.MOTP)
@@ -522,6 +541,7 @@ class Entry {
         private const val JSON_TAGS = "tags"
         private const val JSON_INITIALS = "initials"
         private const val JSON_BADGE_COLOR = "badge_color"
+        private const val JSON_BROWSER_EXTENSION = "browser_extension"
 
         /** The most characters the initials tile shows. */
         const val MAX_INITIALS = 2

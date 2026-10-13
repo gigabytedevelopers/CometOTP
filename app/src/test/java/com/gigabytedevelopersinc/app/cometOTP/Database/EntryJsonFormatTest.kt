@@ -11,6 +11,7 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Locale
 
@@ -298,6 +299,42 @@ class EntryJsonFormatTest {
         assertEquals("AB", long.initials)
     }
 
+    /**
+     * Whether paired browsers get a service is on unless switched off, and saved only when off, so
+     * entries are written as before and older ones load with it on.
+     */
+    @Test
+    fun browserExtensionIsSavedOnlyWhenOff() {
+        val plain = Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"l","issuer":"GitHub"}"""))
+        assertTrue(plain.browserExtension)
+        assertFalse(plain.toJSON().has("browser_extension"))
+
+        plain.browserExtension = false
+        assertFalse(plain.toJSON().getBoolean("browser_extension"))
+        assertRoundTrip(plain)
+
+        plain.browserExtension = true
+        assertFalse(plain.toJSON().has("browser_extension"))
+    }
+
+    /** Only time-based services with no PIN can be shown in a browser, whatever the switch says. */
+    @Test
+    fun onlyTotpAndSteamServicesCanBeShownInABrowser() {
+        val canShow = mapOf(
+            Entry.OTPType.TOTP to true,
+            Entry.OTPType.STEAM to true,
+            Entry.OTPType.HOTP to false,
+            Entry.OTPType.MOTP to false,
+        )
+        for ((type, expected) in canShow) {
+            val entry = Entry(JSONObject("""{"secret":"JBSWY3DPEHPK3PXP","label":"l","type":"$type","period":30,"counter":1}"""))
+            assertEquals(type.name, expected, entry.canShowInBrowser)
+            assertEquals(type.name, expected, entry.showsInBrowser)
+            entry.browserExtension = false
+            assertFalse(type.name, entry.showsInBrowser)
+        }
+    }
+
     private fun assertRoundTrip(original: Entry) {
         val json = original.toJSON()
         val reloaded = Entry(JSONObject(json.toString()))
@@ -309,6 +346,7 @@ class EntryJsonFormatTest {
         assertEquals(original.usedFrequency, reloaded.usedFrequency)
         assertEquals(original.initials, reloaded.initials)
         assertEquals(original.badgeColor, reloaded.badgeColor)
+        assertEquals(original.browserExtension, reloaded.browserExtension)
         assertJson(json.toString(), reloaded.toJSON())
     }
 
