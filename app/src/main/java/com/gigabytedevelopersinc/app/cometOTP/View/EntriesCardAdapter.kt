@@ -25,6 +25,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.gigabytedevelopersinc.app.cometOTP.Activities.MainActivity
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserSync
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.VaultPayload
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Database.EntryList
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.BulkTagsDialog
@@ -217,10 +219,27 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             return
         }
 
-        DatabaseHelper.saveDatabase(context, entryList.entries, sharedEncryptionKey)
+        if (DatabaseHelper.saveDatabase(context, entryList.entries, sharedEncryptionKey))
+            syncBrowsers(cleanUpPending = false)
 
         if (auto_backup)
             autoSync()
+    }
+
+    /**
+     * Brings paired browsers' vaults up to date in the background (BrowserSync), a moment after
+     * the last of a burst of edits and once the database is open. The services are read here, on
+     * the main thread, where the list is changed.
+     */
+    private fun syncBrowsers(cleanUpPending: Boolean) {
+        val key = sharedEncryptionKey ?: return
+        if (!BrowserSync.isAvailable(context) || !BrowserSync.hasBrowsers(context) || BrowserSync.isPaused(settings))
+            return
+        val appContext = context.applicationContext
+        val services = VaultPayload.services(entryList.entries)
+        browserSyncQueue.submit(BROWSER_SYNC_DELAY_MS) {
+            BrowserSync.sync(appContext, services, key, cleanUpPending)
+        }
     }
 
     /**
@@ -311,6 +330,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                 databaseLoaded = true
                 entryList.updateEntries(newEntries, true)
                 backUpIfDue()
+                syncBrowsers(cleanUpPending = true)
             } else {
                 // Whatever is on screen stays, but nothing is saved until a load succeeds.
                 databaseLoaded = false
@@ -1110,6 +1130,12 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
         // Shared like the key: a backup started by one adapter instance must stop the next
         // instance (after the activity is recreated) from starting a second one.
         private val backupQueue = InProcessBackupQueue(Executors.newSingleThreadScheduledExecutor())
+
+        // Uploads to paired browsers: debounced like a backup, retried every few minutes while the
+        // app is open if the relay cannot be reached.
+        private const val BROWSER_SYNC_DELAY_MS = 2_000L
+        private const val BROWSER_SYNC_RETRY_MS = 5 * 60 * 1000L
+        private val browserSyncQueue = InProcessBackupQueue(Executors.newSingleThreadScheduledExecutor(), BROWSER_SYNC_RETRY_MS)
         private val backupResultHandler = Handler(Looper.getMainLooper())
     }
 }
