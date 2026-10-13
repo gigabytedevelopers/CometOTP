@@ -103,6 +103,24 @@
 
         </LinearLayout>
 
+        <!-- The browsers paired with CometOTP (ConnectedExtensionsActivity), while browser sync is
+             available -->
+        <LinearLayout
+            android:id="@+id/row_extensions_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <include
+                android:id="@+id/row_extensions"
+                layout="@layout/item_setting_row" />
+
+            <View style="@style/Widget.Comet.Divider" />
+
+        </LinearLayout>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/security_remove"
             style="@style/Widget.Comet.Button.Text.Danger"

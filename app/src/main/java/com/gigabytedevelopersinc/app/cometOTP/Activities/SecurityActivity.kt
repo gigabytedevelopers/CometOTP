@@ -19,6 +19,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserStore
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserSync
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.PairedBrowser
 import com.gigabytedevelopersinc.app.cometOTP.Dialogs.ResultDialog
 import com.gigabytedevelopersinc.app.cometOTP.R
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.BiometricUnlock
@@ -59,6 +62,8 @@ class SecurityActivity : BaseActivity() {
     private lateinit var biometricSubtitle: TextView
     private lateinit var biometricSwitch: MaterialSwitch
     private lateinit var removeButton: MaterialButton
+    private lateinit var extensionsGroup: View
+    private lateinit var rowExtensions: View
 
     private val setupLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -111,10 +116,13 @@ class SecurityActivity : BaseActivity() {
         biometricSwitch = v.findViewById(R.id.switch_biometric)
         rowBiometric.setOnClickListener { toggleBiometric() }
         removeButton = v.findViewById(R.id.security_remove)
+        extensionsGroup = v.findViewById(R.id.row_extensions_group)
+        rowExtensions = v.findViewById(R.id.row_extensions)
 
         bindRow(rowPin, R.drawable.ic_dialpad, R.string.security_row_pin) { select(AuthMethod.PIN) }
         bindRow(rowPassword, R.drawable.ic_lock_outline, R.string.security_row_password) { select(AuthMethod.PASSWORD) }
         bindRow(rowDevice, R.drawable.ic_screen_lock, R.string.security_row_device) { select(AuthMethod.DEVICE) }
+        bindRow(rowExtensions, R.drawable.ic_computer, R.string.extensions_title) { openExtensions() }
         removeButton.setOnClickListener { confirmRemove() }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -145,6 +153,26 @@ class SecurityActivity : BaseActivity() {
             data.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, encryptionKey.encoded)
         setResult(RESULT_OK, data)
         finish()
+    }
+
+    /** Connected extensions, with how many browsers are paired; only while browser sync is available. */
+    private fun refreshExtensions() {
+        val available = BrowserSync.isAvailable(this)
+        extensionsGroup.visibility = if (available) View.VISIBLE else View.GONE
+        if (!available)
+            return
+        val key = encryptionKey
+        val count = if (key != null) BrowserStore.load(this, key).count { it.state != PairedBrowser.State.REMOVING } else 0
+        val subtitle = rowExtensions.findViewById<TextView>(R.id.row_subtitle)
+        subtitle.text = if (count > 0) resources.getQuantityString(R.plurals.extensions_count, count, count)
+            else getString(R.string.extensions_none)
+        subtitle.visibility = View.VISIBLE
+    }
+
+    private fun openExtensions() {
+        val intent = Intent(this, ConnectedExtensionsActivity::class.java)
+        encryptionKey?.let { intent.putExtra(Constants.EXTRA_SETTINGS_ENCRYPTION_KEY, it.encoded) }
+        startActivity(intent)
     }
 
     private fun bindRow(row: View, icon: Int, title: Int, action: Runnable) {
@@ -404,6 +432,8 @@ class SecurityActivity : BaseActivity() {
         // A biometric may have been added, or removed, in the phone's settings meanwhile.
         if (::rowBiometric.isInitialized)
             refreshBiometric()
+        if (::rowExtensions.isInitialized)
+            refreshExtensions()
         credentialJob.onResume(this)
         if (credentialJob.isBusy)
             showProgress()
