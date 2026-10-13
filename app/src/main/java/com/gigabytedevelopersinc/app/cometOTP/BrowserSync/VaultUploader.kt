@@ -14,8 +14,13 @@ class VaultUploader(private val relay: Relay, private val now: () -> Long = Syst
      */
     class Outcome(val browser: PairedBrowser?, val retry: Boolean)
 
-    fun upload(browser: PairedBrowser, phone: String, services: List<SyncService>): Outcome {
-        if (browser.state != PairedBrowser.State.PAIRED)
+    /**
+     * Uploads to a paired browser. With [pairing], uploads version 1 for a pairing still under way
+     * (protocol §3.4), which is otherwise left alone.
+     */
+    fun upload(browser: PairedBrowser, phone: String, services: List<SyncService>, pairing: Boolean = false): Outcome {
+        val expected = if (pairing) PairedBrowser.State.PENDING else PairedBrowser.State.PAIRED
+        if (browser.state != expected)
             return Outcome(browser, retry = false)
         val hash = VaultPayload.hash(phone, services)
         if (hash == browser.payloadHash)

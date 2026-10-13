@@ -83,6 +83,21 @@ class VaultUploaderTest {
     }
 
     @Test
+    fun uploadsVersionOneForAPairingUnderWay() {
+        val pending = browser.copy(state = State.PENDING, version = 0)
+        val relay = ScriptedRelay(UploadResult.Stored(1, null))
+        val outcome = uploader(relay).upload(pending, "Pixel 7", services, pairing = true)
+        assertEquals(State.PENDING, outcome.browser!!.state)
+        assertEquals(1, outcome.browser!!.version)
+        assertEquals(listOf(1L), relay.blobs.map { SyncVault.version(it) })
+
+        // Only a pending pairing: a paired browser is not uploaded to as part of a pairing.
+        val other = ScriptedRelay()
+        assertSame(browser, uploader(other).upload(browser, "Pixel 7", services, pairing = true).browser)
+        assertTrue(other.blobs.isEmpty())
+    }
+
+    @Test
     fun catchesUpOnceWhenTheRelayIsAhead() {
         val relay = ScriptedRelay(UploadResult.Stale(9), UploadResult.Stored(10, null))
         val outcome = uploader(relay).upload(browser, "Pixel 7", services)

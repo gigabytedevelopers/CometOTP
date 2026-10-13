@@ -101,12 +101,15 @@ object Pairing {
         return relay
     }
 
+    /** Whether [text] looks like a pairing code at all, whether or not it is a valid one. */
+    fun isPairingUri(text: String): Boolean = text.startsWith(URI_PREFIX)
+
     /**
      * Reads a scanned pairing code. The browser's key is checked on the curve when it is used, by
      * [SyncCrypto.ecdh].
      */
     fun parseUri(uri: String, allowInsecureRelay: Boolean = false): PairingCode {
-        if (!uri.startsWith(URI_PREFIX))
+        if (!isPairingUri(uri))
             throw BrowserSyncException(Reason.BAD_URI, "Not a CometOTP pairing code")
         val params = HashMap<String, String>()
         for (pair in uri.substring(URI_PREFIX.length).split('&')) {

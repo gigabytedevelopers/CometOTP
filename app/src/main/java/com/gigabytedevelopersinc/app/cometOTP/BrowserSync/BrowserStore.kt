@@ -207,6 +207,15 @@ object BrowserStore {
         }
     }
 
+    /** This store, as a pairing under way keeps its browser in it ([PhonePairing]). */
+    fun records(context: Context, key: SecretKey): PhonePairing.Records = object : PhonePairing.Records {
+        override fun put(browser: PairedBrowser) = BrowserStore.put(context, browser, key)
+        override fun update(browser: PairedBrowser) = BrowserStore.update(context, browser, key)
+        override fun remove(vaultId: String) {
+            BrowserStore.remove(context, vaultId, key)
+        }
+    }
+
     /**
      * Marks the pending pairings that can no longer finish (see [splitStalePending]) as being
      * removed, so that their vaults are deleted from the relay like a removed browser's: the
