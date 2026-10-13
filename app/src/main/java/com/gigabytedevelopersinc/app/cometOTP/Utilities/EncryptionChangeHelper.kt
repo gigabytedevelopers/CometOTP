@@ -2,6 +2,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.Utilities
 
 import android.content.Context
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserStore
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import java.io.File
 import javax.crypto.SecretKey
@@ -78,6 +79,7 @@ object EncryptionChangeHelper {
         if (DatabaseHelper.saveDatabase(context, entries, newEncryptionKey)) {
             if (store()) {
                 RecycleBin.reencrypt(context, currentKey, newEncryptionKey)
+                BrowserStore.reencrypt(context, currentKey, newEncryptionKey)
                 return Result(Status.SUCCESS, newEncryptionKey)
             }
 
@@ -86,6 +88,7 @@ object EncryptionChangeHelper {
                 return Result(Status.SAVE_FAILED, null)
             }
             RecycleBin.reencrypt(context, currentKey, newEncryptionKey)
+            BrowserStore.reencrypt(context, currentKey, newEncryptionKey)
             return Result(Status.SUCCESS, newEncryptionKey)
         }
 

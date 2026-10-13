@@ -4,6 +4,7 @@ package com.gigabytedevelopersinc.app.cometOTP.Utilities
 import android.app.backup.BackupManager
 import android.content.Context
 import android.widget.Toast
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserStore
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.R
 import org.json.JSONArray
@@ -18,13 +19,17 @@ object DatabaseHelper {
 
     internal val DatabaseFileLock = Any()
 
-    /** Deletes the database, its internal backup and the removed accounts ([RecycleBin]). */
+    /**
+     * Deletes the database, its internal backup, the removed accounts ([RecycleBin]) and the paired
+     * browsers ([BrowserStore]).
+     */
     fun wipeDatabase(context: Context) {
         val db = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE)
         val dbBackup = File(context.filesDir.toString() + "/" + Constants.FILENAME_DATABASE_BACKUP)
         db.delete()
         dbBackup.delete()
         RecycleBin.wipe(context)
+        BrowserStore.wipe(context)
     }
 
     /** Whether a database has been saved (it can exist and still be unreadable). */
