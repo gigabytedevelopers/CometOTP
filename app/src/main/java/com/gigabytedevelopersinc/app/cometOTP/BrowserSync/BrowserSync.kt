@@ -29,7 +29,8 @@ object BrowserSync {
     /**
      * Uploads to every paired browser whose copy is out of date, on a background thread. With
      * [cleanUpPending] (when CometOTP is opened), first removes pairings that can no longer
-     * finish and deletes their vaults. Returns false when an upload should be tried again later.
+     * finish, deleting their vaults like those of removed browsers. Returns false when an upload
+     * or a deletion should be tried again later.
      */
     fun sync(
         context: Context,
@@ -40,11 +41,8 @@ object BrowserSync {
     ): Boolean {
         if (isPaused(Settings(context)))
             return true
-        if (cleanUpPending) {
-            // Best effort: a vault never downloaded is deleted by the relay within a week anyway.
-            for (stale in BrowserStore.removeStalePending(context, key))
-                relay.delete(stale.relay, stale.vaultId, stale.writeToken)
-        }
+        if (cleanUpPending)
+            BrowserStore.removeStalePending(context, key)
 
         var complete = true
         // Browsers removed while the relay could not be reached: try their deletion again.

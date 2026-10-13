@@ -47,7 +47,10 @@ data class PairedBrowser(
         PAIRED,
         /** The relay no longer knows the vault (401 or 404): the browser has to be paired again. */
         BROKEN,
-        /** Removed on this phone; kept only until the relay has deleted its vault. */
+        /**
+         * Removed on this phone, or a pairing that did not finish; kept only until the relay has
+         * deleted its vault.
+         */
         REMOVING,
     }
 }
@@ -205,16 +208,19 @@ object BrowserStore {
     }
 
     /**
-     * Removes the pending pairings that can no longer finish (see [splitStalePending]) and
-     * returns them, so that their vaults can be deleted from the relay. Run when CometOTP starts.
+     * Marks the pending pairings that can no longer finish (see [splitStalePending]) as being
+     * removed, so that their vaults are deleted from the relay like a removed browser's: the
+     * browser may have stored a vault's details before the phone heard back. Run when CometOTP starts.
      */
-    fun removeStalePending(context: Context, key: SecretKey, now: Long = System.currentTimeMillis()): List<PairedBrowser> {
+    fun removeStalePending(context: Context, key: SecretKey, now: Long = System.currentTimeMillis()) {
         synchronized(DatabaseHelper.DatabaseFileLock) {
-            val browsers = read(file(context), key) ?: return emptyList()
-            val (kept, stale) = splitStalePending(browsers, now)
-            if (stale.isEmpty() || !write(file(context), kept, key))
-                return emptyList()
-            return stale
+            val browsers = read(file(context), key) ?: return
+            val stale = splitStalePending(browsers, now).second.map { it.vaultId }.toSet()
+            if (stale.isEmpty())
+                return
+            write(file(context), browsers.map {
+                if (it.vaultId in stale) it.copy(state = PairedBrowser.State.REMOVING) else it
+            }, key)
         }
     }
 

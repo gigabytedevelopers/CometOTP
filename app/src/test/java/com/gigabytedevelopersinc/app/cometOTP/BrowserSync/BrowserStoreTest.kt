@@ -60,7 +60,7 @@ class BrowserStoreTest {
     }
 
     @Test
-    fun aPendingPairingIsDroppedOnceItsChannelHasExpired() {
+    fun aPendingPairingIsStaleOnceItsChannelHasExpired() {
         val now = 10_000_000L
         val lifetime = BrowserStore.PENDING_LIFETIME_MS
         val paired = browser(1, State.PAIRED, pairedAt = 0)
