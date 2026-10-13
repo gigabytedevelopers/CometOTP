@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Security → Connected extensions: browsers paired with CometOTP -->
+    <string name="extensions_title">Connected extensions</string>
+    <plurals name="extensions_count">
+        <item quantity="one">%d browser</item>
+        <item quantity="other">%d browsers</item>
+    </plurals>
+    <string name="extensions_none">None yet</string>
+    <string name="extensions_empty_title">No browsers connected</string>
+    <string name="extensions_empty_subtitle">Browsers you pair with the CometOTP extension show up here.</string>
+    <string name="extensions_paused">Syncing is paused because CometOTP has no lock. Set one up in Security to keep your browsers up to date.</string>
+
+    <string name="extensions_paired_on">Paired %s</string>
+    <string name="extensions_status_removing">Being removed: waiting for the relay</string>
+    <string name="extensions_status_pending">Pairing did not finish</string>
+    <string name="extensions_status_broken">Lost its connection: pair it again</string>
+    <string name="extensions_status_paused">Not updated while CometOTP has no lock</string>
+    <string name="extensions_status_not_synced">Not updated yet</string>
+    <string name="extensions_status_synced">Updated %s</string>
+    <string name="extensions_status_synced_now">Updated just now</string>
+    <string name="extensions_last_checked">Last checked %s</string>
+
+    <string name="extensions_rename">Rename</string>
+    <string name="extensions_remove">Remove</string>
+    <string name="extensions_retry_remove">Try removing again</string>
+    <string name="extensions_name_hint">Name</string>
+    <string name="extensions_remove_title">Remove %s?</string>
+    <string name="extensions_remove_message">It stops getting your services from this phone and deletes its copy the next time it checks. A computer that is lost, stolen or offline keeps what it already has.</string>
+    <string name="extensions_removed">%s was removed</string>
+    <string name="extensions_remove_pending">Removed here. The relay will be told when CometOTP can reach it.</string>
+    <string name="extensions_had_title">What %s had</string>
+    <string name="extensions_had_advice">If that computer was lost or stolen, turn two-factor authentication off and on again for these services, so that its copy stops working.</string>
+    <plurals name="extensions_had_deleted">
+        <item quantity="one">and %d service you have deleted since</item>
+        <item quantity="other">and %d services you have deleted since</item>
+    </plurals>
+    <string name="extensions_add_test">Add a test browser</string>
+</resources>

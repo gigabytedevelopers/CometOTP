@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Connected extensions (ConnectedExtensionsActivity): the browsers paired with CometOTP. -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- While CometOTP has no lock nothing is sent (BrowserSync.isPaused) -->
+        <TextView
+            android:id="@+id/extensions_paused"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/card_side_margin"
+            android:layout_marginTop="@dimen/space_sm"
+            android:layout_marginEnd="@dimen/card_side_margin"
+            android:background="@drawable/bg_field_outline"
+            android:drawablePadding="@dimen/space_md"
+            android:gravity="center_vertical"
+            android:padding="@dimen/space_md"
+            android:text="@string/extensions_paused"
+            android:textAppearance="@style/TextAppearance.Comet.BodyMedium"
+            android:textColor="?attr/colorOnSurface"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_lock_outline"
+            tools:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/extensions_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="@dimen/space_xs"
+            android:paddingBottom="@dimen/space_lg"
+            android:scrollbars="none" />
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/extensions_empty"
+        layout="@layout/layout_empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -159,4 +159,6 @@
     <dimen name="mi_margin_bottom_pager_indicator">39dp</dimen>
     <dimen name="mi_y_offset">144dp</dimen>
     <dimen name="mi_button_cta_height">48dp</dimen>
+    <!-- Connected extensions' empty state: the computer icon in place of an illustration -->
+    <dimen name="extensions_empty_icon">120dp</dimen>
 </resources>

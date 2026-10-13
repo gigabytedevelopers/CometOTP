@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Connected extensions. "Add a test browser" exists only in debug builds (TestBrowsers). -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/extensions_add_test"
+        android:title="@string/extensions_add_test"
+        android:visible="false"
+        app:showAsAction="never" />
+</menu>
