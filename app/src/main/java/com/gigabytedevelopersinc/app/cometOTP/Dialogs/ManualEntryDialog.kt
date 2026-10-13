@@ -38,6 +38,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import java.util.Locale
@@ -45,8 +46,9 @@ import java.util.TreeSet
 import java.util.concurrent.Callable
 
 /**
- * "Create Service" / "Edit Service" bottom sheet: key, type, issuer, label, tags, an icon picker
- * and the advanced options (period, digits, algorithm, HOTP counter).
+ * "Create Service" / "Edit Service" bottom sheet: key, type, issuer, label, tags, whether paired
+ * browsers get the service, an icon picker and the advanced options (period, digits, algorithm,
+ * HOTP counter).
  */
 object ManualEntryDialog {
     private val TYPES = Entry.OTPType.values()
@@ -114,6 +116,7 @@ object ManualEntryDialog {
         val state = State()
         state.thumbnail = if (isNewEntry) EntryThumbnail.EntryThumbnails.Default else oldEntry!!.thumbnail
         state.autoThumbnail = isNewEntry
+        state.browserExtension = isNewEntry || oldEntry!!.browserExtension
 
         /* --- header ------------------------------------------------------------------------- */
         title.setText(if (isNewEntry) R.string.sheet_title_create_service else R.string.sheet_title_edit_service)
@@ -152,6 +155,9 @@ object ManualEntryDialog {
             showHelp(context, R.string.label_digits,
                     if (state.type == Entry.OTPType.MOTP) R.string.help_digits_motp else R.string.help_digits)
         }
+
+        /* --- browser extension -------------------------------------------------------------- */
+        val refreshBrowserRow = bindBrowserRow(sheet, context, state)
 
         /* --- type dependent fields ---------------------------------------------------------- */
         val applyType = Runnable {
@@ -200,6 +206,7 @@ object ManualEntryDialog {
                 periodInput.isEnabled = false
                 algorithmLayout.isEnabled = false
             }
+            refreshBrowserRow.run()
         }
 
         typeInput.setOnItemClickListener { _, _, position, _ ->
@@ -344,6 +351,7 @@ object ManualEntryDialog {
                     entry.tags = tagsAdapter.activeTags
                     entry.initials = state.initials
                     entry.badgeColor = state.badgeColor
+                    entry.browserExtension = state.browserExtension
                     if (!state.autoThumbnail)
                         entry.thumbnail = state.thumbnail
 
@@ -369,6 +377,7 @@ object ManualEntryDialog {
                     entry.tags = tagsAdapter.activeTags
                     entry.initials = state.initials
                     entry.badgeColor = state.badgeColor
+                    entry.browserExtension = state.browserExtension
                     if (!state.autoThumbnail)
                         entry.thumbnail = state.thumbnail
 
@@ -390,6 +399,7 @@ object ManualEntryDialog {
                     entry.tags = tagsAdapter.activeTags
                     entry.initials = state.initials
                     entry.badgeColor = state.badgeColor
+                    entry.browserExtension = state.browserExtension
                     if (!state.autoThumbnail)
                         entry.thumbnail = state.thumbnail
 
@@ -481,6 +491,7 @@ object ManualEntryDialog {
     private fun finishNewEntry(e: Entry, state: State) {
         if (!state.autoThumbnail)
             e.thumbnail = state.thumbnail
+        e.browserExtension = state.browserExtension
         e.updateOTP(false)
         e.lastUsed = System.currentTimeMillis()
     }
@@ -554,6 +565,49 @@ object ManualEntryDialog {
             Entry.OTPType.STEAM -> context.getString(R.string.type_steam)
             Entry.OTPType.TOTP -> context.getString(R.string.type_totp)
         }
+    }
+
+    /**
+     * Whether browsers paired with CometOTP get this service: a switch, on unless turned off, that
+     * HOTP and mOTP services cannot use, with the reason under it. Shown only while browser sync
+     * is available. Returns what updates the row, run again when the type changes.
+     */
+    private fun bindBrowserRow(sheet: BottomSheetDialog, context: Context, state: State): Runnable {
+        val row = sheet.findViewById<View>(R.id.manual_browser_row)
+        val text = sheet.findViewById<View>(R.id.manual_browser_text)
+        val summary = sheet.findViewById<TextView>(R.id.manual_browser_summary)
+        val switch = sheet.findViewById<MaterialSwitch>(R.id.manual_browser_switch)
+        if (row == null || text == null || summary == null || switch == null
+                || !context.resources.getBoolean(R.bool.browser_sync_available))
+            return Runnable {}
+
+        row.visibility = View.VISIBLE
+        val refresh = Runnable {
+            val canShow = state.type == Entry.OTPType.TOTP || state.type == Entry.OTPType.STEAM
+            // Enabled first, so that setting the state below is not taken for the person's choice.
+            switch.isEnabled = canShow
+            switch.isChecked = canShow && state.browserExtension
+            row.isEnabled = canShow
+            text.alpha = if (canShow) 1f else DISABLED_ALPHA
+            summary.setText(when {
+                state.type == Entry.OTPType.HOTP -> R.string.browser_extension_hotp
+                state.type == Entry.OTPType.MOTP -> R.string.browser_extension_motp
+                state.browserExtension -> R.string.browser_extension_on
+                else -> R.string.browser_extension_off
+            })
+        }
+        switch.setOnCheckedChangeListener { _, checked ->
+            if (switch.isEnabled && checked != state.browserExtension) {
+                state.browserExtension = checked
+                refresh.run()
+            }
+        }
+        row.setOnClickListener {
+            if (switch.isEnabled)
+                switch.toggle()
+        }
+        refresh.run()
+        return refresh
     }
 
     /**
@@ -798,6 +852,7 @@ object ManualEntryDialog {
         var initials = ""
         @ColorInt
         var badgeColor = 0
+        var browserExtension = true
     }
 
     fun interface UpdateCallback {

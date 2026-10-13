@@ -275,6 +275,12 @@
     <string name="personalise_badge_colour">Badge colour</string>
     <string name="personalise_automatic">Automatic</string>
     <string name="personalise_initials_help">Up to 2 characters. Leave it empty to show the first letter of the service.</string>
+    <!-- Edit sheet: whether browsers paired with CometOTP get this service's codes -->
+    <string name="browser_extension">Browser extension</string>
+    <string name="browser_extension_on">Its codes can be shown in browsers you connect</string>
+    <string name="browser_extension_off">Kept on this phone only</string>
+    <string name="browser_extension_hotp">HOTP services stay on this phone: a browser could not keep their counter in step</string>
+    <string name="browser_extension_motp">mOTP services stay on this phone: their PIN is typed each time</string>
     <!-- Edit sheet: the row and dialog showing a service's settings that cannot change -->
     <string name="label_info">Info</string>
     <string name="label_refresh_time">Refresh time</string>
