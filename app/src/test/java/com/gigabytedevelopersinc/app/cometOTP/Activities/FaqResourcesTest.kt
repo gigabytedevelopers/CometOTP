@@ -58,6 +58,17 @@ class FaqResourcesTest {
     }
 
     @Test
+    fun theAnswerFaqReplacesWithBrowserSyncIsTheFirst() {
+        // Faq.kt gives the first answer faq_what_is_body_with_browsers where browser sync is available.
+        assertEquals("What is CometOTP", arrays.getValue("faq_titles").first())
+        val strings = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(File("src/main/res/values/strings_support.xml")).getElementsByTagName("string")
+        val names = (0 until strings.length).map { (strings.item(it) as Element).getAttribute("name") }
+        for (name in listOf("faq_browser_title", "faq_browser_body", "faq_what_is_body_with_browsers"))
+            assertTrue(name, name in names)
+    }
+
+    @Test
     fun turningOn2faLinksToTheServicesPages() {
         val index = arrays.getValue("faq_titles").indexOf("How do I turn on 2FA")
         assertTrue(index >= 0)

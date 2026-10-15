@@ -26,8 +26,9 @@ class FaqDetailActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val titles = resources.getStringArray(R.array.faq_titles)
-        val bodies = resources.getStringArray(R.array.faq_bodies)
+        val faq = Faq.texts(this)
+        val titles = faq.titles
+        val bodies = faq.bodies
         val index = Math.max(0, Math.min(intent.getIntExtra(EXTRA_INDEX, 0), titles.size - 1))
 
         title = ""

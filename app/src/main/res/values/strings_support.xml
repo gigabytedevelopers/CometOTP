@@ -27,6 +27,12 @@
         <item>Your accounts are stored in an encrypted file. The key is either kept in the Android KeyStore (hardware backed on most devices) or derived from your password or PIN, depending on the encryption method you chose during setup.\n\nYou can additionally lock the app from the Security screen, with a PIN or a password of its own (which your fingerprint or face can then stand in for) or with your phone\'s screen lock.</item>
     </string-array>
 
+    <!-- Where browser sync is available (browser_sync.xml), Faq.kt adds this question last, and
+         gives the first one, What is CometOTP, this answer instead. -->
+    <string name="faq_browser_title">Can I use my codes on a computer</string>
+    <string name="faq_browser_body">Yes, with the CometOTP browser extension, for Chrome, Edge, Brave, Firefox and other browsers. It keeps an encrypted, read-only copy of your services, shows their codes, and can fill them into sign-in pages.\n\nTo connect a browser, set a lock in Security first, then go to Security → Connected extensions → Pair a browser and scan the code the extension shows. Pair only if both screens show the same six digits.\n\nEach service has a Browser extension switch in its details, so you choose which ones browsers get. HOTP and mOTP services always stay on your phone. When you change a service, connected browsers get the change.\n\nThe copy is encrypted on this phone with a key that only your phone and that browser have, and it goes through a relay that cannot read it. Removing a browser in Connected extensions deletes its copy the next time it checks. A browser that is lost or stolen keeps what it had, so turn two-factor authentication off and on again for those services.</string>
+    <string name="faq_what_is_body_with_browsers">CometOTP is a simple and free two-factor authenticator. It generates time-based one-time passwords (TOTP), counter-based passwords (HOTP), Steam codes and mOTP codes for the services you protect with two-factor authentication.\n\nEverything is stored encrypted on your device and never leaves it unless you create a backup yourself, or connect a browser, which gets an encrypted copy of the services you share with it.</string>
+
     <!-- An FAQ answer's links, in the order of faq_titles: the names, and their pages
          (faq_link_urls). @null where an answer has none. -->
     <array name="faq_link_names">

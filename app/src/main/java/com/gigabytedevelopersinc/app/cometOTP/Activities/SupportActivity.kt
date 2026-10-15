@@ -30,7 +30,7 @@ class SupportActivity : BaseActivity() {
         val v = stub.inflate()
 
         val list = v.findViewById<LinearLayout>(R.id.faq_list)
-        val titles = resources.getStringArray(R.array.faq_titles)
+        val titles = Faq.texts(this).titles
         val inflater = LayoutInflater.from(this)
 
         for (i in titles.indices) {
