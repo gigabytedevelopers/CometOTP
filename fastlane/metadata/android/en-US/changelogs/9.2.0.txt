@@ -1,0 +1,4 @@
+CometOTP 9.2.0 brings your codes to your computer.
+New: Pair the CometOTP browser extension in Security > Connected extensions to see your codes in Chrome, Edge, Firefox and other browsers, encrypted end to end.
+New: Unlock with your fingerprint, keep removed accounts in a bin for 30 days, and give your services brand icons or initials.
+Improved: A PIN keypad, a full-screen scanner, a cleaner look, and codes kept out of screenshots and clipboard previews.
