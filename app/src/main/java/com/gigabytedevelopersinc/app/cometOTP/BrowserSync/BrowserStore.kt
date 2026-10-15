@@ -40,6 +40,8 @@ data class PairedBrowser(
     val lastRead: String? = null,
     /** The ids ([SyncVault.serviceId]) of the services in the last vault uploaded; null before the first. */
     val sharedIds: List<String>? = null,
+    /** When an upload found the vault gone ([State.DISCONNECTED]), in milliseconds since the epoch. */
+    val disconnectedAt: Long = 0,
 ) {
     enum class State {
         /** Pairing has not finished: the browser has not confirmed it stored the vault's details. */
@@ -52,6 +54,12 @@ data class PairedBrowser(
          * deleted its vault.
          */
         REMOVING,
+        /**
+         * The relay deleted the vault (410): the browser disconnected itself, or did not download
+         * it for 180 days. Nothing is sent to it any more; it is kept only so that Connected
+         * extensions can say so, until the person clears it.
+         */
+        DISCONNECTED,
     }
 }
 
@@ -90,6 +98,8 @@ object BrowserStore {
             b.payloadHash?.let { item.put("hash", it) }
             b.lastRead?.let { item.put("read", it) }
             b.sharedIds?.let { item.put("services", JSONArray(it)) }
+            if (b.disconnectedAt != 0L)
+                item.put("disconnected", b.disconnectedAt)
             json.put(item)
         }
         return json.toString()
@@ -119,6 +129,7 @@ object BrowserStore {
                     uploadedAt = item.optLong("uploaded", 0),
                     lastRead = if (item.has("read")) item.getString("read") else null,
                     sharedIds = item.optJSONArray("services")?.let { ids -> (0 until ids.length()).map(ids::getString) },
+                    disconnectedAt = item.optLong("disconnected", 0),
                 )
                 // Credentials of the wrong size could never be used; leave the browser out.
                 SyncEncoding.fromBase64Url(browser.vaultId, 16, "The vault id")

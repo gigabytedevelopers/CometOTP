@@ -27,10 +27,15 @@ object BrowserSync {
     fun isPaused(settings: Settings): Boolean = settings.authMethod == Constants.AuthMethod.NONE
 
     /**
+     * What a sync did: [complete] is false when an upload or a deletion should be tried again
+     * later; [disconnected] names the browsers it found disconnected, to tell the person.
+     */
+    class Result(val complete: Boolean, val disconnected: List<String> = emptyList())
+
+    /**
      * Uploads to every paired browser whose copy is out of date, on a background thread. With
      * [cleanUpPending] (when CometOTP is opened), first removes pairings that can no longer
-     * finish, deleting their vaults like those of removed browsers. Returns false when an upload
-     * or a deletion should be tried again later.
+     * finish, deleting their vaults like those of removed browsers.
      */
     fun sync(
         context: Context,
@@ -38,9 +43,10 @@ object BrowserSync {
         key: SecretKey,
         cleanUpPending: Boolean,
         relay: Relay = RelayClient(),
-    ): Boolean {
+        now: Long = System.currentTimeMillis(),
+    ): Result {
         if (isPaused(Settings(context)))
-            return true
+            return Result(complete = true)
         if (cleanUpPending)
             BrowserStore.removeStalePending(context, key)
 
@@ -53,17 +59,26 @@ object BrowserSync {
 
         val phone = VaultPayload.phoneName(context)
         val uploader = VaultUploader(relay)
+        val disconnected = ArrayList<String>()
         for (browser in BrowserStore.load(context, key)) {
             val outcome = uploader.upload(browser, phone, services)
-            when {
-                outcome.browser == null -> BrowserStore.remove(context, browser.vaultId, key)
-                outcome.browser != browser -> BrowserStore.update(context, outcome.browser, key)
-            }
+            val kept = afterUpload(browser, outcome, now)
+            if (kept != browser)
+                BrowserStore.update(context, kept, key)
+            if (kept.state == PairedBrowser.State.DISCONNECTED && browser.state != PairedBrowser.State.DISCONNECTED)
+                disconnected.add(browser.name)
             if (outcome.retry)
                 complete = false
         }
-        return complete
+        return Result(complete, disconnected)
     }
+
+    /**
+     * The record to keep after uploading to [browser]. A vault the relay deleted (410) leaves the
+     * browser [PairedBrowser.State.DISCONNECTED] rather than gone, so the person is told (design §6).
+     */
+    internal fun afterUpload(browser: PairedBrowser, outcome: VaultUploader.Outcome, now: Long): PairedBrowser =
+        outcome.browser ?: browser.copy(state = PairedBrowser.State.DISCONNECTED, disconnectedAt = now)
 
     /**
      * Removes [browser]: it is marked [PairedBrowser.State.REMOVING] at once, so it gets no more

@@ -162,7 +162,9 @@ class SecurityActivity : BaseActivity() {
         if (!available)
             return
         val key = encryptionKey
-        val count = if (key != null) BrowserStore.load(this, key).count { it.state != PairedBrowser.State.REMOVING } else 0
+        val count = if (key != null) BrowserStore.load(this, key).count {
+            it.state != PairedBrowser.State.REMOVING && it.state != PairedBrowser.State.DISCONNECTED
+        } else 0
         val subtitle = rowExtensions.findViewById<TextView>(R.id.row_subtitle)
         subtitle.text = if (count > 0) resources.getQuantityString(R.plurals.extensions_count, count, count)
             else getString(R.string.extensions_none)

@@ -217,6 +217,15 @@ class ConnectedExtensionsActivity : BaseActivity() {
     }
 
     private fun showOptions(browser: PairedBrowser) {
+        if (browser.state == PairedBrowser.State.DISCONNECTED) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.extensions_disconnected_title, browser.name))
+                .setMessage(R.string.extensions_disconnected_message)
+                .setPositiveButton(R.string.extensions_clear) { _, _ -> clear(browser) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            return
+        }
         if (browser.state == PairedBrowser.State.REMOVING) {
             MaterialAlertDialogBuilder(this)
                 .setTitle(browser.name)
@@ -230,6 +239,13 @@ class ConnectedExtensionsActivity : BaseActivity() {
                 if (which == 0) rename(browser) else confirmRemove(browser)
             }
             .show()
+    }
+
+    /** Takes a disconnected browser off the list: its vault is gone already, so nothing else is left to do. */
+    private fun clear(browser: PairedBrowser) {
+        val key = encryptionKey ?: return
+        BrowserStore.remove(this, browser.vaultId, key)
+        reload()
     }
 
     private fun rename(browser: PairedBrowser) {
@@ -308,6 +324,8 @@ class ConnectedExtensionsActivity : BaseActivity() {
 
     private fun statusText(browser: PairedBrowser): String {
         val status = when (ConnectedBrowsers.status(browser, BrowserSync.isPaused(settings))) {
+            ConnectedBrowsers.Status.DISCONNECTED -> return getString(R.string.extensions_status_disconnected,
+                DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(browser.disconnectedAt)))
             ConnectedBrowsers.Status.REMOVING -> getString(R.string.extensions_status_removing)
             ConnectedBrowsers.Status.PENDING -> getString(R.string.extensions_status_pending)
             ConnectedBrowsers.Status.BROKEN -> getString(R.string.extensions_status_broken)

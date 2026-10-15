@@ -73,8 +73,8 @@ class VaultUploaderTest {
     }
 
     @Test
-    fun leavesPendingBrokenAndRemovedPairingsAlone() {
-        for (state in listOf(State.PENDING, State.BROKEN, State.REMOVING)) {
+    fun leavesPendingBrokenRemovedAndDisconnectedPairingsAlone() {
+        for (state in listOf(State.PENDING, State.BROKEN, State.REMOVING, State.DISCONNECTED)) {
             val relay = ScriptedRelay()
             val other = browser.copy(state = state)
             assertSame(other, uploader(relay).upload(other, "Pixel 7", services).browser)
@@ -111,8 +111,11 @@ class VaultUploaderTest {
     }
 
     @Test
-    fun aDeletedVaultRemovesThePairingAndALostOneBreaksIt() {
-        assertNull(uploader(ScriptedRelay(UploadResult.Gone)).upload(browser, "Pixel 7", services).browser)
+    fun aDeletedVaultDisconnectsThePairingAndALostOneBreaksIt() {
+        val gone = uploader(ScriptedRelay(UploadResult.Gone)).upload(browser, "Pixel 7", services)
+        assertNull(gone.browser)
+        // What sync keeps of it: disconnected, when, and nothing else changed (design §6).
+        assertEquals(browser.copy(state = State.DISCONNECTED, disconnectedAt = now), BrowserSync.afterUpload(browser, gone, now))
         val lost = uploader(ScriptedRelay(UploadResult.Lost)).upload(browser, "Pixel 7", services)
         assertEquals(State.BROKEN, lost.browser!!.state)
         assertEquals(browser.version, lost.browser!!.version)

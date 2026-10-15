@@ -237,9 +237,23 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             return
         val appContext = context.applicationContext
         val services = VaultPayload.services(entryList.entries)
+        val owner = WeakReference(this)
         browserSyncQueue.submit(BROWSER_SYNC_DELAY_MS) {
-            BrowserSync.sync(appContext, services, key, cleanUpPending)
+            val result = BrowserSync.sync(appContext, services, key, cleanUpPending)
+            if (result.disconnected.isNotEmpty())
+                backupResultHandler.post { owner.get()?.showDisconnected(result.disconnected) }
+            result.complete
         }
+    }
+
+    /** Says that browsers were disconnected (their vaults gone), while CometOTP is open. */
+    private fun showDisconnected(names: List<String>) {
+        val activity = context as MainActivity
+        if (activity.isFinishing || activity.isDestroyed)
+            return
+        val message = if (names.size == 1) context.getString(R.string.extensions_disconnected_snackbar, names[0])
+            else context.resources.getQuantityString(R.plurals.extensions_disconnected_snackbar_many, names.size, names.size)
+        activity.makeSnackbar(message, Snackbar.LENGTH_LONG).show()
     }
 
     /**
