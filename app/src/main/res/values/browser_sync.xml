@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Browser sync (the CometOTP browser extension) is still being built, so release builds
-         leave it out; the debug build sets this in src/debug. On for everyone when it ships. -->
-    <bool name="browser_sync_available">false</bool>
+    <!-- Browser sync (the CometOTP browser extension): Connected extensions in Security, the
+         Browser extension switch on each service, and its FAQ. Set false to leave it out. -->
+    <bool name="browser_sync_available">true</bool>
 </resources>
