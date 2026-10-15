@@ -8,6 +8,8 @@ object ConnectedBrowsers {
 
     /** The one thing a browser's row says about its state, most pressing first. */
     enum class Status {
+        /** The relay deleted its vault: it disconnected itself, or went unused for 180 days. */
+        DISCONNECTED,
         /** Removed here; the relay has yet to delete its copy. */
         REMOVING,
         /** Pairing did not finish. */
@@ -22,6 +24,7 @@ object ConnectedBrowsers {
     }
 
     fun status(browser: PairedBrowser, paused: Boolean): Status = when (browser.state) {
+        PairedBrowser.State.DISCONNECTED -> Status.DISCONNECTED
         PairedBrowser.State.REMOVING -> Status.REMOVING
         PairedBrowser.State.PENDING -> Status.PENDING
         PairedBrowser.State.BROKEN -> Status.BROKEN

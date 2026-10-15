@@ -44,7 +44,9 @@ class BrowserStoreTest {
             sharedIds = listOf("mQq6NvYAZpg7QAw2", "SXvyuudfADeefNlo"))
         val minimal = browser(2, State.PENDING)
         val removing = browser(3, State.REMOVING)
-        assertEquals(listOf(full, minimal, removing), BrowserStore.fromJson(BrowserStore.toJson(listOf(full, minimal, removing))))
+        val disconnected = browser(4, State.DISCONNECTED).copy(disconnectedAt = 9_000L)
+        val all = listOf(full, minimal, removing, disconnected)
+        assertEquals(all, BrowserStore.fromJson(BrowserStore.toJson(all)))
     }
 
     @Test

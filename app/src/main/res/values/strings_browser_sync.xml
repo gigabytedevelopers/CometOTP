@@ -12,6 +12,7 @@
     <string name="extensions_paused">Syncing is paused because CometOTP has no lock. Set one up in Security to keep your browsers up to date.</string>
 
     <string name="extensions_paired_on">Paired %s</string>
+    <string name="extensions_status_disconnected">Disconnected %s · Tap to clear</string>
     <string name="extensions_status_removing">Being removed: waiting for the relay</string>
     <string name="extensions_status_pending">Pairing did not finish</string>
     <string name="extensions_status_broken">Lost its connection: pair it again</string>
@@ -28,6 +29,14 @@
     <string name="extensions_remove_title">Remove %s?</string>
     <string name="extensions_remove_message">It stops getting your services from this phone and deletes its copy the next time it checks. A computer that is lost, stolen or offline keeps what it already has.</string>
     <string name="extensions_removed">%s was removed</string>
+    <string name="extensions_disconnected_title">%s is disconnected</string>
+    <string name="extensions_disconnected_message">It was disconnected in the CometOTP extension, or it had not checked for your services in 180 days, so the relay deleted its copy. Nothing more is sent to it.\n\nTo use your codes there again, pair it again.</string>
+    <string name="extensions_clear">Clear from the list</string>
+    <string name="extensions_disconnected_snackbar">%s is disconnected</string>
+    <plurals name="extensions_disconnected_snackbar_many">
+        <item quantity="one">%d browser is disconnected</item>
+        <item quantity="other">%d browsers are disconnected</item>
+    </plurals>
     <string name="extensions_remove_pending">Removed here. The relay will be told when CometOTP can reach it.</string>
     <string name="extensions_had_title">What %s had</string>
     <string name="extensions_had_advice">If that computer was lost or stolen, turn two-factor authentication off and on again for these services, so that its copy stops working.</string>

@@ -28,6 +28,7 @@ class ConnectedBrowsersTest {
         assertEquals(Status.PENDING, ConnectedBrowsers.status(browser.copy(state = State.PENDING), paused = true))
         assertEquals(Status.BROKEN, ConnectedBrowsers.status(browser.copy(state = State.BROKEN), paused = true))
         assertEquals(Status.REMOVING, ConnectedBrowsers.status(browser.copy(state = State.REMOVING), paused = true))
+        assertEquals(Status.DISCONNECTED, ConnectedBrowsers.status(browser.copy(state = State.DISCONNECTED, disconnectedAt = 1), paused = true))
     }
 
     @Test
