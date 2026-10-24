@@ -96,3 +96,6 @@ lint/tmp/
 # Local tooling and release build artefacts
 .claude/
 app/release/
+
+# Python bytecode from running the release scripts' tests
+__pycache__/

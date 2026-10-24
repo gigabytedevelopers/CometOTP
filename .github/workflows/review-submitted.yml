@@ -1,0 +1,18 @@
+name: Review submitted
+
+# Wakes Auto merge after a review, since an approval that lands after the checks finished would
+# otherwise start nothing. This runs a pull request's copy of the file, so it does nothing at all:
+# no permissions, no secrets, no checkout. Auto merge, started by its completion, runs from master.
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions: {}
+
+jobs:
+  signal:
+    name: Wake Auto merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - run: echo "A review was submitted; Auto merge checks whether anything is ready."

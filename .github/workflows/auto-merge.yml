@@ -1,0 +1,110 @@
+name: Auto merge
+
+# Fast-forwards master to an approved pull request's head, the way .github/RELEASING.md merges by
+# hand, so the commits land exactly as their author signed them. It only pushes a head GitHub
+# itself calls ready: approved on its latest push, every required check green, and up to date with
+# master. The push is enwokoma's, so master's CI, and Auto release after it, start as usual.
+#
+# Only the owners' pull requests are merged this way, and a `hold` label keeps one out. It cannot
+# rebase: a pull request that is behind master waits for a rebase from the author's machine.
+#
+# workflow_run always runs master's copy of this file, never a pull request's, which is what lets
+# the second job read enwokoma's token. Review submitted exists only to wake this up after a review.
+on:
+  workflow_run:
+    workflows: [CI, Repository security, Review submitted]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  # One at a time: each merge can make the next pull request fall behind master.
+  group: auto-merge
+  cancel-in-progress: false
+
+env:
+  AUTO_MERGE_AUTHORS: enwokoma gigabytedevelopersinc
+
+jobs:
+  pick:
+    name: Find a pull request that is ready
+    if: vars.SECURITY_RELEASE_APPROVED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      number: ${{ steps.pick.outputs.number }}
+      sha: ${{ steps.pick.outputs.sha }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Pick the oldest ready pull request
+        id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # GitHub works out a pull request's merge state lazily, so right after a check finishes
+          # it can still say UNKNOWN. Ask again for a minute before giving up until the next event.
+          for attempt in 1 2 3 4 5 6; do
+            gh pr list --repo "$GITHUB_REPOSITORY" --base master --state open --limit 100 \
+              --json number,author,isDraft,isCrossRepository,baseRefName,headRefOid,reviewDecision,mergeStateStatus,labels \
+              > "$RUNNER_TEMP/prs.json"
+            python3 .github/scripts/auto_merge_candidate.py "$RUNNER_TEMP/prs.json" "$AUTO_MERGE_AUTHORS" > "$RUNNER_TEMP/pick"
+            grep -q '^retry=true$' "$RUNNER_TEMP/pick" || break
+            sleep 10
+          done
+          grep -E '^(number|sha)=' "$RUNNER_TEMP/pick" >> "$GITHUB_OUTPUT"
+          number=$(sed -n 's/^number=//p' "$RUNNER_TEMP/pick")
+          if [ -n "$number" ]; then
+            echo "#$number is ready." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No pull request is ready to merge." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  merge:
+    name: Fast-forward master
+    needs: pick
+    if: needs.pick.outputs.number != ''
+    # enwokoma's token lives here. The environment only deploys from master, and this job runs
+    # master's code, which reads nothing from the pull request but its commit id.
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      NUMBER: ${{ needs.pick.outputs.number }}
+      SHA: ${{ needs.pick.outputs.sha }}
+
+    steps:
+      - name: Push the approved head to master
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_OWNER_TOKEN }}
+        run: |
+          # A push by GITHUB_TOKEN would start no workflows, so master would get no CI and no
+          # release; the push has to be enwokoma's.
+          test "$(gh api user --jq .login)" = enwokoma || { echo '::error::RELEASE_OWNER_TOKEN must authenticate as enwokoma.'; exit 1; }
+
+          # Anything that moved since the pick waits for the run its own event starts.
+          state=$(gh pr view "$NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json state,headRefOid,reviewDecision,mergeStateStatus \
+            --jq '[.state, .headRefOid, .reviewDecision, .mergeStateStatus] | join(" ")')
+          if [ "$state" != "OPEN $SHA APPROVED CLEAN" ]; then
+            echo "::notice::#$NUMBER changed since it was picked ($state); leaving it."
+            exit 0
+          fi
+
+          git init -q "$RUNNER_TEMP/repo" && cd "$RUNNER_TEMP/repo"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch -q --no-tags origin \
+            "+refs/heads/master:refs/remotes/origin/master" "+refs/pull/$NUMBER/head:refs/remotes/pr/head"
+          test "$(git rev-parse refs/remotes/pr/head)" = "$SHA"
+          # A fast-forward only. Git refuses anything else without --force, which is never used,
+          # and the ruleset refuses any commit that is not an approved, green pull request head.
+          git merge-base --is-ancestor refs/remotes/origin/master "$SHA" || { echo "::notice::#$NUMBER is behind master; leaving it."; exit 0; }
+          git push origin "$SHA:refs/heads/master"
+          echo "Fast-forwarded master to #$NUMBER ($SHA)." >> "$GITHUB_STEP_SUMMARY"
