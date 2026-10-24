@@ -192,6 +192,33 @@ else:
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('not on a branch', result.stdout)
 
+    def release_from_master(self):
+        self.env['GITHUB_REF_TYPE'] = 'branch'
+        self.env['GITHUB_REF_NAME'] = 'master'
+        self.env['RELEASE_TAG'] = 'v99.0.0'
+
+    def test_release_from_master_names_its_tag(self):
+        self.configure()
+        self.git('tag', '-s', 'v99.0.0', '-m', 'Offline signature fixture')
+        self.release_from_master()
+        result = self.run_script('verify_release_tag.sh')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_named_tag_still_needs_a_signature(self):
+        self.configure()
+        self.git('-c', 'tag.gpgsign=false', 'tag', 'v99.0.0')
+        self.release_from_master()
+        self.assertNotEqual(self.run_script('verify_release_tag.sh').returncode, 0)
+
+    def test_checkout_other_than_the_tag_is_rejected(self):
+        self.configure()
+        self.git('tag', '-s', 'v99.0.0', '-m', 'Offline signature fixture')
+        self.git('-c', 'commit.gpgsign=false', 'commit', '-q', '--allow-empty', '-m', 'After the tag')
+        self.release_from_master()
+        result = self.run_script('verify_release_tag.sh')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('not the commit', result.stdout)
+
 
 if __name__ == '__main__':
     unittest.main()
