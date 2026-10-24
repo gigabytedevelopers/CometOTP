@@ -8,14 +8,25 @@ name: Release iOS
 #
 # To turn it on later:
 #   1. Settings -> Secrets and variables -> Actions -> Variables: set IOS_DEPLOY_ENABLED to true
-#   2. Add the secrets listed in .github/RELEASING.md to the `production-ios` environment
+#   2. Add the secrets listed in .github/RELEASING.md to the `production-ios` environment, and let
+#      only master deploy to it
 #   3. Configure IOS_BUNDLE_ID, IOS_SCHEME / IOS_PROJECT to match the real iOS target
-# Tag pushes submit directly to App Review; Apple approval is required before public release.
+# Auto release calls this from master once it has pushed a new version tag, and it submits that
+# tag directly to App Review; Apple approval is required before public release. To retry by
+# hand, run it from master and name the tag.
 on:
-  push:
-    tags: ['v*']
+  workflow_call:
+    inputs:
+      tag:
+        description: The signed version tag to submit, such as v9.2.0
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
+      tag:
+        description: The signed version tag to submit, such as v9.2.0 (run from master)
+        type: string
+        required: true
       lane:
         description: What to do with the build
         type: choice
@@ -25,11 +36,8 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: release-ios
-  cancel-in-progress: false
-
 env:
+  RELEASE_TAG: ${{ inputs.tag }}
   IOS_SCHEME: ${{ vars.IOS_SCHEME || 'CometOTP' }}
   IOS_PROJECT: ${{ vars.IOS_PROJECT || 'iosApp/iosApp.xcodeproj' }}
   IOS_EXPORT_OPTIONS: ${{ vars.IOS_EXPORT_OPTIONS || 'iosApp/ExportOptions.plist' }}
@@ -62,6 +70,11 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 60
 
+    # On the job rather than the workflow, so it also holds when Auto release calls this.
+    concurrency:
+      group: release-ios
+      cancel-in-progress: false
+
     environment:
       name: production-ios
       url: https://appstoreconnect.apple.com
@@ -69,6 +82,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7
         with:
+          ref: refs/tags/${{ inputs.tag }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -87,7 +101,7 @@ jobs:
           test -n "$IOS_BUNDLE_ID" || { echo '::error::Set IOS_BUNDLE_ID to the App Store Connect bundle identifier.'; exit 1; }
           prop() { grep "^$1=" app/version.properties | cut -d= -f2 | tr -d '[:space:]'; }
           version="$(prop VERSION_MAJOR).$(prop VERSION_MINOR).$(prop VERSION_PATCH)"
-          test "$GITHUB_REF_NAME" = "v$version" || { echo '::error::Release tag must match app/version.properties.'; exit 1; }
+          test "$RELEASE_TAG" = "v$version" || { echo '::error::Release tag must match app/version.properties.'; exit 1; }
           echo "IOS_VERSION=$version" >> "$GITHUB_ENV"
           # Each workflow execution/retry has a distinct build number for this version.
           echo "IOS_BUILD_NUMBER=$GITHUB_RUN_NUMBER.$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"

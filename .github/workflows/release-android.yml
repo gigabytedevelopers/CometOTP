@@ -3,13 +3,23 @@ name: Release Android
 # Builds a signed App Bundle, publishes it to Google Play, writes the release notes, and opens a
 # pull request that adds the new section to CHANGELOG.md.
 #
-# Nothing here reads a secret until the `production` environment has released the job, so you can
-# require your own approval on every deployment from Settings -> Environments.
+# Auto release calls this once it has signed and pushed a new version tag. It runs on master, not
+# on the tag, because the `production` environment that holds the secrets only lets master deploy:
+# a tag anyone with write access pushes can never reach them. To retry a release by hand, run it
+# from master and name the tag.
 on:
-  push:
-    tags: ['v*']
+  workflow_call:
+    inputs:
+      tag:
+        description: The signed version tag to publish, such as v9.2.0
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
+      tag:
+        description: The signed version tag to publish, such as v9.2.0 (run from master)
+        type: string
+        required: true
       track:
         description: Play track to publish to
         type: choice
@@ -24,13 +34,9 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  # Never let two deployments of the same app race each other.
-  group: release-android
-  cancel-in-progress: false
-
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx4g
+  RELEASE_TAG: ${{ inputs.tag }}
 
 jobs:
   release:
@@ -40,8 +46,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
-    # Put the deployment secrets on this environment, not on the repository, so they are only
-    # readable by this job and only after any reviewer you configure has approved the run.
+    # On the job rather than the workflow, so it also holds when Auto release calls this.
+    concurrency:
+      # Never let two deployments of the same app race each other.
+      group: release-android
+      cancel-in-progress: false
+
+    # The deployment secrets live on this environment, not on the repository, and the environment
+    # only deploys from master, so they are only readable by this job when it runs there.
     environment:
       name: production
       url: https://play.google.com/store/apps/details?id=com.gigabytedevelopersinc.app.CometOTP
@@ -49,6 +61,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7
         with:
+          # The release is the tagged commit, whatever master has moved on to since.
+          ref: refs/tags/${{ inputs.tag }}
           # git-cliff needs the history and tags to work out what changed.
           fetch-depth: 0
           persist-credentials: false
@@ -65,16 +79,15 @@ jobs:
       # the version was bumped would publish the old version under a new tag. Checked first so a
       # mismatch fails before anything is built or signed.
       - name: Check the tag matches version.properties
-        if: github.ref_type == 'tag'
         run: |
           prop() { grep "^$1=" app/version.properties | cut -d= -f2 | tr -d '[:space:]'; }
           expected="v$(prop VERSION_MAJOR).$(prop VERSION_MINOR).$(prop VERSION_PATCH)"
-          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match app/version.properties ($expected)."
+          if [ "$RELEASE_TAG" != "$expected" ]; then
+            echo "::error::Tag $RELEASE_TAG does not match app/version.properties ($expected)."
             echo "::error::Bump the version on master and tag that commit, or delete the tag and push $expected."
             exit 1
           fi
-          echo "Tag $GITHUB_REF_NAME matches app/version.properties."
+          echo "Tag $RELEASE_TAG matches app/version.properties."
 
       - name: Set up JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # actions/setup-java@v6
@@ -116,18 +129,12 @@ jobs:
           echo "name=$name" >> "$GITHUB_OUTPUT"
           echo "Built $name (versionCode $code)"
 
-      # The notes cover the commits since the previous release and nothing earlier. A run from a
-      # tag is sitting on that tag, where --unreleased finds nothing at all (which is how 8.0.0
+      # The notes cover the commits since the previous release and nothing earlier. The checkout
+      # sits on the release tag, where --unreleased finds nothing at all (which is how 8.0.0
       # shipped with an empty "## Unreleased"), so it takes --current: everything up to this tag
-      # since the one before. A manual run from a branch has no tag yet, so --unreleased is right
-      # there, named after the version it is about to tag.
+      # since the one before.
       - name: Work out which commits this release covers
-        run: |
-          if [ "$GITHUB_REF_TYPE" = tag ]; then
-            echo "CLIFF_RANGE=--current" >> "$GITHUB_ENV"
-          else
-            echo "CLIFF_RANGE=--unreleased --tag v${{ steps.version.outputs.name }}" >> "$GITHUB_ENV"
-          fi
+        run: echo "CLIFF_RANGE=--current" >> "$GITHUB_ENV"
 
       - name: Generate release notes
         uses: orhun/git-cliff-action@a9a95522b26fe6403f7bb24031f21fb573d0f5ff # orhun/git-cliff-action@v4
@@ -183,7 +190,7 @@ jobs:
           cat "$out/whatsnew-en-US"
 
       # `tracks` replaced the deprecated `track` input and takes a comma-separated list; this passes
-      # the one track. Tag pushes have no inputs and target production directly; testing tracks
+      # the one track. Auto release passes no track and targets production directly; testing tracks
       # remain available as an explicit choice when dispatching a workflow by hand.
       - name: Publish to Google Play
         uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # r0adkll/upload-google-play@v1

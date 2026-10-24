@@ -1,8 +1,9 @@
 name: Auto release
 
-# After successful master CI, sign the new version tag with enwokoma's registered SSH key
-# and push it using enwokoma's token. That push starts both release workflows as enwokoma.
-# Do not also dispatch them: that would publish twice. Missing credentials never fall back to a bot.
+# After successful master CI, sign the new version tag with enwokoma's registered SSH key, push it
+# using enwokoma's token, then publish it by calling Release Android and Release iOS. They run here
+# on master rather than on the tag, because the `production` environments only deploy from master;
+# a tag push starts no release. Missing credentials never fall back to a bot.
 # A fork/PR CI run cannot reach this job; its privileged code comes from the tested master commit.
 on:
   workflow_run:
@@ -31,6 +32,11 @@ jobs:
     environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      # Only once the tag is pushed and GitHub has verified it.
+      published: ${{ steps.tag.outcome == 'success' }}
 
     env:
       SHA: ${{ github.event.workflow_run.head_sha }}
@@ -92,16 +98,17 @@ jobs:
           verified=$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$object" --jq '.verification.verified')
           test "$verified" = true || { echo '::error::GitHub did not verify the release tag.'; exit 1; }
 
-      # Once a pushed tag exists, retries skip it. Check the tag-triggered runs before retrying
-      # a failed release manually, so a bookkeeping failure does not cause another upload.
+      # Once a pushed tag exists, retries skip it, so a failure after the push has to be retried
+      # by hand. Check the Android and iOS jobs of this run first, so a bookkeeping failure does
+      # not cause another upload.
       - name: Say how to recover if a release did not start
         if: failure() && steps.version.outputs.new == 'true'
         env:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
-            echo "::error::$TAG exists. Check the Release Android/iOS runs triggered by its push before starting another release."
-            echo "::error::Start it by hand: Actions -> Release Android (or iOS) -> Run workflow -> Use workflow from: Tags -> $TAG."
+            echo "::error::$TAG exists, but this run did not publish it."
+            echo "::error::Start it by hand: Actions -> Release Android (or iOS) -> Run workflow -> Use workflow from: master, tag $TAG."
           fi
 
       - name: Summary
@@ -111,7 +118,7 @@ jobs:
           NEW: ${{ steps.version.outputs.new }}
         run: |
           if [ "$NEW" = true ] && [ "${{ steps.tag.outcome }}" = success ]; then
-            echo "Signed **$TAG** as enwokoma and pushed it to start the release workflows." >> "$GITHUB_STEP_SUMMARY"
+            echo "Signed **$TAG** as enwokoma and pushed it; the Android and iOS jobs publish it." >> "$GITHUB_STEP_SUMMARY"
           elif [ "$NEW" = false ]; then
             echo "$TAG is already released; nothing to do." >> "$GITHUB_STEP_SUMMARY"
           fi
@@ -119,3 +126,21 @@ jobs:
       - name: Remove the Git signing key
         if: always()
         run: bash .github/scripts/cleanup_release_identity.sh
+
+  # Called here, on master, with the tag the job above pushed. Each checks out that tag and
+  # verifies its signature before it reads a secret.
+  android:
+    name: Release Android
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    uses: ./.github/workflows/release-android.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+
+  ios:
+    name: Release iOS
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    uses: ./.github/workflows/release-ios.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
