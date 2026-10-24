@@ -1,14 +1,19 @@
 # Releasing CometOTP
 
-Five workflows live in `.github/workflows`:
+Seven workflows live in `.github/workflows`:
 
 | Workflow | File | When it runs |
 | --- | --- | --- |
 | CI | `ci.yml` | Every pull request, and every push to `master` |
 | Repository security | `repository-security.yml` | Every pull request and push; rejects editor autorun, disguised payloads and committed credentials |
-| Auto release | `auto-release.yml` | After CI passes on `master`; signs and pushes a new version tag as `@enwokoma` |
-| Release Android | `release-android.yml` | Publishes directly to Play production on a signed `v*` tag pushed by `@enwokoma`, or dispatched by `@enwokoma` on that tag |
-| Release iOS | `release-ios.yml` | Submits directly to App Review and releases after approval, but **switched off** until an iOS target and credentials are available |
+| Auto merge | `auto-merge.yml` | After CI, Repository security or a review; fast-forwards `master` to an owner's approved, green pull request |
+| Review submitted | `review-submitted.yml` | Every submitted review; does nothing but start Auto merge |
+| Auto release | `auto-release.yml` | After CI passes on `master`; signs and pushes a new version tag as `@enwokoma`, then calls the two release workflows |
+| Release Android | `release-android.yml` | Called by Auto release to publish that tag directly to Play production, or run by hand from `master` with a tag |
+| Release iOS | `release-ios.yml` | Called by Auto release to submit that tag to App Review, but **switched off** until an iOS target and credentials are available |
+
+Nothing in this list waits for a click. The people in the loop are the reviewer, whose approval
+of a pull request's latest push is what lets it reach `master`, and the stores' own reviews.
 
 ## Protecting master
 
@@ -52,7 +57,9 @@ puts your signature on master:
 | Squash | One new commit | GitHub's web-flow key |
 | Rebase | Rewritten copies of your commits | **Nobody** — the rewrite drops your signature |
 
-Merge locally instead. Your commits land on master exactly as you signed them:
+Fast-forward `master` to the pull request's head instead, so your commits land on master exactly
+as you signed them. [Auto merge](#auto-merge) does that for you once a pull request is ready; by
+hand it is:
 
 ```bash
 git checkout <branch> && git rebase master   # only if master has moved; replays and re-signs
@@ -76,6 +83,44 @@ Stacked pull requests, where one targets the branch of another, cannot be merged
 request into another branch never satisfies `master`'s rule. Once the lower one has merged, open a
 pull request of the upper one's head into `master` and get that approved. Retargeting the upper
 pull request to `master` works too, but the base change dismisses its approval.
+
+Two pull requests opened from the same `master` cannot both be fast-forwarded either: once one
+lands, the other is behind. Rebase the second onto the first's head before asking for reviews.
+Landing the first then moves the second's base, which dismisses its approval, so it needs one more
+approval after the first is in. GitHub can also go on recording the old base for a while and
+dismiss that approval too ("The merge-base changed after approval"). When the pull request's
+`base.sha` is not the current `master`, point it at another branch with the same tip and back
+before asking again; that makes GitHub record the base afresh:
+
+```bash
+gh api repos/gigabytedevelopers/CometOTP/pulls/<number> --jq .base.sha
+gh api -X PATCH repos/gigabytedevelopers/CometOTP/pulls/<number> -f base=<branch at master's tip>
+gh api -X PATCH repos/gigabytedevelopers/CometOTP/pulls/<number> -f base=master
+```
+
+### Auto merge
+
+`auto-merge.yml` makes the same fast-forward push for you, as `@enwokoma`, so `master`'s CI and
+Auto release start exactly as they do after a push from your machine. It looks for the oldest open
+pull request into `master` that:
+
+- was opened by an owner (`@enwokoma` or `@gigabytedevelopersinc`) from a branch of this
+  repository, not a fork, and is not a draft;
+- GitHub calls ready: approved on its latest push, every required check green, up to date with
+  `master` (its merge state is `CLEAN`);
+- has no `hold` label. Add one to keep an approved pull request out of `master` until you take it
+  off.
+
+It runs whenever CI or Repository security finishes and whenever a review is submitted, and can
+be started by hand from the Actions tab. It runs `master`'s copy of the workflow, never a pull
+request's, and reads nothing from the pull request but the commit id it pushes, which it checks is
+still the approved head and a fast-forward of `master`. The ruleset checks the same again when the
+push arrives.
+
+It merges one pull request at a time. It cannot rebase, because rebasing makes new commits that
+only your key can sign, so a pull request that has fallen behind `master` waits for a rebase from
+your machine and a fresh approval. Contributors' pull requests are left for the green squash
+button, as above.
 
 ### Who reviews
 
@@ -109,9 +154,10 @@ longer reports leaves pull requests stuck waiting for it forever.
 Secrets are never committed. `keystore.properties` and `*.jks` stay in `.gitignore`, and the build
 falls back to environment variables when that file is absent, which is how CI supplies them.
 
-Put these on the **`production` environment** (Settings → Environments), not on the repository, so
-only the release job can read them, and add yourself as a required reviewer there if you want to
-approve each deployment by hand.
+Put these on the **`production` environment** (Settings → Environments), not on the repository.
+The environment's **Deployment branches and tags** setting allows `master` only, so the only jobs
+that can read them are the ones running `master`'s workflows, which are the reviewed ones. It has
+no required reviewers: an approved, green pull request reaching `master` is the approval.
 
 | Secret | What it is |
 | --- | --- |
@@ -121,10 +167,10 @@ approve each deployment by hand.
 | `ANDROID_KEY_PASSWORD` | Key password |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Google Play service account JSON, pasted whole |
 
-GitHub identity secrets sit on the repository instead: `RELEASE_OWNER_TOKEN`,
-`RELEASE_SIGNING_KEY`, and `RELEASE_SIGNING_PASSPHRASE` for the encrypted existing key.
-Auto release needs them before the Android deployment begins. See
-[Release identity](#release-identity). Android signing secrets above stay on `production`.
+The GitHub identity secrets sit on `production` too: `RELEASE_OWNER_TOKEN`,
+`RELEASE_SIGNING_KEY`, and `RELEASE_SIGNING_PASSPHRASE` for the encrypted existing key. Auto merge
+and Auto release need them as well as the Android release. See
+[Release identity](#release-identity).
 
 To encode the keystore:
 
@@ -140,8 +186,10 @@ Two things keep this out of reach of the public once the repository is open:
 - CI runs on `pull_request`, not `pull_request_target`, so a pull request from a fork gets a
   read-only token and **no secrets at all**. Someone editing a workflow in their fork cannot print
   your signing key.
-- The deployment secrets sit on an environment, so even a workflow on `master` has to name that
-  environment, and any reviewer you add has to release the run first.
+- The deployment secrets sit on an environment that only deploys from `master`. A branch or a tag
+  that someone with write access pushes, with a workflow of their own, is refused the environment,
+  so it never sees them; only a reviewed change that has reached `master` can name it. That is why
+  the release workflows run on `master` and are handed the tag, rather than running on the tag.
 
 ## Deploying
 
@@ -150,11 +198,12 @@ A release is a version bump. There is nothing to tag by hand:
 1. Merge everything you want in the release.
 2. Open a pull request that bumps `app/version.properties` (`VERSION_MAJOR`/`MINOR`/`PATCH`) and
    adds the Play "What's new" text as `fastlane/metadata/android/en-US/changelogs/<version>.txt`
-   (see [Play release notes](#play-release-notes)), and merge it.
+   (see [Play release notes](#play-release-notes)). Once it is approved and green,
+   [Auto merge](#auto-merge) puts it on `master`.
 3. When CI passes on that commit on `master`, **Auto release** sees there is no tag for the new
    version yet, signs the commit's `v<version>` tag as `@enwokoma` and pushes it using your token.
-   That tag push starts Release Android and Release iOS once each, with you as the run actor. The
-   Android job then waits for the `production` environment's approval, if you set one.
+   It then calls Release Android and Release iOS with that tag, once each, with you as the run
+   actor, and they publish it. Nobody has to approve anything after the pull request.
 
 Merges that leave the version alone release nothing. If CI fails on the bump, nothing is tagged,
 and the first later commit on `master` that passes CI with that version is released instead. A
@@ -165,17 +214,17 @@ out from the time of the build (minutes since 2026-01-01 on top of 10,000,000), 
 build gets a higher code and nothing has to be written back to the repository. See "Versioning" in
 `app/build.gradle`.
 
-Android tag releases publish directly to `production` with status `completed`, targeting all
+Android releases publish directly to `production` with status `completed`, targeting all
 users after Google approves the release. The manual workflow also defaults to production;
 choose `internal`, `alpha`, or `beta` explicitly for a testing release. Google Play review still
 applies. With managed publishing enabled in Play Console, approved changes wait for you to
 publish them; disable managed publishing there if approved releases should go live automatically.
 
-Enabled iOS tag releases submit directly to App Review and request automatic release to all
+Enabled iOS releases submit directly to App Review and request automatic release to all
 users after Apple's approval, without a TestFlight testing stage. A manual run defaults to
 `appstore`; choose `testflight` explicitly to upload a testing build without App Store submission.
 The workflow summary reports submission, not public availability. Store review is separate
-from GitHub environment approvals and the required PR review and CI checks.
+from the required PR review and CI checks.
 
 ### Release identity
 
@@ -190,8 +239,8 @@ registered. Local commits and tags keep using this key through the Mac's existin
 The setup script also accepts this already-loaded agent without a private-key secret.
 
 GitHub-hosted runners cannot access the Mac's SSH agent. Fully automatic tag and changelog
-signing on those runners requires access to the **same existing key**, using these repository
-secrets; this PR does not upload private material or provision credentials:
+signing on those runners requires access to the **same existing key**, using these secrets on the
+`production` environment:
 
 | Secret | Setup |
 | --- | --- |
@@ -213,11 +262,11 @@ Never commit private keys, passphrases, or tokens. Renew the owner token before 
 `RELEASE_DISPATCH_TOKEN`, `RELEASE_BOT_PRIVATE_KEY`, and `RELEASE_BOT_CLIENT_ID` are no longer
 used. Once the new setup works, their old configuration can be removed.
 
-A tag push authenticated with your token starts the release workflows; Auto release must not
-also dispatch them or it would publish twice. Android and enabled iOS deployment jobs run only
-when the original workflow actor is `@enwokoma`. A rerun retains the original actor, so rerunning
-an old bot-started release does not repair its attribution. Start a new manual run as yourself
-on a signed tag instead.
+A tag push starts no release; Auto release calls the release workflows itself, so nothing
+publishes twice. Android and enabled iOS deployment jobs run only when the original workflow
+actor is `@enwokoma`, which holds because Auto merge and your own merges push as you. A rerun
+retains the original actor, so rerunning an old bot-started release does not repair its
+attribution. Start a new manual run as yourself from `master` instead.
 
 No workflow requests reviews: GitHub requests them from `.github/CODEOWNERS` under the pull
 request author's name (see [Who reviews](#who-reviews)). CI needs no personal token or signing
@@ -235,21 +284,24 @@ default branch, under GitHub's contribution rules.
 
 ### Releasing by hand
 
-Pushing a tag still works, and Auto release then leaves that version alone because the tag
-already exists:
+A tag you push yourself starts nothing on its own, and Auto release then leaves that version alone
+because the tag already exists. Publish it by running the release from `master` and naming it:
 
 ```bash
 git tag -s v8.0.0 -m "CometOTP 8.0.0"
 git push origin v8.0.0
+gh workflow run release-android.yml --ref master -f tag=v8.0.0
 ```
 
 The tag has to match `version.properties` exactly (`v` + `MAJOR.MINOR.PATCH`), or the workflow
 fails before building anything. Fix the version and use a new matching signed tag; do not
-rewrite a published tag as part of a normal release.
+rewrite a published tag as part of a normal release. A run started from the tag instead of
+`master` is refused the `production` environment and stops before reading any secret.
 
-If a tag-triggered release fails, re-running Auto release will not help, because the tag now
-exists. Check the existing release runs first, then retry the failed release by hand: **Actions → Release Android
-→ Run workflow → Use workflow from: Tags → v&lt;version&gt;**.
+If a release fails after its tag was pushed, re-running Auto release will not help, because the
+tag now exists. Check the Android and iOS jobs of that Auto release run first, then retry the
+failed release by hand: **Actions → Release Android → Run workflow → Use workflow from: master →
+tag v&lt;version&gt;**.
 
 The job builds a signed App Bundle, uploads it with the ProGuard mapping so crash reports
 deobfuscate, attaches the bundle to a GitHub release, and opens a pull request adding the new
@@ -264,9 +316,9 @@ locally and on GitHub, pushes with your token, then opens the PR as you. The tok
 normally; no bot PR or GitHub web-flow signing is used.
 
 Princess or another eligible reviewer must approve the current PR head, all required checks must
-pass, and review threads must be resolved. Integrate it using the same signature-preserving
-local fast-forward procedure as your other PRs. You cannot approve your own generated PR.
-The workflow does not auto-merge it or force-update an existing changelog branch. A bookkeeping
+pass, and review threads must be resolved. It is your pull request, so [Auto merge](#auto-merge)
+fast-forwards `master` to it once that is so. You cannot approve your own generated PR.
+The release workflow never merges it itself or force-updates an existing changelog branch. A bookkeeping
 failure after publishing is reported as a warning; it does not undo the Play release.
 
 ### Play release notes
@@ -328,10 +380,10 @@ When you have an Apple Developer account and a Kotlin Multiplatform iOS target:
    App Review contact details, agreements, and accurate export-compliance declarations. The
    Fastlane `appstore` lane uses this existing metadata and screenshots; it does not invent or
    replace them. The App Store Connect API key must have permission to submit the app for review.
-5. Set `IOS_DEPLOY_ENABLED` to `true` only after these prerequisites are complete. Configure any
-   desired deployment reviewers on the `production-ios` environment.
+5. Set `IOS_DEPLOY_ENABLED` to `true` only after these prerequisites are complete. Limit the
+   `production-ios` environment to deploy from `master` only, as `production` is.
 
-`Gemfile.lock` pins Fastlane and its dependencies. Tag pushes run `bundle exec fastlane ios
+`Gemfile.lock` pins Fastlane and its dependencies. Releases run `bundle exec fastlane ios
 appstore`; that lane uploads the exact exported IPA/build, submits it for review, and sets
 automatic release with phased release disabled. The explicit `testflight` lane uploads only
 to TestFlight. Submission failures fail the job; neither lane falls back to the other.
