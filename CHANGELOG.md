@@ -5,6 +5,107 @@ All notable changes to CometOTP are recorded here.
 Entries from 8.0.0 onwards are generated from the commit history when a release is deployed, so
 the wording follows the commit subjects. See `.github/RELEASING.md` for how that works.
 
+## 9.2.0 (2026-10-24)
+
+
+### Fix
+
+- Keep the search results after editing an entry
+- Keep the app in portrait on phones, whatever auto-rotate is set to
+- Compute ten digit codes exactly, and define the supported code lengths
+- Import accounts with ten digit codes
+- Refuse otpauth:// links whose code length is out of range
+- Say when the digits typed in the service sheet are out of range
+- Make the digit range error a plural
+- Show the home screen's snackbars above the add button
+- Let the token's line grow with its size
+- Keep every card in the list the same height
+- Centre the token on cards with nothing under it
+- Keep sheets that show codes out of screenshots
+- Dim settings that cannot be used
+- Work out a new mOTP token every ten seconds
+- Show an mOTP token as expiring only in its last three seconds
+- Do not show the mOTP PIN placeholder as the previous token
+- Describe mOTP's fixed period and length in the setup form
+- Ask for an mOTP PIN before copying or typing its token
+- Rearrange an unsorted list by holding a card again
+- Centre a card's counter and countdown over its copy button
+- Centre what a card's trailing column shows in its height
+- Keep a service's QR code out of screenshots
+- Keep deleting an unfinished pairing's vault until the relay agrees
+
+### Improvement
+
+- Set the lock method on the Security screen only
+- Remove editor malware and block its reintroduction
+- Remove editor malware and block its reintroduction
+- Show browser sync in debug builds only until it ships
+- Leave paired browsers out of backups and device transfer
+- Allow plain HTTP to a local relay in debug builds
+- Let debug builds pair stand-in browsers
+- Let debug builds take a pairing link from adb
+
+### New
+
+- Remember how many digits the PIN has
+- Add a PIN keypad and dot indicator
+- Type the PIN on the keypad instead of the keyboard
+- Count wrong unlock attempts and lock out repeated guessing
+- Try a wrong PIN or password again instead of closing the app
+- Keep copied tokens out of clipboard previews
+- Copy a token by tapping its card
+- Make the token the largest text on its card
+- Show the next token while the current one is about to expire
+- Add a dialog for tagging several accounts at once
+- Open a card's options with a long press, and manage the list
+- Keep removed accounts in an encrypted bin for 30 days
+- Restore removed accounts, and undo a removal
+- Pick the theme from previews, and use the wallpaper's colours
+- Pick a list style from previews
+- Group the settings behind a hub
+- Allow screenshots for a set time
+- Show on the list while screenshots are allowed
+- Centre the token when the previous one is not shown
+- Scan from the add sheet
+- Confirm a scanned service before adding it
+- Scan in a full-screen scanner with a flash
+- Make Default the card size it used to be, with Large and Extra large
+- Offer Copy on the card or in its sheet, not both
+- Keep the double tap from doing what the single tap does
+- Offer password encryption first and unencrypted last
+- Share a backup as well as save it
+- Show where an import comes from, and to delete the export after
+- Hide the key while editing a service, with reveal and QR
+- Show a service's fixed settings from an Info icon while editing
+- Show a key or QR code only while CometOTP has a lock
+- Give a card's initials tile its own text and colour
+- Choose a brand icon or initials while editing a service
+- Group the icon picker under letters, and ring the current icon
+- Add a "How do I turn on 2FA" FAQ, with services' own guides
+- Give the PIN pad a fingerprint key
+- Unlock with a strong biometric instead of the PIN or password
+- Turn biometric unlock on from the Security screen
+- Call the device lock the phone's screen lock
+- Add the browser sync crypto
+- Remember for each service whether browsers may get it
+- Add a Browser extension switch to the service sheet
+- Store paired browsers in browsers.dat
+- Wipe and re-encrypt paired browsers with the database
+- Add the relay client
+- Build vault payloads from the services
+- Upload vaults to paired browsers
+- Sync paired browsers after changes and on unlock
+- Remove browsers through the relay and remember what they had
+- Add the Connected extensions screen
+- Open Connected extensions from Security
+- Add the relay's pairing channel calls
+- Pair with a browser through the relay
+- Let the scanner read a browser's pairing code
+- Pair a browser from Connected extensions
+- Answer how to use codes on a computer in the FAQ
+- Say when a browser is disconnected
+- Show browser sync in release builds
+
 ## 9.1.0 (2026-10-09)
 
 
