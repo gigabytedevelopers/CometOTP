@@ -20,17 +20,14 @@ import javax.crypto.SecretKey
  * Not inherently thread safe.
  */
 class SecretKeyWrapper {
-    private val mCipher: Cipher
     private val mPair: KeyPair
 
     /**
      * Create a wrapper using the public/private key pair with the given alias.
      * If no pair with that alias exists, it will be generated.
      */
-    @SuppressLint("GetInstance")
     @Throws(GeneralSecurityException::class, IOException::class)
     constructor(keyPair: KeyPair) {
-        mCipher = Cipher.getInstance(Constants.ALGORITHM_ASYMMETRIC)
         mPair = keyPair
     }
 
@@ -42,10 +39,12 @@ class SecretKeyWrapper {
      * @return a wrapped version of the given [SecretKey] that can be
      *         safely stored on untrusted storage.
      */
+    @SuppressLint("GetInstance")
     @Throws(GeneralSecurityException::class)
     fun wrap(key: SecretKey): ByteArray {
-        mCipher.init(Cipher.WRAP_MODE, mPair.public)
-        return mCipher.wrap(key)
+        val cipher = Cipher.getInstance(Constants.ALGORITHM_ASYMMETRIC)
+        cipher.init(Cipher.WRAP_MODE, mPair.public)
+        return cipher.wrap(key)
     }
 
     /**
@@ -55,10 +54,12 @@ class SecretKeyWrapper {
      * @param blob a wrapped [SecretKey] as previously returned by
      *            [wrap].
      */
+    @SuppressLint("GetInstance")
     @Throws(GeneralSecurityException::class)
     fun unwrap(blob: ByteArray): SecretKey {
-        mCipher.init(Cipher.UNWRAP_MODE, mPair.private)
+        val cipher = Cipher.getInstance(Constants.ALGORITHM_ASYMMETRIC)
+        cipher.init(Cipher.UNWRAP_MODE, mPair.private)
 
-        return mCipher.unwrap(blob, "AES", Cipher.SECRET_KEY) as SecretKey
+        return cipher.unwrap(blob, "AES", Cipher.SECRET_KEY) as SecretKey
     }
 }
