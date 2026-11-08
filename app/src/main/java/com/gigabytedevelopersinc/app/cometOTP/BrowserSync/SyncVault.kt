@@ -4,6 +4,7 @@ package com.gigabytedevelopersinc.app.cometOTP.BrowserSync
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.BrowserSyncException.Reason
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.SyncEncoding.concat
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.SyncEncoding.jsonString
+import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.SyncEncoding.lp
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.SyncEncoding.u32
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.SyncEncoding.u64
 import com.gigabytedevelopersinc.app.cometOTP.BrowserSync.SyncEncoding.utf8
@@ -48,6 +49,7 @@ object SyncVault {
 
     private val VAULT_INFO = utf8("CometOTP vault v1")
     private val SERVICE_ID_LABEL = utf8("CometOTP service v1")
+    private val SERVICE_ALIAS_LABEL = utf8("CometOTP service v1 alias")
     private val MAGIC = utf8("COV1")
 
     /** `HKDF(V, vault id, VAULT_INFO, 32)`. */
@@ -56,6 +58,19 @@ object SyncVault {
     /** `b64u(SHA256(SERVICE_ID_LABEL ‖ secret)[0:12])`: stays the same when a service is renamed. */
     fun serviceId(secret: ByteArray): String =
         SyncEncoding.toBase64Url(SyncCrypto.sha256(SERVICE_ID_LABEL, secret).copyOf(12))
+
+    /**
+     * The id of a later service with the same secret as an earlier one (protocol §4.4):
+     * `b64u(SHA256(SERVICE_ALIAS_LABEL ‖ lp(secret) ‖ lp(utf8(issuer)) ‖ lp(utf8(label)))[0:12])`.
+     * Null when one of them is 65,536 bytes or longer, which `lp` cannot carry.
+     */
+    fun serviceAliasId(secret: ByteArray, issuer: String, label: String): String? {
+        val parts = listOf(secret, utf8(issuer), utf8(label))
+        if (parts.any { it.size > 0xffff })
+            return null
+        val hash = SyncCrypto.sha256(SERVICE_ALIAS_LABEL, *parts.map(::lp).toTypedArray())
+        return SyncEncoding.toBase64Url(hash.copyOf(12))
+    }
 
     /** Checks a blob's shape and returns its version, without the key. */
     fun version(blob: ByteArray): Long {

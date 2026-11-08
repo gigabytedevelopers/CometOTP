@@ -6,13 +6,15 @@ import org.apache.commons.codec.binary.Hex
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
  * The browser sync protocol's rules that its test vectors do not pin down. Expected values come
- * from RFC 5869 and from JavaScript's JSON.stringify in Node 26, never from the code under test.
+ * from RFC 5869 and from Node 26 (JavaScript's JSON.stringify, and its crypto module for alias
+ * ids), never from the code under test.
  */
 class BrowserSyncRulesTest {
 
@@ -165,6 +167,16 @@ class BrowserSyncRulesTest {
         assertEquals(Reason.ROLLBACK, reason { SyncVault.open(key, id, blob, minVersion = 5) })
         assertEquals(4L, SyncVault.open(key, id, blob, minVersion = 4).first)
         assertEquals(Reason.AUTH_FAILED, reason { SyncVault.open(key, SyncCrypto.randomBytes(16), blob) })
+    }
+
+    /** `lp` gives an alias id's issuer and label a 16-bit length, so neither may reach 65,536 bytes. */
+    @Test
+    fun aliasIdsTakeAnIssuerOrLabelOfUpTo65535Bytes() {
+        val secret = unhex("48656c6c6f21deadbeef")
+        assertEquals("yGPoLUeWnalAGiUp", SyncVault.serviceAliasId(secret, "x".repeat(65535), ""))
+        assertEquals("df3HaPAXBWItLfqR", SyncVault.serviceAliasId(secret, "", "é".repeat(32767) + "x"))
+        assertNull(SyncVault.serviceAliasId(secret, "x".repeat(65536), ""))
+        assertNull(SyncVault.serviceAliasId(secret, "", "é".repeat(32768)))
     }
 
     @Test

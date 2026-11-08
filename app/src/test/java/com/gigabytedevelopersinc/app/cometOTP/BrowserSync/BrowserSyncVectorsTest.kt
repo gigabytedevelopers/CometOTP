@@ -10,6 +10,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.math.BigInteger
@@ -158,6 +159,18 @@ class BrowserSyncVectorsTest {
     fun computesTheServiceIds() {
         for (v in vectors.getJSONArray("service_ids").objects())
             assertEquals(v.getString("id"), SyncVault.serviceId(Base32().decode(v.getString("secret"))))
+    }
+
+    /** Later services with the same secret as an earlier one: an id of their own each, never the secret's. */
+    @Test
+    fun computesTheServiceAliasIds() {
+        val aliases = vectors.getJSONArray("service_alias_ids").objects()
+        for (v in aliases) {
+            val secret = Base32().decode(v.getString("secret"))
+            assertEquals(v.getString("id"), SyncVault.serviceAliasId(secret, v.getString("issuer"), v.getString("label")))
+            assertNotEquals(SyncVault.serviceId(secret), v.getString("id"))
+        }
+        assertEquals(aliases.size, aliases.map { it.getString("id") }.toSet().size)
     }
 
     /** The codes a browser computes from the vault must be the ones CometOTP shows. */

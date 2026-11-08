@@ -77,6 +77,32 @@
       "id": "SXvyuudfADeefNlo"
     }
   ],
+  "service_alias_ids": [
+    {
+      "secret": "JBSWY3DPEHPK3PXP",
+      "issuer": "Miden",
+      "label": "emmanuel@example.com",
+      "id": "p_um_fxfQm37MBph"
+    },
+    {
+      "secret": "JBSWY3DPEHPK3PXP",
+      "issuer": "WanPay",
+      "label": "emmanuel@example.com",
+      "id": "fR8MAaiqfNNQlmY4"
+    },
+    {
+      "secret": "JBSWY3DPEHPK3PXP",
+      "issuer": "Société Générale",
+      "label": "café ☕",
+      "id": "PmbimywVn6IvsJxR"
+    },
+    {
+      "secret": "JBSWY3DPEHPK3PXP",
+      "issuer": "",
+      "label": "GitHub:alice",
+      "id": "nodFev4mtQovOcmL"
+    }
+  ],
   "codes": [
     {
       "type": "totp",
