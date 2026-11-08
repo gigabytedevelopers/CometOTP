@@ -54,6 +54,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # gradle/actions/setup-gradle@v6
 
+      - name: Download Gradle, trying again if its server is briefly down
+        run: bash .github/scripts/download_gradle.sh
+
       - name: Run unit tests
         run: ./gradlew --no-daemon testDebugUnitTest
 
@@ -86,6 +89,9 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # gradle/actions/setup-gradle@v6
+
+      - name: Download Gradle, trying again if its server is briefly down
+        run: bash .github/scripts/download_gradle.sh
 
       - name: Run lint
         run: ./gradlew --no-daemon lintDebug
@@ -120,6 +126,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # gradle/actions/setup-gradle@v6
 
+      - name: Download Gradle, trying again if its server is briefly down
+        run: bash .github/scripts/download_gradle.sh
+
       # Debug only. A release build would need the signing key, and the whole point of running
       # pull requests without secrets is that this job works for a fork too.
       - name: Assemble debug
@@ -153,6 +162,9 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # gradle/actions/setup-gradle@v6
+
+      - name: Download Gradle, trying again if its server is briefly down
+        run: bash .github/scripts/download_gradle.sh
 
       - name: Enable KVM
         run: |

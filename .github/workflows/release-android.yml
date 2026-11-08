@@ -98,6 +98,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # gradle/actions/setup-gradle@v6
 
+      - name: Download Gradle, trying again if its server is briefly down
+        run: bash .github/scripts/download_gradle.sh
+
       # The keystore lives in the runner's temp directory, which is wiped when the job ends, and
       # never inside the workspace, so it cannot be picked up by an artifact upload.
       - name: Restore signing keystore

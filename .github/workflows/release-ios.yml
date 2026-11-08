@@ -159,6 +159,9 @@ jobs:
           printf '%s' "$APPSTORE_PRIVATE_KEY" > "$RUNNER_TEMP/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8"
           echo "APPSTORE_KEY_FILE=$RUNNER_TEMP/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8" >> "$GITHUB_ENV"
 
+      - name: Download Gradle, trying again if its server is briefly down
+        run: bash .github/scripts/download_gradle.sh
+
       - name: Build the shared Kotlin framework
         run: ./gradlew --no-daemon :shared:assembleXCFramework
 
