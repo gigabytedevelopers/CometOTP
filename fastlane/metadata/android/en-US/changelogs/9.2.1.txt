@@ -1,0 +1,5 @@
+CometOTP 9.2.1 fixes browser sync and fingerprint unlock.
+Fixed: Services that share a key, such as one QR code added twice, now all reach your connected browsers, each under its own name.
+Fixed: Unlocking with your fingerprint goes straight on to what opened the app, such as a browser's pairing code.
+Fixed: Removing a browser lists exactly the services it had.
+Improved: The key that protects your data is handled more carefully.
