@@ -8,6 +8,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator.HashAlgo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -58,6 +59,31 @@ class ConnectedBrowsersTest {
         assertEquals(Pair(listOf("Off"), 0), ConnectedBrowsers.sharedServices(ids, listOf(counter, off)).let { (had, deleted) ->
             Pair(had.map { it.issuer }, deleted) })
         assertEquals(Pair(emptyList<Entry>(), 1), ConnectedBrowsers.sharedServices(ids, listOf(counter)))
+    }
+
+    /** WanPay and Miden on the owner's phone: one QR code added twice, under two names. */
+    @Test
+    fun namesEachServiceSharingASecretThatABrowserHad() {
+        val wanPay = totp("WanPay", "JBSWY3DPEHPK3PXP")
+        val miden = totp("Miden", "JBSWY3DPEHPK3PXP")
+        // The same service listed twice, which browsers never get.
+        val midenAgain = totp("Miden", "JBSWY3DPEHPK3PXP")
+        val other = totp("Other", "GEZDGNBVGY3TQOJQ")
+        val ids = VaultPayload.services(listOf(wanPay, miden, midenAgain)).map { it.id }
+        val (had, deleted) = ConnectedBrowsers.sharedServices(ids, listOf(wanPay, miden, midenAgain, other))
+        assertEquals(listOf("WanPay", "Miden"), had.map { it.issuer })
+        // Miden itself, not its copy, which Entry.equals cannot tell apart.
+        assertSame(miden, had[1])
+        assertEquals(0, deleted)
+
+        // Miden's switch turned off since: still named, by the alias id it had.
+        val midenOff = totp("Miden", "JBSWY3DPEHPK3PXP").apply { browserExtension = false }
+        assertEquals(Pair(listOf("WanPay", "Miden"), 0), ConnectedBrowsers.sharedServices(ids, listOf(wanPay, midenOff)).let { (had, deleted) ->
+            Pair(had.map { it.issuer }, deleted) })
+        // Renamed since: the alias id no longer matches, as with a service deleted since.
+        val renamed = totp("Miden Pay", "JBSWY3DPEHPK3PXP")
+        assertEquals(Pair(listOf("WanPay"), 1), ConnectedBrowsers.sharedServices(ids, listOf(wanPay, renamed)).let { (had, deleted) ->
+            Pair(had.map { it.issuer }, deleted) })
     }
 
     @Test

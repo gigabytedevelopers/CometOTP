@@ -2,6 +2,7 @@
 package com.gigabytedevelopersinc.app.cometOTP.BrowserSync
 
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
+import java.util.TreeSet
 
 /** What the Connected extensions screen shows about paired browsers, apart from the Android parts. */
 object ConnectedBrowsers {
@@ -39,27 +40,25 @@ object ConnectedBrowsers {
      * The services among [entries] that were in the last vault a browser got ([PairedBrowser.sharedIds]),
      * in list order, and how many of its ids no longer match any (services deleted since).
      *
-     * An id is the hash of a secret, which services of other types can share, so an id is matched
-     * as [VaultPayload.services] chose it: the first service browsers get, else one whose Browser
-     * extension switch was turned off since. Never one a browser cannot show, such as an HOTP
-     * service that comes before the Steam service it shares a secret with.
+     * Ids are matched as [VaultPayload.ids] gives them, first to the services browsers get now,
+     * then to those whose Browser extension switch was turned off since, with ids as if every
+     * switch were on. A secret's own id goes to the service that has it there, never to another
+     * with the same secret, such as an HOTP service that comes before the Steam service it shares
+     * a secret with; and no service is matched twice.
      */
     fun sharedServices(sharedIds: List<String>?, entries: List<Entry>): Pair<List<Entry>, Int> {
         if (sharedIds.isNullOrEmpty())
             return Pair(emptyList(), 0)
         val wanted = sharedIds.toSet()
-        val found = HashMap<String, Int>()
-        for (sentNow in booleanArrayOf(true, false)) {
-            entries.forEachIndexed { index, entry ->
-                if (if (sentNow) !entry.showsInBrowser else !entry.canShowInBrowser)
-                    return@forEachIndexed
-                val secret = entry.secret ?: return@forEachIndexed
-                val id = SyncVault.serviceId(secret)
-                if (id in wanted && id !in found)
-                    found[id] = index
+        val found = HashSet<String>()
+        val had = TreeSet<Int>()
+        for (sent in listOf(Entry::showsInBrowser, Entry::canShowInBrowser)) {
+            VaultPayload.ids(entries, sent).forEachIndexed { index, id ->
+                if (id != null && id in wanted && index !in had && found.add(id))
+                    had.add(index)
             }
         }
-        return Pair(found.values.sorted().map { entries[it] }, wanted.size - found.size)
+        return Pair(had.map { entries[it] }, wanted.size - found.size)
     }
 
     /** A new name for a browser: trimmed, at most 64 bytes; null when nothing is left. */
