@@ -129,6 +129,11 @@ jobs:
 
   # Called here, on master, with the tag the job above pushed. Each checks out that tag and
   # verifies its signature before it reads a secret.
+  #
+  # A called workflow sees only the secrets its caller passes, even those of the environment its
+  # own job names: without `secrets: inherit` every one is an empty string, which is how v9.2.1's
+  # Android release stopped at its token check. The jobs still read them only through their
+  # `production` and `production-ios` environments, which deploy from master alone.
   android:
     name: Release Android
     needs: release
@@ -136,6 +141,7 @@ jobs:
     uses: ./.github/workflows/release-android.yml
     with:
       tag: ${{ needs.release.outputs.tag }}
+    secrets: inherit
 
   ios:
     name: Release iOS
@@ -144,3 +150,4 @@ jobs:
     uses: ./.github/workflows/release-ios.yml
     with:
       tag: ${{ needs.release.outputs.tag }}
+    secrets: inherit
