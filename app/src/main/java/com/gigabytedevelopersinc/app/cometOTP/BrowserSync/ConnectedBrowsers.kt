@@ -38,19 +38,28 @@ object ConnectedBrowsers {
     /**
      * The services among [entries] that were in the last vault a browser got ([PairedBrowser.sharedIds]),
      * in list order, and how many of its ids no longer match any (services deleted since).
+     *
+     * An id is the hash of a secret, which services of other types can share, so an id is matched
+     * as [VaultPayload.services] chose it: the first service browsers get, else one whose Browser
+     * extension switch was turned off since. Never one a browser cannot show, such as an HOTP
+     * service that comes before the Steam service it shares a secret with.
      */
     fun sharedServices(sharedIds: List<String>?, entries: List<Entry>): Pair<List<Entry>, Int> {
         if (sharedIds.isNullOrEmpty())
             return Pair(emptyList(), 0)
         val wanted = sharedIds.toSet()
-        val found = LinkedHashMap<String, Entry>()
-        for (entry in entries) {
-            val secret = entry.secret ?: continue
-            val id = SyncVault.serviceId(secret)
-            if (id in wanted && id !in found)
-                found[id] = entry
+        val found = HashMap<String, Int>()
+        for (sentNow in booleanArrayOf(true, false)) {
+            entries.forEachIndexed { index, entry ->
+                if (if (sentNow) !entry.showsInBrowser else !entry.canShowInBrowser)
+                    return@forEachIndexed
+                val secret = entry.secret ?: return@forEachIndexed
+                val id = SyncVault.serviceId(secret)
+                if (id in wanted && id !in found)
+                    found[id] = index
+            }
         }
-        return Pair(found.values.toList(), wanted.size - found.size)
+        return Pair(found.values.sorted().map { entries[it] }, wanted.size - found.size)
     }
 
     /** A new name for a browser: trimmed, at most 64 bytes; null when nothing is left. */

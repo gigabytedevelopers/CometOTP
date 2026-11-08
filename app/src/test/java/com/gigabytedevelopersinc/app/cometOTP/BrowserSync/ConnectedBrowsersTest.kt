@@ -44,6 +44,24 @@ class ConnectedBrowsersTest {
     }
 
     @Test
+    fun namesTheServiceABrowserGotWhenOthersShareItsSecret() {
+        // The Samsung's test list: an HOTP counter above the Steam service with the same secret.
+        val secret = "GEZDGNBVGY3TQOJQ"
+        val counter = Entry(Entry.OTPType.HOTP, secret, 1L, 8, "Counter", "bob", HashAlgorithm.SHA1, mutableListOf())
+        val steam = Entry(Entry.OTPType.STEAM, secret, 30, 5, "Steam", "gamer", HashAlgorithm.SHA1, mutableListOf())
+        val ids = VaultPayload.services(listOf(counter, steam)).map { it.id }
+        assertEquals(listOf("Steam"), ConnectedBrowsers.sharedServices(ids, listOf(counter, steam)).first.map { it.issuer })
+
+        // Of two that browsers can show, the one the vault was made from; else one switched off since.
+        val off = totp("Off", secret).apply { browserExtension = false }
+        val on = totp("On", secret)
+        assertEquals(listOf("On"), ConnectedBrowsers.sharedServices(ids, listOf(off, on)).first.map { it.issuer })
+        assertEquals(Pair(listOf("Off"), 0), ConnectedBrowsers.sharedServices(ids, listOf(counter, off)).let { (had, deleted) ->
+            Pair(had.map { it.issuer }, deleted) })
+        assertEquals(Pair(emptyList<Entry>(), 1), ConnectedBrowsers.sharedServices(ids, listOf(counter)))
+    }
+
+    @Test
     fun cleansANewName() {
         assertEquals("Work laptop", ConnectedBrowsers.cleanName("  Work laptop "))
         assertNull(ConnectedBrowsers.cleanName("   "))
