@@ -38,7 +38,7 @@ data class PairedBrowser(
     val uploadedAt: Long = 0,
     /** The day (UTC, YYYY-MM-DD) the relay says the browser last downloaded the vault. */
     val lastRead: String? = null,
-    /** The ids ([SyncVault.serviceId]) of the services in the last vault uploaded; null before the first. */
+    /** The ids ([SyncService.id]) of the services in the last vault uploaded; null before the first. */
     val sharedIds: List<String>? = null,
     /** When an upload found the vault gone ([State.DISCONNECTED]), in milliseconds since the epoch. */
     val disconnectedAt: Long = 0,

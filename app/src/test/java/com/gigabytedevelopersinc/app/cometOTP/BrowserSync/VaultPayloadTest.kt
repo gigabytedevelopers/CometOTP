@@ -4,6 +4,7 @@ package com.gigabytedevelopersinc.app.cometOTP.BrowserSync
 import com.gigabytedevelopersinc.app.cometOTP.Database.Entry
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.TokenCalculator.HashAlgorithm
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -16,6 +17,14 @@ class VaultPayloadTest {
 
     private fun totp(issuer: String, secret: String = "JBSWY3DPEHPK3PXP", label: String = "alice@example.com") =
         Entry(Entry.OTPType.TOTP, secret, 30, 6, issuer, label, HashAlgorithm.SHA1, mutableListOf())
+
+    private fun JSONArray.objects() = (0 until length()).map { getJSONObject(it) }
+
+    /** The vectors' id for [secret] (Base32), and their alias ids for services with GitHub's secret. */
+    private fun secretId(secret: String) =
+        vectors.getJSONArray("service_ids").objects().single { it.getString("secret") == secret }.getString("id")
+    private fun aliasId(issuer: String) =
+        vectors.getJSONArray("service_alias_ids").objects().single { it.getString("issuer") == issuer }.getString("id")
 
     /**
      * The vector payload's services, built the way the app builds them from its entries. The
@@ -44,9 +53,48 @@ class VaultPayloadTest {
         val shown = totp("Shown")
         val switchedOff = totp("Off", secret = "GEZDGNBVGY3TQOJQ").apply { browserExtension = false }
         val hotp = Entry(Entry.OTPType.HOTP, "MFRGGZDFMZTWQ2LK", 1L, 6, "Counter", "bob", HashAlgorithm.SHA1, mutableListOf())
-        val sameSecret = totp("Copy", label = "other")
-        val services = VaultPayload.services(listOf(shown, switchedOff, hotp, sameSecret))
+        val services = VaultPayload.services(listOf(shown, switchedOff, hotp))
         assertEquals(listOf("Shown"), services.map { it.issuer })
+    }
+
+    /** WanPay and Miden on the owner's phone: one QR code added twice, under two names. */
+    @Test
+    fun sendsEachServiceSharingASecretUnderAnIdOfItsOwn() {
+        val wanPay = totp("WanPay", label = "emmanuel@example.com")
+        val miden = totp("Miden", label = "emmanuel@example.com")
+        val services = VaultPayload.services(listOf(wanPay, miden))
+        assertEquals(listOf("WanPay", "Miden"), services.map { it.issuer })
+        assertEquals(listOf(secretId("JBSWY3DPEHPK3PXP"), aliasId("Miden")), services.map { it.id })
+
+        // Only services that are sent take ids: with WanPay switched off, Miden gets the secret's.
+        val wanPayOff = totp("WanPay", label = "emmanuel@example.com").apply { browserExtension = false }
+        assertEquals(listOf(secretId("JBSWY3DPEHPK3PXP")), VaultPayload.services(listOf(wanPayOff, miden)).map { it.id })
+    }
+
+    @Test
+    fun leavesOutTheSameServiceListedTwice() {
+        val github = totp("GitHub")
+        val miden = totp("Miden", label = "emmanuel@example.com")
+        val midenAgain = totp("Miden", label = "emmanuel@example.com")
+        val wanPay = totp("WanPay", label = "emmanuel@example.com")
+        val services = VaultPayload.services(listOf(github, miden, midenAgain, wanPay))
+        assertEquals(listOf(secretId("JBSWY3DPEHPK3PXP"), aliasId("Miden"), aliasId("WanPay")), services.map { it.id })
+    }
+
+    /** `lp` cannot carry the length of an issuer or label of 65,536 bytes; the secret's own id needs neither. */
+    @Test
+    fun leavesOutALaterServiceWhoseNameIsTooLongForAnAliasId() {
+        val long = totp("x".repeat(65536))
+        val miden = totp("Miden", label = "emmanuel@example.com")
+        assertEquals(listOf("GitHub", "Miden"), VaultPayload.services(listOf(totp("GitHub"), long, miden)).map { it.issuer })
+        assertEquals(listOf(secretId("JBSWY3DPEHPK3PXP"), aliasId("Miden")), VaultPayload.services(listOf(long, miden)).map { it.id })
+    }
+
+    @Test
+    fun servicesWithSecretsOfTheirOwnKeepTheSecretsIds() {
+        val steamSecret = vectors.getJSONArray("service_ids").getJSONObject(1).getString("secret")
+        val services = VaultPayload.services(listOf(totp("GitHub"), totp("Steam", secret = steamSecret)))
+        assertEquals(listOf(secretId("JBSWY3DPEHPK3PXP"), secretId(steamSecret)), services.map { it.id })
     }
 
     @Test
@@ -55,7 +103,7 @@ class VaultPayloadTest {
             thumbnail = EntryThumbnail.EntryThumbnails.Default
             badgeColor = 0xFF00A0FF.toInt()
         }
-        val service = VaultPayload.service(entry)!!
+        val service = VaultPayload.services(listOf(entry)).single()
         assertEquals("MFRGG", service.secret)
         assertEquals("", service.label)
         assertEquals("#00A0FF", service.badge)

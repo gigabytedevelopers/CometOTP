@@ -12,7 +12,10 @@ import java.nio.ByteBuffer
 
 /** One service as a browser receives it (protocol §4.3). */
 class SyncService(
-    /** [SyncVault.serviceId] of the secret. */
+    /**
+     * [SyncVault.serviceId] of the secret, or for a later service with the same secret as an earlier
+     * one, its [SyncVault.serviceAliasId].
+     */
     val id: String,
     /** "totp" or "steam". */
     val type: String,

@@ -72,6 +72,25 @@ class VaultUploaderTest {
         assertTrue(relay.blobs.isEmpty())
     }
 
+    /**
+     * After the update that sends services sharing a secret, a browser that got only the first of
+     * them gets a new vault: the payload's hash covers every service and its id.
+     */
+    @Test
+    fun uploadsAgainOnceAServiceSharingASecretIsSent() {
+        val wanPay = Entry(Entry.OTPType.TOTP, "JBSWY3DPEHPK3PXP", 30, 6, "WanPay", "emmanuel@example.com", HashAlgorithm.SHA1, mutableListOf())
+        val miden = Entry(Entry.OTPType.TOTP, "JBSWY3DPEHPK3PXP", 30, 6, "Miden", "emmanuel@example.com", HashAlgorithm.SHA1, mutableListOf())
+        // What the version before sent for both: the first alone.
+        val before = VaultPayload.services(listOf(wanPay))
+        val synced = browser.copy(payloadHash = VaultPayload.hash("Pixel 7", before), sharedIds = before.map { it.id })
+        val both = VaultPayload.services(listOf(wanPay, miden))
+        val relay = ScriptedRelay(UploadResult.Stored(5, "2026-11-08"))
+        val updated = uploader(relay).upload(synced, "Pixel 7", both).browser!!
+        assertEquals(1, relay.blobs.size)
+        assertEquals(both.map { it.id }, updated.sharedIds)
+        assertEquals(2, updated.sharedIds!!.toSet().size)
+    }
+
     @Test
     fun leavesPendingBrokenRemovedAndDisconnectedPairingsAlone() {
         for (state in listOf(State.PENDING, State.BROKEN, State.REMOVING, State.DISCONNECTED)) {

@@ -16,28 +16,36 @@ object VaultPayload {
 
     /**
      * The services paired browsers get, in list order: those whose type a browser can show and
-     * whose Browser extension switch is on. A second service with the same secret is left out.
+     * whose Browser extension switch is on, each under the id [ids] gives it.
      */
     fun services(entries: List<Entry>): List<SyncService> {
-        val services = ArrayList<SyncService>()
-        val ids = HashSet<String>()
-        for (entry in entries) {
-            if (!entry.showsInBrowser)
-                continue
-            val service = service(entry) ?: continue
-            if (ids.add(service.id))
-                services.add(service)
-        }
-        return services
+        val ids = ids(entries) { it.showsInBrowser }
+        return entries.indices.mapNotNull { i -> ids[i]?.let { service(entries[i], it) } }
     }
 
-    /** One service, or null when it has no secret to share. */
-    internal fun service(entry: Entry): SyncService? {
-        val secret = entry.secret ?: return null
-        if (secret.isEmpty())
-            return null
+    /**
+     * The id each of [entries] reaches browsers under when those that pass [sent] are sent, or
+     * null for one that does not (protocol §4.4). Going through them in list order, the first with
+     * a given secret gets the secret's id, and each later one an alias id made from its issuer and
+     * label too, so that services sharing a secret all reach browsers. An alias id is given only
+     * once: a later service whose alias id an earlier one already got is the same service listed
+     * twice, and is left out. So is one whose issuer or label is too long for an alias id.
+     */
+    internal fun ids(entries: List<Entry>, sent: (Entry) -> Boolean): List<String?> {
+        val given = HashSet<String>()
+        return entries.map { entry ->
+            val secret = entry.secret?.takeIf { it.isNotEmpty() && sent(entry) } ?: return@map null
+            val id = SyncVault.serviceId(secret).takeIf { it !in given }
+                ?: SyncVault.serviceAliasId(secret, entry.issuer, entry.label ?: "")
+            id?.takeIf { given.add(it) }
+        }
+    }
+
+    /** One service, sent under [id]; null when it has no secret to share. */
+    private fun service(entry: Entry, id: String): SyncService? {
+        val secret = entry.secret?.takeIf { it.isNotEmpty() } ?: return null
         return SyncService(
-            id = SyncVault.serviceId(secret),
+            id = id,
             type = if (entry.type == Entry.OTPType.STEAM) "steam" else "totp",
             secret = String(Base32().encode(secret), Charsets.US_ASCII).trimEnd('='),
             algorithm = entry.algorithm.name,
