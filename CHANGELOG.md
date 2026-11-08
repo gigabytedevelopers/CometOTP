@@ -5,6 +5,24 @@ All notable changes to CometOTP are recorded here.
 Entries from 8.0.0 onwards are generated from the commit history when a release is deployed, so
 the wording follows the commit subjects. See `.github/RELEASING.md` for how that works.
 
+## 9.2.1 (2026-11-08)
+
+
+### Fix
+
+- Act on what opened the locked app as soon as a fingerprint unlocks it
+- Name the services a removed browser had, not others sharing their secrets
+
+### Improvement
+
+- Create a fresh Cipher for each key operation
+
+### New
+
+- Compute alias ids for services that share a secret
+- Send paired browsers every service, also those sharing a secret
+- Name the services with alias ids that a removed browser had
+
 ## 9.2.0 (2026-10-24)
 
 
