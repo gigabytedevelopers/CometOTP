@@ -346,6 +346,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         requireAuthentication = false
                         updateEncryption(null)
+                        resumeUnlocked()
                     }
 
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -380,6 +381,23 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             authIntent.putExtra(Constants.EXTRA_AUTH_MESSAGE, messageId)
             authenticateActivityResultLauncher.launch(authIntent)
         }
+    }
+
+    /**
+     * What [onResume] does once the app is unlocked, for the fingerprint prompt: it shows over
+     * this screen without pausing it, so no onResume follows the unlock, and a link, shortcut or
+     * shared image that opened the locked app would otherwise wait until the app is next resumed.
+     * Each step is safe to repeat should a resume follow anyway (the screen lock's own screen).
+     */
+    private fun resumeUnlocked() {
+        importImagesJob.onResume(this)
+        importFileJob.onResume(this)
+        if (settings.firstTimeWarningShown)
+            checkIntent()
+
+        countDownTimer?.cancel()
+        if (setCountDownTimerNow())
+            countDownTimer!!.start()
     }
 
     private fun restoreSortMode() {
