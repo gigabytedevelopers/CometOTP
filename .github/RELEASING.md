@@ -359,9 +359,6 @@ Until both secrets exist the job only warns, so a merge is never held up by it. 
 environment if the site moves. If the check fails, look at the account's directory and at the
 permissions: the page showed "Page Not Found" once because the `log` folder was 750 rather than 755.
 
-The `WEBSITE_DEPLOY_KEY`, `WEBSITE_KEY_PASSPHRASE` and `WEBSITE_SSH_USER` secrets on `production` are
-left from an SSH upload tried in September 2026 and removed; nothing uses them.
-
 ### Play release notes
 
 Write the "What's new" text for a release in
