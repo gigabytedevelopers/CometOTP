@@ -5,6 +5,21 @@ All notable changes to CometOTP are recorded here.
 Entries from 8.0.0 onwards are generated from the commit history when a release is deployed, so
 the wording follows the commit subjects. See `.github/RELEASING.md` for how that works.
 
+## 9.2.2 (2026-11-12)
+
+
+### Fix
+
+- Match a service's icon however its name is written
+- Give existing services the icons they now match, once
+- Give existing services the newly added icons, once
+
+### New
+
+- Add icons for 81 more services
+- Add the ngrok and Payoneer icons
+- Add icons for 12 services from their own sites
+
 ## 9.2.1 (2026-11-08)
 
 
