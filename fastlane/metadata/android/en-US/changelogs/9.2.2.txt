@@ -1,0 +1,4 @@
+CometOTP 9.2.2 gives many more services their own icon.
+New: Icons for 95 more services, including X, WhatsApp, Telegram, Signal, TikTok, Revolut, Wise, Payoneer and ngrok.
+Fixed: A service finds its icon however its name is written, such as "Proton Mail" or "Amazon Web Services".
+Improved: Services you added earlier that show their initials get their icon once after the update.
