@@ -546,7 +546,7 @@ object EntryThumbnail {
              * Bumped whenever the matching or the icons change, so that the entries still on
              * their initials tile are matched again once (see Entry.rematchThumbnail).
              */
-            const val MATCH_VERSION = 2
+            const val MATCH_VERSION = 3
 
             /**
              * Other names services go by, which their constant's name cannot be: names that start
