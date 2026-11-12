@@ -168,6 +168,8 @@ class EntryThumbnailTest {
         // Proton's own logo, while Proton Mail keeps its icon.
         assertEquals(EntryThumbnails.Proton, EntryThumbnails.forIssuer("Proton Pass"))
         assertEquals(EntryThumbnails.ProtonMail, EntryThumbnails.forIssuer("Proton Mail"))
+        assertEquals(EntryThumbnails.Ngrok, EntryThumbnails.forIssuer("ngrok"))
+        assertEquals(EntryThumbnails.Payoneer, EntryThumbnails.forIssuer("Payoneer"))
     }
 
     /** Everyday words and very short names only match the whole issuer, not a word inside it. */
@@ -475,6 +477,7 @@ class EntryThumbnailTest {
             "NextCloud" to R.drawable.thumb_nextcloud,
             "NextDNS" to R.drawable.thumb_nextdns,
             "NexusMods" to R.drawable.thumb_nexusmods,
+            "Ngrok" to R.drawable.thumb_ngrok,
             "NiceHash" to R.drawable.thumb_nicehash,
             "Nintendo" to R.drawable.thumb_nintendo,
             "Nord" to R.drawable.thumb_nord,
@@ -507,6 +510,7 @@ class EntryThumbnailTest {
             "Parsecgaming" to R.drawable.thumb_parsecgaming,
             "Passwordstate" to R.drawable.thumb_passwordstate,
             "Patreon" to R.drawable.thumb_patreon,
+            "Payoneer" to R.drawable.thumb_payoneer,
             "PayPal" to R.drawable.thumb_paypal,
             "PaySafe" to R.drawable.thumb_paysafecard,
             "Paystack" to R.drawable.thumb_paystack,
