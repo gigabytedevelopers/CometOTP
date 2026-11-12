@@ -1,0 +1,10 @@
+<!-- Roblox: Simple Icons 16.36.0 (roblox), CC0 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="128dp"
+        android:height="128dp"
+        android:viewportWidth="24"
+        android:viewportHeight="24">
+    <path
+        android:pathData="M18.926 23.998M0 18.892M5.075 .002M24 5.108ZM15.348 10.09l-5.282 -1.453l-1.414 5.273l5.282 1.453z"
+        android:fillColor="#000000"/>
+</vector>

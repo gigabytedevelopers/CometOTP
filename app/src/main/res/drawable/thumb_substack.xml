@@ -1,0 +1,10 @@
+<!-- Substack: Simple Icons 16.36.0 (substack), CC0 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="128dp"
+        android:height="128dp"
+        android:viewportWidth="24"
+        android:viewportHeight="24">
+    <path
+        android:pathData="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11L22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"
+        android:fillColor="#FF6719"/>
+</vector>

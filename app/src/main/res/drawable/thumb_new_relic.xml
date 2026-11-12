@@ -1,0 +1,10 @@
+<!-- New Relic: Simple Icons 16.36.0 (newrelic), CC0 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="128dp"
+        android:height="128dp"
+        android:viewportWidth="24"
+        android:viewportHeight="24">
+    <path
+        android:pathData="M8.0015 14.3091v7.384L12.0008 24V12.0008L1.6078 5.9996v4.6167ZM12.0008 0M2.8232 5.2976M6.8209 7.606l5.1799 -2.9893l6.3936 3.6913v7.384l-5.1783 2.9908v4.6167l9.176 -5.2991V5.9996Z"
+        android:fillColor="#1CE783"/>
+</vector>
