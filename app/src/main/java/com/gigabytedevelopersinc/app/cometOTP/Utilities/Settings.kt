@@ -451,6 +451,11 @@ class Settings(private val context: Context) {
     val relockOnScreenOff: Boolean
         get() = getBoolean(R.string.settings_key_relock_screen_off, true)
 
+    /** The EntryThumbnail.MATCH_VERSION the entries' icons were last matched again with (0: never). */
+    var thumbnailMatchVersion: Int
+        get() = getIntValue(R.string.settings_key_thumbnail_match_version, 0)
+        set(value) = setInt(R.string.settings_key_thumbnail_match_version, value)
+
     /**
      * Whether a strong biometric may unlock the app instead of its PIN or password; only used
      * while that is possible (see BiometricUnlock.availability).

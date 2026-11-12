@@ -479,6 +479,21 @@ class Entry {
         this.thumbnail = EntryThumbnail.EntryThumbnails.forIssuer(issuer)
     }
 
+    /**
+     * Gives an entry still on its initials tile the icon its issuer now matches, e.g. after the
+     * matching or the icons improved; true if it changed. An entry whose initials or badge colour
+     * were set by hand keeps its tile, as that was a choice.
+     */
+    fun rematchThumbnail(): Boolean {
+        if (thumbnail != EntryThumbnail.EntryThumbnails.Default || initials.isNotEmpty() || badgeColor != 0)
+            return false
+        val match = EntryThumbnail.EntryThumbnails.forIssuer(issuer)
+        if (match == EntryThumbnail.EntryThumbnails.Default)
+            return false
+        thumbnail = match
+        return true
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other)
             return true

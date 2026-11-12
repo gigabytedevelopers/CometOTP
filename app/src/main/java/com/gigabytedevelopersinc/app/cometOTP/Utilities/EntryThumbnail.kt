@@ -448,6 +448,12 @@ object EntryThumbnail {
 
         companion object {
             /**
+             * Bumped whenever the matching or the icons change, so that the entries still on
+             * their initials tile are matched again once (see Entry.rematchThumbnail).
+             */
+            const val MATCH_VERSION = 1
+
+            /**
              * Other names services go by, which their constant's name cannot be: names that start
              * with a digit (constants spell it out) and short names. Only for issuers; an entry's
              * stored thumbnail is always a constant's name.

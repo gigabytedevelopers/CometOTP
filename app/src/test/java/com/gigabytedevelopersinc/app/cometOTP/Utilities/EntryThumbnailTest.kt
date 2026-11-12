@@ -121,6 +121,38 @@ class EntryThumbnailTest {
         assertEquals(EntryThumbnails.Default, EntryThumbnails.forIssuer("web design"))
     }
 
+    /**
+     * Entries keep the thumbnail chosen when they were added, so those still on their initials
+     * tile are matched again once the matching improves; tiles set up by hand stay.
+     */
+    @Test
+    fun rematchGivesUnmatchedEntriesTheirIconButKeepsChosenTiles() {
+        fun entry(issuer: String, thumbnail: EntryThumbnails = EntryThumbnails.Default) =
+            Entry(Entry.OTPType.TOTP, "JBSWY3DPEHPK3PXP", 30, 6, issuer, "l", HashAlgorithm.SHA1, mutableListOf())
+                .also { it.thumbnail = thumbnail }
+
+        val unmatched = entry("Proton Mail")
+        assertEquals(true, unmatched.rematchThumbnail())
+        assertEquals(EntryThumbnails.ProtonMail, unmatched.thumbnail)
+
+        val withInitials = entry("Proton Mail").also { it.initials = "PM" }
+        assertEquals(false, withInitials.rematchThumbnail())
+        assertEquals(EntryThumbnails.Default, withInitials.thumbnail)
+
+        val withColour = entry("Proton Mail").also { it.badgeColor = 0xFF2196F3.toInt() }
+        assertEquals(false, withColour.rematchThumbnail())
+
+        // An icon picked already, even another one, is never replaced.
+        val picked = entry("Proton Mail", EntryThumbnails.GitHub)
+        assertEquals(false, picked.rematchThumbnail())
+        assertEquals(EntryThumbnails.GitHub, picked.thumbnail)
+
+        // Nothing to match: stays on its tile, unchanged.
+        val unknown = entry("Some Local Service")
+        assertEquals(false, unknown.rematchThumbnail())
+        assertEquals(EntryThumbnails.Default, unknown.thumbnail)
+    }
+
     private companion object {
         val EXPECTED = listOf(
             "Default" to R.mipmap.ic_launcher_round,

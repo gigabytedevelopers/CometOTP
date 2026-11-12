@@ -40,6 +40,7 @@ import com.gigabytedevelopersinc.app.cometOTP.Utilities.BackupScheduler
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.Constants.SortMode
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.DatabaseHelper
+import com.gigabytedevelopersinc.app.cometOTP.Utilities.EntryThumbnail
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.InProcessBackupQueue
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.RecycleBin
 import com.gigabytedevelopersinc.app.cometOTP.Utilities.ScreenshotGuard
@@ -213,17 +214,20 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
                 .show()
     }
 
-    fun saveEntries(auto_backup: Boolean) {
+    /** Saves the entries; true if they were. */
+    fun saveEntries(auto_backup: Boolean): Boolean {
         if (!databaseLoaded) {
             showDatabaseLoadFailed()
-            return
+            return false
         }
 
-        if (DatabaseHelper.saveDatabase(context, entryList.entries, sharedEncryptionKey))
+        val saved = DatabaseHelper.saveDatabase(context, entryList.entries, sharedEncryptionKey)
+        if (saved)
             syncBrowsers(cleanUpPending = false)
 
         if (auto_backup)
             autoSync()
+        return saved
     }
 
     /**
@@ -343,6 +347,7 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             if (newEntries != null) {
                 databaseLoaded = true
                 entryList.updateEntries(newEntries, true)
+                rematchThumbnailsOnce()
                 backUpIfDue()
                 syncBrowsers(cleanUpPending = true)
             } else {
@@ -352,6 +357,24 @@ class EntriesCardAdapter(private val context: Context, private val tagsFilterAda
             }
             entriesChanged(RecyclerView.NO_POSITION)
         }
+    }
+
+    /**
+     * Once after the icon matching or the icons improve (EntryThumbnail.MATCH_VERSION), gives the
+     * entries still on their initials tile the icon their issuer now matches. Thumbnails are
+     * chosen once, when an entry is added, so without this only new entries would get them.
+     */
+    private fun rematchThumbnailsOnce() {
+        if (settings.thumbnailMatchVersion >= EntryThumbnail.EntryThumbnails.MATCH_VERSION)
+            return
+        var changed = false
+        for (entry in entryList.entries) {
+            if (entry.rematchThumbnail())
+                changed = true
+        }
+        // Done once the result is saved; a failed save tries again on the next load.
+        if (!changed || saveEntries(false))
+            settings.thumbnailMatchVersion = EntryThumbnail.EntryThumbnails.MATCH_VERSION
     }
 
     fun filterByTags(tags: List<String>) {
