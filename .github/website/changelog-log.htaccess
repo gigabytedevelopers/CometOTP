@@ -1,0 +1,14 @@
+# Uploaded to gigabytedevelopers.com/apps/cometotp/changelog/log/ by CometOTP's Deploy changelog
+# workflow. The site tells browsers to keep files for a year; the changelog changes with every
+# release, so here browsers check for a newer copy each time (a quick "not modified" when there
+# is none).
+<IfModule mod_expires.c>
+  ExpiresActive Off
+</IfModule>
+<IfModule mod_headers.c>
+  <Files "CHANGELOG.md">
+    Header set Cache-Control "no-cache"
+    Header unset Expires
+  </Files>
+</IfModule>
+AddType "text/markdown; charset=utf-8" .md
