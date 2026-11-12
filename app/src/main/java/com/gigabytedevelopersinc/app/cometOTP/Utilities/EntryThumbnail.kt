@@ -447,8 +447,28 @@ object EntryThumbnail {
         constructor(resource: Int) : this(resource, AssetType.Vector) // Delegate to the other constructor
 
         companion object {
+            /**
+             * Other names services go by, which their constant's name cannot be: names that start
+             * with a digit (constants spell it out) and short names. Only for issuers; an entry's
+             * stored thumbnail is always a constant's name.
+             */
+            private val ALIASES = listOf(
+                "1&1" to OneAndOne,
+                "1und1" to OneAndOne,
+                "1blu" to OneBlu,
+                "1Password" to OnePassword,
+                "1xBet" to OneXBet,
+                "23andMe" to TwentyThreeAndMe,
+                "500px" to FiveHundredPX,
+                "AWS" to AmazonWebServices,
+                "Azure" to Microsoft,
+                "Hotmail" to Microsoft,
+                "Outlook" to Microsoft,
+            )
+
             // --- Caches for optimized lookups ---
             private val NAME_TO_ENUM_IGNORE_CASE_MAP: MutableMap<String, EntryThumbnails> = HashMap()
+            private val ALIAS_TO_ENUM_MAP: MutableMap<String, EntryThumbnails> = HashMap()
             // For fuzzy matching, pre-compiled patterns in declaration order. A list rather than a
             // HashMap keyed by Pattern: Pattern hashes by identity, so iterating such a map visited
             // the patterns in a different order in every process.
@@ -456,25 +476,58 @@ object EntryThumbnail {
 
             init {
                 for (entry in values()) {
-                    NAME_TO_ENUM_IGNORE_CASE_MAP[entry.name.lowercase(Locale.ROOT)] = entry
+                    NAME_TO_ENUM_IGNORE_CASE_MAP[key(entry.name)] = entry
 
                     // Default is not a service: matching it is the same as matching nothing, so
                     // it must not win over a real service named in the same issuer.
                     if (entry == Default)
                         continue
 
-                    // Pre-compile pattern for fuzzy search
-                    // The \\b ensures word boundaries, which is good.
-                    val re = Pattern.compile("\\b" + Pattern.quote(entry.name) + "\\b", Pattern.CASE_INSENSITIVE)
-                    FUZZY_PATTERNS.add(re to entry)
+                    FUZZY_PATTERNS.add(wordPattern(entry.name) to entry)
+                }
+                for ((alias, entry) in ALIASES) {
+                    ALIAS_TO_ENUM_MAP[key(alias)] = entry
+                    FUZZY_PATTERNS.add(wordPattern(alias) to entry)
+                }
+            }
+
+            /** What names are compared by: lower case, letters and digits only ("Proton Mail" is "protonmail"). */
+            private fun key(name: String): String = name.lowercase(Locale.ROOT).filter { it.isLetterOrDigit() }
+
+            /**
+             * [name] as a whole word, its words written together or apart: ProtonMail also finds
+             * "Proton Mail", "proton-mail" and "proton.mail".
+             */
+            private fun wordPattern(name: String): Pattern {
+                val words = name.split(Regex("(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])"))
+                val body = words.joinToString("[\\s._-]*") { Pattern.quote(it) }
+                return Pattern.compile("\\b$body\\b", Pattern.CASE_INSENSITIVE)
+            }
+
+            /**
+             * The thumbnail for a service called [issuer]: the one it names exactly (in any case,
+             * with or without spaces and punctuation), or by another name it goes by, else the
+             * first one named in it (see [valueOfFuzzy]), else Default.
+             */
+            fun forIssuer(issuer: String?): EntryThumbnails {
+                if (issuer.isNullOrBlank())
+                    return Default
+                val key = key(issuer)
+                NAME_TO_ENUM_IGNORE_CASE_MAP[key]?.let { return it }
+                ALIAS_TO_ENUM_MAP[key]?.let { return it }
+                return try {
+                    valueOfFuzzy(issuer)
+                } catch (e: IllegalArgumentException) {
+                    Default
                 }
             }
 
             /**
-             * Finds a thumbnail whose name appears as a whole word in [thumbnail]. When several
-             * do, the one mentioned first in the text wins (issuers usually lead with the service
-             * and follow with generic words: "Steam Wallet", "Apple School Manager"); a tie on
-             * position goes to the longer name, then to declaration order.
+             * Finds a thumbnail whose name, or another name it goes by, appears as a whole word in
+             * [thumbnail], its words written together or apart. When several do, the one
+             * mentioned first in the text wins (issuers usually lead with the service and follow
+             * with generic words: "Steam Wallet", "Apple School Manager"); a tie on position goes
+             * to the longer match ("Microsoft Teams" over Microsoft), then to declaration order.
              */
             fun valueOfFuzzy(thumbnail: String?): EntryThumbnails {
                 if (thumbnail == null) { // Add null check
@@ -482,13 +535,16 @@ object EntryThumbnail {
                 }
                 var best: EntryThumbnails? = null
                 var bestStart = Int.MAX_VALUE
+                var bestLength = 0
                 for ((pattern, value) in FUZZY_PATTERNS) {
                     val matcher = pattern.matcher(thumbnail)
                     if (matcher.find()) {
                         val start = matcher.start()
-                        if (start < bestStart || (start == bestStart && value.name.length > best!!.name.length)) {
+                        val length = matcher.end() - start
+                        if (start < bestStart || (start == bestStart && length > bestLength)) {
                             best = value
                             bestStart = start
+                            bestLength = length
                         }
                     }
                 }
@@ -504,7 +560,7 @@ object EntryThumbnail {
                 if (thumbnail == null) { // Add null check
                     throw IllegalArgumentException("Thumbnail string cannot be null")
                 }
-                val result = NAME_TO_ENUM_IGNORE_CASE_MAP[thumbnail.replace(".", "").lowercase(Locale.ROOT)]
+                val result = NAME_TO_ENUM_IGNORE_CASE_MAP[key(thumbnail)]
                 if (result != null) {
                     return result
                 }

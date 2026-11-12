@@ -476,15 +476,7 @@ class Entry {
     }
 
     private fun setThumbnailFromIssuer(issuer: String?) {
-        try {
-            this.thumbnail = EntryThumbnail.EntryThumbnails.valueOfIgnoreCase(issuer)
-        } catch (e: Exception) {
-            try {
-                this.thumbnail = EntryThumbnail.EntryThumbnails.valueOfFuzzy(issuer)
-            } catch (e2: Exception) {
-                this.thumbnail = EntryThumbnail.EntryThumbnails.Default
-            }
-        }
+        this.thumbnail = EntryThumbnail.EntryThumbnails.forIssuer(issuer)
     }
 
     override fun equals(other: Any?): Boolean {

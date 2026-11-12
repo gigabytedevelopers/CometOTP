@@ -545,17 +545,7 @@ object ManualEntryDialog {
     }
 
     private fun thumbnailFor(issuer: String): EntryThumbnail.EntryThumbnails {
-        if (TextUtils.isEmpty(issuer))
-            return EntryThumbnail.EntryThumbnails.Default
-        return try {
-            EntryThumbnail.EntryThumbnails.valueOfIgnoreCase(issuer)
-        } catch (e: Exception) {
-            try {
-                EntryThumbnail.EntryThumbnails.valueOfFuzzy(issuer)
-            } catch (e2: Exception) {
-                EntryThumbnail.EntryThumbnails.Default
-            }
-        }
+        return EntryThumbnail.EntryThumbnails.forIssuer(issuer)
     }
 
     private fun typeLabel(context: Context, type: Entry.OTPType): String {

@@ -86,6 +86,41 @@ class EntryThumbnailTest {
         assertEquals(EntryThumbnails.Default, thumbnailFor("default account"))
     }
 
+    /** Names written apart, with punctuation or in another case find the constant they spell. */
+    @Test
+    fun forIssuerIgnoresSpacesAndPunctuation() {
+        assertEquals(EntryThumbnails.ProtonMail, EntryThumbnails.forIssuer("Proton Mail"))
+        assertEquals(EntryThumbnails.EpicGames, EntryThumbnails.forIssuer("Epic Games"))
+        assertEquals(EntryThumbnails.AmazonWebServices, EntryThumbnails.forIssuer("Amazon Web Services"))
+        assertEquals(EntryThumbnails.WebDe, EntryThumbnails.forIssuer("web.de"))
+        assertEquals(EntryThumbnails.ProtonMail, EntryThumbnails.forIssuer("proton-mail"))
+        // Also inside a longer issuer, where the longer match wins at the same position.
+        assertEquals(EntryThumbnails.AmazonWebServices, EntryThumbnails.forIssuer("Amazon Web Services (prod)"))
+        assertEquals(EntryThumbnails.MicrosoftTeams, EntryThumbnails.forIssuer("Microsoft Teams"))
+    }
+
+    /** Names that start with a digit, which the constants spell out, and short names. */
+    @Test
+    fun forIssuerKnowsOtherNamesServicesGoBy() {
+        assertEquals(EntryThumbnails.OnePassword, EntryThumbnails.forIssuer("1Password"))
+        assertEquals(EntryThumbnails.OneAndOne, EntryThumbnails.forIssuer("1&1"))
+        assertEquals(EntryThumbnails.FiveHundredPX, EntryThumbnails.forIssuer("500px"))
+        assertEquals(EntryThumbnails.TwentyThreeAndMe, EntryThumbnails.forIssuer("23andMe"))
+        assertEquals(EntryThumbnails.AmazonWebServices, EntryThumbnails.forIssuer("AWS"))
+        assertEquals(EntryThumbnails.AmazonWebServices, EntryThumbnails.forIssuer("AWS Console"))
+        assertEquals(EntryThumbnails.Microsoft, EntryThumbnails.forIssuer("Outlook.com"))
+        assertEquals(EntryThumbnails.OnePassword, EntryThumbnails.forIssuer("1Password Business"))
+    }
+
+    @Test
+    fun forIssuerFallsBackToTheInitialsTile() {
+        assertEquals(EntryThumbnails.Default, EntryThumbnails.forIssuer(null))
+        assertEquals(EntryThumbnails.Default, EntryThumbnails.forIssuer("  "))
+        assertEquals(EntryThumbnails.Default, EntryThumbnails.forIssuer("zzzz qqqq"))
+        // Words written together only match the whole name: "web design" is not web.de.
+        assertEquals(EntryThumbnails.Default, EntryThumbnails.forIssuer("web design"))
+    }
+
     private companion object {
         val EXPECTED = listOf(
             "Default" to R.mipmap.ic_launcher_round,
