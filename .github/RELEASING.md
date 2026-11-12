@@ -1,6 +1,6 @@
 # Releasing CometOTP
 
-Seven workflows live in `.github/workflows`:
+Eight workflows live in `.github/workflows`:
 
 | Workflow | File | When it runs |
 | --- | --- | --- |
@@ -11,6 +11,7 @@ Seven workflows live in `.github/workflows`:
 | Auto release | `auto-release.yml` | After CI passes on `master`; signs and pushes a new version tag as `@enwokoma`, then calls the two release workflows |
 | Release Android | `release-android.yml` | Called by Auto release to publish that tag directly to Play production, or run by hand from `master` with a tag |
 | Release iOS | `release-ios.yml` | Called by Auto release to submit that tag to App Review, but **switched off** until an iOS target and credentials are available |
+| Deploy changelog | `deploy-changelog.yml` | When `CHANGELOG.md` changes on `master` (a release's changelog pull request merging), or by hand; puts it on the website's changelog page |
 
 Nothing in this list waits for a click. The people in the loop are the reviewer, whose approval
 of a pull request's latest push is what lets it reach `master`, and the stores' own reviews.
@@ -320,6 +321,46 @@ pass, and review threads must be resolved. It is your pull request, so [Auto mer
 fast-forwards `master` to it once that is so. You cannot approve your own generated PR.
 The release workflow never merges it itself or force-updates an existing changelog branch. A bookkeeping
 failure after publishing is reported as a warning; it does not undo the Play release.
+
+### Website changelog
+
+About → Changelog in the app opens
+[gigabytedevelopers.com/apps/cometotp/changelog](https://gigabytedevelopers.com/apps/cometotp/changelog/),
+a page that reads `log/CHANGELOG.md` beside it. **Deploy changelog** keeps that file current: when
+`CHANGELOG.md` changes on `master`, which after a release is when its reviewed changelog pull
+request merges, it
+
+1. builds the page's file with `.github/scripts/build_site_changelog.py`: the page's front matter
+   and `# CometOTP` title (the page shows it as "CometOTP changelog"), every release in
+   `CHANGELOG.md`, then the releases before 8.0.0 from `.github/website/changelog-before-8.0.0.md`,
+   which `CHANGELOG.md` does not have;
+2. uploads it, with `.github/website/changelog-log.htaccess` as the folder's `.htaccess`, over FTP
+   with TLS (`curl --ssl-reqd`, certificate checked) to an FTP account that can only reach that
+   folder;
+3. downloads the page's file again and fails unless it is exactly what was uploaded.
+
+The `.htaccess` is there because the site tells browsers to keep files for a year, which would show
+returning visitors an old changelog; in that folder browsers check for a newer copy instead. The
+job warns if the site still sends the long cache time.
+
+Run it by hand from the Actions tab (on `master`) to upload the current changelog at any time.
+
+One-time setup:
+
+1. In cPanel, **Files → FTP Accounts**, add an account whose directory is
+   `public_html/apps/cometotp/changelog/log`, so it can reach nothing else.
+2. In GitHub, **Settings → Environments → production**, add the secrets `WEBSITE_FTP_USER` (the
+   full login, such as `changelog@gigabytedevelopers.com`) and `WEBSITE_FTP_PASSWORD`.
+3. Run **Deploy changelog** by hand once and check the page.
+
+Until both secrets exist the job only warns, so a merge is never held up by it. It connects to
+`premium119-1.web-hosting.com`, the hosting server's own name, because the FTP certificate is for
+`*.web-hosting.com` rather than gigabytedevelopers.com; set the `WEBSITE_FTP_HOST` variable on the
+environment if the site moves. If the check fails, look at the account's directory and at the
+permissions: the page showed "Page Not Found" once because the `log` folder was 750 rather than 755.
+
+The `WEBSITE_DEPLOY_KEY`, `WEBSITE_KEY_PASSPHRASE` and `WEBSITE_SSH_USER` secrets on `production` are
+left from an SSH upload tried in September 2026 and removed; nothing uses them.
 
 ### Play release notes
 
