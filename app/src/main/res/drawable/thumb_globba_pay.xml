@@ -1,0 +1,22 @@
+<!-- GlobbaPay: icon.svg on globbapay.com -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path
+      android:pathData="M11,0L37,0A11,11 0,0 1,48 11L48,37A11,11 0,0 1,37 48L11,48A11,11 0,0 1,0 37L0,11A11,11 0,0 1,11 0z"
+      android:fillColor="#46237A"/>
+  <path
+      android:pathData="M24,25m-9.5,0a9.5,9.5 0,1 1,19 0a9.5,9.5 0,1 1,-19 0"
+      android:fillColor="#FCFCFC"/>
+  <path
+      android:pathData="M6.881,30.562a10.5,18 72,1 0,34.238 -11.125a10.5,18 72,1 0,-34.238 11.125z"
+      android:strokeWidth="3"
+      android:fillColor="#00000000"
+      android:strokeColor="#9DBEFF"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M36.126,14.751m-3.234,1.051a3.4,3.4 117,1 1,6.467 -2.101a3.4,3.4 117,1 1,-6.467 2.101"
+      android:fillColor="#28965A"/>
+</vector>

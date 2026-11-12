@@ -1,0 +1,33 @@
+<!-- Globba: assets/favicon.svg on globbahq.com -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path
+      android:pathData="M11,0L37,0A11,11 0,0 1,48 11L48,37A11,11 0,0 1,37 48L11,48A11,11 0,0 1,0 37L0,11A11,11 0,0 1,11 0z"
+      android:fillColor="#1C1226"/>
+  <path
+      android:pathData="M5.255,29.375A7.4,19.5 74,0 1,42.745 18.625"
+      android:strokeAlpha="0.45"
+      android:strokeWidth="2.6"
+      android:fillColor="#00000000"
+      android:strokeColor="#9DBEFF"
+      android:fillAlpha="0.45"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M24,24m-9.6,0a9.6,9.6 0,1 1,19.2 0a9.6,9.6 0,1 1,-19.2 0"
+      android:fillColor="#FCFCFC"/>
+  <path
+      android:pathData="M42.745,18.625A7.4,19.5 74,0 1,5.255 29.375"
+      android:strokeWidth="2.6"
+      android:fillColor="#00000000"
+      android:strokeColor="#9DBEFF"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M12.168,32.802m-3.172,0.91a3.3,3.3 119,1 1,6.344 -1.819a3.3,3.3 119,1 1,-6.344 1.819"
+      android:strokeWidth="1.2"
+      android:fillColor="#256EFF"
+      android:strokeColor="#1C1226"
+      android:strokeLineCap="round"/>
+</vector>

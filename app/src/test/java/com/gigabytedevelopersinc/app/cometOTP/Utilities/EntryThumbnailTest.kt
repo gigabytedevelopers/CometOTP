@@ -172,6 +172,19 @@ class EntryThumbnailTest {
         assertEquals(EntryThumbnails.Payoneer, EntryThumbnails.forIssuer("Payoneer"))
     }
 
+    /** The icons taken from the services' own sites, found by the names their accounts carry. */
+    @Test
+    fun forIssuerFindsTheBrandSiteIcons() {
+        for (issuer in listOf("Airtm", "Bank78", "Blockradar", "Chowdeck", "Dojah", "Finecore", "HostAfrica", "Korapay",
+                "Miden"))
+            assertEquals(issuer, EntryThumbnails.valueOf(issuer), EntryThumbnails.forIssuer(issuer))
+        assertEquals(EntryThumbnails.Korapay, EntryThumbnails.forIssuer("Kora"))
+        assertEquals(EntryThumbnails.Maplerad, EntryThumbnails.forIssuer("Maplerad Dashboard"))
+        // Globba's own icon for Globba ID, GlobbaPay's for GlobbaPay.
+        assertEquals(EntryThumbnails.Globba, EntryThumbnails.forIssuer("Globba ID"))
+        assertEquals(EntryThumbnails.GlobbaPay, EntryThumbnails.forIssuer("GlobbaPay (Business)"))
+    }
+
     /** Everyday words and very short names only match the whole issuer, not a word inside it. */
     @Test
     fun everydayWordNamesOnlyMatchTheWholeIssuer() {
@@ -201,6 +214,7 @@ class EntryThumbnailTest {
             "AirBNB" to R.drawable.thumb_airbnb,
             "Airbrake" to R.drawable.thumb_airbrake,
             "AirTable" to R.drawable.thumb_airtable,
+            "Airtm" to R.drawable.thumb_airtm,
             "AirVPN" to R.drawable.thumb_airvpn,
             "Algolia" to R.drawable.thumb_algolia,
             "AliExpress" to R.drawable.thumb_ali_express,
@@ -228,6 +242,7 @@ class EntryThumbnailTest {
             "AVM" to R.drawable.thumb_avm,
             "Babiato" to R.drawable.thumb_babiato,
             "Backblaze" to R.drawable.thumb_backblaze,
+            "Bank78" to R.drawable.thumb_bank78,
             "BankOfAmerica" to R.drawable.thumb_bank_of_america,
             "Barter" to R.drawable.thumb_barter,
             "BattleNet" to R.drawable.thumb_battlenet,
@@ -250,6 +265,7 @@ class EntryThumbnailTest {
             "Blacknight" to R.drawable.thumb_blacknight,
             "BlockchainInfo" to R.drawable.thumb_blockchain_info,
             "BlockFi" to R.drawable.thumb_blockfi,
+            "Blockradar" to R.drawable.thumb_blockradar,
             "Bluesky" to R.drawable.thumb_bluesky,
             "BookingCom" to R.drawable.thumb_booking_com,
             "Box" to R.drawable.thumb_box,
@@ -265,6 +281,7 @@ class EntryThumbnailTest {
             "CEXio" to R.drawable.thumb_cexio,
             "Charles_Schwab" to R.drawable.thumb_charles_schwab,
             "Chase" to R.drawable.thumb_chase,
+            "Chowdeck" to R.drawable.thumb_chowdeck,
             "ChurchTools" to R.drawable.thumb_church_tools,
             "CircleCi" to R.drawable.thumb_circleci,
             "Cisco" to R.drawable.thumb_cisco,
@@ -313,6 +330,7 @@ class EntryThumbnailTest {
             "Disroot" to R.drawable.thumb_disroot,
             "Docker" to R.drawable.thumb_docker,
             "DocuSign" to R.drawable.thumb_docusign,
+            "Dojah" to R.drawable.thumb_dojah,
             "DreamHost" to R.drawable.thumb_dreamhost,
             "Dropbox" to R.drawable.thumb_dropbox,
             "Drupal" to R.drawable.thumb_drupal,
@@ -337,6 +355,7 @@ class EntryThumbnailTest {
             "Fastmail" to R.drawable.thumb_fastmail,
             "FidelityInvestments" to R.drawable.thumb_fidelity_investments,
             "Figma" to R.drawable.thumb_figma,
+            "Finecore" to R.drawable.thumb_finecore,
             "Fingerprint" to R.drawable.thumb_fingerprint,
             "Finnair" to R.drawable.thumb_finnair,
             "Firebase" to R.drawable.thumb_firebase,
@@ -363,6 +382,8 @@ class EntryThumbnailTest {
             "Gitea" to R.drawable.thumb_gitea,
             "GitHub" to R.drawable.thumb_github,
             "GitLab" to R.drawable.thumb_gitlab,
+            "Globba" to R.drawable.thumb_globba,
+            "GlobbaPay" to R.drawable.thumb_globba_pay,
             "GMX" to R.drawable.thumb_gmx,
             "Go54" to R.drawable.thumb_go54,
             "GoatCounter" to R.drawable.thumb_goatcounter,
@@ -382,6 +403,7 @@ class EntryThumbnailTest {
             "HitBTC" to R.drawable.thumb_hitbtc,
             "HMRC" to R.drawable.thumb_gov_uk,
             "HomeAssistant" to R.drawable.thumb_home_assistant,
+            "HostAfrica" to R.drawable.thumb_host_africa,
             "HostingDE" to R.drawable.thumb_hosting_de,
             "Hostinger" to R.drawable.thumb_hostinger,
             "Hover" to R.drawable.thumb_hover,
@@ -413,6 +435,7 @@ class EntryThumbnailTest {
             "Kick" to R.drawable.thumb_kick,
             "Kickstarter" to R.drawable.thumb_kickstarter,
             "KoFi" to R.drawable.thumb_ko_fi,
+            "Korapay" to R.drawable.thumb_korapay,
             "Kraken" to R.drawable.thumb_kraken,
             "Kucoin" to R.drawable.thumb_kucoin,
             "LastPass" to R.drawable.thumb_lastpass,
@@ -441,6 +464,7 @@ class EntryThumbnailTest {
             "Mangadex" to R.drawable.thumb_mangadex,
             "Manitu" to R.drawable.thumb_manitu,
             "Mapbox" to R.drawable.thumb_mapbox,
+            "Maplerad" to R.drawable.thumb_maplerad,
             "Mastodon" to R.drawable.thumb_mastodon,
             "Matomo" to R.drawable.thumb_matomo,
             "Mattermost" to R.drawable.thumb_mattermost,
@@ -452,6 +476,7 @@ class EntryThumbnailTest {
             "Meta" to R.drawable.thumb_meta,
             "Microsoft" to R.drawable.thumb_microsoft,
             "MicrosoftTeams" to R.drawable.thumb_microsoft_teams,
+            "Miden" to R.drawable.thumb_miden,
             "Migadu" to R.drawable.thumb_migadu,
             "Migros" to R.drawable.thumb_migros,
             "Mint" to R.drawable.thumb_mint,

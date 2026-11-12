@@ -1,0 +1,13 @@
+<!-- HostAfrica: favicon.svg on hostafrica.ng -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="119.47dp"
+    android:height="128dp"
+    android:viewportWidth="14"
+    android:viewportHeight="15">
+  <path
+      android:pathData="M9.078,14.846L12.63,11.115C12.874,10.858 12.785,10.431 12.459,10.296L7.101,8.082C6.712,7.921 6.313,8.292 6.437,8.699L8.244,14.643C8.356,15.011 8.815,15.122 9.078,14.845L9.078,14.846Z"
+      android:fillColor="#FF32FF"/>
+  <path
+      android:pathData="M0.311,4.106L12.453,9.101C12.779,9.236 13.137,8.991 13.137,8.633V3.998C13.137,3.175 12.646,2.434 11.895,2.125L7.097,0.148C6.534,-0.084 5.897,-0.042 5.368,0.262L0.253,3.197C-0.11,3.406 -0.075,3.947 0.311,4.106L0.311,4.106Z"
+      android:fillColor="#FF32FF"/>
+</vector>

@@ -1,0 +1,14 @@
+<!-- Airtm: the A of the logo on airtm.com (images/menu/logo-airtm.svg), white on the blue of its favicon.svg -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M8,0L24,0A8,8 0,0 1,32 8L32,24A8,8 0,0 1,24 32L8,32A8,8 0,0 1,0 24L0,8A8,8 0,0 1,8 0z"
+      android:fillColor="#1C6BF2"/>
+  <path
+      android:pathData="M10.862,20.622L15.398,11.251L17.893,16.398L10.862,20.622L10.862,20.622ZM24.999,24.148L21.807,17.563L24.916,15.695L23.322,13.136L20.487,14.839L17.38,8.429C17.19,8.037 16.9,7.711 16.541,7.487C16.18,7.262 15.765,7.148 15.342,7.159C14.918,7.17 14.509,7.305 14.159,7.548C13.824,7.781 13.557,8.106 13.385,8.49L7.16,21.351L7.145,21.386C6.731,22.363 7.005,23.469 7.827,24.14C8.634,24.799 9.747,24.855 10.614,24.287L19.213,19.122L21.649,24.148L24.999,24.148L24.999,24.148Z"
+      android:fillColor="#FFFFFF"
+      android:fillType="evenOdd"/>
+</vector>
