@@ -1,0 +1,47 @@
+name: Deploy changelog
+
+# Puts the changelog on gigabytedevelopers.com/apps/cometotp/changelog whenever CHANGELOG.md changes
+# on master, which is when a release's reviewed changelog pull request merges. Uploads over FTP with
+# TLS to an FTP account limited to the page's log folder, then checks the page's file. Can also be
+# run by hand from the Actions tab. See "Website changelog" in .github/RELEASING.md.
+on:
+  push:
+    branches: [master]
+    paths:
+      - CHANGELOG.md
+      - .github/website/**
+      - .github/scripts/build_site_changelog.py
+      - .github/scripts/deploy_changelog.sh
+      - .github/workflows/deploy-changelog.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # One upload at a time, the newest last.
+  group: deploy-changelog
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Upload the changelog to the website
+    if: github.repository == 'gigabytedevelopers/CometOTP' && github.ref == 'refs/heads/master'
+    # The FTP password lives here, and this environment only deploys from master.
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build, upload and check the changelog page
+        env:
+          # The hosting server's own name, which its FTP certificate is for.
+          WEBSITE_FTP_HOST: ${{ vars.WEBSITE_FTP_HOST || 'premium119-1.web-hosting.com' }}
+          WEBSITE_FTP_USER: ${{ secrets.WEBSITE_FTP_USER }}
+          WEBSITE_FTP_PASSWORD: ${{ secrets.WEBSITE_FTP_PASSWORD }}
+        run: bash .github/scripts/deploy_changelog.sh
